@@ -8,8 +8,8 @@
 #' you what you need to edit in order to proceed.
 #' 
 source('global.R');
-.depends <- 'data';
-.depdata <- paste0(.depends,'.rdata'); .depscript <- paste0(.depends,'.R');
+.depends <- 'data.R';
+.depdata <- paste0(.depends,'.rdata');
 .currentscript <- parent.frame(2)$ofile;
 if(is.null(.currentscript)) .currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 tself(scriptname=.currentscript);
