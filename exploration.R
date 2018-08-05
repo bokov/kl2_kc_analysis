@@ -6,7 +6,7 @@
 #' 
 #' Please read this file through before trying to run it. The comments tell
 #' you what you need to edit in order to proceed.
-#' 
+#+ echo=FALSE,inlcude=FALSE
 source('global.R');
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -19,9 +19,6 @@ tload(.depdata);
 
 #' How well does sex match up between the EMRs and NAACCR?
 with(dat2,table(sex_cd,v011_sx,useNA = 'always')) %>% addmargins() %>% pander();
-
-#' How well does race match up between the EMRs and NAACCR?
-with(dat2,table(race_cd,v005_rc,useNA = 'always')) %>% addmargins() %>% pander();
 
 #' How well does race match up between the EMRs and NAACCR?
 with(dat2,table(race_cd,v005_rc,useNA = 'always')) %>% addmargins() %>% pander();
