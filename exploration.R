@@ -27,5 +27,6 @@ with(dat2,table(race_cd,v005_rc,useNA = 'always')) %>% addmargins() %>% pander()
 with(dat2,table(v044_hspnc_or_ltn,v010_spnsh_hspnc,useNA = 'always')) %>% 
   addmargins() %>% pander();
 
+#' ---
 #' ### Audit trail
 walktrail() %>% pander;
