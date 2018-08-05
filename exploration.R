@@ -6,7 +6,7 @@
 #' 
 #' Please read this file through before trying to run it. The comments tell
 #' you what you need to edit in order to proceed.
-#+ echo=FALSE,inlcude=FALSE
+#+ echo=FALSE, inlcude=FALSE, message=FALSE
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
