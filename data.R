@@ -20,7 +20,8 @@ project_seed <- 20180803;
 dat0 <- tread(inputdata,read_csv,na=c('(null)',''));
 
 #' Read in the data dictionary
-dct0 <- tread(dctfile,read_csv,na = '');
+dct0 <- names(dat0)[1:8] %>% tibble(colname=.,colname_long=.,rule='demographics') %>% 
+  rbind(tread(dctfile,read_csv,na = ''));
 colnames(dat0) <- tolower(colnames(dat0));
 #' If you want to use some other set of columns as indices that is
 #' specific to the version of the data you are using, declare
