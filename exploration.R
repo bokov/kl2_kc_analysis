@@ -29,4 +29,4 @@ with(dat2,table(v044_hspnc_or_ltn,v010_spnsh_hspnc,useNA = 'always')) %>%
 
 #' ---
 #' ### Audit trail
-walktrail() %>% pander;
+walktrail();
