@@ -16,3 +16,17 @@ tself(scriptname=.currentscript);
 project_seed <- 20180803;
 if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 tload(.depdata);
+
+#' How well does sex match up between the EMRs and NAACCR?
+with(dat2,table(sex_cd,v011_sx,useNA = 'always')) %>% addmargins() %>% pander();
+
+#' How well does race match up between the EMRs and NAACCR?
+with(dat2,table(race_cd,v005_rc,useNA = 'always')) %>% addmargins() %>% pander();
+
+#' How well does race match up between the EMRs and NAACCR?
+with(dat2,table(race_cd,v005_rc,useNA = 'always')) %>% addmargins() %>% pander();
+
+#' How well does Hispanic ethnicity match up between the EMRs and NAACCR?
+with(dat2,table(v044_hspnc_or_ltn,v010_spnsh_hspnc,useNA = 'always')) %>% 
+  addmargins() %>% pander();
+

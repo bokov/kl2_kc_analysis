@@ -24,6 +24,7 @@ instrequire(c('compiler'                                   # just-in-time compil
              #,'ggplot2','ggfortify','grid','GGally'       # plotting
              #,'survminer','gridExtra','scales'
              #,'stargazer','broom', 'tableone','janitor'   # table formatting
+             ,'pander'
              #,'knitr','htmltab'
              ));
 #' Turn JIT to max: pre-compile all closures, `for`, `while`, and `repeat` loops
