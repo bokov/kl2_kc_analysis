@@ -17,7 +17,7 @@ project_seed <- 20180803;
 #' 
 #' (useful later, right now don't bother saving sessions)
 #'if(session %in% list.files()) load(session);
-dat0 <- tread(inputdata,read_tsv,na=c('(null)',''));
+dat0 <- tread(inputdata,read_csv,na=c('(null)',''));
 
 #' Read in the data dictionary
 dct0 <- tread(dctfile,read_csv,na = '');
@@ -27,7 +27,8 @@ colnames(dat0) <- tolower(colnames(dat0));
 #' a different `alist` in your config.R, but it's better to not
 #' mess with this.
 if(!exists('l_indices')) l_indices <- alist(
-  pnum=patient_num,vnum=encounter_num
+  pnum=patient_num 
+  #,vnum=encounter_num
 );
  
 #' Create copy of original dataset
@@ -80,7 +81,7 @@ pat_samples <- split(dat1$pnum,sample(c('train','test','val')
 #' multiple versions of the same graph,
 #' ### Create a version of the dataset that only has each patient's 1st encounter
 #' 
-dat2 <- group_by(dat1,pnum) %>% summarise_all(first);
+dat2 <- group_by(dat1,pnum) %>% summarise_all(last);
 
 #' Each name is a legal variable name for that subset, the value
 #' assigned to it is an R expression that can be evaluated in the

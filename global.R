@@ -36,6 +36,6 @@ source('./config.R');
 #' ## Set generic variables
 #' 
 #' data dictionary:
-dctfile <- 'DICTIONARY.csv';
+if(!exists('dctfile')) dctfile <- 'DICTIONARY.csv';
 #' saved session data (not used right now)
 session <- 'session.rdata';
