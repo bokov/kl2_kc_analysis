@@ -13,7 +13,7 @@ if(is.null(.currentscript)) .currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 tself(scriptname=.currentscript);
 project_seed <- 20180803;
 if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
-tload(.depdata);
+.loadedobjects <- tload(.depdata);
 
 #' How well does sex match up between the EMRs and NAACCR?
 with(dat2,table(sex_cd,v011_sx,useNA = 'always')) %>% addmargins() %>% pander();
