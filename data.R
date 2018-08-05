@@ -81,7 +81,7 @@ pat_samples <- split(dat1$pnum,sample(c('train','test','val')
 #' multiple versions of the same graph,
 #' ### Create a version of the dataset that only has each patient's 1st encounter
 #' 
-dat2 <- group_by(dat1,pnum) %>% summarise_all(last);
+dat2 <- group_by(dat1,pnum) %>% summarise_all(function(xx) last(na.omit(xx)));
 
 #' Each name is a legal variable name for that subset, the value
 #' assigned to it is an R expression that can be evaluated in the
