@@ -1,11 +1,9 @@
 #' ---
-#' title: "RAI Main Analysis"
-#' author: "Wilson, Bokov, Shireman"
-#' date: "08/15/2017"
+#' title: "Kidney Cancer Data Exploration"
+#' author: "Alex F. Bokov"
+#' date: "08/04/2018"
 #' ---
 #' 
-#' Please read this file through before trying to run it. The comments tell
-#' you what you need to edit in order to proceed.
 #+ echo=FALSE, inlcude=FALSE, message=FALSE
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
