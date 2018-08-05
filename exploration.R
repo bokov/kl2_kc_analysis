@@ -14,5 +14,5 @@ source('global.R');
 if(is.null(.currentscript)) .currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 tself(scriptname=.currentscript);
 project_seed <- 20180803;
-if(!file.exists(.depdata)) system(sprintf('R -e "source(\"%s\")"',.depscript));
+if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depscript));
 tload(.depdata);
