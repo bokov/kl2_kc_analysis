@@ -17,14 +17,18 @@ project_seed <- 20180803;
 #' 
 #' (useful later, right now don't bother saving sessions)
 #'if(session %in% list.files()) load(session);
-dat0 <- tread(inputdata,read_csv,na=c('(null)',''));
+dat0 <- tread(inputdata,read_csv,na=c('(null)',''),guess_max=5000);
 colnames(dat0) <- tolower(colnames(dat0));
 
 #' Read in the data dictionary
 if(file.exists(dctfile)) dct0 <- tread(dctfile,read_csv,na='') else {
+  dct_stage <- 0;
   names(dat0)[1:8] %>% tibble(colname=.,colname_long=.,rule='demographics') %>% 
     rbind(tread(dctfile_raw,read_csv,na = '')) -> dct0;
-  dct0$class <- lapply(dat0[,dct0$colname]) %>% sapply(head,1);
+  dct0$colname <- tolower(dct0$colname);
+  dct0 <- subset(dct0,dct0$colname %in% names(dat0));
+  dct0$class <- lapply(dat0[,dct0$colname],class) %>% sapply(head,1);
+  dct_stage <- 1;
   }
 #' If you want to use some other set of columns as indices that is
 #' specific to the version of the data you are using, declare

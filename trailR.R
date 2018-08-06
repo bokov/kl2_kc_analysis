@@ -105,7 +105,8 @@ walktrail <- function(trail=tinit(),prepend='',seqcol=names(trail)[1]
 
 
 # script registering itself... adds a gitstamp and its own name to trail
-tself <- function(scriptname=parent.frame(2)$ofile,production=T){
+tself <- function(scriptname=parent.frame(2)$ofile
+                  ,production=getOption('gitstamp_prod',T)){
   if(is.null(scriptname)) scriptname <- 'INTERACTIVE_SESSION';
   gs <- gitstamp(production=production,branch=T);
   tupdate('this_script',name=scriptname,value=gs[1],hash=gs[2]);

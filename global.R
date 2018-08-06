@@ -41,3 +41,9 @@ dctfile_raw <- paste0(dirname(inputdata),'/meta_',basename(inputdata));
 #' checked-in file, with added rows and columns, ready-to-use FOR THIS DATASET
 #' if it doesn't exist, it will get created in data.R
 dctfile <- paste0('dct_',basename(inputdata));
+#' `dct_stage` is a status indicator for the stage of completion for the data 
+#' dictionary object. If it has already been created and needs no work, it is 
+#' `Inf` otherwise it counts _up_ from `1` to whatever the final stage is for
+#' for this project. Upon the final stage it should get set to `Inf` in the 
+#' script that does it. WIP
+dct_stage <- Inf;
