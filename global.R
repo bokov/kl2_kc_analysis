@@ -36,7 +36,8 @@ source('./config.R');
 
 #' ## Set generic variables
 #' 
-#' data dictionary:
-if(!exists('dctfile')) dctfile <- 'DICTIONARY.csv';
-#' saved session data (not used right now)
-session <- 'session.rdata';
+#' data dictionary produced by datafinisher, should physically accompany inputdata
+dctfile_raw <- paste0(dirname(inputdata),'/meta_',basename(inputdata));
+#' checked-in file, with added rows and columns, ready-to-use FOR THIS DATASET
+#' if it doesn't exist, it will get created in data.R
+dctfile <- paste0('dct_',basename(inputdata));
