@@ -22,9 +22,11 @@ dat0spec <- tread(inputdata,spec_csv,na=c('(null)',''),guess_max=5000);
 #' Force the `patient_num` column to be numeric rather than integer, to avoid
 #' missing values due to `patient_num` being too large
 dat0spec$cols[['patient_num']] <- col_number();
+
 #' Read the data 
 dat0 <- tread(inputdata,read_csv,na=c('(null)',''),col_type=dat0spec);
 colnames(dat0) <- tolower(colnames(dat0));
+
 
 #' Read in the data dictionary
 if(file.exists(dctfile)) dct0 <- tread(dctfile,read_csv,na='') else {
@@ -41,11 +43,12 @@ if(file.exists(dctfile)) dct0 <- tread(dctfile,read_csv,na='') else {
 #' If you want to use some other set of columns as indices that is
 #' specific to the version of the data you are using, declare
 #' a different `alist` in your config.R, but it's better to not
-#' mess with this.
-if(!exists('l_indices')) l_indices <- alist(
-  pnum=patient_num 
-  #,vnum=encounter_num
-);
+#' mess with this. We don't really even need it if we're relying
+#' on DataFinisher
+# if(!exists('l_indices')) l_indices <- alist(
+#   pnum=patient_num 
+#   #,vnum=encounter_num
+# );
  
 #' Create copy of original dataset
 dat1 <- do.call(mutate,c(list(dat0),l_indices));
@@ -61,7 +64,7 @@ l_missing <- c(NA,'Unknown','unknown','UNKNOWN');
 #' reproducibly.
 tseed(project_seed);
 #' Randomly to training, testing, or validation sets
-pat_samples <- split(dat1$pnum,sample(c('train','test','val')
+pat_samples <- split(dat1$patient_num,sample(c('train','test','val')
                                          ,size=nrow(dat1),rep=T));
 #' ## Transform certain columns
 # 
@@ -97,7 +100,7 @@ pat_samples <- split(dat1$pnum,sample(c('train','test','val')
 #' multiple versions of the same graph,
 #' ### Create a version of the dataset that only has each patient's 1st encounter
 #' 
-dat2 <- group_by(dat1,pnum) %>% summarise_all(function(xx) last(na.omit(xx)));
+dat2 <- group_by(dat1,patient_num) %>% summarise_all(function(xx) last(na.omit(xx)));
 
 #' Each name is a legal variable name for that subset, the value
 #' assigned to it is an R expression that can be evaluated in the
@@ -110,8 +113,8 @@ subs_criteria <- alist(
 #' Creates a hierarchy of lists containing various subsets of interest
 sbs0 <- sapply(list(all=dat1,index=dat2),function(xx) do.call(ssply,c(list(dat=xx),subs_criteria[-1])),simplify=F);
 #' Subsetting by the earlier randomly assigned train and test groups
-sbs0$train <- lapply(sbs0$all,subset,pnum%in%pat_samples$train);
-sbs0$test <- lapply(sbs0$all,subset,pnum%in%pat_samples$test);
+sbs0$train <- lapply(sbs0$all,subset,patient_num%in%pat_samples$train);
+sbs0$test <- lapply(sbs0$all,subset,patient_num%in%pat_samples$test);
 
 #' ## Save all the processed data to an rdata file 
 #' 
