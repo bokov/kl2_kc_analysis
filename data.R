@@ -16,8 +16,14 @@ project_seed <- 20180803;
 #' ## Load data if it exists 
 #' 
 #' (useful later, right now don't bother saving sessions)
-#'if(session %in% list.files()) load(session);
-dat0 <- tread(inputdata,read_csv,na=c('(null)',''),guess_max=5000);
+#if(session %in% list.files()) load(session);
+#' Initialize the column specification for parsing the input data
+dat0spec <- tread(inputdata,spec_csv,na=c('(null)',''),guess_max=5000);
+#' Force the `patient_num` column to be numeric rather than integer, to avoid
+#' missing values due to `patient_num` being too large
+dat0spec$cols[['patient_num']] <- col_number();
+#' Read the data 
+dat0 <- tread(inputdata,read_csv,na=c('(null)',''),col_type=dat0spec);
 colnames(dat0) <- tolower(colnames(dat0));
 
 #' Read in the data dictionary

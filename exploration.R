@@ -32,6 +32,8 @@ with(dat2,table(v044_hspnc_or_ltn,v010_spnsh_hspnc,useNA = 'always')) %>%
 #' * TODO: Create time-since-first-diagnosis variable
 #' * TODO: Create TTE variable for death (several raw variables)
 #' * TODO: Create TTE variable for recurrence
+# example
+# baz <- group_by(dat0,patient_num) %>% mutate(a_tterecur = tte(age_at_visit_days,!is.na(v001_rcrnc_dt_st)),n_after=sum(a_tterecur<0),n_before=sum(a_tterecur>0))
 #' * TODO: Create TTE variable for surgery date
 #' * TODO: Create censoring variable for surgery/death
 #' * TODO: Create censoring variable for recurrence/death

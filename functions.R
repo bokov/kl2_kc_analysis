@@ -176,6 +176,17 @@ checkrun <- function(obj,EXPR,env=as.environment(-1)){
   }
 }
 
+#' Take a vector of times, and an expression to evaluate in the calling context
+#' and return a vector of times until the first occurence of the expression
+#' @param time 
+#' @param expr 
+#' @param ... 
+tte <- function(time,expr,...){
+  event <- min(which(expr));
+  if(is.infinite(event)) etime <- max(time) else {
+    etime <- event;}
+  out <- etime - time;
+}
 
 #' Delete all the junk in your environment, for testing
 clearenv <- function(env=.GlobalEnv) rm(list=setdiff(ls(all=T,envir=env),'clearenv'),envir=env);

@@ -1,5 +1,5 @@
 colname,colname_long,rule,comment,class
-patient_num,patient_num,demographics,non analytic,integer
+patient_num,patient_num,demographics,non analytic,numeric
 start_date,start_date,demographics,non analytic; date,Date
 birth_date,birth_date,demographics,non analytic; date,Date
 sex_cd,sex_cd,demographics,factor,character
