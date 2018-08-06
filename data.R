@@ -51,7 +51,8 @@ if(file.exists(dctfile)) dct0 <- tread(dctfile,read_csv,na='') else {
 # );
  
 #' Create copy of original dataset
-dat1 <- do.call(mutate,c(list(dat0),l_indices));
+#dat1 <- do.call(mutate,c(list(dat0),l_indices));
+dat1 <- group_by(dat0,patient_num);
 
 #' Create custom synonyms for 'TRUE' if needed
 l_truthy_default <- eval(formals(truthy.default)$truewords);
