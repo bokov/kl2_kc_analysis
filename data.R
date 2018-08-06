@@ -27,6 +27,7 @@ if(file.exists(dctfile)) dct0 <- tread(dctfile,read_csv,na='') else {
     rbind(tread(dctfile_raw,read_csv,na = '')) -> dct0;
   dct0$colname <- tolower(dct0$colname);
   dct0 <- subset(dct0,dct0$colname %in% names(dat0));
+  dct0$comment <- NA;
   dct0$class <- lapply(dat0[,dct0$colname],class) %>% sapply(head,1);
   write_csv(dct0,path=dctfile,na='');
   dct_stage <- 1;

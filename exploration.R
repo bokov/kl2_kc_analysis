@@ -5,6 +5,8 @@
 #' ---
 #' 
 #+ echo=FALSE, inlcude=FALSE, message=FALSE
+# if running in test-mode, uncomment the line below
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -25,6 +27,14 @@ with(dat2,table(race_cd,v005_rc,useNA = 'always')) %>% addmargins() %>% pander()
 with(dat2,table(v044_hspnc_or_ltn,v010_spnsh_hspnc,useNA = 'always')) %>% 
   addmargins() %>% pander();
 
+#' ### TODO Next
+#' 
+#' * Create time-since-first-diagnosis variable
+#' * Create 0/1/2 variable for death (several raw variables)
+#' * Create 0/1/2 variable for recurrence
+#' * Create 0/1/2 variable for surgery date
+#' * Create unified Hispanic indicator
+#' * Mappings for numcode variables
 #' 
 #' ### Audit trail
 walktrail()[,-5] %>% pander(split.tables=600);

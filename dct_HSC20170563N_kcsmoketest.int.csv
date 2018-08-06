@@ -1,57 +1,57 @@
-colname,colname_long,rule,class
-patient_num,patient_num,demographics,integer
-start_date,start_date,demographics,Date
-birth_date,birth_date,demographics,Date
-sex_cd,sex_cd,demographics,character
-language_cd,language_cd,demographics,character
-race_cd,race_cd,demographics,character
-age_at_visit_days,age_at_visit_days,demographics,numeric
-age_at_death_days,age_at_death_days,demographics,numeric
-v000_cncr_sts,1770 Cancer Status,naaccr,character
-v001_rcrnc_dt_st,1860 Recurrence Date--1st,tvcdate,POSIXct
-v004_mrtl_sts_dx,0150 Marital Status at DX,naaccr,character
-v005_rc,0160 Race 1,naaccr,character
-v006_rc,0161 Race 2,naaccr,character
-v007_rc,0162 Race 3,naaccr,character
-v008_rc,0163 Race 4,naaccr,character
-v009_rc,0164 Race 5,naaccr,character
-v010_spnsh_hspnc,0190 Spanish/Hispanic Origin,naaccr,character
-v011_sx,0220 Sex,naaccr,character
-v012_dt_of_brth,0240 Date of Birth,tvcdate,POSIXct
-v013_brthplc,0250 Birthplace,naaccr,character
-v014_tnm_cln_dscrptr,0980 TNM Clin Descriptor,naaccr,character
-v015_tnm_cln_stg_grp,0970 TNM Clin Stage Group,naaccr,character
-v016_tnm_cln_m,0960 TNM Clin M,naaccr,character
-v017_tnm_cln_n,0950 TNM Clin N,naaccr,character
-v018_dt_of_dgns,0390 Date of Diagnosis,tvcdate,POSIXct
-v019_tnm_cln_t,0940 TNM Clin T,naaccr,character
-v020_prmr_pr_at_dx,0630 Primary Payer at DX,naaccr,character
-v021_qlt_srvl,1780 Quality of Survival,naaccr,character
-v022_dt_lst_cntct,1750 Date of Last Contact,tvcdate,POSIXct
-v023_rx_dt_srgr,1200 RX Date--Surgery,tvcdate,POSIXct
-v024_vtl_sts,1760 Vital Status,naaccr,character
-v025_cmrbd_cmplctn,3164 Comorbid/Complication 10,naaccr,character
-v026_cs_of_dth,1910 Cause of Death,naaccr,character
-v027_mlgnt_nplsm,"189.0 Malignant neoplasm of kidney, except pelvis",diag,character
-v027_mlgnt_nplsm_inactive,"189.0 Malignant neoplasm of kidney, except pelvis",diag,character
-v028_cmrbd_cmplctn,3110 Comorbid/Complication 1,naaccr,character
-v029_cmrbd_cmplctn,3120 Comorbid/Complication 2,naaccr,character
-v030_dbts_mlts,250 Diabetes mellitus,diag,character
-v030_dbts_mlts_inactive,250 Diabetes mellitus,diag,character
-v031_mlgnt_nplsm,"C64 Malignant neoplasm of kidney, except renal pelvis",diag,character
-v031_mlgnt_nplsm_inactive,"C64 Malignant neoplasm of kidney, except renal pelvis",diag,character
-v032_cmrbd_cmplctn,3160 Comorbid/Complication 6,naaccr,character
-v033_cmrbd_cmplctn,3150 Comorbid/Complication 5,naaccr,character
-v034_cmrbd_cmplctn,3130 Comorbid/Complication 3,naaccr,character
-v035_cmrbd_cmplctn,3140 Comorbid/Complication 4,naaccr,character
-v036_cmrbd_cmplctn,3161 Comorbid/Complication 7,naaccr,character
-v037_cmrbd_cmplctn,3162 Comorbid/Complication 8,naaccr,character
-v038_cmrbd_cmplctn,3163 Comorbid/Complication 9,naaccr,character
-v039_bd_ms_indx_num,Body Mass Index,vitals,numeric
-v039_bd_ms_indx_info,Body Mass Index,vitals,character
-v041_dcsd_pr_ss,Deceased per SSA,code,character
-v042_dbts_mlts,E08-E13 Diabetes mellitus (E08-E13),diag,character
-v042_dbts_mlts_inactive,E08-E13 Diabetes mellitus (E08-E13),diag,character
-v043_fncl_utmd,Financial Class (UTMed Only),code,character
-v044_hspnc_or_ltn,Hispanic or Latino,ethnicity,character
-v045_kdn_ns,"Kidney, NOS",naaccr,character
+colname,colname_long,rule,comment,class
+patient_num,patient_num,demographics,non analytic,integer
+start_date,start_date,demographics,non analytic; date,Date
+birth_date,birth_date,demographics,non analytic; date,Date
+sex_cd,sex_cd,demographics,factor,character
+language_cd,language_cd,demographics,factor,character
+race_cd,race_cd,demographics,factor,character
+age_at_visit_days,age_at_visit_days,demographics,t,numeric
+age_at_death_days,age_at_death_days,demographics,t event,numeric
+v000_cncr_sts,1770 Cancer Status,naaccr,numcode,character
+v001_rcrnc_dt_st,1860 Recurrence Date--1st,tvcdate,non analytic; date,POSIXct
+v004_mrtl_sts_dx,0150 Marital Status at DX,naaccr,numcode,character
+v005_rc,0160 Race 1,naaccr,non analytic; numcode squish,character
+v006_rc,0161 Race 2,naaccr,non analytic; numcode squish,character
+v007_rc,0162 Race 3,naaccr,non analytic; numcode squish,character
+v008_rc,0163 Race 4,naaccr,non analytic; numcode squish,character
+v009_rc,0164 Race 5,naaccr,non analytic; numcode squish,character
+v010_spnsh_hspnc,0190 Spanish/Hispanic Origin,naaccr,numcode,character
+v011_sx,0220 Sex,naaccr,numcode,character
+v012_dt_of_brth,0240 Date of Birth,tvcdate,non analytic; date,POSIXct
+v013_brthplc,0250 Birthplace,naaccr,numcode,character
+v014_tnm_cln_dscrptr,0980 TNM Clin Descriptor,naaccr,dirty code,character
+v015_tnm_cln_stg_grp,0970 TNM Clin Stage Group,naaccr,dirty code,character
+v016_tnm_cln_m,0960 TNM Clin M,naaccr,dirty code,character
+v017_tnm_cln_n,0950 TNM Clin N,naaccr,dirty code,character
+v018_dt_of_dgns,0390 Date of Diagnosis,tvcdate,non analytic; date,POSIXct
+v019_tnm_cln_t,0940 TNM Clin T,naaccr,dirty code,character
+v020_prmr_pr_at_dx,0630 Primary Payer at DX,naaccr,numcode,character
+v021_qlt_srvl,1780 Quality of Survival,naaccr,numcode,character
+v022_dt_lst_cntct,1750 Date of Last Contact,tvcdate,non analytic; date,POSIXct
+v023_rx_dt_srgr,1200 RX Date--Surgery,tvcdate,non analytic; date,POSIXct
+v024_vtl_sts,1760 Vital Status,naaccr,numcode,character
+v025_cmrbd_cmplctn,3164 Comorbid/Complication 10,naaccr,naaccr icd9,character
+v026_cs_of_dth,1910 Cause of Death,naaccr,numcode,character
+v027_mlgnt_nplsm,"189.0 Malignant neoplasm of kidney, except pelvis",diag,possible start event,character
+v027_mlgnt_nplsm_inactive,"189.0 Malignant neoplasm of kidney, except pelvis",diag,non analytic,character
+v028_cmrbd_cmplctn,3110 Comorbid/Complication 1,naaccr,naaccr icd9,character
+v029_cmrbd_cmplctn,3120 Comorbid/Complication 2,naaccr,naaccr icd9,character
+v030_dbts_mlts,250 Diabetes mellitus,diag,icd9,character
+v030_dbts_mlts_inactive,250 Diabetes mellitus,diag,non analytic,character
+v031_mlgnt_nplsm,"C64 Malignant neoplasm of kidney, except renal pelvis",diag,possible start event,character
+v031_mlgnt_nplsm_inactive,"C64 Malignant neoplasm of kidney, except renal pelvis",diag,possible start event,character
+v032_cmrbd_cmplctn,3160 Comorbid/Complication 6,naaccr,naaccr icd9,character
+v033_cmrbd_cmplctn,3150 Comorbid/Complication 5,naaccr,naaccr icd9,character
+v034_cmrbd_cmplctn,3130 Comorbid/Complication 3,naaccr,naaccr icd9,character
+v035_cmrbd_cmplctn,3140 Comorbid/Complication 4,naaccr,naaccr icd9,character
+v036_cmrbd_cmplctn,3161 Comorbid/Complication 7,naaccr,naaccr icd9,character
+v037_cmrbd_cmplctn,3162 Comorbid/Complication 8,naaccr,naaccr icd9,character
+v038_cmrbd_cmplctn,3163 Comorbid/Complication 9,naaccr,naaccr icd9,character
+v039_bd_ms_indx_num,Body Mass Index,vitals,sanity check,numeric
+v039_bd_ms_indx_info,Body Mass Index,vitals,non analytic,character
+v041_dcsd_pr_ss,Deceased per SSA,code,possible end event,character
+v042_dbts_mlts,E08-E13 Diabetes mellitus (E08-E13),diag,icd10,character
+v042_dbts_mlts_inactive,E08-E13 Diabetes mellitus (E08-E13),diag,non analytic,character
+v043_fncl_utmd,Financial Class (UTMed Only),code,numcode,character
+v044_hspnc_or_ltn,Hispanic or Latino,ethnicity,factor,character
+v045_kdn_ns,"Kidney, NOS",naaccr,binary,character
