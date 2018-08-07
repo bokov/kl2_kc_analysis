@@ -78,17 +78,19 @@ dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>%
   gsub('."88"|."99"','',.) %>% 
   submulti(searchrep = subset(naaccr_map,varname=='_rc')[,c('code','label')]) %>% 
   gsub('"','',.);
-dat1 <- mutate(dat1,a_n_race=paste(unique(na.omit(a_n_race)),collapse=','));
+#dat1 <- mutate(dat1,a_n_race=paste(unique(na.omit(a_n_race)),collapse=','));
+dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',xx))); 
+#' Unified NAACCR diabetes comorbidity
 #' Find the patients which had active kidney cancer (rather than starting with 
 #' pre-existing)... first pass
-# kcpatients.emr <- subset(dat1,!is.na(e_kc_i10)|
-#                        !is.na(e_kc_i9))$patient_num %>% unique;
-# kcpatients.naaccr <- subset(dat1,!is.na(n_kcancer))$patient_num %>% unique;
 kcpatients.emr <- subset(dat1,e_kc_i10|e_kc_i9)$patient_num %>% unique;
 kcpatients.naaccr <- subset(dat1,n_kcancer)$patient_num %>% unique;
 #' create the raw time-to-event (tte) and censoring (cte) variables
+#' along with making a_n_race and a_n_dm time invariant
 dat1 <- mutate(dat1
                # historic diagnoses... if they occur prior to non-historic, be suspicious
+               ,a_n_race=paste(unique(na.omit(a_n_race)),collapse=',')
+               ,a_n_dm=any(a_n_dm)
                ,a_thdiag=tte(age_at_visit_days,e_kc_i10_i|e_kc_i9_i)
                ,a_tdiag=tte(age_at_visit_days
                             # only count n_ddiag when it's recorded as a cancer case
@@ -109,6 +111,7 @@ dat1 <- mutate(dat1
                ,a_csurg=cte(a_tsurg)
                ,a_cdeath=cte(a_tdeath)
                );
+dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race));
 
 kcpatients.pre_existing <- subset(dat1,a_thdiag>=0&a_tdiag<0)$patient_num %>% unique;
 
