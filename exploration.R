@@ -27,6 +27,30 @@ with(dat2,table(race_cd,v005_rc,useNA = 'always')) %>% addmargins() %>% pander()
 with(dat2,table(v044_hspnc_or_ltn,v010_spnsh_hspnc,useNA = 'always')) %>% 
   addmargins() %>% pander();
 
+#' How many patients are in NAACCR, the EMR, both, neither, or have a diagnosis
+#' prior to first available record?
+rbind(consort_table
+      ,summarise(consort_table
+                 ,NAACCR='',EMR='',PreExisting='',N=sum(N))) %>% pander;
+
+#' What is the overall response range for the lag from diagnosis to surgery?
+subset(dat1,eval(subs_criteria$diag_surg)) %>% 
+  summarise_all(function(xx) last(na.omit(xx))) %>%
+  survfit(Surv(a_tdiag,a_csurg)~1,.) %>% 
+  autoplot(mark.time=T,xlab='Days Since Diagnosis',ylab='% Not Undergone Surgery');
+
+#' What is the overall response range recurrence-free survival after surgery?
+subset(dat1,eval(subs_criteria$surg_drecur)) %>% 
+  summarise_all(function(xx) last(na.omit(xx))) %>%
+  survfit(Surv(a_tsurg,pmax(a_csurg,a_cdeath,na.rm=T))~1,.) %>% 
+  autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving in Remission');
+
+#' What is the overall response range for survival after surgery?
+subset(dat1,eval(subs_criteria$surg_death)) %>% 
+  summarise_all(function(xx) last(na.omit(xx))) %>%
+  survfit(Surv(a_tsurg,a_cdeath)~1,.) %>% 
+  autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving');
+
 #' There are `r length(setdiff(kcpatients.emr,kcpatients.naaccr))` patients with
 #' active kidney cancer diagnoses in the EMR that are not in NAACCR, 
 #' `r length(setdiff(kcpatients.naaccr,kcpatients.emr))` patients that are in

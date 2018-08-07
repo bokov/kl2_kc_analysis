@@ -152,9 +152,14 @@ dat2 <- group_by(dat1,patient_num) %>% summarise_all(function(xx) last(na.omit(x
 #' assigned to it is an R expression that can be evaluated in the
 #' scope of `dat1` and will return a `TRUE`/`FALSE` vector
 subs_criteria <- alist(
-  #post_diag
-   SUBSETNAME00=0==1
-  ,SUBSETNAME01=0==1
+   # from diagnosis to surgery
+    diag_surg = a_tdiag>=0 & a_tsurg<=0 & patient_num %in% kcpatients.naaccr
+   # from surgery to recurrence
+   ,surg_recur = a_tsurg>=0 & a_trecur<=0 & patient_num%in%kcpatients.naaccr
+   # from surgery to death
+   ,surg_death = a_tsurg>=0 & a_tdeath<=0 & patient_num%in%kcpatients.naaccr
+   # from surgery to recurrence or death
+   ,surg_drecur = a_tsurg>=0 & pmax(a_trecur,a_tdeath,na.rm = T)<=0 & patient_num%in%kcpatients.naaccr
 );
 
 #' Creates a hierarchy of lists containing various subsets of interest
