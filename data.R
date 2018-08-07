@@ -73,6 +73,12 @@ names(dat1) <- submulti(names(dat1)
 for(ii in intersect(names(dat1),naaccr_map$varname)){
   dat1[[ii]] <- gsub('"','',dat1[[ii]]) %>% 
     submulti(subset(naaccr_map,varname==ii)[,c('code','label')])};
+#' Convert NAACCR race codes
+dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>% 
+  gsub('."88"|."99"','',.) %>% 
+  submulti(searchrep = subset(naaccr_map,varname=='_rc')[,c('code','label')]) %>% 
+  gsub('"','',.);
+dat1 <- mutate(dat1,a_n_race=paste(unique(na.omit(a_n_race)),collapse=','));
 #' Find the patients which had active kidney cancer (rather than starting with 
 #' pre-existing)... first pass
 # kcpatients.emr <- subset(dat1,!is.na(e_kc_i10)|
