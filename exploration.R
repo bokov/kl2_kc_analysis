@@ -57,7 +57,8 @@ subset(dat1,eval(subs_criteria$surg_death)) %>%
 
 #' Example of stage/grade data
 #'
-head(dat2[,v(c_tnm)]) %>% pander;
+subset(dat2[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>% 
+  na.omit() %>% head(10) %>% pander(split.tables=1000);
 #' 
 #' ### Next steps
 #' 
