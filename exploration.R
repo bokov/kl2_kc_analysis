@@ -55,15 +55,9 @@ subset(dat1,eval(subs_criteria$surg_death)) %>%
   survfit(Surv(a_tsurg,a_cdeath)~1,.) %>% 
   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving');
 
-#' There are `r length(setdiff(kcpatients.emr,kcpatients.naaccr))` patients with
-#' active kidney cancer diagnoses in the EMR that are not in NAACCR, 
-#' `r length(setdiff(kcpatients.naaccr,kcpatients.emr))` patients that are in
-#' NAACCR that do not have active kidney cancer diagnoses in the EMR, 
-#' `r length(intersect(kcpatients.emr,kcpatients.naaccr))` that are in both, and
-#' `r length(setdiff(dat1$patient_num,union(kcpatients.emr,kcpatients.naaccr)))`
-#' are not in either, for a total of `r length(unique(dat1$patient_num))` patients
-#' in the dataset.
-
+#' Example of stage/grade data
+#'
+head(dat2[,v(c_tnm)]) %>% pander;
 #' 
 #' ### Next steps
 #' 
