@@ -1,57 +1,57 @@
 "colsuffix","colname_long","comment","varname","c_analytic","c_natf","c_naaccr_race","c_naaccr_comorb","c_tnm"
-"patient_num","patient_num",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"start_date","start_date",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"birth_date","birth_date",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"sex_cd","sex_cd",,,"TRUE","FALSE","FALSE","FALSE",FALSE
-"language_cd","language_cd",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"race_cd","race_cd",,,"TRUE","FALSE","FALSE","FALSE",FALSE
-"age_at_visit_days","age_at_visit_days",,,"TRUE","FALSE","FALSE","FALSE",FALSE
-"age_at_death_days","age_at_death_days",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"_cncr_sts","1770 Cancer Status",,"n_cstatus","FALSE","FALSE","FALSE","FALSE",FALSE
-"_rcrnc_dt_st","1860 Recurrence Date--1st",,"n_drecur","FALSE","TRUE","FALSE","FALSE",FALSE
-"_mrtl_sts_dx","0150 Marital Status at DX",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"_rc","0160 Race 1",,,"FALSE","FALSE","TRUE","FALSE",FALSE
-"_rc","0161 Race 2",,,"FALSE","FALSE","TRUE","FALSE",FALSE
-"_rc","0162 Race 3",,,"FALSE","FALSE","TRUE","FALSE",FALSE
-"_rc","0163 Race 4",,,"FALSE","FALSE","TRUE","FALSE",FALSE
-"_rc","0164 Race 5",,,"FALSE","FALSE","TRUE","FALSE",FALSE
-"_spnsh_hspnc","0190 Spanish/Hispanic Origin",,"n_hisp","FALSE","FALSE","FALSE","FALSE",FALSE
-"_sx","0220 Sex",,"n_sex","FALSE","FALSE","FALSE","FALSE",FALSE
-"_dt_of_brth","0240 Date of Birth",,"n_dob","FALSE","FALSE","FALSE","FALSE",FALSE
-"_brthplc","0250 Birthplace",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"_tnm_cln_dscrptr","0980 TNM Clin Descriptor",,,"FALSE","FALSE","FALSE","FALSE",TRUE
-"_tnm_cln_stg_grp","0970 TNM Clin Stage Group",,,"FALSE","FALSE","FALSE","FALSE",TRUE
-"_tnm_cln_m","0960 TNM Clin M",,,"FALSE","FALSE","FALSE","FALSE",TRUE
-"_tnm_cln_n","0950 TNM Clin N",,,"FALSE","FALSE","FALSE","FALSE",TRUE
-"_dt_of_dgns","0390 Date of Diagnosis",,"n_ddiag","FALSE","TRUE","FALSE","FALSE",FALSE
-"_tnm_cln_t","0940 TNM Clin T",,,"FALSE","FALSE","FALSE","FALSE",TRUE
-"_prmr_pr_at_dx","0630 Primary Payer at DX",,"n_payer","FALSE","FALSE","FALSE","FALSE",FALSE
-"_qlt_srvl","1780 Quality of Survival",,"n_qsurv","FALSE","FALSE","FALSE","FALSE",FALSE
-"_dt_lst_cntct","1750 Date of Last Contact",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"_rx_dt_srgr","1200 RX Date--Surgery",,"n_dsurg","FALSE","TRUE","FALSE","FALSE",FALSE
-"_vtl_sts","1760 Vital Status",,"n_vtstat","TRUE","FALSE","FALSE","FALSE",FALSE
-"_cmrbd_cmplctn","3164 Comorbid/Complication 10",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"_cs_of_dth","1910 Cause of Death",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"_mlgnt_nplsm","189.0 Malignant neoplasm of kidney, except pelvis",,"e_kc_i9","TRUE","TRUE","FALSE","FALSE",FALSE
-"_mlgnt_nplsm_inactive","189.0 Malignant neoplasm of kidney, except pelvis",,"e_kc_i9_i","TRUE","TRUE","FALSE","FALSE",FALSE
-"_cmrbd_cmplctn","3110 Comorbid/Complication 1",,,"FALSE","FALSE","FALSE","TRUE",FALSE
-"_cmrbd_cmplctn","3120 Comorbid/Complication 2",,,"FALSE","FALSE","FALSE","TRUE",FALSE
-"_dbts_mlts","250 Diabetes mellitus",,"e_dm_i9","TRUE","TRUE","FALSE","FALSE",FALSE
-"_dbts_mlts_inactive","250 Diabetes mellitus",,"e_dm_i9_i","TRUE","TRUE","FALSE","FALSE",FALSE
-"_mlgnt_nplsm","C64 Malignant neoplasm of kidney, except renal pelvis",,"e_kc_i10","TRUE","TRUE","FALSE","FALSE",FALSE
-"_mlgnt_nplsm_inactive","C64 Malignant neoplasm of kidney, except renal pelvis",,"e_kc_i10_i","TRUE","TRUE","FALSE","FALSE",FALSE
-"_cmrbd_cmplctn","3160 Comorbid/Complication 6",,,"FALSE","FALSE","FALSE","TRUE",FALSE
-"_cmrbd_cmplctn","3150 Comorbid/Complication 5",,,"FALSE","FALSE","FALSE","TRUE",FALSE
-"_cmrbd_cmplctn","3130 Comorbid/Complication 3",,,"FALSE","FALSE","FALSE","TRUE",FALSE
-"_cmrbd_cmplctn","3140 Comorbid/Complication 4",,,"FALSE","FALSE","FALSE","TRUE",FALSE
-"_cmrbd_cmplctn","3161 Comorbid/Complication 7",,,"FALSE","FALSE","FALSE","TRUE",FALSE
-"_cmrbd_cmplctn","3162 Comorbid/Complication 8",,,"FALSE","FALSE","FALSE","TRUE",FALSE
-"_cmrbd_cmplctn","3163 Comorbid/Complication 9",,,"FALSE","FALSE","FALSE","TRUE",FALSE
-"_bd_ms_indx_num","Body Mass Index",,"e_bmi","TRUE","FALSE","FALSE","FALSE",FALSE
-"_bd_ms_indx_info","Body Mass Index",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"_dcsd_pr_ss","Deceased per SSA",,"s_death","TRUE","TRUE","FALSE","FALSE",FALSE
-"_dbts_mlts","E08-E13 Diabetes mellitus (E08-E13)",,"e_dm_i10","TRUE","TRUE","FALSE","FALSE",FALSE
-"_dbts_mlts_inactive","E08-E13 Diabetes mellitus (E08-E13)",,"e_dm_i10_i","TRUE","TRUE","FALSE","FALSE",FALSE
-"_fncl_utmd","Financial Class (UTMed Only)",,,"FALSE","FALSE","FALSE","FALSE",FALSE
-"_hspnc_or_ltn","Hispanic or Latino",,"e_hisp","TRUE","TRUE","FALSE","FALSE",FALSE
-"_kdn_ns","Kidney, NOS",,"n_kcancer","TRUE","TRUE","FALSE","FALSE",FALSE
+"patient_num","patient_num",,,"FALSE","FALSE","FALSE","FALSE","FALSE"
+"start_date","start_date",,,"FALSE","FALSE","FALSE","FALSE","FALSE"
+"birth_date","birth_date",,,"FALSE","FALSE","FALSE","FALSE","FALSE"
+"sex_cd","sex_cd",,,"TRUE","FALSE","FALSE","FALSE","FALSE"
+"language_cd","language_cd",,,"FALSE","FALSE","FALSE","FALSE","FALSE"
+"race_cd","race_cd",,,"TRUE","FALSE","FALSE","FALSE","FALSE"
+"age_at_visit_days","age_at_visit_days",,,"TRUE","FALSE","FALSE","FALSE","FALSE"
+"age_at_death_days","age_at_death_days",,,"FALSE","FALSE","FALSE","FALSE","FALSE"
+"_cncr_sts","1770 Cancer Status",,"n_cstatus","FALSE","FALSE","FALSE","FALSE","FALSE"
+"_rcrnc_dt_st","1860 Recurrence Date--1st",,"n_drecur","FALSE","TRUE","FALSE","FALSE","FALSE"
+"_mrtl_sts_dx","0150 Marital Status at DX",,"n_marital","FALSE","FALSE","FALSE","FALSE","FALSE"
+"_rc","0160 Race 1",,,"FALSE","FALSE","TRUE","FALSE","FALSE"
+"_rc","0161 Race 2",,,"FALSE","FALSE","TRUE","FALSE","FALSE"
+"_rc","0162 Race 3",,,"FALSE","FALSE","TRUE","FALSE","FALSE"
+"_rc","0163 Race 4",,,"FALSE","FALSE","TRUE","FALSE","FALSE"
+"_rc","0164 Race 5",,,"FALSE","FALSE","TRUE","FALSE","FALSE"
+"_spnsh_hspnc","0190 Spanish/Hispanic Origin",,"n_hisp","FALSE","FALSE","FALSE","FALSE","FALSE"
+"_sx","0220 Sex",,"n_sex","FALSE","FALSE","FALSE","FALSE","FALSE"
+"_dt_of_brth","0240 Date of Birth",,"n_dob","FALSE","FALSE","FALSE","FALSE","FALSE"
+"_brthplc","0250 Birthplace",,,"FALSE","FALSE","FALSE","FALSE","FALSE"
+"_tnm_cln_dscrptr","0980 TNM Clin Descriptor",,,"FALSE","FALSE","FALSE","FALSE","TRUE"
+"_tnm_cln_stg_grp","0970 TNM Clin Stage Group",,,"FALSE","FALSE","FALSE","FALSE","TRUE"
+"_tnm_cln_m","0960 TNM Clin M",,,"FALSE","FALSE","FALSE","FALSE","TRUE"
+"_tnm_cln_n","0950 TNM Clin N",,,"FALSE","FALSE","FALSE","FALSE","TRUE"
+"_dt_of_dgns","0390 Date of Diagnosis",,"n_ddiag","FALSE","TRUE","FALSE","FALSE","FALSE"
+"_tnm_cln_t","0940 TNM Clin T",,,"FALSE","FALSE","FALSE","FALSE","TRUE"
+"_prmr_pr_at_dx","0630 Primary Payer at DX",,"n_payer","FALSE","FALSE","FALSE","FALSE","FALSE"
+"_qlt_srvl","1780 Quality of Survival",,"n_qsurv","FALSE","FALSE","FALSE","FALSE","FALSE"
+"_dt_lst_cntct","1750 Date of Last Contact",,,"FALSE","FALSE","FALSE","FALSE","FALSE"
+"_rx_dt_srgr","1200 RX Date--Surgery",,"n_dsurg","FALSE","TRUE","FALSE","FALSE","FALSE"
+"_vtl_sts","1760 Vital Status",,"n_vtstat","TRUE","FALSE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3164 Comorbid/Complication 10",,,"FALSE","FALSE","FALSE","FALSE","FALSE"
+"_cs_of_dth","1910 Cause of Death",,,"FALSE","FALSE","FALSE","FALSE","FALSE"
+"_mlgnt_nplsm","189.0 Malignant neoplasm of kidney, except pelvis",,"e_kc_i9","TRUE","TRUE","FALSE","FALSE","FALSE"
+"_mlgnt_nplsm_inactive","189.0 Malignant neoplasm of kidney, except pelvis",,"e_kc_i9_i","TRUE","TRUE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3110 Comorbid/Complication 1",,,"FALSE","FALSE","FALSE","TRUE","FALSE"
+"_cmrbd_cmplctn","3120 Comorbid/Complication 2",,,"FALSE","FALSE","FALSE","TRUE","FALSE"
+"_dbts_mlts","250 Diabetes mellitus",,"e_dm_i9","TRUE","TRUE","FALSE","FALSE","FALSE"
+"_dbts_mlts_inactive","250 Diabetes mellitus",,"e_dm_i9_i","TRUE","TRUE","FALSE","FALSE","FALSE"
+"_mlgnt_nplsm","C64 Malignant neoplasm of kidney, except renal pelvis",,"e_kc_i10","TRUE","TRUE","FALSE","FALSE","FALSE"
+"_mlgnt_nplsm_inactive","C64 Malignant neoplasm of kidney, except renal pelvis",,"e_kc_i10_i","TRUE","TRUE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3160 Comorbid/Complication 6",,,"FALSE","FALSE","FALSE","TRUE","FALSE"
+"_cmrbd_cmplctn","3150 Comorbid/Complication 5",,,"FALSE","FALSE","FALSE","TRUE","FALSE"
+"_cmrbd_cmplctn","3130 Comorbid/Complication 3",,,"FALSE","FALSE","FALSE","TRUE","FALSE"
+"_cmrbd_cmplctn","3140 Comorbid/Complication 4",,,"FALSE","FALSE","FALSE","TRUE","FALSE"
+"_cmrbd_cmplctn","3161 Comorbid/Complication 7",,,"FALSE","FALSE","FALSE","TRUE","FALSE"
+"_cmrbd_cmplctn","3162 Comorbid/Complication 8",,,"FALSE","FALSE","FALSE","TRUE","FALSE"
+"_cmrbd_cmplctn","3163 Comorbid/Complication 9",,,"FALSE","FALSE","FALSE","TRUE","FALSE"
+"_bd_ms_indx_num","Body Mass Index",,"e_bmi","TRUE","FALSE","FALSE","FALSE","FALSE"
+"_bd_ms_indx_info","Body Mass Index",,,"FALSE","FALSE","FALSE","FALSE","FALSE"
+"_dcsd_pr_ss","Deceased per SSA",,"s_death","TRUE","TRUE","FALSE","FALSE","FALSE"
+"_dbts_mlts","E08-E13 Diabetes mellitus (E08-E13)",,"e_dm_i10","TRUE","TRUE","FALSE","FALSE","FALSE"
+"_dbts_mlts_inactive","E08-E13 Diabetes mellitus (E08-E13)",,"e_dm_i10_i","TRUE","TRUE","FALSE","FALSE","FALSE"
+"_fncl_utmd","Financial Class (UTMed Only)",,,"FALSE","FALSE","FALSE","FALSE","FALSE"
+"_hspnc_or_ltn","Hispanic or Latino",,"e_hisp","TRUE","TRUE","FALSE","FALSE","FALSE"
+"_kdn_ns","Kidney, NOS",,"n_kcancer","TRUE","TRUE","FALSE","FALSE","FALSE"
