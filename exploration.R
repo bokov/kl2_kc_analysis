@@ -76,11 +76,11 @@ subset(dat1,eval(subs_criteria$surg_death)) %>%
 #' * DONE: Create censoring variable for surgery
 #' * DONE: Create censoring variable for recurrence/death
 #' * TODO: Create unified Hispanic indicator
-#' * TODO: Map cancer status variable
-#' * TODO: Create unified comorbidity variable for:
-#'     * Diabetes
+#' * DONE: Map cancer status variable (didn't turn out to be useful)
+#' * DONE: Create unified comorbidity variable for:
+#'     * DONE Diabetes
 #'     * Others?
-#' * TODO: Mappings for other numcode variables
+#' * DONE: Mappings for other numcode variables
 #' * TODO: Follow up re additional patient linkages, more recent NAACCR data
 #' * TODO: Re-run query with additional variables:
 #'     * EMR codes for secondary tumors
