@@ -15,10 +15,10 @@ _rc,0161 Race 2,,,FALSE,FALSE
 _rc,0162 Race 3,,,FALSE,FALSE
 _rc,0163 Race 4,,,FALSE,FALSE
 _rc,0164 Race 5,,,FALSE,FALSE
-_spnsh_hspnc,0190 Spanish/Hispanic Origin,,,FALSE,FALSE
-_sx,0220 Sex,,,FALSE,FALSE
-_dt_of_brth,0240 Date of Birth,,,FALSE,FALSE
-_brthplc,0250 Birthplace,,n_dob,FALSE,FALSE
+_spnsh_hspnc,0190 Spanish/Hispanic Origin,,n_hisp,FALSE,FALSE
+_sx,0220 Sex,,n_sex,FALSE,FALSE
+_dt_of_brth,0240 Date of Birth,,n_dob,FALSE,FALSE
+_brthplc,0250 Birthplace,,,FALSE,FALSE
 _tnm_cln_dscrptr,0980 TNM Clin Descriptor,,,FALSE,FALSE
 _tnm_cln_stg_grp,0970 TNM Clin Stage Group,,,FALSE,FALSE
 _tnm_cln_m,0960 TNM Clin M,,,FALSE,FALSE
