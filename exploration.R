@@ -6,7 +6,7 @@
 #' 
 #+ echo=FALSE, inlcude=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-options(gitstamp_prod=F);
+#options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
