@@ -11,6 +11,7 @@
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
 .currentscript <- parent.frame(2)$ofile;
+if(is.null(.currentscript)) .currentscript <- knitr::current_input();
 if(is.null(.currentscript)) .currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 tself(scriptname=.currentscript);
 project_seed <- 20180803;
