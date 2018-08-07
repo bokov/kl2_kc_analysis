@@ -70,7 +70,7 @@ names(dat1) <- submulti(names(dat1)
                         ,searchrep=as.matrix(na.omit(dct0[,c('colname','varname')]))
                         ,method='startsends');
 #' Convert NAACCR codes to readable labels where available
-for(ii in intersect(names(foo),naaccr_map$varname)){
+for(ii in intersect(names(dat1),naaccr_map$varname)){
   dat1[[ii]] <- gsub('"','',dat1[[ii]]) %>% 
     submulti(subset(naaccr_map,varname==ii)[,c('code','label')])};
 #' Find the patients which had active kidney cancer (rather than starting with 
