@@ -12,53 +12,98 @@ source('global.R');
 if(is.null(.currentscript)) .currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 tself(scriptname=.currentscript);
 project_seed <- 20180803;
-
-#' ## Load data if it exists 
-#' 
-#' (useful later, right now don't bother saving sessions)
-#if(session %in% list.files()) load(session);
-#' Initialize the column specification for parsing the input data
-dat0spec <- tread(inputdata,spec_csv,na=c('(null)',''),guess_max=5000);
-#' Force the `patient_num` column to be numeric rather than integer, to avoid
-#' missing values due to `patient_num` being too large
-dat0spec$cols[['patient_num']] <- col_number();
-
-#' Read the data 
-dat0 <- tread(inputdata,read_csv,na=c('(null)',''),col_type=dat0spec);
-colnames(dat0) <- tolower(colnames(dat0));
-
-
-#' Read in the data dictionary
-if(file.exists(dctfile)) dct0 <- tread(dctfile,read_csv,na='') else {
-  dct_stage <- 0;
-  names(dat0)[1:8] %>% tibble(colname=.,colname_long=.,rule='demographics') %>% 
-    rbind(tread(dctfile_raw,read_csv,na = '')) -> dct0;
-  dct0$colname <- tolower(dct0$colname);
-  dct0 <- subset(dct0,dct0$colname %in% names(dat0));
-  dct0$comment <- NA;
-  dct0$class <- lapply(dat0[,dct0$colname],class) %>% sapply(head,1);
-  write_csv(dct0,path=dctfile,na='');
-  dct_stage <- 1;
-  }
-#' If you want to use some other set of columns as indices that is
-#' specific to the version of the data you are using, declare
-#' a different `alist` in your config.R, but it's better to not
-#' mess with this. We don't really even need it if we're relying
-#' on DataFinisher
-# if(!exists('l_indices')) l_indices <- alist(
-#   pnum=patient_num 
-#   #,vnum=encounter_num
-# );
- 
-#' Create copy of original dataset
-#dat1 <- do.call(mutate,c(list(dat0),l_indices));
-dat1 <- group_by(dat0,patient_num);
-
+debug <- 1;
 #' Create custom synonyms for 'TRUE' if needed
 l_truthy_default <- eval(formals(truthy.default)$truewords);
 #l_truthy_default <- c("Yes", l_truthy_default);
 l_missing <- c(NA,'Unknown','unknown','UNKNOWN');
 
+#' Initialize the column specification for parsing the input data
+dat0spec <- tread(inputdata,spec_csv,na=c('(null)',''),guess_max=5000);
+#' Force the `patient_num` column to be numeric rather than integer, to avoid
+#' missing values due to `patient_num` being too large
+dat0spec$cols[['patient_num']] <- col_number();
+#' Read the data 
+dat0 <- tread(inputdata,read_csv,na=c('(null)',''),col_type=dat0spec);
+colnames(dat0) <- tolower(colnames(dat0));
+
+#' Read in the data dictionary
+#dct_stage <- 0;
+names(dat0)[1:8] %>% tibble(colname=.,colname_long=.,rule='demographics') %>% 
+  rbind(tread(dctfile_raw,read_csv,na = '')) -> dct0;
+dct0$colname <- tolower(dct0$colname);
+dct0 <- subset(dct0,dct0$colname %in% names(dat0));
+
+#' debug
+if(debug>0) if(!identical(names(dat0),dct0$colname)) 
+  stop('Mismatch between dct0$colname and actual colnames');
+#' end debug
+dct0$class <- lapply(dat0[,dct0$colname],class) %>% sapply(head,1);
+dct0$colsuffix <- gsub('^v[0-9]{3}','',dct0$colname);
+
+#' debug
+if(debug>0) .dct0bak <- dct0;
+#' end debug
+dct0 <- left_join(dct0,tread(dctfile_tpl,read_csv,na='')
+                  ,by=c('colsuffix','colname_long'));
+#' debug
+if(debug>0){
+  if(nrow(dct0)!=nrow(.dct0bak)) 
+    stop('Number of rows changed in dct0 after join');
+  if(!identical(dct0$colname,.dct0bak$colname)) 
+    stop('colname values changed in dct0 after join');
+}
+#' end debug
+dct0$a_all <- TRUE;
+
+#' Create copy of original dataset
+dat1 <- group_by(dat0,patient_num);
+#' Rename columns that will be individually referenced later on so that they
+#' always have the same name regardless of the data version
+names(dat1) <- submulti(names(dat1)
+                        ,searchrep=as.matrix(na.omit(dct0[,c('colname','varname')]))
+                        ,method='startsends');
+#' Find the patients which had active kidney cancer (rather than starting with 
+#' pre-existing)... first pass
+kcpatients.emr <- subset(dat1,!is.na(e_kc_i10)|
+                       !is.na(e_kc_i9))$patient_num %>% unique;
+kcpatients.naaccr <- subset(dat1,!is.na(n_kcancer))$patient_num %>% unique;
+#' create the raw time-to-event (tte) and censoring (cte) variables
+dat1 <- mutate(dat1
+               # historic diagnoses... if they occur prior to non-historic, be suspicious
+               ,a_thdiag=tte(age_at_visit_days,!is.na(e_kc_i10_i)|!is.na(e_kc_i9_i))
+               ,a_tdiag=tte(age_at_visit_days
+                            # only count n_ddiag when it's recorded as a cancer case
+                            ,(patient_num %in% kcpatients.naaccr & !is.na(n_ddiag))|
+                              !is.na(e_kc_i9)|!is.na(e_kc_i10)
+                            )
+               ,a_trecur=tte(age_at_visit_days,!is.na(n_drecur))
+               ,a_tsurg=tte(age_at_visit_days,!is.na(n_dsurg))
+               ,a_tdeath=tte(age_at_visit_days
+                             # EMR death
+                             ,isTRUE(age_at_death_days==age_at_visit_days)|
+                               # SSN death
+                               !is.na(s_death)|
+                               # NAACCR death
+                               isTRUE(n_vtstat=="0")
+                             )
+               ,a_cdiag=cte(a_tdiag)
+               ,a_crecur=cte(a_trecur)
+               ,a_csurg=cte(a_tsurg)
+               ,a_cdeath=cte(a_tdeath)
+               );
+
+kcpatients.pre_existing <- subset(dat1,a_thdiag>=0&a_tdiag<0)$patient_num %>% unique;
+
+cohorts <- data.frame(patient_num=unique(dat1$patient_num)) %>% 
+  mutate( NAACCR=patient_num %in% kcpatients.naaccr
+         ,EMR=patient_num %in% kcpatients.emr
+         ,PreExisting=patient_num %in% kcpatients.pre_existing
+         ,combo=interaction(NAACCR,EMR,PreExisting)) %>% group_by(combo);
+
+consort_table <- summarise(cohorts,NAACCR=any(NAACCR),EMR=any(EMR)
+                           ,PreExisting=any(PreExisting)
+                           ,N=length(patient_num))[,-1];
 #' Creating training/testing/validation samples
 #' 
 #' As long as the seed is the same, all random values will be generated the same
@@ -107,6 +152,7 @@ dat2 <- group_by(dat1,patient_num) %>% summarise_all(function(xx) last(na.omit(x
 #' assigned to it is an R expression that can be evaluated in the
 #' scope of `dat1` and will return a `TRUE`/`FALSE` vector
 subs_criteria <- alist(
+  #post_diag
    SUBSETNAME00=0==1
   ,SUBSETNAME01=0==1
 );

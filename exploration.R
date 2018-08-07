@@ -27,14 +27,24 @@ with(dat2,table(race_cd,v005_rc,useNA = 'always')) %>% addmargins() %>% pander()
 with(dat2,table(v044_hspnc_or_ltn,v010_spnsh_hspnc,useNA = 'always')) %>% 
   addmargins() %>% pander();
 
+#' There are `r length(setdiff(kcpatients.emr,kcpatients.naaccr))` patients with
+#' active kidney cancer diagnoses in the EMR that are not in NAACCR, 
+#' `r length(setdiff(kcpatients.naaccr,kcpatients.emr))` patients that are in
+#' NAACCR that do not have active kidney cancer diagnoses in the EMR, 
+#' `r length(intersect(kcpatients.emr,kcpatients.naaccr))` that are in both, and
+#' `r length(setdiff(dat1$patient_num,union(kcpatients.emr,kcpatients.naaccr)))`
+#' are not in either, for a total of `r length(unique(dat1$patient_num))` patients
+#' in the dataset.
+
 #' ### Next steps
 #' 
-#' * TODO: Create time-since-first-diagnosis variable
-#' * TODO: Create TTE variable for death (several raw variables)
-#' * TODO: Create TTE variable for recurrence
-# example
-# baz <- group_by(dat0,patient_num) %>% mutate(a_tterecur = tte(age_at_visit_days,!is.na(v001_rcrnc_dt_st)),n_after=sum(a_tterecur<0),n_before=sum(a_tterecur>0))
-#' * TODO: Create TTE variable for surgery date
+#' * DONE: Create time-since-first-diagnosis variable
+#' * DONE: Create TTE variable for death (several raw variables)
+#' * DONE: Create TTE variable for recurrence
+#' * DONE: Create TTE variable for surgery date
+#' * TODO: Plot time from diagnosis to surgery, hisp vs non
+# example:
+# autoplot(survfit(Surv(a_tdiag,a_csurg)~!is.na(e_hisp),bar),mark.time=T,xlab='Days Since Diagnosis',xlim=c(0,365),ylab='% Undrergoing Surgery',conf.int = F)
 #' * TODO: Create censoring variable for surgery/death
 #' * TODO: Create censoring variable for recurrence/death
 #' * TODO: Create unified Hispanic indicator

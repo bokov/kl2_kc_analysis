@@ -21,7 +21,8 @@ instrequire(c('compiler'                                   # just-in-time compil
              #,'Matrix'                                    # for pd matrices needed by faker()
              ,'readr','dplyr','stringr','magrittr'        # data manipulation & piping
              #,'lubridate'
-             #,'ggplot2','ggfortify','grid','GGally'       # plotting
+             #,'ggplot2','grid','GGally'                  # plotting
+             ,'ggfortify'
              #,'survminer','gridExtra','scales'
              #,'stargazer','broom', 'tableone','janitor'   # table formatting
              ,'pander'
@@ -38,6 +39,9 @@ source('./config.R');
 #' 
 #' data dictionary produced by datafinisher, should physically accompany inputdata
 dctfile_raw <- paste0(dirname(inputdata),'/meta_',basename(inputdata));
+#' data dictionary template-- metadata that should persist accross multiple 
+#' versions of the data and data dictionary
+dctfile_tpl <- 'datadictionary_static.csv';
 #' checked-in file, with added rows and columns, ready-to-use FOR THIS DATASET
 #' if it doesn't exist, it will get created in data.R
 dctfile <- paste0('dct_',basename(inputdata));

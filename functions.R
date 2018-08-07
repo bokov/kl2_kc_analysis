@@ -102,7 +102,9 @@ starkable <- function(xx,firstrowisdata=T,row.names=F,taildrop=1
 #' @param xx A \code{vector} of type \code{character} (required)
 #' @param searchrep A \code{matrix} with two columns of type \code{character} (required). The left column is the pattern and the right, the replacement.
 #' @param method One of 'partial','full', or 'exact'. Controls whether to replace only the matching regexp, replace the entire value that contains a matching regexp, or replace the entire value if it's an exact match.
-submulti <- function(xx,searchrep,method=c('partial','full','exact')){
+submulti <- function(xx,searchrep
+                     ,method=c('partial','full','exact'
+                               ,'starts','ends','startsends')){
   # if no method is specified by the user, this makes it take the first value
   # if a method is only partially written out, this completes it, and if the
   # method doesn't match any of the valid possibilities this gives an informativ
@@ -120,7 +122,13 @@ submulti <- function(xx,searchrep,method=c('partial','full','exact')){
          ,exact = {for(ii in rr)
            oo[grepl(searchrep[ii,1],oo,fixed=T)]<-searchrep[ii,2]}
            #oo <- gsub(searchrep[ii,1],searchrep[ii,2],oo,fixed = T)}
-         );
+         ,starts = {for(ii in rr)
+           oo <- gsub(paste0('^',searchrep[ii,1]),searchrep[ii,2],oo)}
+         ,ends = {for(ii in rr)
+           oo <- gsub(paste0(searchrep[ii,1],'$'),searchrep[ii,2],oo)}
+         ,startsends = {for(ii in rr)
+           oo <- gsub(paste0('^',searchrep[ii,1],'$'),searchrep[ii,2],oo)}
+  );
   oo;
 }
 
@@ -183,9 +191,19 @@ checkrun <- function(obj,EXPR,env=as.environment(-1)){
 #' @param ... 
 tte <- function(time,expr,...){
   event <- min(which(expr));
-  if(is.infinite(event)) etime <- max(time) else {
-    etime <- event;}
-  out <- etime - time;
+  # The +1 needed so that a series of followups where an 
+  # event never happens is always negative while a series
+  # of followups when an event is observed has a 0 in it
+  if(is.infinite(event)) etime <- max(time)+1 else {
+    etime <- time[event];}
+  out <- time - etime;
+}
+
+#' Code the output of `tte()` such that before an event observations get `0`
+#' during the (first) event observations get `1` and subsequent get `2`
+cte <- function(...){
+  event <- sign(pmax(...,na.rm=T));
+  ifelse(event<0,0,ifelse(event==0,1,2))
 }
 
 #' Delete all the junk in your environment, for testing
@@ -493,7 +511,7 @@ stratatable <- function(xx,vars=NULL,...){
 #'                   column names begin with 'c_' but this convention is not 
 #'                   (currently) enforced programmatically.
 v <- function(var,dat
-              ,matchcol='dataset_column_names'
+              ,matchcol='colname'
               ,retcol=matchcol
               ,dictionary=dct0) {
   # convenience function: if forgot what column names are available, call with
