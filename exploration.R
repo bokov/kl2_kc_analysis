@@ -17,6 +17,8 @@ project_seed <- 20180803;
 if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 .loadedobjects <- tload(.depdata);
 
+#' ### Consistency-Checks
+#' 
 #' How well does sex match up between the EMRs and NAACCR?
 with(dat2,table(sex_cd,n_sex,useNA = 'always')) %>% addmargins() %>% pander();
 
@@ -29,9 +31,11 @@ with(dat2,table(e_hisp,n_hisp,useNA = 'always')) %>%
 
 #' How many patients are in NAACCR, the EMR, both, neither, or have a diagnosis
 #' prior to first available record?
-rbind(consort_table
-      ,summarise(consort_table
-                 ,NAACCR='',EMR='',PreExisting='',N=sum(N))) %>% pander;
+# rbind(consort_table
+#       ,summarise(consort_table
+#                  ,NAACCR='',EMR='',PreExisting='',N=sum(N))) %>% pander;
+consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>% 
+  mutate(`N Cumulative`=rev(cumsum(rev(N)))) %>% pander;
 
 #' What is the overall response range for the lag from diagnosis to surgery?
 subset(dat1,eval(subs_criteria$diag_surg)) %>% 
@@ -60,17 +64,17 @@ subset(dat1,eval(subs_criteria$surg_death)) %>%
 #' are not in either, for a total of `r length(unique(dat1$patient_num))` patients
 #' in the dataset.
 
+#' 
 #' ### Next steps
 #' 
+#' * TODO: tableOne
 #' * DONE: Create time-since-first-diagnosis variable
 #' * DONE: Create TTE variable for death (several raw variables)
 #' * DONE: Create TTE variable for recurrence
 #' * DONE: Create TTE variable for surgery date
 #' * TODO: Plot time from diagnosis to surgery, hisp vs non
-# example:
-# autoplot(survfit(Surv(a_tdiag,a_csurg)~!is.na(e_hisp),bar),mark.time=T,xlab='Days Since Diagnosis',xlim=c(0,365),ylab='% Undrergoing Surgery',conf.int = F)
-#' * TODO: Create censoring variable for surgery/death
-#' * TODO: Create censoring variable for recurrence/death
+#' * DONE: Create censoring variable for surgery
+#' * DONE: Create censoring variable for recurrence/death
 #' * TODO: Create unified Hispanic indicator
 #' * TODO: Map cancer status variable
 #' * TODO: Create unified comorbidity variable for:
@@ -79,7 +83,7 @@ subset(dat1,eval(subs_criteria$surg_death)) %>%
 #' * TODO: Mappings for other numcode variables
 #' * TODO: Follow up re additional patient linkages, more recent NAACCR data
 #' * TODO: Re-run query with additional variables:
-#'     * EMR codes for metastasis
+#'     * EMR codes for secondary tumors
 #'     * median household income, 2016 and 2013
 #'     * HbA1c
 #'     * Family history of diabetes and cancer

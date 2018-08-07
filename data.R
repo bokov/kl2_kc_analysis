@@ -56,36 +56,47 @@ if(debug>0){
 #' end debug
 dct0$a_all <- TRUE;
 
+#' Load the NAACCR manual code mappings
+naaccr_map <- tread('naaccr_codes.csv',read_csv,na='');
+
 #' Create copy of original dataset
 dat1 <- group_by(dat0,patient_num);
+#' Bulk-transform the NA/non-NA columns to FALSE/TRUE ones
+for(ii in v(c_natf)) dat1[[ii]] <- !is.na(dat1[[ii]]);
+
 #' Rename columns that will be individually referenced later on so that they
 #' always have the same name regardless of the data version
 names(dat1) <- submulti(names(dat1)
                         ,searchrep=as.matrix(na.omit(dct0[,c('colname','varname')]))
                         ,method='startsends');
+#' Convert NAACCR codes to readable labels where available
+for(ii in intersect(names(foo),naaccr_map$varname)){
+  dat1[[ii]] <- gsub('"','',dat1[[ii]]) %>% 
+    submulti(subset(naaccr_map,varname==ii)[,c('code','label')])};
 #' Find the patients which had active kidney cancer (rather than starting with 
 #' pre-existing)... first pass
-kcpatients.emr <- subset(dat1,!is.na(e_kc_i10)|
-                       !is.na(e_kc_i9))$patient_num %>% unique;
-kcpatients.naaccr <- subset(dat1,!is.na(n_kcancer))$patient_num %>% unique;
+# kcpatients.emr <- subset(dat1,!is.na(e_kc_i10)|
+#                        !is.na(e_kc_i9))$patient_num %>% unique;
+# kcpatients.naaccr <- subset(dat1,!is.na(n_kcancer))$patient_num %>% unique;
+kcpatients.emr <- subset(dat1,e_kc_i10|e_kc_i9)$patient_num %>% unique;
+kcpatients.naaccr <- subset(dat1,n_kcancer)$patient_num %>% unique;
 #' create the raw time-to-event (tte) and censoring (cte) variables
 dat1 <- mutate(dat1
                # historic diagnoses... if they occur prior to non-historic, be suspicious
-               ,a_thdiag=tte(age_at_visit_days,!is.na(e_kc_i10_i)|!is.na(e_kc_i9_i))
+               ,a_thdiag=tte(age_at_visit_days,e_kc_i10_i|e_kc_i9_i)
                ,a_tdiag=tte(age_at_visit_days
                             # only count n_ddiag when it's recorded as a cancer case
-                            ,(patient_num %in% kcpatients.naaccr & !is.na(n_ddiag))|
-                              !is.na(e_kc_i9)|!is.na(e_kc_i10)
-                            )
-               ,a_trecur=tte(age_at_visit_days,!is.na(n_drecur))
-               ,a_tsurg=tte(age_at_visit_days,!is.na(n_dsurg))
+                            ,(patient_num %in% kcpatients.naaccr & n_ddiag)|
+                              e_kc_i9|e_kc_i10)
+               ,a_trecur=tte(age_at_visit_days,n_drecur)
+               ,a_tsurg=tte(age_at_visit_days,n_dsurg)
                ,a_tdeath=tte(age_at_visit_days
                              # EMR death
                              ,isTRUE(age_at_death_days==age_at_visit_days)|
                                # SSN death
-                               !is.na(s_death)|
+                               s_death|
                                # NAACCR death
-                               isTRUE(n_vtstat=="0")
+                               isTRUE(n_vtstat=="Dead")
                              )
                ,a_cdiag=cte(a_tdiag)
                ,a_crecur=cte(a_trecur)
