@@ -11,41 +11,80 @@
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
 .currentscript <- parent.frame(2)$ofile;
+if(is.null(.currentscript)) .currentscript <- knitr::current_input();
 if(is.null(.currentscript)) .currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 tself(scriptname=.currentscript);
 project_seed <- 20180803;
 if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 .loadedobjects <- tload(.depdata);
 
+#' ### Consistency-Checks
+#' 
 #' How well does sex match up between the EMRs and NAACCR?
-with(dat2,table(sex_cd,v011_sx,useNA = 'always')) %>% addmargins() %>% pander();
+with(dat2,table(sex_cd,n_sex,useNA = 'always')) %>% addmargins() %>% pander(split.tables=600);
 
 #' How well does race match up between the EMRs and NAACCR?
-with(dat2,table(race_cd,v005_rc,useNA = 'always')) %>% addmargins() %>% pander();
+with(dat2,table(race_cd,a_n_race,useNA = 'always')) %>% addmargins() %>% pander(split.tables=600);
 
 #' How well does Hispanic ethnicity match up between the EMRs and NAACCR?
-with(dat2,table(v044_hspnc_or_ltn,v010_spnsh_hspnc,useNA = 'always')) %>% 
+with(dat2,table(n_hisp,e_hisp,useNA = 'always')) %>% 
   addmargins() %>% pander();
 
+#' How many patients are in NAACCR, the EMR, both, neither, or have a diagnosis
+#' prior to first available record?
+# rbind(consort_table
+#       ,summarise(consort_table
+#                  ,NAACCR='',EMR='',PreExisting='',N=sum(N))) %>% pander;
+consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>% 
+  mutate(`N Cumulative`=rev(cumsum(rev(N)))) %>% pander;
+
+#' What is the overall response range for the lag from diagnosis to surgery?
+subset(dat1,eval(subs_criteria$diag_surg)) %>% 
+  summarise_all(function(xx) last(na.omit(xx))) %>%
+  survfit(Surv(a_tdiag,a_csurg)~1,.) %>% 
+  autoplot(mark.time=T,xlab='Days Since Diagnosis',ylab='% Not Undergone Surgery');
+
+#' What is the overall response range recurrence-free survival after surgery?
+subset(dat1,eval(subs_criteria$surg_drecur)) %>% 
+  summarise_all(function(xx) last(na.omit(xx))) %>%
+  survfit(Surv(a_tsurg,pmax(a_csurg,a_cdeath,na.rm=T))~1,.) %>% 
+  autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving in Remission');
+
+#' What is the overall response range for survival after surgery?
+subset(dat1,eval(subs_criteria$surg_death)) %>% 
+  summarise_all(function(xx) last(na.omit(xx))) %>%
+  survfit(Surv(a_tsurg,a_cdeath)~1,.) %>% 
+  autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving');
+
+#' Example of stage/grade data
+#'
+subset(dat2[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>% 
+  na.omit() %>% 
+  setNames(c('patient_num'
+             ,submulti(v(c_tnm)
+                       ,cbind(v(c_tnm),v(c_tnm,retcol = 'colname_long'))))) %>% 
+  head(10) %>% pander(split.tables=1000);
+
+#' 
 #' ### Next steps
 #' 
-#' * TODO: Create time-since-first-diagnosis variable
-#' * TODO: Create TTE variable for death (several raw variables)
-#' * TODO: Create TTE variable for recurrence
-# example
-# baz <- group_by(dat0,patient_num) %>% mutate(a_tterecur = tte(age_at_visit_days,!is.na(v001_rcrnc_dt_st)),n_after=sum(a_tterecur<0),n_before=sum(a_tterecur>0))
-#' * TODO: Create TTE variable for surgery date
-#' * TODO: Create censoring variable for surgery/death
-#' * TODO: Create censoring variable for recurrence/death
+#' * TODO: tableOne
+#' * DONE: Create time-since-first-diagnosis variable
+#' * DONE: Create TTE variable for death (several raw variables)
+#' * DONE: Create TTE variable for recurrence
+#' * DONE: Create TTE variable for surgery date
+#' * TODO: Plot time from diagnosis to surgery, hisp vs non
+#' * DONE: Create censoring variable for surgery
+#' * DONE: Create censoring variable for recurrence/death
 #' * TODO: Create unified Hispanic indicator
-#' * TODO: Map cancer status variable
-#' * TODO: Create unified comorbidity variable for:
-#'     * Diabetes
+#' * DONE: Map cancer status variable (didn't turn out to be useful)
+#' * DONE: Create unified comorbidity variable for:
+#'     * DONE Diabetes
 #'     * Others?
-#' * TODO: Mappings for other numcode variables
+#' * DONE: Mappings for other numcode variables
 #' * TODO: Follow up re additional patient linkages, more recent NAACCR data
 #' * TODO: Re-run query with additional variables:
-#'     * EMR codes for metastasis
+#'     * EMR codes for secondary tumors
 #'     * median household income, 2016 and 2013
 #'     * HbA1c
 #'     * Family history of diabetes and cancer
