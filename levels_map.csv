@@ -126,3 +126,13 @@
 "race_cd","i choose not","Unknown","i2b2",
 "race_cd","unknown","Unknown","i2b2",
 "race_cd","unknown/othe","Unknown","i2b2",
+"language_cd","english","English","i2b2",14
+"language_cd","spanish","Spanish","i2b2",368
+"language_cd","arabic","Other","i2b2",62
+"language_cd","bengali","Other","i2b2",42
+"language_cd","chinese, cantonese (inc toishanese)","Other","i2b2",136163
+"language_cd","farsi; persian","Other","i2b2",108
+"language_cd","korean","Other","i2b2",114
+"language_cd","sign language","Other","i2b2",16
+"language_cd","@","Unknown","i2b2",20741
+"language_cd","unknown","Unknown","i2b2",734

@@ -70,11 +70,13 @@ names(dat1) <- submulti(names(dat1)
                         ,searchrep=as.matrix(na.omit(dct0[,c('colname','varname')]))
                         ,method='startsends');
 #' Mass relabel/reorder factor variables.
-
+for(ii in v(c_sortlabels,retcol='varname')){
+  dat1[[ii]] <- factorclean(dat1[[ii]]
+                            ,spec_mapper = levels_map,var=ii,droplevels = T)};
 #' Convert NAACCR codes to readable labels where available
-for(ii in intersect(names(dat1),levels_map$varname)){
-  dat1[[ii]] <- gsub('"','',dat1[[ii]]) %>% 
-    submulti(subset(levels_map,varname==ii)[,c('code','label')])};
+# for(ii in intersect(names(dat1),levels_map$varname)){
+#   dat1[[ii]] <- gsub('"','',dat1[[ii]]) %>% 
+#     submulti(subset(levels_map,varname==ii)[,c('code','label')])};
 #' Convert NAACCR race codes
 dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>% 
   # clean up the non-informative-if-trailing codes
@@ -91,7 +93,10 @@ kcpatients.naaccr <- subset(dat1,n_kcancer)$patient_num %>% unique;
 dat1 <- mutate(dat1
                # historic diagnoses... if they occur prior to non-historic, be suspicious
                ,a_n_race=paste(unique(na.omit(a_n_race)),collapse=',')
+               ,a_n_tumorstatus=
                ,a_n_dm=any(a_n_dm)
+               ,a_e_dm=e_dm_i9|e_dm_i10
+               ,a_e_kc=e_kc_i9|e_kc_i10
                ,a_thdiag=tte(age_at_visit_days,e_kc_i10_i|e_kc_i9_i)
                ,a_tdiag=tte(age_at_visit_days
                             # only count n_ddiag when it's recorded as a cancer case
@@ -167,7 +172,8 @@ pat_samples <- split(dat1$patient_num,sample(c('train','test','val')
 #' multiple versions of the same graph,
 #' ### Create a version of the dataset that only has each patient's 1st encounter
 #' 
-dat2 <- group_by(dat1,patient_num) %>% summarise_all(function(xx) last(na.omit(xx)));
+dat2 <- group_by(dat1,patient_num) %>% 
+  summarise_all(function(xx) if(is.logical(xx)) any(xx) else last(na.omit(xx)));
 
 #' Each name is a legal variable name for that subset, the value
 #' assigned to it is an R expression that can be evaluated in the
