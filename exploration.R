@@ -99,7 +99,8 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) 
   autoplot(mark.time=T,xlim=c(0,2000)
            ,xlab='Days Since Diagnosis',ylab='% Not Undergone Surgery');
 
-#' What is the overall response range recurrence-free survival after surgery?
+#' Does recurrence-free survival after surgery differ between hispanic and non 
+#' hispanic patients?
 subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_recur)) %>% 
   summarise(age=age_at_visit_days[a_tsurg==0]
             ,a_tsurg=last(a_tsurg),a_crecur=last(a_crecur)
@@ -108,7 +109,8 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_recur))
   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving in Remission'
            ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1));
 
-#' What is the overall response range for survival after surgery?
+#' Does survival after surgery (insofar that it is reliably represented in the
+#' records) differ between hispanic and non-hispanic patients?
 subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death)) %>% 
   summarise(age=age_at_visit_days[a_tsurg==0]
             ,a_tsurg=last(a_tsurg),a_cdeath=last(a_cdeath)
