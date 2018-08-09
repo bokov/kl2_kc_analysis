@@ -85,7 +85,6 @@ dat2[,c(v(c_analytic,retcol = 'varname'),'n_cstatus'
 
 #' ### Descriptive Plots (Preliminary)
 
-#' What is the overall response range for the lag from diagnosis to surgery?
 # subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) %>% 
 #   summarise(age=age_at_visit_days[a_tdiag==0]
 #             ,a_tdiag=last(a_tdiag),a_csurg=last(a_csurg)
@@ -98,9 +97,8 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) 
   survfit(Surv(a_tdiag,a_csurg)~1,.) %>% 
   autoplot(mark.time=T,xlim=c(0,2000)
            ,xlab='Days Since Diagnosis',ylab='% Not Undergone Surgery');
+#' What is the overall response range for the lag from diagnosis to surgery?
 
-#' Does recurrence-free survival after surgery differ between hispanic and non 
-#' hispanic patients?
 subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_recur)) %>% 
   summarise(age=age_at_visit_days[a_tsurg==0]
             ,a_tsurg=last(a_tsurg),a_crecur=last(a_crecur)
@@ -108,9 +106,9 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_recur))
   survfit(Surv(a_tsurg,a_crecur)~hisp,.) %>% 
   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving in Remission'
            ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1));
+#' Does recurrence-free survival after surgery differ between hispanic and non 
+#' hispanic patients?
 
-#' Does survival after surgery (insofar that it is reliably represented in the
-#' records) differ between hispanic and non-hispanic patients?
 subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death)) %>% 
   summarise(age=age_at_visit_days[a_tsurg==0]
             ,a_tsurg=last(a_tsurg),a_cdeath=last(a_cdeath)
@@ -118,6 +116,9 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death))
   survfit(Surv(a_tsurg,a_cdeath)~hisp,.) %>% 
   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving'
            ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1));
+#' Does survival after surgery (insofar that it is reliably represented in the
+#' records) differ between hispanic and non-hispanic patients?
+
 # subset(dat1,eval(subs_criteria$surg_death)) %>% 
 #   summarise_all(function(xx) last(na.omit(xx))) %>%
 #   survfit(Surv(a_tsurg,a_cdeath)~1,.) %>% 
