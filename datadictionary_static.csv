@@ -3,7 +3,7 @@
 "start_date","start_date",,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE"
 "birth_date","birth_date",,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE"
 "sex_cd","sex_cd",,"sex_cd","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE"
-"language_cd","language_cd",,"language_cd","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE"
+"language_cd","language_cd",,"language_cd","TRUE","FALSE","FALSE","FALSE","FALSE","TRUE"
 "race_cd","race_cd",,"race_cd","TRUE","FALSE","FALSE","FALSE","FALSE","TRUE"
 "age_at_visit_days","age_at_visit_days",,"age_at_visit_days","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE"
 "age_at_death_days","age_at_death_days",,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE"
