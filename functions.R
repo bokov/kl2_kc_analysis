@@ -61,6 +61,102 @@ survAUC<-function(Surv.rsp,Surv.rsp.new,lp,lpnew,times,time,lp0=0
     try(do.call(xx,args2use[[xx]]))}));
 }
 
+#' A function to re-order and/or rename the levels of a factor or 
+#' vector with optional cleanup.
+#'
+#' @param xx            a vector... if not a factor will be converted to 
+#'                      one
+#' @param lookuptable   matrix-like objects where the first column will
+#'                      be what to rename FROM and the second, what to
+#'                      rename TO. If there is only one column or if it's
+#'                      not matrix-like, the levels will be set to these
+#'                      values in the order they occur in `lookuptable`.
+#'                      If there are duplicated values in the first column
+#'                      only the first one gets used, with a warning.
+#'                      Duplicate values in the second column are allowed 
+#'                      and are a feature.
+#' @param reorder       Whether or not to change the order of the factor
+#'                      levels to match those in `lookuptable`. True by
+#'                      default (logical). By default is `TRUE`, is set to
+#'                      `FALSE` will try to preserve the original order of
+#'                      the levels.
+#' @param unmatched     Scalar value. If equal to -1 and `reorder` is `TRUE` 
+#'                      then unmatched original levels are prepended to the 
+#'                      matched ones in their original order of occurence. If 
+#'                      equal to 1, then appended in their original order of 
+#'                      occurrence. If some other value, then they are all 
+#'                      binned in one level of that name. The (empty) new ones 
+#'                      always go to the end.
+#' @param droplevels    Drop unused levels from the output factor (logical)
+#' @param case          Option to normalize case (`'asis'`` leaves it as it was)
+#'                      before attempting to match to `lookuptable`. One value 
+#'                      only
+#' @param mapnato       If the original levels contain `NA`s, what they should 
+#'                      be instead. They stay `NA` by default.
+#' @param remove        Vector of strings to remove from all level names (can
+#'                      be regexps) before trying to match to `lookuptable`.
+#' @param otherfun      A user-specified function to make further changes to
+#'                      the original level names before trying to match and
+#'                      replace them. Should expect to get the output from
+#'                      `levels(xx)` as its only argument.
+#' @param spec_mapper   A constrained lookup table specification that includes
+#'                      a column named `varname` in addition to the two columns
+#'                      that will become `from` and `to`. This is for extra
+#'                      convenience in projects that use such a table. If you
+#'                      aren't working on a project that already follows this
+#'                      convention, you should ignore this parameter.
+#' @param var           What value should be in the `varname` column of 
+#'                      `spec_mapper`
+#' @param fromto        Which columns in the `spec_mapper` should become the 
+#'                      `from` and `to` columns, respectively. Vector of length
+#'                      2, is `c('code','label')` by default.
+factorclean <- function(xx,lookuptable,reorder=T,unmatched=1
+                        ,droplevels=F,case=c('asis','lower','upper')
+                        ,mapnato=NA,remove='"',otherfun=identity
+                        ,spec_mapper,var,fromto=c('code','label')){
+  if(!is.factor(xx)) xx <- factor(xx);
+  lvls <- levels(xx);
+  lvls <- switch (match.arg(case)
+                   ,asis=identity,lower=tolower,upper=toupper)(lvls) %>% 
+    submulti(cbind(remove,'')) %>% otherfun;
+  levels(xx) <- lvls;
+  # Check to see if spec_mapper available.
+  if(!missing(spec_mapper)&&!missing(var)){
+    lookuptable <- subset(spec_mapper,varname==var)[,fromto];
+  }
+  # The assumption is that if you're passing just a vector or something like
+  # it, then you want to leave the level names as-is and just want to change
+  # the ordering
+  if(is.null(ncol(lookuptable))) lookuptable <- cbind(lookuptable,lookuptable);
+  # can never be too sure what kind of things with rows and columns are getting 
+  # passed, so coerce this to a plain old vanilla data.frame
+  lookuptable <- data.frame(lookuptable[,1:2]) %>% setNames(c('from','to'));
+  if(length(unique(lookuptable[,1]))!=nrow(lookuptable)) {
+    lookuptable <- lookuptable[match(unique(lookuptable$from),lookuptable$from),];
+    warning("You have duplicate values in the first (or only) column of your 'lookuptable' argument. Only the first instances of each will be kept");
+  }
+  if(reorder){
+    extras <- data.frame(from=lvls,to=NA,stringsAsFactors = F) %>%
+      subset(!from %in% lookuptable$from);
+    lookupfinal <- if(unmatched==-1) rbind(extras,lookuptable) else {
+      rbind(lookuptable,extras)};
+  } else {
+    lookupfinal <- left_join(data.frame(from=lvls,stringsAsFactors = F)
+                             ,lookuptable,by='from') %>% 
+      rbind(subset(lookuptable,!from%in%lvls));
+  }
+  # if the 'unmatched' parameter has the special value of -1 or 1, leave the 
+  # original names for the unmatched levels. Otherwise assign them to the bin
+  # this parameter specifies
+  lookupfinal$to <- with(lookupfinal,if(unmatched %in% c(-1,1)){
+    ifelse(is.na(to),from,to)} else {ifelse(is.na(to),unmatched,to)});
+  # Warning: not yet tested on xx's that are already factors and have an NA
+  # level
+  lookupfinal$to <- with(lookupfinal,ifelse(is.na(from),mapnato,to));
+  out <- factor(xx,levels=lookupfinal$from);
+  levels(out) <- lookupfinal$to;
+  if(droplevels) droplevels(out) else out;
+}
 
 
 #' into the specified existing or new level. That level is listed last

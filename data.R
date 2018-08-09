@@ -57,7 +57,7 @@ if(debug>0){
 dct0$a_all <- TRUE;
 
 #' Load the NAACCR manual code mappings
-naaccr_map <- tread('naaccr_codes.csv',read_csv,na='');
+levels_map <- tread('levels_map.csv',read_csv,na='');
 
 #' Create copy of original dataset
 dat1 <- group_by(dat0,patient_num);
@@ -69,18 +69,21 @@ for(ii in v(c_natf)) dat1[[ii]] <- !is.na(dat1[[ii]]);
 names(dat1) <- submulti(names(dat1)
                         ,searchrep=as.matrix(na.omit(dct0[,c('colname','varname')]))
                         ,method='startsends');
+#' Mass relabel/reorder factor variables.
+for(ii in v(c_sortlabels,retcol='varname')){
+  dat1[[ii]] <- factorclean(dat1[[ii]]
+                            ,spec_mapper = levels_map,var=ii,droplevels = T)};
 #' Convert NAACCR codes to readable labels where available
-for(ii in intersect(names(dat1),naaccr_map$varname)){
-  dat1[[ii]] <- gsub('"','',dat1[[ii]]) %>% 
-    submulti(subset(naaccr_map,varname==ii)[,c('code','label')])};
+# for(ii in intersect(names(dat1),levels_map$varname)){
+#   dat1[[ii]] <- gsub('"','',dat1[[ii]]) %>% 
+#     submulti(subset(levels_map,varname==ii)[,c('code','label')])};
 #' Convert NAACCR race codes
 dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>% 
-  gsub('."88"|."99"','',.) %>% 
-  submulti(searchrep = subset(naaccr_map,varname=='_rc')[,c('code','label')]) %>% 
-  gsub('"','',.);
-#dat1 <- mutate(dat1,a_n_race=paste(unique(na.omit(a_n_race)),collapse=','));
-dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',xx))); 
+  # clean up the non-informative-if-trailing codes
+  gsub('."88"|."99"','',.) %>% factorclean(spec_mapper = levels_map
+                                           ,var = '_rc',droplevels=T);
 #' Unified NAACCR diabetes comorbidity
+dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',xx))); 
 #' Find the patients which had active kidney cancer (rather than starting with 
 #' pre-existing)... first pass
 kcpatients.emr <- subset(dat1,e_kc_i10|e_kc_i9)$patient_num %>% unique;
@@ -91,6 +94,8 @@ dat1 <- mutate(dat1
                # historic diagnoses... if they occur prior to non-historic, be suspicious
                ,a_n_race=paste(unique(na.omit(a_n_race)),collapse=',')
                ,a_n_dm=any(a_n_dm)
+               ,a_e_dm=e_dm_i9|e_dm_i10
+               ,a_e_kc=e_kc_i9|e_kc_i10
                ,a_thdiag=tte(age_at_visit_days,e_kc_i10_i|e_kc_i9_i)
                ,a_tdiag=tte(age_at_visit_days
                             # only count n_ddiag when it's recorded as a cancer case
@@ -111,7 +116,11 @@ dat1 <- mutate(dat1
                ,a_csurg=cte(a_tsurg)
                ,a_cdeath=cte(a_tdeath)
                );
-dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race));
+#' A hack to restore NAs to NAACCR race designation and turn some character
+#' columns into factors with same order of levels as their i2b2 counterparts
+dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race)) %>% 
+  factor(levels=levels(dat1$race_cd));
+#dat1$sex_cd <- factor(dat1$sex_cd,levels=levels(dat1$n_sex));
 
 kcpatients.pre_existing <- subset(dat1,a_thdiag>=0&a_tdiag<0)$patient_num %>% unique;
 
@@ -166,7 +175,8 @@ pat_samples <- split(dat1$patient_num,sample(c('train','test','val')
 #' multiple versions of the same graph,
 #' ### Create a version of the dataset that only has each patient's 1st encounter
 #' 
-dat2 <- group_by(dat1,patient_num) %>% summarise_all(function(xx) last(na.omit(xx)));
+dat2 <- group_by(dat1,patient_num) %>% 
+  summarise_all(function(xx) if(is.logical(xx)) any(xx) else last(na.omit(xx)));
 
 #' Each name is a legal variable name for that subset, the value
 #' assigned to it is an R expression that can be evaluated in the
