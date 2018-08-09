@@ -1,7 +1,7 @@
 #' ---
 #' title: "Kidney Cancer Data Exploration"
 #' author: "Alex F. Bokov"
-#' date: "08/04/2018"
+#' date: "08/09/2018"
 #' ---
 #' 
 #+ echo=FALSE, inlcude=FALSE, message=FALSE
@@ -27,7 +27,8 @@ with(dat2,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>%
 
 #' How well does race match up between the EMRs and NAACCR?
 with(dat2,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(split.tables=600,justify='right');
+  pander(split.tables=600,justify='right'
+         ,emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4)));
 
 #' How well does Hispanic ethnicity match up between the EMRs and NAACCR?
 with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
@@ -42,6 +43,8 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
   `[`(,c('Non_Hispanic','Hispanic')) %>%
   addmargins() %>% pander(justify='right'
                           ,emphasize.strong.cells=as.matrix(expand.grid(1:6,1:2)));
+
+#' ### Cohort Characterization
 #' How many patients are in NAACCR, the EMR, both, neither, or have a diagnosis
 #' prior to first available record?
 # rbind(consort_table
@@ -80,6 +83,8 @@ dat2[,c(v(c_analytic,retcol = 'varname'),'n_cstatus'
                     ,gsub('   ','&nbsp;&nbsp;',rownames(.)))) %>%
   pander(split.table=600,justify='lrrrr',emphasize.rownames=F);
 
+#' ### Descriptive Plots (Preliminary)
+
 #' What is the overall response range for the lag from diagnosis to surgery?
 subset(dat1,eval(subs_criteria$diag_surg)) %>% 
   summarise_all(function(xx) last(na.omit(xx))) %>%
@@ -98,7 +103,9 @@ subset(dat1,eval(subs_criteria$surg_death)) %>%
   survfit(Surv(a_tsurg,a_cdeath)~1,.) %>% 
   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving');
 
-#' Example of stage/grade data
+#' ### Example of stage/grade data
+#' 
+#' (proof of feasibility)
 #'
 subset(dat2[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>% 
   na.omit() %>% 
@@ -110,20 +117,20 @@ subset(dat2[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>%
 #' 
 #' ### Next steps
 #' 
-#' * DONE: -tableOne-
-#' * DONE: -Create time-since-first-diagnosis variable-
-#' * DONE: -Create TTE variable for death (several raw variables)
-#' * DONE: -Create TTE variable for recurrence
-#' * DONE: -Create TTE variable for surgery date
-#' * TODO: Plot time from diagnosis to surgery, hisp vs non 
+#' * DONE: ~~tableOne~~
+#' * DONE: ~~Create time-since-first-diagnosis variable~~
+#' * DONE: ~~Create TTE variable for death (several raw variables)~~
+#' * DONE: ~~Create TTE variable for recurrence~~
+#' * DONE: ~~Create TTE variable for surgery date~~
+#' * TODO: Plot time from diagnosis to surgery, hisp vs non
 #'     * _First need to confirm interpretation of outcome variable_
-#' * DONE: -Create censoring variable for surgery
-#' * DONE: -Create censoring variable for recurrence/death
+#' * DONE: ~~Create censoring variable for surgery~~
+#' * DONE: ~~Create censoring variable for recurrence/death~~
 #' * TODO: Create unified Hispanic indicator
-#' * DONE: -Map cancer status variable (didn't turn out to be useful)
-#' * DONE: -Create unified comorbidity variable for:
-#'     * DONE -Diabetes-
-#' * DONE: -Mappings for other numcode variables-
+#' * DONE: ~~Map cancer status variable (didn't turn out to be useful)~~
+#' * DONE: ~~Create unified comorbidity variable for:~~
+#'     * DONE ~~Diabetes~~
+#' * DONE: ~~Mappings for other numcode variables~~
 #' * TODO: Follow up re additional patient linkages, more recent NAACCR data
 #' * TODO: Re-run query with additional variables (_query completed_):
 #'     * EMR codes for secondary tumors

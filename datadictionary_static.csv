@@ -2,7 +2,7 @@
 "patient_num","patient_num",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE"
 "start_date","start_date",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE"
 "birth_date","birth_date",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE"
-"sex_cd","sex_cd",,"sex_cd","Sex, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE"
+"sex_cd","sex_cd",,"sex_cd","Sex, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","TRUE","TRUE","FALSE","FALSE"
 "language_cd","language_cd",,"language_cd","Language, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","TRUE","TRUE","FALSE","FALSE"
 "race_cd","race_cd",,"race_cd","Race, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","TRUE","TRUE","FALSE","FALSE"
 "age_at_visit_days","age_at_visit_days",,"age_at_visit_days","Age at Last Contact","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE"
