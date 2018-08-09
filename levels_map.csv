@@ -66,6 +66,7 @@
 "n_payer","60","Medicare/Medicaid NOS","naaccr","Medicare/Medicare, NOS"
 "n_payer","61","Medicare w Supplement NOS","naaccr","Medicare with supplement, NOS"
 "n_payer","62","Medicare Managed Care Plan","naaccr","Medicare - Administered through a Managed Care plan"
+"n_payer","62,99","Medicare Managed Care Plan","naaccr","Medicare - Administered through a Managed Care plan"
 "n_payer","63","Medicare w Private Supplement","naaccr","Medicare with private supplement"
 "n_payer","64","Medicare w Medicaid","naaccr","Medicare with Medicaid eligibility"
 "n_payer","65","TriCare","naaccr","TRICARE"

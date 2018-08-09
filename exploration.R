@@ -47,15 +47,24 @@ dat2[,c(v(c_analytic,retcol = 'varname')
   rename(`Age at Last Contact`=age_at_visit_days
          ,`Sex, i2b2`=sex_cd
          ,`Sex, Registry`=n_sex
+         ,`Language, i2b2`=language_cd
+         ,`Hispanic, i2b2`=e_hisp
+         ,`Hispanic, Registry`=n_hisp
          ,`Race, i2b2`=race_cd
          ,`Race, Registry`=a_n_race
          ,`Marital Status, Registry`=n_marital
+         ,`Vital Status, Registry`=n_vtstat
+         ,`Deceased, SSN`=s_death
+         ,`Insurance, Registry`=n_payer
          ,`Diabetes, Registry`=a_n_dm
          ,`Diabetes, i2b2`=a_e_dm
          ,`Kidney Cancer, Registry`=n_kcancer
          ,`Kidney Cancer, i2b2`=a_e_kc) %>%
   CreateTableOne(strata='Status',data = .,includeNA = T,test = F) %>% 
-  print(printToggle=F) %>% pander(split.table=600,justify='right');
+  print(printToggle=F) %>% 
+  set_rownames(gsub('^([A-Za-z].*)$','**\\1**'
+                    ,gsub('   ','&nbsp;&nbsp;',rownames(.)))) %>%
+  pander(split.table=600,justify='lrrrr',emphasize.rownames=F);
 
 #' What is the overall response range for the lag from diagnosis to surgery?
 subset(dat1,eval(subs_criteria$diag_surg)) %>% 
@@ -99,7 +108,6 @@ subset(dat2[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>%
 #' * DONE: Map cancer status variable (didn't turn out to be useful)
 #' * DONE: Create unified comorbidity variable for:
 #'     * DONE Diabetes
-#'     * Others?
 #' * DONE: Mappings for other numcode variables
 #' * TODO: Follow up re additional patient linkages, more recent NAACCR data
 #' * TODO: Re-run query with additional variables:
