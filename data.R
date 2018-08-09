@@ -54,7 +54,7 @@ if(debug>0){
     stop('colname values changed in dct0 after join');
 }
 #' end debug
-dct0$a_all <- TRUE;
+dct0$c_all <- TRUE;
 
 #' Load the NAACCR manual code mappings
 levels_map <- tread('levels_map.csv',read_csv,na='');
