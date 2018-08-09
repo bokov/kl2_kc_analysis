@@ -57,7 +57,7 @@ if(debug>0){
 dct0$a_all <- TRUE;
 
 #' Load the NAACCR manual code mappings
-naaccr_map <- tread('naaccr_codes.csv',read_csv,na='');
+levels_map <- tread('levels_map.csv',read_csv,na='');
 
 #' Create copy of original dataset
 dat1 <- group_by(dat0,patient_num);
@@ -72,13 +72,13 @@ names(dat1) <- submulti(names(dat1)
 #' Mass relabel/reorder factor variables.
 
 #' Convert NAACCR codes to readable labels where available
-for(ii in intersect(names(dat1),naaccr_map$varname)){
+for(ii in intersect(names(dat1),levels_map$varname)){
   dat1[[ii]] <- gsub('"','',dat1[[ii]]) %>% 
-    submulti(subset(naaccr_map,varname==ii)[,c('code','label')])};
+    submulti(subset(levels_map,varname==ii)[,c('code','label')])};
 #' Convert NAACCR race codes
 dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>% 
   # clean up the non-informative-if-trailing codes
-  gsub('."88"|."99"','',.) %>% factorclean(spec_mapper = naaccr_map
+  gsub('."88"|."99"','',.) %>% factorclean(spec_mapper = levels_map
                                            ,var = '_rc',droplevels=T);
 #' Unified NAACCR diabetes comorbidity
 dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',xx))); 
