@@ -91,7 +91,7 @@ kcpatients.naaccr <- subset(dat1,n_kcancer)$patient_num %>% unique;
 #' create the raw time-to-event (tte) and censoring (cte) variables
 #' along with making a_n_race and a_n_dm time invariant
 dat1 <- mutate(dat1
-               ,n_sex=n_sex=paste(c(unique(na.omit(n_sex)),NA)[1],collapse=',')
+               ,n_sex=paste(c(unique(na.omit(n_sex)),NA)[1],collapse=',')
                ,a_n_race=paste(unique(na.omit(a_n_race)),collapse=',')
                ,a_n_dm=any(a_n_dm)
                ,a_e_dm=e_dm_i9|e_dm_i10
