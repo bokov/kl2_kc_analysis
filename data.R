@@ -69,18 +69,19 @@ for(ii in v(c_natf)) dat1[[ii]] <- !is.na(dat1[[ii]]);
 names(dat1) <- submulti(names(dat1)
                         ,searchrep=as.matrix(na.omit(dct0[,c('colname','varname')]))
                         ,method='startsends');
+#' Mass relabel/reorder factor variables.
+
 #' Convert NAACCR codes to readable labels where available
 for(ii in intersect(names(dat1),naaccr_map$varname)){
   dat1[[ii]] <- gsub('"','',dat1[[ii]]) %>% 
     submulti(subset(naaccr_map,varname==ii)[,c('code','label')])};
 #' Convert NAACCR race codes
 dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>% 
-  gsub('."88"|."99"','',.) %>% 
-  submulti(searchrep = subset(naaccr_map,varname=='_rc')[,c('code','label')]) %>% 
-  gsub('"','',.);
-#dat1 <- mutate(dat1,a_n_race=paste(unique(na.omit(a_n_race)),collapse=','));
-dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',xx))); 
+  # clean up the non-informative-if-trailing codes
+  gsub('."88"|."99"','',.) %>% factorclean(spec_mapper = naaccr_map
+                                           ,var = '_rc',droplevels=T);
 #' Unified NAACCR diabetes comorbidity
+dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',xx))); 
 #' Find the patients which had active kidney cancer (rather than starting with 
 #' pre-existing)... first pass
 kcpatients.emr <- subset(dat1,e_kc_i10|e_kc_i9)$patient_num %>% unique;

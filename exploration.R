@@ -21,13 +21,13 @@ if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 #' ### Consistency-Checks
 #' 
 #' How well does sex match up between the EMRs and NAACCR?
-with(dat2,table(sex_cd,n_sex,useNA = 'always')) %>% addmargins() %>% pander(split.tables=600);
+with(dat2,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% pander(split.tables=600);
 
 #' How well does race match up between the EMRs and NAACCR?
-with(dat2,table(race_cd,a_n_race,useNA = 'always')) %>% addmargins() %>% pander(split.tables=600);
+with(dat2,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% pander(split.tables=600);
 
 #' How well does Hispanic ethnicity match up between the EMRs and NAACCR?
-with(dat2,table(n_hisp,e_hisp,useNA = 'always')) %>% 
+with(dat2,table(n_hisp,e_hisp,useNA = 'ifany')) %>% 
   addmargins() %>% pander();
 
 #' How many patients are in NAACCR, the EMR, both, neither, or have a diagnosis
