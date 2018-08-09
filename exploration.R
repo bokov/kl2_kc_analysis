@@ -39,10 +39,23 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
   mutate(`N Cumulative`=rev(cumsum(rev(N)))) %>% pander;
 #'
 #' Summary of all the variables in the combined i2b2/NAACCR set
-CreateTableOne(v(c_analytic,retcol='varname')
-               ,strata='n_cstatus',data = dat2,includeNA = T,test = F) %>% 
-  print(printToggle=F) %>% pander(split.tables=600); #pander_return(split.table=600,justify='right');
-
+dat2[,c(v(c_analytic,retcol = 'varname')
+        ,'a_n_race','a_n_dm','a_e_dm','a_e_kc')] %>% 
+  mutate(Status=ifelse(is.na(n_cstatus),'Not in NAACCR',as.character(n_cstatus)) %>%
+         factor(levels=c(levels(n_cstatus),'Not in NAACCR'))
+         ,age_at_visit_days=age_at_visit_days/365.25) %>%
+  rename(`Age at Last Contact`=age_at_visit_days
+         ,`Sex, i2b2`=sex_cd
+         ,`Sex, Registry`=n_sex
+         ,`Race, i2b2`=race_cd
+         ,`Race, Registry`=a_n_race
+         ,`Marital Status, Registry`=n_marital
+         ,`Diabetes, Registry`=a_n_dm
+         ,`Diabetes, i2b2`=a_e_dm
+         ,`Kidney Cancer, Registry`=n_kcancer
+         ,`Kidney Cancer, i2b2`=a_e_kc) %>%
+  CreateTableOne(strata='Status',data = .,includeNA = T,test = F) %>% 
+  print(printToggle=F) %>% pander(split.table=600,justify='right');
 
 #' What is the overall response range for the lag from diagnosis to surgery?
 subset(dat1,eval(subs_criteria$diag_surg)) %>% 
