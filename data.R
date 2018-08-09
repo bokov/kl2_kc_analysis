@@ -116,7 +116,11 @@ dat1 <- mutate(dat1
                ,a_csurg=cte(a_tsurg)
                ,a_cdeath=cte(a_tdeath)
                );
-dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race));
+#' A hack to restore NAs to NAACCR race designation and turn some character
+#' columns into factors with same order of levels as their i2b2 counterparts
+dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race)) %>% 
+  factor(levels=levels(dat1$race_cd));
+#dat1$sex_cd <- factor(dat1$sex_cd,levels=levels(dat1$n_sex));
 
 kcpatients.pre_existing <- subset(dat1,a_thdiag>=0&a_tdiag<0)$patient_num %>% unique;
 

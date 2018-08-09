@@ -1,6 +1,11 @@
 "varname","code","label","type","naaccr_description"
 "n_sex","1","m","naaccr",
 "n_sex","2","f","naaccr",
+"n_sex","3","other","naaccr","Other (intersex, disorders of sexual development/DSD). The word hermaphrodite formerly classified under this code is an outdated term."
+"n_sex","4","other","naaccr","Transsexual, NOS"
+"n_sex","5","other","naaccr","Transsexual, natal male"
+"n_sex","6","other","naaccr","Transsexual, natal female"
+"n_sex","9","u","naaccr","Not stated/Unknown"
 "n_hisp","0","Non_Hispanic","naaccr","Non-Spanish; non-Hispanic"
 "n_hisp","9","Unknown","naaccr","Unknown whether Spanish or not"
 "n_hisp","6","Hispanic_NOS","naaccr","Hispanic, NOS"
@@ -113,8 +118,8 @@
 "n_marital",4,"Divorced","naaccr","Divorced"
 "n_marital",5,"Widowed","naaccr","Widowed"
 "n_marital",6,"Domestic Partner","naaccr","Unmarried or Domestic Partner (same sex or opposite sex, registered or unregistered, other than common law marriage)"
-"n_marital","2,3","Unknown",,
-"n_marital","9,2","Unknown",,
+"n_marital","2,3","Unknown","naaccr",
+"n_marital","9,2","Unknown","naaccr",
 "n_marital",9,"Unknown","naaccr","Unknown"
 "race_cd","white","White","i2b2",
 "race_cd","black","Black","i2b2",
@@ -137,3 +142,6 @@
 "language_cd","sign language","Other","i2b2",16
 "language_cd","@","Unknown","i2b2",20741
 "language_cd","unknown","Unknown","i2b2",734
+"sex_cd","m","m","i2b2",
+"sex_cd","f","f","i2b2",
+"sex_cd","u","u","i2b2",
