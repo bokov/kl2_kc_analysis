@@ -6,7 +6,7 @@
 #' 
 #+ echo=FALSE, inlcude=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -37,6 +37,12 @@ with(dat2,table(n_hisp,e_hisp,useNA = 'ifany')) %>%
 #                  ,NAACCR='',EMR='',PreExisting='',N=sum(N))) %>% pander;
 consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>% 
   mutate(`N Cumulative`=rev(cumsum(rev(N)))) %>% pander;
+#'
+#' Summary of all the variables in the combined i2b2/NAACCR set
+CreateTableOne(v(c_analytic,retcol='varname')
+               ,strata='n_cstatus',data = dat2,includeNA = T,test = F) %>% 
+  print(printToggle=F) %>% pander(split.tables=600); #pander_return(split.table=600,justify='right');
+
 
 #' What is the overall response range for the lag from diagnosis to surgery?
 subset(dat1,eval(subs_criteria$diag_surg)) %>% 
