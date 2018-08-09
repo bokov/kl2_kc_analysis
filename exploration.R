@@ -17,7 +17,7 @@ tself(scriptname=.currentscript);
 project_seed <- 20180803;
 if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 .loadedobjects <- tload(.depdata);
-knitr::opts_chunk$set(echo = FALSE,warning = FALSE);
+knitr::opts_chunk$set(echo = F,warning = F,message=F);
 #' ### Consistency-Checks
 #' 
 #' How well does sex match up between the EMRs and NAACCR?
