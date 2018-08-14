@@ -133,7 +133,8 @@ crashing. Please try again in clean environment.',trailobj));
     ptrail <- envir[[trailobj]];
     rm(list=trailobj,envir=envir);
   } else ptrail <- 'NO_TRAIL_FOUND';
-  tupdate('rdata',name=filename,value=file,hash=filehash,parent.trail = ptrail);
+  tupdate('rdata',name=sprintf('%s = "%s"',filename,file)
+          ,value=file,hash=filehash,parent.trail = ptrail);
   return(out);
 }
 
