@@ -54,7 +54,7 @@ if(debug>0){
     stop('colname values changed in dct0 after join');
 }
 #' end debug
-dct0$a_all <- TRUE;
+dct0$c_all <- TRUE;
 
 #' Load the NAACCR manual code mappings
 levels_map <- tread('levels_map.csv',read_csv,na='');
@@ -91,7 +91,13 @@ kcpatients.naaccr <- subset(dat1,n_kcancer)$patient_num %>% unique;
 #' create the raw time-to-event (tte) and censoring (cte) variables
 #' along with making a_n_race and a_n_dm time invariant
 dat1 <- mutate(dat1
-               # historic diagnoses... if they occur prior to non-historic, be suspicious
+               # the c() and paste() kind of screw up factors, making
+               # extra code necessary down the line to restore them
+               # There should be some simpler way to resolve multiple
+               # non-identical values for the same patient. Or at least
+               # a way to check to see which variables even have this 
+               # problem in the first place
+               ,n_sex=paste(c(unique(na.omit(n_sex)),NA)[1],collapse=',')
                ,a_n_race=paste(unique(na.omit(a_n_race)),collapse=',')
                ,a_n_dm=any(a_n_dm)
                ,a_e_dm=e_dm_i9|e_dm_i10
