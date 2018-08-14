@@ -17,6 +17,10 @@
 #' trail = For 'rdata', if a trail object exists, dump it into this field. And it can have its own trail objects
 #'   so we have an arbitrarily long "family tree" of ancestor objects!
 #' 
+#' TODO: (maybe) find a way to pass 'non-production' status to scripts that
+#'       get sourced by R to satisfy dependencies... or perhaps non-production
+#'       should not be that convenient, perhaps it should be manually turned
+#'       on and off for each file and it's better not to inherit it.
 #' TODO: function to write out .trail as a JSON or XML file (to accompany 
 #'       non-rdata saveouts)
 #' TODO: modify tread() to check for the existance of a trail flat-file as above
@@ -133,7 +137,8 @@ crashing. Please try again in clean environment.',trailobj));
     ptrail <- envir[[trailobj]];
     rm(list=trailobj,envir=envir);
   } else ptrail <- 'NO_TRAIL_FOUND';
-  tupdate('rdata',name=filename,value=file,hash=filehash,parent.trail = ptrail);
+  tupdate('rdata',name=sprintf('%s = "%s"',filename,file)
+          ,value=file,hash=filehash,parent.trail = ptrail);
   return(out);
 }
 
@@ -144,7 +149,8 @@ tread <- function(file,readfun,...){
   filename <- deparse(match.call()$file);
   filehash <- tools::md5sum(file);
   loaded <- readfun(file,...);
-  tupdate('file',name=filename,value=file,hash=filehash);
+  tupdate('file',name=sprintf('%s = "%s"',filename,file)
+          ,value=file,hash=filehash);
   return(loaded);
 }
 
