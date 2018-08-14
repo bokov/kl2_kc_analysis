@@ -144,7 +144,8 @@ tread <- function(file,readfun,...){
   filename <- deparse(match.call()$file);
   filehash <- tools::md5sum(file);
   loaded <- readfun(file,...);
-  tupdate('file',name=filename,value=file,hash=filehash);
+  tupdate('file',name=sprintf('%s = "%s"',filename,file)
+          ,value=file,hash=filehash);
   return(loaded);
 }
 
