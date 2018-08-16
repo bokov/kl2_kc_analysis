@@ -51,3 +51,6 @@ dctfile <- paste0('dct_',basename(inputdata));
 #' for this project. Upon the final stage it should get set to `Inf` in the 
 #' script that does it. WIP
 dct_stage <- Inf;
+#' This is the file that lists levels of discrete variables and what each listed
+#' level should be renamed to.
+levels_map_file <- 'levels_map.csv';

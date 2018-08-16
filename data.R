@@ -57,7 +57,7 @@ if(debug>0){
 dct0$c_all <- TRUE;
 
 #' Load the NAACCR manual code mappings
-levels_map <- tread('levels_map.csv',read_csv,na='');
+levels_map <- tread(levels_map_file,read_csv,na='');
 
 #' Create copy of original dataset
 dat1 <- group_by(dat0,patient_num);
