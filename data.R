@@ -145,8 +145,8 @@ consort_table <- summarise(cohorts,NAACCR=any(NAACCR),EMR=any(EMR)
 #' reproducibly.
 tseed(project_seed);
 #' Randomly to training, testing, or validation sets
-pat_samples <- split(dat1$patient_num,sample(c('train','test','val')
-                                         ,size=nrow(dat1),rep=T));
+pat_samples <- unique(dat1$patient_num) %>% 
+  split(.,sample(c('train','test','val'),size=length(.),rep=T));
 #' ## Transform certain columns
 # 
 #' Make sex/gender a factor

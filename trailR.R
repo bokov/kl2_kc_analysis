@@ -177,9 +177,20 @@ walktrail <- function(trail=tinit(),prepend='',seqcol=names(trail)[1]
                       ,prepend=paste0(trail[[seqcol]][ii],sep)
                       ,seqcol = seqcol,nestingcol = nestingcol));
   }
+  class(out) <- c('walktrail',class(out));
   return(out);
 }
 
+print.walktrail <- function(xx
+                            ,sub=c('sequence','time','type','name_value','hash')
+                            ,...){
+  sub <- sub[sub %in% c('name_value',names(xx))];
+  mutate(xx
+         ,name_value=paste(name
+                           ,name_value=ifelse(type=='info','...',value),sep='='))[,sub];
+}
+
+summary.walktrail <- print.walktrail;
 
 # script registering itself... adds a gitstamp and its own name to trail
 tself <- function(scriptname=parent.frame(2)$ofile
@@ -249,3 +260,4 @@ tsave <- function(...,list=character(),envir=parent.frame(),trailobj='.trail'){
 # if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 # tself(scriptname=currentscript);
 # tsave(mtcars,file='junktestsave.rdata');
+

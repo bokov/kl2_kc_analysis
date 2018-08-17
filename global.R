@@ -20,6 +20,7 @@ instrequire(c('compiler'                                   # just-in-time compil
              #,'survAUC','survivalROC','pROC'              # evaluating predictive power
              #,'Matrix'                                    # for pd matrices needed by faker()
              ,'readr','dplyr','stringr','magrittr'        # data manipulation & piping
+             ,'tools'
              #,'lubridate'
              #,'ggplot2','grid','GGally'                  # plotting
              ,'ggfortify'
