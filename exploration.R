@@ -83,7 +83,94 @@ dat2[,c(v(c_analytic,retcol = 'varname'),'n_cstatus'
                     ,gsub('   ','&nbsp;&nbsp;',rownames(.)))) %>%
   pander(split.table=600,justify='lrrrr',emphasize.rownames=F);
 
-#' ### Descriptive Plots (Preliminary)
+#' ## Which EMR and NAACCR variables are reliable event indicators?
+#' 
+#' We need the following variables for starters. For most or all of these 
+#' events, both data sources have multiple variables some or all of which could 
+#' be indicators. We will likely need to merge groups of synonymous variables 
+#' into one analytic variable each for NAACCR and for the EMR. This is to
+#' mitigate for missing data. We can then do the same analysis on the same 
+#' patients using NAACCR-only variables and EMR-only variables confirm that
+#' they agree. If we can either show agreement or find and resolve the causes
+#' of discrepancy this will permit other sites, which have not necessarily 
+#' merged NAACCR and EMR data, to replicate our analysis. It will also allow us
+#' to compare our results to national or Texas NAACCR data-sets which of course
+#' are not linked to EMR data.
+#' 
+#' However, there will be even fewer missing observations and a richer choice of 
+#' predictor variables if we work on a combined NAACCR and EMR dataset. 
+#' Therefore for each of the below we will also need a third analytic variable 
+#' combining NAACCR and EMR information. 
+#' 
+#' * *Events*
+#'     * Initial diagnosis (the `c_kcdiag` group of columns in `dct0`)
+#'         * NAACCR: 
+#'         * EMR: First occurence of any ICD9/10 code for kidney cancer
+#'     * Surgery (the `c_nephx` group of columns)
+#'         * NAACCR:
+#'         * EMR: First occurrence of any ICD9/10 code for acquired absence of 
+#'           kidney; first occurence of surgical history of nephrectomy; first
+#'     * Re-ocurrence
+#'     * Death
+#' * *Whether or not the patient is Hispanic*. A similar process needs to be
+#'   done for Hispanic ethnicity, but not as an ordinary static variable rather 
+#'   than time-to-event. I think I'll do two variables: one that is true if
+#'   we are very sure the patient is Hispanic, and the other one that is true if
+#'   we aren't certain the patient is _not_ Hispanic. In both cases, there will
+#'   also be an `Unknown` bins for where all variables are unanimous on the 
+#'   patient's Hispanic status being unknown. Basically two variables because
+#'   there are the two ends of the spectrum for resolving disagreement about a
+#'   binary variable between multiple sources.
+#' 
+#' ### Which variables are near-synonymous?
+#' 
+#' Some variables will, despite what they sound like will be clearly unrelated 
+#' to each other. Others will be in high pairwise agreement when both are
+#' non-missing. The ones in between need to be investigated further to determine
+#' whether they are more informative than no information at all, whether they
+#' can be cleaned up, and whether there is a bias (i.e. one variable will 
+#' consistently lag another variable). 
+#' 
+#' In the `data.R` script we will convert all the event variables to a time to
+#' event (tte) form. The above variables plus a few that are dates which aren't 
+#' currently known to correlate with any of the events of interest, but doesn't 
+#' hurt to check. The overall approach will be:
+#'  
+#' 1. Take for each patient the first visit where the variable is TRUE, 
+#'    non-missing, or in some cases meets some other criteria.
+#' 2. Center the `age_at_visit_days` variable on that visit, so for that patient
+#'    it is `0` on the visit, a negative integer prior to the visit, and a 
+#'    positive integer after. It will be seen later that this will help make
+#'    survival analysis easier when we get to it. For patients where an event is
+#'    never observed, these numbers will be shifted to that the value at the
+#'    last visit is `-1`, _not_ `0`. This is so that we can easily distinguish 
+#'    patients where the event never occurred.
+#' 
+#' Then we will be ready to probe the degree of agreement and size of lags 
+#' between these variables.
+#' 
+#' Our standard way of indexing time in this study is `age_at_visit_days`. 
+#' `dat1` will be collapsed into one row per patient, and the value for each of
+#' the above columns will be replaced with the age in days when that event 
+#' was recorded (if any, otherwise `NA`). We will then obtain a diagonal
+#' matrix of median differences between each pair of variables. Not only the 
+#' ones believed to reflect the same event, but all of them. This is so that we 
+#' can do an overall sanity check on the relationships between  groups of 
+#' variables. For example, if the supposed dates of surgery are in good 
+#' agreement with each other, but they often happen after the supposed date of 
+#' reoccurence, then that would be a problem we need to resolve before 
+#' proceeding further. Closer visualization of individual groups of variables 
+#' can be accomplished by subsetting from this master table.
+#' 
+#' In addition to medians, we might also generate tables of the 5th and 95th 
+#' percentiles of the differences as well as medians of the absolute values of
+#' the differences. The former are for identifying directional trends and the
+#' latter are to distinguish variables that track each other from variables that
+#' are uncorrelated but their difference is unbiased in one direction versus 
+#' another.
+#' 
+#' 
+#' ## Descriptive Plots (Preliminary)
 
 # subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) %>% 
 #   summarise(age=age_at_visit_days[a_tdiag==0]
