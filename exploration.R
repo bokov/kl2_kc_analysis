@@ -145,6 +145,17 @@ subset(dat2[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>%
 #' * DONE: ~~Create TTE variable for surgery date~~
 #' * TODO: Plot time from diagnosis to surgery, hisp vs non
 #'     * _First need to confirm interpretation of outcome variable_
+#'     * TODO: Apply the `tte()` function to all variable in `c_tte`
+#'     * TODO: Create a special TTE variable from the main i2b2 age at death
+#'     * TODO: Matrices of pairwise differences between all TTE variables
+#' * TODO: Create combined variables for each of the following:
+#'     * Initial diagnosis
+#'     * Surgery
+#'     * Re-ocurrence
+#'     * _Last follow-up ?_
+#'     * Death
+#'     * Strict Hispanic designator
+#'     * Lenient Hispanic designator
 #' * DONE: ~~Create censoring variable for surgery~~
 #' * DONE: ~~Create censoring variable for recurrence/death~~
 #' * TODO: Create unified Hispanic indicator
@@ -153,12 +164,12 @@ subset(dat2[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>%
 #'     * DONE ~~Diabetes~~
 #' * DONE: ~~Mappings for other numcode variables~~
 #' * TODO: Follow up re additional patient linkages, more recent NAACCR data
-#' * TODO: Re-run query with additional variables (_query completed_):
-#'     * EMR codes for secondary tumors
-#'     * median household income, 2016 and 2013
-#'     * HbA1c
-#'     * Family history of diabetes and cancer
+#' * DONE: ~~Re-run query with additional variables (_query completed_):~~
+#'     * ~~EMR codes for secondary tumors~~
+#'     * ~~median household income, 2016 and 2013~~
+#'     * ~~HbA1c~~
+#'     * ~~Family history of diabetes and cancer~~
 #' * TODO: Clean up TNM variables, in consultation with domain expert (Peter?)
 #' 
 #' ### Audit trail
-walktrail()[,-5] %>% pander(split.tables=600);
+walktrail()[,-5] %>% pander(split.tables=600,,justify='left');
