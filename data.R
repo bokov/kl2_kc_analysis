@@ -122,8 +122,76 @@ dat1 <- mutate(dat1
                ,a_csurg=cte(a_tsurg)
                ,a_cdeath=cte(a_tdeath)
                );
-#' A hack to restore NAs to NAACCR race designation and turn some character
-#' columns into factors with same order of levels as their i2b2 counterparts
+
+#' ### Mass-converting variables to time-to-event form
+#' 
+#' Warning: this gets really into the daRk aRts of R here but the alternative is
+#' a whole lot more code that accomplishes the same thing. Either way it's going
+#' to be hard for intermediate R programmers to grok, but at least the concise
+#' version is going to be easier for me to maintain, so I'm going with that one.
+#' Sorry. I'll try to document the especially magical pieces as I go.
+#' 
+# First, get the variable names that we designated in the data dictionary as
+# needing to be time-to-event. Note that some of the variables have been 
+# renamed, so that's why we have two v() expressions: the first for variables
+# we haven't bothered to rename (yet?) and the second for variables we expect to
+# have to refer to a lot accross multiple data refreshes, so we created 
+# persistent names. Note the use of optional arguments. The second argument to
+# v() is a named object, whose names v() uses to avoid returning any column
+# names which do not exist our current data. The retcol argument is what column
+# to return. Normally it's the 'colname' column in the data dictionary, but now
+# we are returning the 'varname' column which is what some variables have been
+# renamed TO.
+
+# TODO-- refactor the NATF thing above so that we can intersect those with these
+# to insure that all tte variables meet the assumption that they are TRUE/FALSE
+dat1 <- c(v(c_tte,dat1),v(c_tte,dat1,retcol = 'varname')) %>%
+  # Now we are going to create an unevaluated expression that operates on each
+  # of these in turn. 
+  sapply(function(xx) substitute(tte(age_at_visit_days,ii)
+                                 # the vector we created in the above step of 
+                                 # this pipeline is of type character and we 
+                                 # turn each of them into an unevaluated bit of
+                                 # code by using the as.name() function. Now it
+                                 # is of a data type that is compatible with 
+                                 # getting inserted into the unevaluated 
+                                 # call to tte() instead of the placeholder ii.
+                                 # We pass it to substitute() inside a list that
+                                 # via the optional env variable.
+                                 # Notice that we don't need simplify=F for 
+                                 # sapply() in this case because the output will 
+                                 # always be a list, R believes that calls 
+                                 # cannot be simplified to vectors in the first 
+                                 # place.
+                                 ,env=list(ii=as.name(xx)))) %>% 
+  # So at this stage in the pipeline we have a list of unevaluated expressions. 
+  # None of them will be valid in the .GlobalEnv context but they are valid 
+  # in the context of dat1... if we could only break out the list into 
+  # individual arguments to put into the '...' part of mutate(.data,...) ...
+  # Or, we can construct the entire desired list of arguments to mutate by
+  # prepending dat1. Notice that we wrap dat1 in a list this is to keep it as 
+  # one object-- otherwise, since data frames are lists, when you concatenate 
+  # a data.frame to another list you end up with one big list composed of
+  # the data.frame's columns in addition to whatever was in the first list.
+  c(list(.data=dat1),.) %>% 
+  # Instead we have a list with one more item at hte beginning than it had 
+  # before. That item is dat1, and everything else is an unevaluated expression 
+  # tha can be evaluated inside dat1. That makes it a valid set of arguments for
+  # mutate. R doesn't allow you to explode a list out into separate variables 
+  # like Python does (at least not very gracefully/robustly). But it does offer
+  # the do.call function, which takes as its first argument a function, and as
+  # its second a list that will become the arguments with which that function
+  # gets invoked. 
+  do.call(mutate,.);
+  # We achieved our objective: now all our time-to-event variables 
+  # are, instead of TRUE/FALSE integers showing how many days are until the
+  # first occurences of their respetive events, 0 at those events if they happen
+  # and positive numbers for as long as we have visits for after those events.
+
+#' 
+#' Below is a hack to restore NAs to NAACCR race designation and turn some 
+#' character columns into factors with same order of levels as their i2b2 
+#' counterparts
 dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race)) %>% 
   factor(levels=levels(dat1$race_cd));
 #dat1$sex_cd <- factor(dat1$sex_cd,levels=levels(dat1$n_sex));

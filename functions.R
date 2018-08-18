@@ -297,10 +297,15 @@ tte <- function(time,expr,...){
 
 #' Code the output of `tte()` such that before an event observations get `0`
 #' during the (first) event observations get `1` and subsequent get `2`
-cte <- function(...){
-  event <- sign(pmax(...,na.rm=T));
-  ifelse(event<0,0,ifelse(event==0,1,2))
-}
+#' 
+#' By default it shifts the result by 1, producing a vector that can directly be
+#' used as the `event` in a `Surv(time,event)` type expression assuming you trim
+#' out the >1 values. To change the amount of shift, use the optional `shift`
+#' argument. To do something other than shifting by that amount, use the 
+#' optional `fn` variable which takes as its argument a function that can 
+#' operate on exactly two arguments.
+#' 
+cte <- function(...,shift=1,fn=`+`) fn(sign(pmax(...,na.rm=T)),shift);
 
 #' Delete all the junk in your environment, for testing
 clearenv <- function(env=.GlobalEnv) rm(list=setdiff(ls(all=T,envir=env),'clearenv'),envir=env);
@@ -608,6 +613,7 @@ stratatable <- function(xx,vars=NULL,...){
 #'                   (currently) enforced programmatically.
 v <- function(var,dat
               ,matchcol='colname'
+              # todo: let retcol take a vector argument
               ,retcol=matchcol
               ,dictionary=dct0) {
   # convenience function: if forgot what column names are available, call with
@@ -615,9 +621,6 @@ v <- function(var,dat
   if(missing(var)) return(names(dictionary));
   # support both standard or non-standard evaluation
   var<-as.character(substitute(var));
-  # if a 'dat' argument is given, restrict the output so that only results having
-  # having values found in the colnames of 'dat' are returned.
-  if(!missing(dat)) dictionary <- dictionary[dictionary[[matchcol]]%in%colnames(dat),];
   # TODO: Think about what to do when nothing matches... not necessarily an error
   #       condition, might just be something to warn about and move on.
   out<-dictionary[dictionary[[var]],retcol][[1]];
@@ -629,7 +632,11 @@ v <- function(var,dat
   # 'na.omit()' needed because we allows the 'dictionary' object to have NAs instead
   # of FALSEs. 'c()' needed to strip na.omit metadata, so the output is a plain
   # old vector
-  return(c(na.omit(out)));
+  out <- c(na.omit(out));
+  # if a 'dat' argument is given, restrict the output so that only results having
+  # having values found in the colnames of 'dat' are returned.
+  if(!missing(dat)) out <- out[out%in%colnames(dat)];
+  return(unname(out));
   }
 
 #'.This function will create a variable summary table that will provide 

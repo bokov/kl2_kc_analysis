@@ -65,7 +65,7 @@
 "_rc","0164 Race 5",,,,"FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
 "_spnsh_hspnc","0190 Spanish/Hispanic Origin",,"n_hisp","Hispanic Origin, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","FALSE","TRUE","FALSE"
 "_sx","0220 Sex",,"n_sex","Sex, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","FALSE","TRUE","FALSE"
-"_dt_of_brth","0240 Date of Birth",,"n_dob",,"FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_dt_of_brth","0240 Date of Birth",,"n_dob",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,"FALSE","FALSE","FALSE","FALSE"
 "_brthplc","0250 Birthplace",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","FALSE","FALSE","FALSE","FALSE"
 "_dt_of_dgns","0390 Date of Diagnosis",,"n_ddiag",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
 "_prmr_pr_at_dx","0630 Primary Payer at DX",,"n_payer","Insurance, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","FALSE","FALSE","TRUE"
