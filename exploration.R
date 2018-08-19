@@ -150,9 +150,18 @@ dat2[,c(v(c_analytic,retcol = 'varname'),'n_cstatus'
 #' between these variables.
 #' 
 #' Our standard way of indexing time in this study is `age_at_visit_days`. 
-#' `dat1` will be collapsed into one row per patient, and the value for each of
-#' the above columns will be replaced with the age in days when that event 
-#' was recorded (if any, otherwise `NA`). We will then obtain a diagonal
+#' The main table `dat1` will be collapsed into one row per patient, and the 
+#' value for each of the above columns will be replaced with the age in days 
+#' when that event was recorded (if any, otherwise `NA`). This table will be 
+#' called `xdat1`. 
+# To understand what the below code does, see the comments for the very similar
+# pattern in `data.R` in the neighborhood lines 148-191 as of 8/19/2018
+xdat1 <- sapply(l_tte
+                ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
+                                         else NA,env=list(ii=as.name(xx)))) %>% 
+  c(list(.data=select(dat1,c('age_at_visit_days',l_tte))),.) %>% 
+  do.call(summarize,.) %>% `[`(-1);
+#' We will then obtain a diagonal
 #' matrix of median differences between each pair of variables. Not only the 
 #' ones believed to reflect the same event, but all of them. This is so that we 
 #' can do an overall sanity check on the relationships between  groups of 

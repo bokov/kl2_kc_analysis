@@ -131,6 +131,10 @@ dat1 <- mutate(dat1
 #' version is going to be easier for me to maintain, so I'm going with that one.
 #' Sorry. I'll try to document the especially magical pieces as I go.
 #' 
+#' TODO-- refactor the NATF thing above so that we can intersect those with 
+#' these to insure that all tte variables meet the assumption that they are 
+#' TRUE/FALSE
+#' 
 # First, get the variable names that we designated in the data dictionary as
 # needing to be time-to-event. Note that some of the variables have been 
 # renamed, so that's why we have two v() expressions: the first for variables
@@ -142,10 +146,9 @@ dat1 <- mutate(dat1
 # to return. Normally it's the 'colname' column in the data dictionary, but now
 # we are returning the 'varname' column which is what some variables have been
 # renamed TO.
-
-# TODO-- refactor the NATF thing above so that we can intersect those with these
-# to insure that all tte variables meet the assumption that they are TRUE/FALSE
-dat1 <- c(v(c_tte,dat1),v(c_tte,dat1,retcol = 'varname')) %>%
+# Note that we retain a copy of the vector created in the first expression for
+# later use.
+dat1 <- (l_tte<-c(v(c_tte,dat1),v(c_tte,dat1,retcol = 'varname'))) %>%
   # Now we are going to create an unevaluated expression that operates on each
   # of these in turn. 
   sapply(function(xx) substitute(tte(age_at_visit_days,ii)
@@ -178,8 +181,13 @@ dat1 <- c(v(c_tte,dat1),v(c_tte,dat1,retcol = 'varname')) %>%
   # others but is the death event as recorded by the 'PATIENT_DIMENSION' table
   # in i2b2. It's the EMR death record as opposed to the SSN one.
   c(list(.data=dat1),.
-    ,alist(e_death=tte(age_at_visit_days
-                       ,age_at_visit_days==age_at_death_days))) %>% 
+    ,alist( e_death=tte(age_at_visit_days
+                       ,age_at_visit_days==age_at_death_days)
+            # also here is 'n_vtstat', the NAACCR vital status... hopefully also
+            # with its visit date set to the date of death-- if so that will 
+            # save a few steps
+           ,n_vtstat=tte(age_at_visit_days,n_vtstat=='Dead')
+           )) %>% 
   # Instead we have a list with one more item at hte beginning than it had 
   # before. That item is dat1, and everything else is an unevaluated expression 
   # tha can be evaluated inside dat1. That makes it a valid set of arguments for
