@@ -297,10 +297,15 @@ tte <- function(time,expr,...){
 
 #' Code the output of `tte()` such that before an event observations get `0`
 #' during the (first) event observations get `1` and subsequent get `2`
-cte <- function(...){
-  event <- sign(pmax(...,na.rm=T));
-  ifelse(event<0,0,ifelse(event==0,1,2))
-}
+#' 
+#' By default it shifts the result by 1, producing a vector that can directly be
+#' used as the `event` in a `Surv(time,event)` type expression assuming you trim
+#' out the >1 values. To change the amount of shift, use the optional `shift`
+#' argument. To do something other than shifting by that amount, use the 
+#' optional `fn` variable which takes as its argument a function that can 
+#' operate on exactly two arguments.
+#' 
+cte <- function(...,shift=1,fn=`+`) fn(sign(pmax(...,na.rm=T)),shift);
 
 #' Delete all the junk in your environment, for testing
 clearenv <- function(env=.GlobalEnv) rm(list=setdiff(ls(all=T,envir=env),'clearenv'),envir=env);
@@ -359,6 +364,30 @@ autoboxplot <- function(pdata, xx, yy, zz, subset=T
 }
 
 getCall.data.frame <- getCall.gg <- function(xx) attr(xx,'call');
+
+#' From ... https://menugget.blogspot.com/2011/11/define-color-steps-for-colorramppalette.html#more
+#' Manually shape the intervals of a color gradient
+color.palette <- function(steps, n.steps.between=NULL, ...){
+  if(is.null(n.steps.between)) n.steps.between <- rep(0, (length(steps)-1))
+  if(length(n.steps.between) != length(steps)-1) stop("Must have one less n.steps.between value than steps")
+  
+  fill.steps <- cumsum(rep(1, length(steps))+c(0,n.steps.between))
+  RGB <- matrix(NA, nrow=3, ncol=fill.steps[length(fill.steps)])
+  RGB[,fill.steps] <- col2rgb(steps)
+  
+  for(i in which(n.steps.between>0)){
+    col.start=RGB[,fill.steps[i]]
+    col.end=RGB[,fill.steps[i+1]]
+    for(j in seq(3)){
+      vals <- seq(col.start[j], col.end[j], length.out=n.steps.between[i]+2)[2:(2+n.steps.between[i]-1)]  
+      RGB[j,(fill.steps[i]+1):(fill.steps[i+1]-1)] <- vals
+    }
+  }
+  
+  new.steps <- rgb(RGB[1,], RGB[2,], RGB[3,], maxColorValue = 255)
+  pal <- colorRampPalette(new.steps, ...)
+  return(pal)
+}
 
 
 #' From ... http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
@@ -608,6 +637,7 @@ stratatable <- function(xx,vars=NULL,...){
 #'                   (currently) enforced programmatically.
 v <- function(var,dat
               ,matchcol='colname'
+              # todo: let retcol take a vector argument
               ,retcol=matchcol
               ,dictionary=dct0) {
   # convenience function: if forgot what column names are available, call with
@@ -615,9 +645,6 @@ v <- function(var,dat
   if(missing(var)) return(names(dictionary));
   # support both standard or non-standard evaluation
   var<-as.character(substitute(var));
-  # if a 'dat' argument is given, restrict the output so that only results having
-  # having values found in the colnames of 'dat' are returned.
-  if(!missing(dat)) dictionary <- dictionary[dictionary[[matchcol]]%in%colnames(dat),];
   # TODO: Think about what to do when nothing matches... not necessarily an error
   #       condition, might just be something to warn about and move on.
   out<-dictionary[dictionary[[var]],retcol][[1]];
@@ -629,7 +656,11 @@ v <- function(var,dat
   # 'na.omit()' needed because we allows the 'dictionary' object to have NAs instead
   # of FALSEs. 'c()' needed to strip na.omit metadata, so the output is a plain
   # old vector
-  return(c(na.omit(out)));
+  out <- c(na.omit(out));
+  # if a 'dat' argument is given, restrict the output so that only results having
+  # having values found in the colnames of 'dat' are returned.
+  if(!missing(dat)) out <- out[out%in%colnames(dat)];
+  return(unname(out));
   }
 
 #'.This function will create a variable summary table that will provide 

@@ -23,7 +23,7 @@ instrequire(c('compiler'                                   # just-in-time compil
              ,'tools'
              #,'lubridate'
              #,'ggplot2','grid','GGally'                  # plotting
-             ,'ggfortify'
+             ,'ggfortify','heatmap3'
              #,'survminer','gridExtra','scales'
              #,'stargazer','broom','janitor'              # table formatting
              ,'pander','tableone'
