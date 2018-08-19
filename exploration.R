@@ -26,7 +26,7 @@ knitr::opts_chunk$set(echo = F,warning = F,message=F);
 #'     * ...in Epic?
 #'     * ...in Sunrise?
 #' * Where in the chart would one positively establish the date of the patient's 
-#'   first nephrectomy?
+#'   first nephrectomy...
 #'     * ...in Epic?
 #'     * ...in Sunrise?
 #' * Is there some additional data source that the UTHealth NAACCR registrar
