@@ -154,6 +154,7 @@ dat2[,c(v(c_analytic,retcol = 'varname'),'n_cstatus'
 #' value for each of the above columns will be replaced with the age in days 
 #' when that event was recorded (if any, otherwise `NA`). This table will be 
 #' called `xdat1`. 
+#+ create_xdat,cache=TRUE
 # To understand what the below code does, see the comments for the very similar
 # pattern in `data.R` in the neighborhood lines 148-191 as of 8/19/2018
 l_tte <- c(l_tte,'e_death','n_vtstat');
@@ -168,16 +169,40 @@ xdat1 <- sapply(l_tte
 #' relationships between  groups of variables. For example, if the supposed 
 #' dates of surgery are in good agreement with each other, but they often happen 
 #' after the supposed date of reoccurence, then that would be a problem we need 
-#' to resolve before proceeding further. Closer visualization of individual 
-#' groups of variables can be accomplished by subsetting from this master table.
+#' to resolve before proceeding further. 
+#+ medians_heatmap,fig.width=10,fig.height=10
 xdat1.meds<-outer(xdat1,xdat1,FUN = function(xx,yy)
   mapply(function(aa,bb) quantile(aa-bb,.5,na.rm = T),xx,yy));
 # We need to exclude the 'n_dob' variable because it otherwise screws up the
 # scaling
 .xdat1.keep <- colnames(xdat1.meds)!='n_dob';
-heatmap(xdat1.meds[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F
+# This is to distinguish missing values from 0 values in a heatmap! No other way
+# to do that!!
+#layout(matrix(1,nrow=2,ncol=2));
+par(bg='gray',mfrow=1:2,mfcol=1:2);
+heatmap3(xdat1.meds[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F
         ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
                              ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
+
+#' _RED indicates row-event occurred after column event and BLUE indicates that
+#' row event occurred before column event._
+#' 
+#' A lot to unpack here! We can already see that some variables are in close
+#' agreement (but these are just medians, this needs to be confirmed
+#' on just those groups of variables by checking whether they EVER differ when
+#' when both are present... if they never differ, we can treat them as 
+#' synonymous in casese where one or the other is missing assuming these 
+#' conclusions are on a reasonably large sample size). Another early conclusion
+#' from this is that it isn't looking good for EMR events lining up with NAACCR 
+#' events out of the box... they seem to lag behind NAACCR dates, especially 
+#' diagnoses and (not surprisingly) surgical history. Might need to see if there
+#' is something in the EMR that captures date of surgery (especially in Sunrise)
+#' and chart review to see why the KC diagnosis codes lag behind NAACCR
+#' diagnosis date.
+#' 
+#' Closer visualization of individual groups of variables can be accomplished by 
+#' subsetting from this master table.
+#' 
 #' In addition to medians, we might also generate tables of the 5th and 95th 
 #' percentiles of the differences as well as medians of the absolute values of
 #' the differences. The former are for identifying directional trends and the
