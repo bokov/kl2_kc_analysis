@@ -6,7 +6,7 @@
 #' 
 #+ echo=FALSE, inlcude=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -156,21 +156,28 @@ dat2[,c(v(c_analytic,retcol = 'varname'),'n_cstatus'
 #' called `xdat1`. 
 # To understand what the below code does, see the comments for the very similar
 # pattern in `data.R` in the neighborhood lines 148-191 as of 8/19/2018
+l_tte <- c(l_tte,'e_death','n_vtstat');
 xdat1 <- sapply(l_tte
                 ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
                                          else NA,env=list(ii=as.name(xx)))) %>% 
   c(list(.data=select(dat1,c('age_at_visit_days',l_tte))),.) %>% 
   do.call(summarize,.) %>% `[`(-1);
-#' We will then obtain a diagonal
-#' matrix of median differences between each pair of variables. Not only the 
-#' ones believed to reflect the same event, but all of them. This is so that we 
-#' can do an overall sanity check on the relationships between  groups of 
-#' variables. For example, if the supposed dates of surgery are in good 
-#' agreement with each other, but they often happen after the supposed date of 
-#' reoccurence, then that would be a problem we need to resolve before 
-#' proceeding further. Closer visualization of individual groups of variables 
-#' can be accomplished by subsetting from this master table.
-#' 
+#' We will then obtain a diagonal matrix of median differences between each pair 
+#' of variables. Not only the ones believed to reflect the same event, but all 
+#' of them. This is so that we can do an overall sanity check on the 
+#' relationships between  groups of variables. For example, if the supposed 
+#' dates of surgery are in good agreement with each other, but they often happen 
+#' after the supposed date of reoccurence, then that would be a problem we need 
+#' to resolve before proceeding further. Closer visualization of individual 
+#' groups of variables can be accomplished by subsetting from this master table.
+xdat1.meds<-outer(xdat1,xdat1,FUN = function(xx,yy)
+  mapply(function(aa,bb) quantile(aa-bb,.5,na.rm = T),xx,yy));
+# We need to exclude the 'n_dob' variable because it otherwise screws up the
+# scaling
+.xdat1.keep <- colnames(xdat1.meds)!='n_dob';
+heatmap(xdat1.meds[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F
+        ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
+                             ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
 #' In addition to medians, we might also generate tables of the 5th and 95th 
 #' percentiles of the differences as well as medians of the absolute values of
 #' the differences. The former are for identifying directional trends and the
