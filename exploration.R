@@ -179,13 +179,13 @@ xdat1.meds<-outer(xdat1,xdat1,FUN = function(xx,yy)
 # This is to distinguish missing values from 0 values in a heatmap! No other way
 # to do that!!
 #layout(matrix(1,nrow=2,ncol=2));
-par(bg='gray',mfrow=1:2,mfcol=1:2);
-heatmap3(xdat1.meds[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F
+par(bg='gray'); #,mfrow=1:2,mfcol=1:2);
+heatmap(xdat1.meds[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F,margins=c(10,10)
         ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
                              ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
 
-#' _RED indicates row-event occurred after column event and BLUE indicates that
-#' row event occurred before column event._
+#' _RED indicates row-event occurred after column-event and BLUE indicates that
+#' row-event occurred before column-event._
 #' 
 #' A lot to unpack here! We can already see that some variables are in close
 #' agreement (but these are just medians, this needs to be confirmed
