@@ -18,6 +18,20 @@ project_seed <- 20180803;
 if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 .loadedobjects <- tload(.depdata);
 knitr::opts_chunk$set(echo = F,warning = F,message=F);
+#' ### Questions for Domain Expert
+#' 
+#' * How would one distinguish the chart of a patient who is was diagnosed for 
+#'   the first time with a kidney tumor from that of a patient experiencing a 
+#'   relapse?
+#'     * Epic?
+#'     * Sunrise?
+#' * Where in the chart would one positively establish the date of the patient's 
+#'   first nephrectomy?
+#'     * Epic?
+#'     * Sunrise?
+#' * Is there some additional data source that the UTHealth NAACCR registrar
+#'   consults?
+#' 
 #' ### Consistency-Checks
 #' 
 #' How well does sex match up between the EMRs and NAACCR?
