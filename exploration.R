@@ -22,13 +22,13 @@ knitr::opts_chunk$set(echo = F,warning = F,message=F);
 #' 
 #' * How would one distinguish the chart of a patient who is was diagnosed for 
 #'   the first time with a kidney tumor from that of a patient experiencing a 
-#'   relapse?
-#'     * Epic?
-#'     * Sunrise?
+#'   relapse...
+#'     * ...in Epic?
+#'     * ...in Sunrise?
 #' * Where in the chart would one positively establish the date of the patient's 
 #'   first nephrectomy?
-#'     * Epic?
-#'     * Sunrise?
+#'     * ...in Epic?
+#'     * ...in Sunrise?
 #' * Is there some additional data source that the UTHealth NAACCR registrar
 #'   consults?
 #' 
