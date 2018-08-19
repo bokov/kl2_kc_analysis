@@ -173,7 +173,13 @@ dat1 <- c(v(c_tte,dat1),v(c_tte,dat1,retcol = 'varname')) %>%
   # one object-- otherwise, since data frames are lists, when you concatenate 
   # a data.frame to another list you end up with one big list composed of
   # the data.frame's columns in addition to whatever was in the first list.
-  c(list(.data=dat1),.) %>% 
+  # Also, adding on to the end one more new variable to be created, 'e_death'
+  # which for technical reasons has to be treated differently from all the
+  # others but is the death event as recorded by the 'PATIENT_DIMENSION' table
+  # in i2b2. It's the EMR death record as opposed to the SSN one.
+  c(list(.data=dat1),.
+    ,alist(e_death=tte(age_at_visit_days
+                       ,age_at_visit_days==age_at_death_days))) %>% 
   # Instead we have a list with one more item at hte beginning than it had 
   # before. That item is dat1, and everything else is an unevaluated expression 
   # tha can be evaluated inside dat1. That makes it a valid set of arguments for
