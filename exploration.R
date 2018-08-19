@@ -173,6 +173,12 @@ xdat1 <- sapply(l_tte
 #+ medians_heatmap,cache=TRUE,fig.width=10,fig.height=10
 xdat1.meds<-outer(xdat1,xdat1,FUN = function(xx,yy)
   mapply(function(aa,bb) quantile(aa-bb,.5,na.rm = T),xx,yy));
+xdat1.mabs<-outer(xdat1,xdat1,FUN = function(xx,yy)
+  mapply(function(aa,bb) quantile(abs(aa-bb),.5,na.rm = T),xx,yy));
+xdat1.mabx<-outer(xdat1,xdat1,FUN=function(xx,yy)
+  mapply(function(aa,bb) {
+    oo<-max(abs(aa-bb),na.rm=T);
+    if(is.infinite(oo)) return(NA) else return(oo)},xx,yy));
 xdat1.maxs<-outer(xdat1,xdat1,FUN=function(xx,yy)
   mapply(function(aa,bb) {
     oo<-max(aa-bb,na.rm=T);
