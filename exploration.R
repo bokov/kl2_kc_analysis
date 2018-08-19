@@ -288,12 +288,12 @@ subset(dat2[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>%
 #' * DONE: ~~Create TTE variable for surgery date~~
 #' * TODO: Plot time from diagnosis to surgery, hisp vs non
 #'     * _First need to confirm interpretation of outcome variable_
-#'     * DONE: ~~Apply the `tte()` function to all variable in `c_tte`~~
-#'     * TODO: Prior to doing the above `tte()` put in a safeguard to make
-#'             sure all the `c_tte` variables are `TRUE/FALSE` only. They
-#'             are right now as it happens, but nothing enforces that.
-#'     * TODO: Create a special TTE variable from the main i2b2 age at death
-#'     * TODO: Matrices of pairwise differences between all TTE variables
+#' * DONE: ~~Apply the `tte()` function to all variable in `c_tte`~~
+#' * TODO: Prior to doing the above `tte()` put in a safeguard to make
+#'         sure all the `c_tte` variables are `TRUE/FALSE` only. They
+#'         are right now as it happens, but nothing enforces that.
+#' * DONE: ~~Create a special TTE variable from the main i2b2 age at death~~
+#' * DONE: ~~Matrices of pairwise differences between all TTE variables~~
 #' * TODO: Create combined variables for each of the following:
 #'     * Initial diagnosis
 #'     * Surgery
@@ -310,6 +310,10 @@ subset(dat2[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>%
 #'     * DONE ~~Diabetes~~
 #' * DONE: ~~Mappings for other numcode variables~~
 #' * TODO: Follow up re additional patient linkages, more recent NAACCR data
+#' * TODO: In next re-run of query...
+#'     * Include 3170 Date of Most Definitive Surgical Resection of the Primary 
+#'       Site aka 'RX Date--Most Defin Surg'
+#'     * Miperamine, other anti-depressants
 #' * DONE: ~~Re-run query with additional variables (_query completed_):~~
 #'     * ~~EMR codes for secondary tumors~~
 #'     * ~~median household income, 2016 and 2013~~
