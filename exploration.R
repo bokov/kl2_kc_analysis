@@ -170,9 +170,18 @@ xdat1 <- sapply(l_tte
 #' dates of surgery are in good agreement with each other, but they often happen 
 #' after the supposed date of reoccurence, then that would be a problem we need 
 #' to resolve before proceeding further. 
-#+ medians_heatmap,fig.width=10,fig.height=10
+#+ medians_heatmap,cache=TRUE,fig.width=10,fig.height=10
 xdat1.meds<-outer(xdat1,xdat1,FUN = function(xx,yy)
   mapply(function(aa,bb) quantile(aa-bb,.5,na.rm = T),xx,yy));
+xdat1.maxs<-outer(xdat1,xdat1,FUN=function(xx,yy)
+  mapply(function(aa,bb) {
+    oo<-max(aa-bb,na.rm=T);
+    if(is.infinite(oo)) return(NA) else return(oo)},xx,yy));
+xdat1.mins<-outer(xdat1,xdat1,FUN=function(xx,yy)
+  mapply(function(aa,bb) {
+    oo<-min(aa-bb,na.rm=T);
+    if(is.infinite(oo)) return(NA) else return(oo)},xx,yy));
+
 # We need to exclude the 'n_dob' variable because it otherwise screws up the
 # scaling
 .xdat1.keep <- colnames(xdat1.meds)!='n_dob';
