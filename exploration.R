@@ -213,8 +213,9 @@ xdat1.mins<-outer(xdat1,xdat1,FUN=function(xx,yy)
 #layout(matrix(1,nrow=2,ncol=2));
 par(bg='gray'); #,mfrow=1:2,mfcol=1:2);
 heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F,margins=c(10,10)
-        ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
-                             ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
+        ,col=colorRampPalette(c('darkred','red','blue','lightblue'))(2000));
+        # ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
+        #                      ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
 
 #' _RED indicates row-event occurred after column-event and BLUE indicates that
 #' row-event occurred before column-event._

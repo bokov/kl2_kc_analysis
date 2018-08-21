@@ -13,11 +13,11 @@
 "_bn_crtnn_rt_3097_3_info","BUN/CREATININE RATIO(#1017)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
 "_dt_srgcl_dsch","3180 RX Date--Surgical Disch",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,,,,,
 "_mlgnt_nplsm","C64 Malignant neoplasm of kidney, except renal pelvis",,"e_kc_i10","KC ICD10, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_mlgnt_nplsm_inactive","C64 Malignant neoplasm of kidney, except renal pelvis",,"e_kc_i10_i","History of KC ICD10, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE","TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
+"_mlgnt_nplsm_inactive","C64 Malignant neoplasm of kidney, except renal pelvis",,"e_kc_i10_i","History of KC ICD10, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
 "_dbts_mlts","250 Diabetes mellitus",,"e_dm_i9","DM ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
 "_dbts_mlts_inactive","250 Diabetes mellitus",,"e_dm_i9_i","History of DM ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
 "_mlgnt_nplsm","189.0 Malignant neoplasm of kidney, except pelvis",,"e_kc_i9","KC ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_mlgnt_nplsm_inactive","189.0 Malignant neoplasm of kidney, except pelvis",,"e_kc_i9_i","History of KC ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE","TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
+"_mlgnt_nplsm_inactive","189.0 Malignant neoplasm of kidney, except pelvis",,"e_kc_i9_i","History of KC ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
 "_bd_ms_indx_num","Body Mass Index",,"e_bmi","BMI, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","TRUE","FALSE","FALSE"
 "_bd_ms_indx_info","Body Mass Index",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
 "_scndr_nrndcrn","C7B-C7B Secondary neuroendocrine tumors (C7B)",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
