@@ -270,9 +270,6 @@ dat2 <- group_by(dat1,patient_num) %>%
 #' assigned to it is an R expression that can be evaluated in the
 #' scope of `dat1` and will return a `TRUE`/`FALSE` vector
 subs_criteria <- alist(
-   # evidence of cancer prior to first diagnosis in NAACCR
-    prior_cancer = comp_iijj(v(c_preexist,dat1,retcol=c('colname','varname'))
-                             ,v(c_kcdiag,dat1,retcol=c('colname','varname')))
    # from diagnosis to surgery
    ,diag_surg = a_tdiag>=0 & a_tsurg<=0 & patient_num %in% kcpatients.naaccr
    # from surgery to recurrence
@@ -282,6 +279,13 @@ subs_criteria <- alist(
    # from surgery to recurrence or death
    ,surg_drecur = a_tsurg>=0 & pmax(a_trecur,a_tdeath,na.rm = T)<=0 & patient_num%in%kcpatients.naaccr
 );
+# evidence of cancer prior to first diagnosis in NAACCR
+subs_criteria$prior_cancer <- comp_iijj(v(c_preexist,dat1
+                                          ,retcol=c('colname','varname'))
+                                        ,v(c_kcdiag,dat1
+                                           ,retcol=c('colname','varname')));
+
+
 
 #' Creates a hierarchy of lists containing various subsets of interest
 sbs0 <- sapply(list(all=dat1,index=dat2),function(xx) do.call(ssply,c(list(dat=xx),subs_criteria[-1])),simplify=F);
