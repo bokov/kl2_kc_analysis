@@ -207,7 +207,7 @@ xdat1.mins<-outer(xdat1,xdat1,FUN=function(xx,yy)
 
 # We need to exclude the 'n_dob' variable because it otherwise screws up the
 # scaling
-.xdat1.keep <- colnames(xdat1.meds)!='n_dob';
+.xdat1.keep <- colnames(xdat1)!='n_dob';
 # This is to distinguish missing values from 0 values in a heatmap! No other way
 # to do that!!
 #layout(matrix(1,nrow=2,ncol=2));
