@@ -185,6 +185,8 @@ xdat1 <- sapply(l_tte
 #' after the supposed date of reoccurence, then that would be a problem we need 
 #' to resolve before proceeding further. 
 #+ medians_heatmap,cache=TRUE,fig.width=10,fig.height=10
+xdat1.gteq<-outer(xdat1,xdat1,FUN = function(xx,yy)
+  mapply(function(aa,bb) mean(aa>bb,na.rm = T),xx,yy));
 xdat1.meds<-outer(xdat1,xdat1,FUN = function(xx,yy)
   mapply(function(aa,bb) quantile(aa-bb,.5,na.rm = T),xx,yy));
 xdat1.mabs<-outer(xdat1,xdat1,FUN = function(xx,yy)
@@ -209,7 +211,7 @@ xdat1.mins<-outer(xdat1,xdat1,FUN=function(xx,yy)
 # to do that!!
 #layout(matrix(1,nrow=2,ncol=2));
 par(bg='gray'); #,mfrow=1:2,mfcol=1:2);
-heatmap(xdat1.meds[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F,margins=c(10,10)
+heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F,margins=c(10,10)
         ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
                              ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
 
