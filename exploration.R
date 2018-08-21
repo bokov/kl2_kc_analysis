@@ -175,7 +175,8 @@ l_tte <- c(l_tte,'e_death','n_vtstat');
 xdat1 <- sapply(l_tte
                 ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
                                          else NA,env=list(ii=as.name(xx)))) %>% 
-  c(list(.data=select(dat1,c('age_at_visit_days',l_tte))),.) %>% 
+  c(list(.data=select(subset(dat1,!eval(subs_criteria$prior_cancer))
+                      ,c('age_at_visit_days',l_tte))),.) %>% 
   do.call(summarize,.) %>% `[`(-1);
 #' We will then obtain a diagonal matrix of median differences between each pair 
 #' of variables. Not only the ones believed to reflect the same event, but all 
