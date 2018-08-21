@@ -303,16 +303,31 @@ tte <- function(time,expr,...){
 #' If the optional `env` is provided, returns a result vector 
 #' evaluated in the environment of env, otherwise return an unevaluated call.
 #'
-#' @param ii 
-#' @param jj 
-#' @param fii 
-#' @param fjj 
-#' @param fcmp 
+#' @param ii    A vector of object or variable names (required)
+#' @param jj    A vector of object or variable names (required)
+#' @param env   An optional list-like object containing above-named
+#'              objects.
+#' @param fii   The name (character) of a function that can take all the objects
+#'              represented in `ii` as its argument-list... 'pmax' by default.
+#' @param fjj   The name (character) of a function that can take all the objects
+#'              represented in `jj` as its argument-list. Set to `fii` by
+#'              default.
+#' @param fcmp  The name (character) of a function that will take the outputs of
+#'              functions named in `fii` and `fjj` as its two arguments. By 
+#'              default it's '<'.
+#' @param optii A named list of optional arguments to pass to `fii`. By default
+#'              it only name-value pair is `na.rm=T`
+#' @param optjj A named list of optional arguments to pass to `fii`. By default
+#'              it's set to `optjj`
 #'
-#' @return
+#' @return A call generated using the above arguments, unless `env`  is
+#'         given in which case the result of evaluating that call in the context
+#'         of `env`
 #' @export
 #'
-#' @examples
+#' @examples comp_iijj(v(c_natf,dat1,retcol=c('colname','varname'))
+#'                    ,v(c_kcdiag,dat1,retcol=c('colname','varname')),dat1);
+#' 
 comp_iijj <- function(ii,jj,env,fii='pmax',fjj=fii,fcmp='>'
                       ,optii=list(na.rm=T),optjj=optii){
   ii <- lapply(ii,as.name); jj <- lapply(jj,as.name);
