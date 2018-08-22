@@ -126,8 +126,8 @@
 "_kdn_ns","Kidney, NOS",,"n_kcancer","KC, Registry","TRUE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,"FALSE","FALSE","TRUE","FALSE"
 "_hshld_ptnts","Median Household Income ACS 2013[747,004 facts; 747,004 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
 "_ys","Yes","Smoking",,,,"TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
-"_mlgnt_nplsm","Z85 Personal history of malignant neoplasm",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE","TRUE",,,,,,,,
-"_mlgnt_nplsm_inactive","Z85 Personal history of malignant neoplasm",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE","TRUE",,,,,,,,
+"_mlgnt_nplsm","Z85 Personal history of malignant neoplasm",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,,,,
+"_mlgnt_nplsm_inactive","Z85 Personal history of malignant neoplasm",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,,,,
 "_rdw_rbc_at_rt_788_0_num","RDW RBC Auto-Rto (788-0)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
 "_rdw_rbc_at_rt_788_0_unit","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
 "_rdw_rbc_at_rt_788_0_info","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
