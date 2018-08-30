@@ -6,7 +6,7 @@
 #' 
 #+ echo=FALSE, inlcude=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -116,25 +116,93 @@ dat2[,c(v(c_analytic,retcol = 'varname'),'n_cstatus'
 #' Therefore for each of the below we will also need a third analytic variable 
 #' combining NAACCR and EMR information. 
 #' 
-#' * *Events*
-#'     * Initial diagnosis (the `c_kcdiag` group of columns in `dct0`)
-#'         * NAACCR: 
-#'         * EMR: First occurence of any ICD9/10 code for kidney cancer
-#'     * Surgery (the `c_nephx` group of columns)
-#'         * NAACCR:
-#'         * EMR: First occurrence of any ICD9/10 code for acquired absence of 
-#'           kidney; first occurence of surgical history of nephrectomy; first
-#'     * Re-ocurrence
-#'     * Death
-#' * *Whether or not the patient is Hispanic*. A similar process needs to be
-#'   done for Hispanic ethnicity, but not as an ordinary static variable rather 
-#'   than time-to-event. I think I'll do two variables: one that is true if
-#'   we are very sure the patient is Hispanic, and the other one that is true if
-#'   we aren't certain the patient is _not_ Hispanic. In both cases, there will
-#'   also be an `Unknown` bins for where all variables are unanimous on the 
-#'   patient's Hispanic status being unknown. Basically two variables because
-#'   there are the two ends of the spectrum for resolving disagreement about a
-#'   binary variable between multiple sources.
+#' ### Choosing Event Variables
+#' 
+#' Our standard way of indexing time in this study is `age_at_visit_days`. 
+#' The main table `dat1` will be collapsed into one row per patient, and the 
+#' value for each of the above columns will be replaced with the age in days 
+#' when that event was recorded (if any, otherwise `NA`). This table will be 
+#' called `xdat1`. 
+#+ create_xdat,cache=TRUE
+# To understand what the below code does, see the comments for the very similar
+# pattern in 'data.R' in the neighborhood lines 148-191 as of 8/19/2018
+# using 'union()' instead of 'c()' here to avoid cumulative growth if script is
+# re-run by hand
+l_tte <- union(l_tte,c('e_death','n_vtstat'));
+xdat1 <- sapply(l_tte
+                ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
+                                         else NA,env=list(ii=as.name(xx)))) %>% 
+  c(list(.data=select(subset(dat1,!eval(subs_criteria$prior_cancer))
+                      ,c('age_at_visit_days',l_tte))),.) %>% 
+  do.call(summarize,.) %>% `[`(-1);
+#' 
+#' #### Initial diagnosis 
+#' 
+#' The `c_kcdiag` group of columns in `dct0`.
+#' 
+#' * NAACCR: `n_ddiag`. The other two-- the date accompanying the SEER site and
+#'   the date accompanying the NAACCR primary site-- are not date fields in
+#'   NAACCR, so whatever `start_date` they are getting assigned must be from our
+#'   ETL process, not NAACCR and that is the code I will need to review. There is
+#'   data element 443, [Date Conclusive
+#'   DX](http://datadictionary.naaccr.org/default.aspx?c=10#443) but that is never
+#'   recorded in our NAACCR. All other NAACCR data elements containing the word
+#'   'date' seem to be retired or related to later events, not initial diagnosis.
+#'   Whatever the case, there are only `r nrow(subset(xdat1,is.na(n_ddiag)&!is.na(n_kcancer)))`
+#'   patients with a missing date of diagnosis but non-missing dates for the SEER
+#'   site variable, so within the range of reasonable error at the NAACCR end.
+#'   __Therefore `n_ddiag` (date of initial diagnosis) is the only NAACCR 
+#'   variable on which we can rely for onset.__
+#' * EMR: First occurence of any ICD9/10 code for kidney cancer. Naively, I had
+#'   hoped that the first ICD9/10 code for kidney cancer would closely track the
+#'   date for the `n_ddiag`. Unfortunately, as can be seen from the below table,
+#'   for the `r sum(!is.na(xdat1$n_ddiag))` patients who have non-missing `n_ddiag` values, the first ICD9 
+#'   and first ICD10 code most often occurs after initial diagnosis, sometimes 
+#'   before the date of diagnosis, and coinciding with the date of diagnosis 
+#'   rarest of all. By inspection I found that several of the ICD9/10 first 
+#'   observed dates lead or trail the `n_ddiag` by multiple years! **Therefore, 
+#'   one or both of the following steps are needed before EMR data can be relied 
+#'   on at all for establishing date of onset** :
+#'     * Meeting with CTRC NAACCR registrar to see how she obtains her dates of 
+#'       onset
+#'     * Chart review of a sample of NAACCR patients to understand what information
+#'       visible in Epic sets them apart from non kidney cancer patients.
+#+ xdat1_icdtimes,cache=TRUE
+# select the diagnosis-related variables
+xdat1[,v(c_kcdiag,xdat1,retcol=c('colname','varname'))] %>% 
+  # subtract from each column the 'n_ddiag' value if present
+  # divide by one year and remove patients with missing 'n_ddiag'
+  `-`(.,with(.,n_ddiag)) %>% `/`(365.25) %>% subset(!is.na(n_ddiag)) %>% 
+  with({
+    # in the scope of the resulting data frame create a throwaway function to 
+    # break up each variable into before, roughly coincident with, or after 
+    # 'n_ddiag'
+    ff<-function(xx) cut(xx,breaks=c(-Inf,-7/365.25,7/365.25,Inf)
+                         ,labels=c('before','+/- 2 weeks','after')); 
+    # use this function to make our table
+    table(ICD9=ff(e_kc_i9),ICD10=ff(e_kc_i10),useNA = 'if')}) %>% addmargins() %>% 
+  # format for viewing
+  pander(justify='right');
+#' #### Surgery
+#' 
+#' The `c_nephx` group of columns
+#' 
+#' * NAACCR:
+#' * EMR: First occurrence of any ICD9/10 code for acquired absence of 
+#'   kidney; first occurence of surgical history of nephrectomy; first
+#'      * Re-ocurrence
+#'      * Death
+#'    
+#' #### Whether or not the patient is Hispanic
+#' 
+#' A similar process needs to be done for Hispanic ethnicity, but not as an
+#' ordinary static variable rather than time-to-event. I think I'll do two
+#' variables: one that is true if we are very sure the patient is Hispanic, and
+#' the other one that is true if we aren't certain the patient is _not_
+#' Hispanic. In both cases, there will also be an `Unknown` bins for where all
+#' variables are unanimous on the patient's Hispanic status being unknown.
+#' Basically two variables because there are the two ends of the spectrum for
+#' resolving disagreement about a binary variable between multiple sources.
 #' 
 #' ### Which variables are near-synonymous?
 #' 
@@ -163,21 +231,6 @@ dat2[,c(v(c_analytic,retcol = 'varname'),'n_cstatus'
 #' Then we will be ready to probe the degree of agreement and size of lags 
 #' between these variables.
 #' 
-#' Our standard way of indexing time in this study is `age_at_visit_days`. 
-#' The main table `dat1` will be collapsed into one row per patient, and the 
-#' value for each of the above columns will be replaced with the age in days 
-#' when that event was recorded (if any, otherwise `NA`). This table will be 
-#' called `xdat1`. 
-#+ create_xdat,cache=TRUE
-# To understand what the below code does, see the comments for the very similar
-# pattern in `data.R` in the neighborhood lines 148-191 as of 8/19/2018
-l_tte <- c(l_tte,'e_death','n_vtstat');
-xdat1 <- sapply(l_tte
-                ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
-                                         else NA,env=list(ii=as.name(xx)))) %>% 
-  c(list(.data=select(subset(dat1,!eval(subs_criteria$prior_cancer))
-                      ,c('age_at_visit_days',l_tte))),.) %>% 
-  do.call(summarize,.) %>% `[`(-1);
 #' We will then obtain a diagonal matrix of median differences between each pair 
 #' of variables. Not only the ones believed to reflect the same event, but all 
 #' of them. This is so that we can do an overall sanity check on the 
