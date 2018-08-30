@@ -263,8 +263,8 @@ pat_samples <- unique(dat1$patient_num) %>%
 #' multiple versions of the same graph,
 #' ### Create a version of the dataset that only has each patient's 1st encounter
 #' 
-dat2 <- group_by(dat1,patient_num) %>% 
-  summarise_all(function(xx) if(is.logical(xx)) any(xx) else last(na.omit(xx)));
+dat2 <- summarise_all(dat1,function(xx) {
+  if(is.logical(xx)) any(xx) else last(na.omit(xx))});
 
 #' Each name is a legal variable name for that subset, the value
 #' assigned to it is an R expression that can be evaluated in the
