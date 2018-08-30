@@ -707,7 +707,7 @@ v <- function(var,dat
   # if a 'dat' argument is given, restrict the output so that only results having
   # having values found in the colnames of 'dat' are returned.
   #if(!missing(dat)) out <- out[out%in%colnames(dat)];
-  if(!is(try(cnames<-colnames(dat),silent = T),'try-error')) {
+  if(!is(try(cnames<-colnames(dat),silent = T),'try-error')&&length(cnames)>0) {
     out <- out[out%in%cnames];}
   if(asname) out <- lapply(out,as.name);
   #return(unname(out));
