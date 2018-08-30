@@ -190,20 +190,29 @@ xdat1[,v(c_kcdiag)] %>%
 #' 
 #' The `c_nephx` group of columns
 #' 
-#' * NAACCR:
+#' * NAACCR: in addition to `1200 RX Date--Surgery` (in this script
+#'   shortened to `n_dsurg`) and `3180 RX Date--Surgical Disch` the following 
+#'   possibly relevant fields are available in our local NAACCR and will be 
+#'   evaluated after the next data-pull:
+#'      * `1260 Date of Initial RX--SEER`
+#'      * `1270 Date of 1st Crs RX--CoC`
+#'      * `3170 RX Date--Most Defin Surg`
 #' * EMR: First occurrence of any ICD9/10 code for acquired absence of 
-#'   kidney; first occurence of surgical history of nephrectomy; first
-#'      * Re-ocurrence
-#'      * Death
+#'   kidney; or first occurence of surgical history of nephrectomy
+#'  
+#' #### Re-ocurrence
+#' 
+#' #### Death
 #'    
 #' #### Whether or not the patient is Hispanic
 #' 
-#' A similar process needs to be done for Hispanic ethnicity, but not as an
-#' ordinary static variable rather than time-to-event. I think I'll do two
-#' variables: one that is true if we are very sure the patient is Hispanic, and
-#' the other one that is true if we aren't certain the patient is _not_
-#' Hispanic. In both cases, there will also be an `Unknown` bins for where all
-#' variables are unanimous on the patient's Hispanic status being unknown.
+#' A similar process needs to be done for Hispanic ethnicity, but as an ordinary 
+#' static variable rather than time-to-event. I think I'll do two variables: one 
+#' that is true if we are very sure the patient is Hispanic, and the other one 
+#' that is true if we aren't certain the patient is _not_ Hispanic. In both 
+#' cases, there will also be an `Unknown` bins for where all variables are 
+#' unanimous on the patient's Hispanic status being unknown.
+#' 
 #' Basically two variables because there are the two ends of the spectrum for
 #' resolving disagreement about a binary variable between multiple sources.
 #' 
