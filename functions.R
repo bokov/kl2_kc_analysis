@@ -691,7 +691,7 @@ v <- function(var,dat
   var<-as.character(substitute(var));
   # TODO: Think about what to do when nothing matches... not necessarily an error
   #       condition, might just be something to warn about and move on.
-  out <- as.vector(na.omit(unlist(dictionary[dictionary[[var]],retcol])));
+  out <- unique(as.vector(na.omit(unlist(dictionary[dictionary[[var]],retcol]))));
   # Why did I do the above in such a complicated way below? 
   #out<-dictionary[dictionary[[var]],retcol][[1]];
   # if something other than matchcol is returned, give it a name to make it 
@@ -706,7 +706,9 @@ v <- function(var,dat
   #out <- c(na.omit(out));
   # if a 'dat' argument is given, restrict the output so that only results having
   # having values found in the colnames of 'dat' are returned.
-  if(!missing(dat)) out <- out[out%in%colnames(dat)];
+  #if(!missing(dat)) out <- out[out%in%colnames(dat)];
+  if(!is(try(cnames<-colnames(dat),silent = T),'try-error')) {
+    out <- out[out%in%cnames];}
   if(asname) out <- lapply(out,as.name);
   #return(unname(out));
   return(out);
