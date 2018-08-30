@@ -1,12 +1,12 @@
 #' ---
-#' title: "Kidney Cancer Data Exploration"
+#' title: "Kidney Cancer Data Exploration (KL2 Aim 2)"
 #' author: "Alex F. Bokov"
 #' date: "08/09/2018"
 #' ---
 #' 
-#+ echo=FALSE, inlcude=FALSE, message=FALSE
+#+ echo=FALSE, include=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-options(gitstamp_prod=F);
+#options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -21,7 +21,37 @@ knitr::opts_chunk$set(echo = F,warning = F,message=F);
 # Set default arguments for some functions
 .args_default_v <- formals(v);
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
-#' ### Questions for Domain Expert
+#' ## Overview
+#' 
+#' This is not (yet) a manuscript. We are still at the data cleaning/alignment
+#' stage and it is far too early to draw conclusions. Rather, this is a
+#' regularly updated progress report that I am sharing with you to keep you in
+#' the loop on my work and/or because you are also working on NAACCR, i2b2, Epic,
+#' or Sunrise and this might be useful to you or you might wish to offer advice.
+#' 
+#' Currently only de-identified data is being used, under Dr. Michalek's exempt
+#' project IRB number HSC20170563N. Dr. Michalek has given me a set of 
+#' guidelines under which we can share the de-identified data with UTHSCSA 
+#' collaborators. If you would like a copy of the data, please email me and indicate 
+#' which of the following versions you would like, confirm that you are up to
+#' date on your HIPAA training and will comply with it, and that if somebody
+#' else wants a copy of the data you will forward them to this team (my mentors
+#' and myself) rather than directly giving them a copy:
+#' 
+#' * Raw: the data as it literally exists when I input it into my scripts.
+#' * Lightly curated: the main dataset as it is after my scripts are done processing it
+#' * Moderately curated: the dataset pared down to just the columns and rows
+#'   currently being used for analysis
+#'   
+#' Dr. Murphy, if you are interested in a copy of the data, I'll talk to IRB 
+#' about the best way to do that. It's probably time we start talking about 
+#' what approvals in general will be necessary for the full project. In case 
+#' you are wondering, I am doing Aim 2 ahead of Aim 1 because it will help me
+#' identify the need for any additional recurring data-transformation rules
+#' that I can then incorporate into DataFinisher all at once. I will switch to
+#' Aim 1, the i2b2 plugin, once I hit a natural pausing-point on Aim 2.
+#' 
+#' ### Questions for mentors and other domain experts:
 #' 
 #' * What are the main problems with the NAACCR stage and grade information that
 #'   I will need to clean up?
@@ -42,20 +72,36 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'     * ...in Sunrise?
 #' * Is there some additional data source that the UTHealth NAACCR registrar
 #'   consults?
+#'   
 #' ### Questions to answer empirically:
 #' 
+#' * Q: Are NAACCR-EMR linkages now correct?
+#'     * A: [Yes](#consistency-checks)
 #' * Q: Which elements in the raw data to use as our highest priority analytic 
 #'   variables (dates of diagnosis, surgery, recurrence, and death as well as 
 #'   ethnicity)
 #'     * A: So far looking like:
-#'         1. Diagnosis = `n_ddiag` (NAACCR date of diagnosis, no others)
-#'         2. Surgery = _in progress_
+#'         1. [Diagnosis](#initial-diagnosis) = `n_ddiag` (NAACCR date of diagnosis, no others)
+#'         2. [Surgery](#surgery-conclusion) = `n_dsurg` (NAACCR date of
+#'            surgery, no others)
+#'         3. Recurrence and prior occurrence: _in progress_
 #' * Q: Which records to exclude due to likely errors in the source data? I.e.
 #'   surgery precedes diagnosis, recurrence precedes surgery (for some analysis)
 #'   death precedes diagnosis or surgery
 #'   
+#' ### Outline
 #' 
-#' ### Consistency-Checks
+#' * [Consistency-Checks](#consistency-checks)
+#' * [Cohort Characterization](#cohort-characterization)
+#' * [Which EMR and NAACCR variables are reliable event indicators?](#which-emr-and-naaccr-variables-are-reliable-event-indicators)
+#' * [Descriptive Plots (Preliminary)](#descriptive-plots-preliminary)
+#' * Appendices
+#'     1. [Example of stage/grade data](#appendix-i-example-of-stagegrade-data)
+#'     2. [Next steps](#appendix-ii-next-steps)
+#'     3. [Supplementary tables](#appendix-iii-supplementary-tables)
+#'     4. [Audit trail](#appendix-iv-audit-trail)
+#' 
+#' ## Consistency-Checks
 #' 
 #' How well does sex match up between the EMRs and NAACCR?
 with(dat2,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
@@ -81,14 +127,7 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
   addmargins() %>% pander(justify='right'
                           ,emphasize.strong.cells=as.matrix(expand.grid(1:6,1:2)));
 
-#' ### Cohort Characterization
-#' How many patients are in NAACCR, the EMR, both, neither, or have a diagnosis
-#' prior to first available record?
-# rbind(consort_table
-#       ,summarise(consort_table
-#                  ,NAACCR='',EMR='',PreExisting='',N=sum(N))) %>% pander;
-consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>% 
-  mutate(`N Cumulative`=rev(cumsum(rev(N)))) %>% pander(justify='right');
+#' ## Cohort Characterization
 #'
 #' Summary of all the variables in the combined i2b2/NAACCR set
 #+ TableOne
@@ -138,8 +177,6 @@ dat2[,c(v(c_analytic),'n_cstatus'
 #' predictor variables if we work on a combined NAACCR and EMR dataset. 
 #' Therefore for each of the below we will also need a third analytic variable 
 #' combining NAACCR and EMR information. 
-#' 
-#' ### Choosing Event Variables
 #' 
 #' Our standard way of indexing time in this study is `age_at_visit_days`. 
 #' The main table `dat1` will be collapsed into one row per patient, and the 
@@ -224,7 +261,8 @@ xdat1[,v(c_kcdiag)] %>%
 xdat1_surg <- (xdat1[,v(c_nephx)] - xdat1$n_ddiag) %>% 
   # keep only the ones that have a date of diagnosis and sort by NAACCR 
   # surgery date, then convert to weeks.
-  subset(!is.na(xdat1$n_ddiag)) %>% arrange(n_dsurg) %>% '/'(7)
+  subset(!is.na(xdat1$n_ddiag)) %>% arrange(n_dsurg) %>% '/'(7);
+#+ xdat1_surg_summary, cache=TRUE
 # make a summary table for the 'c_nephx' candidate surgery proxy variables
 xdat1_surg_summary <- summary(xdat1_surg) %>% 
   # extract the rownames from the arcane way that summary() returns them
@@ -235,7 +273,7 @@ xdat1_surg_summary <- summary(xdat1_surg) %>%
   # convert to data.frame without 'fixing' the column names.
   data.frame(check.names = F);
 #' As can be seen in the table below, the variables 
-#' `r paste(rownames(subset(xdat1_surg_summary,`Min.`<0)),collapse=', ')` 
+#' `r t_priorcond <- paste(rownames(subset(xdat1_surg_summary,Min.<0)),collapse=', ');` 
 #' _sometimes_ precede `n_ddiag` by many weeks. However, they _usually_ 
 #' follow `n_ddiag` by more weeks than the two NAACCR variables `n_dsdisc` and
 #' `n_dsurg`. Those two NAACCR variables never occur before `n_ddiag` and 
@@ -258,6 +296,30 @@ mutate_all(xdat1[,v(c_nephx)]
            ,function(xx) cut(xx-xdat1$n_ddiag,breaks=c(-Inf,-.00001,.00001,Inf)
                              ,lab=c('before','same-day','after'),include=T)) %>%
   sapply(table,useNA='always') %>% t %>% pander();
+#' Not too bad. Though we cannot trust the ICD9/10 codes are replacements for
+#' missing surgery dates, there are few enough of them preceding diagnosis that
+#' we can remove them as source data errors without ruining the sample size.
+#' 
+#' Now, as far as the two NAACCR variables go, does `n_dsdisc` (date of 
+#' discharge contribute anything more than `n_dsurg`? There are 
+#' `r nrow(subset(xdat1,is.na(n_dsurg)&!is.na(n_dsdisc)))` non-missing values 
+#' of `n_dsdisc` when `n_dsurg` is missing. As can be seen from the plot below
+#' where `n_dsdisc` are the red dashed lines and `n_dsurg` are the black lines,
+#' both relative to date of diagnosis, `n_dsdisc` either coincides with `n_dsurg`
+#' or lags by multiple weeks, as might be expected of a discharge date (what is 
+#' the plausible threshold on time from surgery to discharge?).
+plot(xdat1_surg$n_dsurg,type='l',ylab='Weeks After Diagnosis'
+     ,xlab='Patients, sorted by time from diagnosis to surgery'
+     ,main='Time from diagnosis to surgery (black)\n or discharge (red)');
+lines(xdat1_surg$n_dsdisc,col='red',lty=2);
+#' 
+#' ##### Surgery Conclusion
+#' 
+#' The sole variable we can rely on for date of surgery is `n_dsurg`, though
+#' this might get supplemented by additional NAACCR variables in the next 
+#' data-pull. However, we can rely on `r t_priorcond` for excluding possibly 
+#' invalid records if any of them occur prior to `n_ddiag`.
+#' 
 #' 
 #' #### Re-ocurrence
 #' 
@@ -274,6 +336,158 @@ mutate_all(xdat1[,v(c_nephx)]
 #' 
 #' Basically two variables because there are the two ends of the spectrum for
 #' resolving disagreement about a binary variable between multiple sources.
+#' 
+#' 
+#' ## Descriptive Plots (Preliminary)
+#+ surv_surg,cache=TRUE
+# subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) %>% 
+#   summarise(age=age_at_visit_days[a_tdiag==0]
+#             ,a_tdiag=last(a_tdiag),a_csurg=last(a_csurg)
+#             ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
+#   survfit(Surv(a_tdiag,a_csurg)~hisp,.) %>% 
+#   autoplot(mark.time=T,xlab='Days Since Diagnosis',ylab='% No Surgery Yet'
+#            ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2);
+# subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) %>% 
+#   summarise_all(function(xx) {browser();last(na.omit(xx))}) %>%
+#   survfit(Surv(a_tdiag,a_csurg)~1,.) %>% 
+#   autoplot(mark.time=T,xlim=c(0,2000)
+#            ,xlab='Days Since Diagnosis',ylab='% Not Undergone Surgery');
+subset(dat1
+       # subset the patient histories to on and after the day of diagnosis
+       # (according to NAACCR) and on or before the day of surgery (==0) or
+       # last follow-up (<0), and also limit the patients to ones randomly 
+       # assigned to the training set so we're not "peeking at the answers"
+       ,n_ddiag>=0&n_dsurg<=0&patient_num %in% pat_samples$train)[
+         # sorry to about the syntactically valid but awkward line break, we 
+         # are selecting only the columns from the subsetted data frame that
+         # we will need for this survival curve
+         ,c('patient_num','n_ddiag','n_dsurg','e_hisp','n_hisp')] %>% 
+  # take the last non-missing event from each column
+  summarise_all(function(xx) {
+    if(is.logical(xx)) any(xx) else (last(na.omit(xx)))}) %>% 
+  # convert time to weeks, and truncate on last followup period
+  mutate(n_ddiag=n_ddiag/7,n_ddiag=pmin(n_ddiag,52.179*2)
+         # we're setting the follow-up time to one year, and censoring any 
+         # surgeries that happened more than a year from the initial diagnosis
+         # (or that never happened, n_dsurg!=0)
+         ,cen=n_ddiag<52.179&n_dsurg==0
+         # simplifying the 'n_hisp' variable
+         ,n_hisp=!n_hisp%in%c('Non_Hispanic','Unknown')) %>% 
+  # fitting a survival curve
+  survfit(Surv(n_ddiag,n_ddiag<=52.179*2&n_dsurg==0)~n_hisp,.) %>% 
+  # generating a plot for the survival curve
+  autoplot(mark.time=T
+           ,xlab='Weeks Since Diagnosis',ylab='% Not Undergone Surgery'
+           ,main='Time from Diagnosis to Surgery') + 
+  # cleaning up the legend for this plot
+  guides(colour=guide_legend('Hispanic'),fill=guide_legend('Hispanic'));
+
+#' 
+#' Does recurrence-free survival after surgery differ between hispanic and non 
+#' hispanic patients?
+#' 
+subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_recur)) %>% 
+  summarise(age=age_at_visit_days[a_tsurg==0]
+            ,a_tsurg=last(a_tsurg),a_crecur=last(a_crecur)
+            ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
+  survfit(Surv(a_tsurg,a_crecur)~hisp,.) %>% 
+  autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving in Remission'
+           ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1)
+           ,main='Time from Surgery to Recurrence') +
+  guides(colour=guide_legend('Hispanic'),fill=guide_legend('Hispanic'));
+#' 
+#' 
+#' 
+#' Does survival after surgery (insofar that it is reliably represented in the
+#' records) differ between hispanic and non-hispanic patients?
+#' 
+subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death)) %>% 
+  summarise(age=age_at_visit_days[a_tsurg==0]
+            ,a_tsurg=last(a_tsurg),a_cdeath=last(a_cdeath)
+            ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
+  survfit(Surv(a_tsurg,a_cdeath)~hisp,.) %>% 
+  autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving'
+           ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1)) + 
+  guides(colour=guide_legend('Hispanic'),fill=guide_legend('Hispanic'));
+# subset(dat1,eval(subs_criteria$surg_death)) %>% 
+#   summarise_all(function(xx) last(na.omit(xx))) %>%
+#   survfit(Surv(a_tsurg,a_cdeath)~1,.) %>% 
+#   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving');
+
+#' ---
+#' 
+#' ## Appendix I: Example of stage/grade data
+#' 
+#' (proof of feasibility)
+#'
+subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %>% 
+  na.omit() %>% 
+  setNames(c('patient_num'
+             ,submulti(v(c_tnm,NA)
+                       ,cbind(v(c_tnm,NA),v(c_tnm,NA,retcol = 'colname_long'))))) %>% 
+  head(5) %>% pander(split.tables=1000);
+
+#' ---
+#' 
+#' ## Appendix II: Next steps
+#' 
+#' * DONE: ~~tableOne~~
+#' * DONE: ~~Create time-since-first-diagnosis variable~~
+#' * DONE: ~~Create TTE variable for death (several raw variables)~~
+#' * DONE: ~~Create TTE variable for recurrence~~
+#' * DONE: ~~Create TTE variable for surgery date~~
+#' * DONE: ~~Plot time from diagnosis to surgery, hisp vs non~~
+#'     * ~~First need to confirm interpretation of outcome variable~~
+#' * DONE: ~~Apply the `tte()` function to all variable in `c_tte`~~
+#' * TODO: Prior to doing the above `tte()` put in a safeguard to make
+#'         sure all the `c_tte` variables are `TRUE/FALSE` only. They
+#'         are right now as it happens, but nothing enforces that.
+#' * DONE: ~~Create a special TTE variable from the main i2b2 age at death~~
+#' * DONE: ~~Matrices of pairwise differences between all TTE variables~~
+#' * TODO: Create combined (if applicable) variables for each of the following:
+#'     * ~~Initial diagnosis~~
+#'     * ~~Surgery~~ _pending additional variables from next data pull_
+#'     * Re-ocurrence
+#'     * _Last follow-up ?_
+#'     * Death
+#'     * Strict Hispanic designator
+#'     * Lenient Hispanic designator
+#' * DONE: ~~Create censoring variable for surgery~~
+#' * DONE: ~~Create censoring variable for recurrence/death~~
+#' * TODO: Create unified Hispanic indicator
+#' * DONE: ~~Map cancer status variable (didn't turn out to be useful)~~
+#' * DONE: ~~Create unified comorbidity variable for:~~
+#'     * DONE ~~Diabetes~~
+#' * DONE: ~~Mappings for other numcode variables~~
+#' * TODO: In next re-run of query...
+#'     * Follow up re additional patient linkages, more recent NAACCR data
+#'     * Miperamine, other anti-depressants
+#'     * `1260 Date of Initial RX--SEER`
+#'     * `1270 Date of 1st Crs RX--CoC`
+#'     * `3170 RX Date--Most Defin Surg`
+#' * DONE: ~~Re-run query with additional variables (_query completed_):~~
+#'     * ~~EMR codes for secondary tumors~~
+#'     * ~~median household income, 2016 and 2013~~
+#'     * ~~HbA1c~~
+#'     * ~~Family history of diabetes and cancer~~
+#' * TODO: Clean up TNM variables, in consultation with domain expert (Peter?)
+#' 
+#' ---
+#' 
+#' ## Appendix III: Supplementary tables
+#' 
+#' ### What is the coverage of valid records in each data source.
+#' 
+#' How many patients are in NAACCR, the EMR, both, neither, or have a diagnosis
+#' prior to first available record?
+consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>% 
+  mutate(`N Cumulative`=rev(cumsum(rev(N)))) %>% pander(justify='right');
+#' _This has been temporarily moved from the main section pending finalization
+#' of the recurrence variables. For now, the only ones we can be sure of 
+#' [as indicators of a pre-existing condition](#surgery-conclusion) as exclusion
+#' criteria for possibly invalid records are `r t_priorcond` if they occur 
+#' prior to `n_ddiag` and those will exclude far fewer records than suggested 
+#' by this table.
 #' 
 #' ### Which variables are near-synonymous?
 #' 
@@ -338,8 +552,8 @@ xdat1.mins<-outer(xdat1,xdat1,FUN=function(xx,yy)
 par(bg='gray'); #,mfrow=1:2,mfcol=1:2);
 heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F,margins=c(10,10)
         ,col=colorRampPalette(c('pink','red','darkred'))(2000));
-        # ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
-        #                      ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
+# ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
+#                      ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
 
 #' _RED indicates row-event occurred after column-event and BLUE indicates that
 #' row-event occurred before column-event._
@@ -367,101 +581,7 @@ heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F,margins=c(10,10)
 #' are uncorrelated but their difference is unbiased in one direction versus 
 #' another.
 #' 
+#' ---
 #' 
-#' ## Descriptive Plots (Preliminary)
-
-# subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) %>% 
-#   summarise(age=age_at_visit_days[a_tdiag==0]
-#             ,a_tdiag=last(a_tdiag),a_csurg=last(a_csurg)
-#             ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
-#   survfit(Surv(a_tdiag,a_csurg)~hisp,.) %>% 
-#   autoplot(mark.time=T,xlab='Days Since Diagnosis',ylab='% No Surgery Yet'
-#            ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2);
-subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) %>% 
-  summarise_all(function(xx) last(na.omit(xx))) %>%
-  survfit(Surv(a_tdiag,a_csurg)~1,.) %>% 
-  autoplot(mark.time=T,xlim=c(0,2000)
-           ,xlab='Days Since Diagnosis',ylab='% Not Undergone Surgery');
-#' What is the overall response range for the lag from diagnosis to surgery?
-
-subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_recur)) %>% 
-  summarise(age=age_at_visit_days[a_tsurg==0]
-            ,a_tsurg=last(a_tsurg),a_crecur=last(a_crecur)
-            ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
-  survfit(Surv(a_tsurg,a_crecur)~hisp,.) %>% 
-  autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving in Remission'
-           ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1));
-#' Does recurrence-free survival after surgery differ between hispanic and non 
-#' hispanic patients?
-
-subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death)) %>% 
-  summarise(age=age_at_visit_days[a_tsurg==0]
-            ,a_tsurg=last(a_tsurg),a_cdeath=last(a_cdeath)
-            ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
-  survfit(Surv(a_tsurg,a_cdeath)~hisp,.) %>% 
-  autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving'
-           ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1));
-#' Does survival after surgery (insofar that it is reliably represented in the
-#' records) differ between hispanic and non-hispanic patients?
-
-# subset(dat1,eval(subs_criteria$surg_death)) %>% 
-#   summarise_all(function(xx) last(na.omit(xx))) %>%
-#   survfit(Surv(a_tsurg,a_cdeath)~1,.) %>% 
-#   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving');
-
-#' ### Example of stage/grade data
-#' 
-#' (proof of feasibility)
-#'
-subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %>% 
-  na.omit() %>% 
-  setNames(c('patient_num'
-             ,submulti(v(c_tnm,NA)
-                       ,cbind(v(c_tnm,NA),v(c_tnm,NA,retcol = 'colname_long'))))) %>% 
-  head(10) %>% pander(split.tables=1000);
-
-#' 
-#' ### Next steps
-#' 
-#' * DONE: ~~tableOne~~
-#' * DONE: ~~Create time-since-first-diagnosis variable~~
-#' * DONE: ~~Create TTE variable for death (several raw variables)~~
-#' * DONE: ~~Create TTE variable for recurrence~~
-#' * DONE: ~~Create TTE variable for surgery date~~
-#' * TODO: Plot time from diagnosis to surgery, hisp vs non
-#'     * _First need to confirm interpretation of outcome variable_
-#' * DONE: ~~Apply the `tte()` function to all variable in `c_tte`~~
-#' * TODO: Prior to doing the above `tte()` put in a safeguard to make
-#'         sure all the `c_tte` variables are `TRUE/FALSE` only. They
-#'         are right now as it happens, but nothing enforces that.
-#' * DONE: ~~Create a special TTE variable from the main i2b2 age at death~~
-#' * DONE: ~~Matrices of pairwise differences between all TTE variables~~
-#' * TODO: Create combined variables for each of the following:
-#'     * Initial diagnosis
-#'     * Surgery
-#'     * Re-ocurrence
-#'     * _Last follow-up ?_
-#'     * Death
-#'     * Strict Hispanic designator
-#'     * Lenient Hispanic designator
-#' * DONE: ~~Create censoring variable for surgery~~
-#' * DONE: ~~Create censoring variable for recurrence/death~~
-#' * TODO: Create unified Hispanic indicator
-#' * DONE: ~~Map cancer status variable (didn't turn out to be useful)~~
-#' * DONE: ~~Create unified comorbidity variable for:~~
-#'     * DONE ~~Diabetes~~
-#' * DONE: ~~Mappings for other numcode variables~~
-#' * TODO: Follow up re additional patient linkages, more recent NAACCR data
-#' * TODO: In next re-run of query...
-#'     * Include 3170 Date of Most Definitive Surgical Resection of the Primary 
-#'       Site aka 'RX Date--Most Defin Surg'
-#'     * Miperamine, other anti-depressants
-#' * DONE: ~~Re-run query with additional variables (_query completed_):~~
-#'     * ~~EMR codes for secondary tumors~~
-#'     * ~~median household income, 2016 and 2013~~
-#'     * ~~HbA1c~~
-#'     * ~~Family history of diabetes and cancer~~
-#' * TODO: Clean up TNM variables, in consultation with domain expert (Peter?)
-#' 
-#' ### Audit trail
+#' ## Appendix IV: Audit trail
 walktrail()[,-5] %>% pander(split.tables=600,,justify='left');
