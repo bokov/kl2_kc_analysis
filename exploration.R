@@ -17,12 +17,20 @@ tself(scriptname=.currentscript);
 project_seed <- 20180803;
 if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 .loadedobjects <- tload(.depdata);
-#' Set default arguments for some functions
+knitr::opts_chunk$set(echo = F,warning = F,message=F);
+# Set default arguments for some functions
 .args_default_v <- formals(v);
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
-knitr::opts_chunk$set(echo = F,warning = F,message=F);
 #' ### Questions for Domain Expert
 #' 
+#' * What are the main problems with the NAACCR stage and grade information that
+#'   I will need to clean up?
+#' * What is the typical time that elapses between diagnosis and surgery?
+#' * Is it possible for surgery to happen on the same day as the diagnosis? How
+#'   common is that?
+#' * What would be the threshold on the lag to surgery until we must conclude
+#'   that there is an error in that record? E.g. is four years too long?
+#' * What fraction of KC patients undergo surgery?
 #' * How would one distinguish the chart of a patient who is was diagnosed for 
 #'   the first time with a kidney tumor from that of a patient experiencing a 
 #'   relapse...
@@ -34,6 +42,18 @@ knitr::opts_chunk$set(echo = F,warning = F,message=F);
 #'     * ...in Sunrise?
 #' * Is there some additional data source that the UTHealth NAACCR registrar
 #'   consults?
+#' ### Questions to answer empirically:
+#' 
+#' * Q: Which elements in the raw data to use as our highest priority analytic 
+#'   variables (dates of diagnosis, surgery, recurrence, and death as well as 
+#'   ethnicity)
+#'     * A: So far looking like:
+#'         1. Diagnosis = `n_ddiag` (NAACCR date of diagnosis, no others)
+#'         2. Surgery = _in progress_
+#' * Q: Which records to exclude due to likely errors in the source data? I.e.
+#'   surgery precedes diagnosis, recurrence precedes surgery (for some analysis)
+#'   death precedes diagnosis or surgery
+#'   
 #' 
 #' ### Consistency-Checks
 #' 
@@ -181,7 +201,7 @@ xdat1[,v(c_kcdiag)] %>%
     # break up each variable into before, roughly coincident with, or after 
     # 'n_ddiag'
     ff<-function(xx) cut(xx,breaks=c(-Inf,-7/365.25,7/365.25,Inf)
-                         ,labels=c('before','+/- 2 weeks','after')); 
+                         ,labels=c('before','+/- 2 weeks','after'),include = T); 
     # use this function to make our table
     table(ICD9=ff(e_kc_i9),ICD10=ff(e_kc_i10),useNA = 'if')}) %>% addmargins() %>% 
   # format for viewing
@@ -199,7 +219,46 @@ xdat1[,v(c_kcdiag)] %>%
 #'      * `3170 RX Date--Most Defin Surg`
 #' * EMR: First occurrence of any ICD9/10 code for acquired absence of 
 #'   kidney; or first occurence of surgical history of nephrectomy
-#'  
+#+ xdat1_surg, cache=TRUE
+# make each date of surgery proxy relative to date of diagnosis
+xdat1_surg <- (xdat1[,v(c_nephx)] - xdat1$n_ddiag) %>% 
+  # keep only the ones that have a date of diagnosis and sort by NAACCR 
+  # surgery date, then convert to weeks.
+  subset(!is.na(xdat1$n_ddiag)) %>% arrange(n_dsurg) %>% '/'(7)
+# make a summary table for the 'c_nephx' candidate surgery proxy variables
+xdat1_surg_summary <- summary(xdat1_surg) %>% 
+  # extract the rownames from the arcane way that summary() returns them
+  # getting rid of extra whitespace and then strip them out from the values
+  set_rownames(.,trimws(gsub(':.*$','',`[`(.,,1)))) %>% gsub('^.*:','',.) %>% 
+  # convert to numeric transposing as a (good) side-effect and set the rownames
+  apply(1,as.numeric) %>% set_rownames(colnames(xdat1_surg)) %>% 
+  # convert to data.frame without 'fixing' the column names.
+  data.frame(check.names = F);
+#' As can be seen in the table below, the variables 
+#' `r paste(rownames(subset(xdat1_surg_summary,`Min.`<0)),collapse=', ')` 
+#' _sometimes_ precede `n_ddiag` by many weeks. However, they _usually_ 
+#' follow `n_ddiag` by more weeks than the two NAACCR variables `n_dsdisc` and
+#' `n_dsurg`. Those two NAACCR variables never occur before `n_ddiag` and 
+#' usually occur within 2-8 weeks.
+#' 
+#' As can be seen from the `NA's` column, the inactive ICD9/10 V/Z codes for
+#' acquired absence of kidney are disqualified because they are very rare in 
+#' addition to being even more divergent from the `n_ddiag` than the 
+#' non-inactive codes.
+pander(xdat1_surg_summary,split.tables=600);
+#' It's understandable if the Epic EMR lags behind NAACCR (because as an 
+#' outpatient system, it's probably recording just the visits after the original
+#' surgery, and perhaps we are not yet importing the actual surgery events from 
+#' Sunrise EMR). But for the V or Z or surgical history codes that precede 
+#' `n_ddiag`, it could mean that those NAACCR cases are not first-time 
+#' occurrences. How big of a problem is this?
+#' 
+mutate_all(xdat1[,v(c_nephx)]
+           # break each column 
+           ,function(xx) cut(xx-xdat1$n_ddiag,breaks=c(-Inf,-.00001,.00001,Inf)
+                             ,lab=c('before','same-day','after'),include=T)) %>%
+  sapply(table,useNA='always') %>% t %>% pander();
+#' 
 #' #### Re-ocurrence
 #' 
 #' #### Death
