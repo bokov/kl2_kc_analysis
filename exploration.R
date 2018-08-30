@@ -17,6 +17,9 @@ tself(scriptname=.currentscript);
 project_seed <- 20180803;
 if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 .loadedobjects <- tload(.depdata);
+#' Set default arguments for some functions
+.args_default_v <- formals(v);
+formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 knitr::opts_chunk$set(echo = F,warning = F,message=F);
 #' ### Questions for Domain Expert
 #' 
@@ -69,7 +72,7 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
 #'
 #' Summary of all the variables in the combined i2b2/NAACCR set
 #+ TableOne
-dat2[,c(v(c_analytic,retcol = 'varname'),'n_cstatus'
+dat2[,c(v(c_analytic),'n_cstatus'
         ,'a_n_race','a_n_dm','a_e_dm','a_e_kc')] %>% 
   mutate(n_cstatus=ifelse(is.na(n_cstatus),'Not in NAACCR',as.character(n_cstatus)) %>%
          factor(levels=c(levels(n_cstatus),'Not in NAACCR'))
@@ -169,7 +172,7 @@ xdat1 <- sapply(l_tte
 #'       visible in Epic sets them apart from non kidney cancer patients.
 #+ xdat1_icdtimes,cache=TRUE
 # select the diagnosis-related variables
-xdat1[,v(c_kcdiag,xdat1,retcol=c('colname','varname'))] %>% 
+xdat1[,v(c_kcdiag)] %>% 
   # subtract from each column the 'n_ddiag' value if present
   # divide by one year and remove patients with missing 'n_ddiag'
   `-`(.,with(.,n_ddiag)) %>% `/`(365.25) %>% subset(!is.na(n_ddiag)) %>% 
@@ -342,11 +345,11 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death))
 #' 
 #' (proof of feasibility)
 #'
-subset(dat2[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>% 
+subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %>% 
   na.omit() %>% 
   setNames(c('patient_num'
-             ,submulti(v(c_tnm)
-                       ,cbind(v(c_tnm),v(c_tnm,retcol = 'colname_long'))))) %>% 
+             ,submulti(v(c_tnm,NA)
+                       ,cbind(v(c_tnm,NA),v(c_tnm,NA,retcol = 'colname_long'))))) %>% 
   head(10) %>% pander(split.tables=1000);
 
 #' 
