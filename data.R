@@ -103,6 +103,7 @@ kcpatients.emr <- subset(dat1,e_kc_i10|e_kc_i9)$patient_num %>% unique;
 #' Patients that are recorded in NAACCR as having kidney cancer and a diagnosis 
 #' date.
 kcpatients.naaccr <- subset(dat1,(n_seer_kcancer|n_kcancer) & n_ddiag)$patient_num %>% unique;
+kcpatients.naaccr_bad_dob <- intersect(kcpatients.naaccr,kcpatients.bad_dob);
 #' create the raw time-to-event (tte) and censoring (cte) variables
 #' along with making a_n_race and a_n_dm time invariant
 dat1 <- mutate(dat1
@@ -288,11 +289,11 @@ dat2 <- summarise_all(dat1,function(xx) {
 #' scope of `dat1` and will return a `TRUE`/`FALSE` vector
 subs_criteria <- alist(
    # from diagnosis to surgery
-    diag_surg = a_tdiag>=0 & a_tsurg<=0 & patient_num %in% kcpatients.naaccr
+    diag_surg = a_tdiag>=0 & a_tsurg<=0 #& patient_num %in% kcpatients.naaccr
    # from surgery to recurrence
-   ,surg_recur = a_tsurg>=0 & a_trecur<=0 & patient_num%in%kcpatients.naaccr
+   ,surg_recur = a_tsurg>=0 & a_trecur<=0 #& patient_num%in%kcpatients.naaccr
    # from surgery to death
-   ,surg_death = a_tsurg>=0 & a_tdeath<=0 & patient_num%in%kcpatients.naaccr
+   ,surg_death = a_tsurg>=0 & a_tdeath<=0 #& patient_num%in%kcpatients.naaccr
    # from surgery to recurrence or death
    ,surg_drecur = a_tsurg>=0 & pmax(a_trecur,a_tdeath,na.rm = T)<=0 & patient_num%in%kcpatients.naaccr
 );
@@ -302,7 +303,13 @@ subs_criteria$prior_cancer <- comp_iijj(v(c_preexist,dat1
                                         ,v(c_kcdiag,dat1
                                            ,retcol=c('colname','varname')));
 
-
+# create complete versions of subsets according to current criteria
+for(ii in names(subs_criteria)) {
+  subs_criteria[[paste0(ii,'_complete')]] <- substitute(
+    ii&jj,env=c( ii=subs_criteria[[ii]]
+                ,jj=substitute(patient_num%in%kcpatients.naaccr)))};
+# standalone completeness criterion
+subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
 
 #' Creates a hierarchy of lists containing various subsets of interest
 sbs0 <- sapply(list(all=dat1,index=dat2),function(xx) do.call(ssply,c(list(dat=xx),subs_criteria[-1])),simplify=F);
