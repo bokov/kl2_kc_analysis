@@ -6,7 +6,7 @@
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-options(gitstamp_prod=F);
+#options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -29,14 +29,17 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' the loop on my work and/or because you are also working on NAACCR, i2b2, Epic,
 #' or Sunrise and this might be useful to you or you might wish to offer advice.
 #' 
-#' Currently only de-identified data is being used, under Dr. Michalek's exempt
-#' project IRB number HSC20170563N. Dr. Michalek has given me a set of 
-#' guidelines under which we can share the de-identified data with UTHSCSA 
-#' collaborators. If you would like a copy of the data, please email me and indicate 
-#' which of the following versions you would like, confirm that you are up to
-#' date on your HIPAA training and will comply with it, and that if somebody
-#' else wants a copy of the data you will forward them to this team (my mentors
-#' and myself) rather than directly giving them a copy:
+#' So far, only de-identified data has been used to generate these results and
+#' any dates or `patient_num` values you see here are also de-identified, though
+#' the time intervals between events are not distorted.
+#' 
+#' At this time the analysis of de-identified data is under Dr. Michalek's 
+#' exempt project IRB number HSC20170563N. Dr. Michalek has given me guidelines 
+#' under which we can share the de-identified data with UTHSCSA collaborators. 
+#' If you would like a copy of the data, please email me and I will get back to 
+#' you with further instructions and any additional information I might need to 
+#' obtain from you for our records. The following versions of the dataset are
+#' available:
 #' 
 #' * Raw: the data as it literally exists when I input it into my scripts.
 #' * Lightly curated: the main dataset as it is after my scripts are done processing it
@@ -153,17 +156,36 @@ dat0[!is.na(dat0[[cstatic_n_dob]]) &
      ,c('birth_date',cstatic_n_dob)] %>% 
   apply(2,as.Date) %>% apply(1,diff) %>% `/`(365.25) %>% summary %>% pander();
 #' 
+#' The `r length(kcpatients.naaccr_bad_dob)` patients with otherwise complete 
+#' records but mismatched birth dates vary by huge amounts from the EMR versions
+#' of their respective birth dates. However, as can be seen in [supplementary 
+#' tables at the end of this document](#how-well-do-demographic-variables-match-up-for-just-the-patients-with) 
+#' the `r length(kcpatients.bad_dob)` total patients with DOB mismatches are not 
+#' particularly enriched for other mismatches I have tested so far which is more 
+#' consistent with isolated errors in those respective variables rather than 
+#' some subset of patients continuing to have their NAACCR and EMR records 
+#' incorrectly linked.
+#' 
 #' ### How well does sex match up between the EMRs and NAACCR?
+#' 
+#' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
+#' record completeness.
 with(dat2,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
   pander(split.tables=600,justify='right'
          ,emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
 
 #' ### How well does race match up between the EMRs and NAACCR?
+#' 
+#' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
+#' record completeness.
 with(dat2,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
   pander(split.tables=600,justify='right'
          ,emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4)));
 
 #' ### How well does Hispanic ethnicity match up between the EMRs and NAACCR?
+#' 
+#' This time columns represent EMR and rows represent EMR. Whole dataset, not 
+#' filtered for record completeness.
 with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                               ,'Unknown'='Non_Hispanic'
                               ,.default='Hispanic')
@@ -172,6 +194,9 @@ with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
   addmargins() %>% pander(justify='right'
                           ,emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
 #' More detailed ethnicity breakdown...
+#' 
+#' Again columns represent EMR and rows represent EMR. Whole dataset, not 
+#' filtered for record completeness.
 with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
   `[`(,c('Non_Hispanic','Hispanic')) %>%
   addmargins() %>% pander(justify='right'
@@ -184,18 +209,19 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
 #' `Not in NAACCR` means there is an EMR diagnosis of kidney cancer but no 
 #' record for that patient in NAACCR.
 #' 
-#' Note: the below variables have not yet all been updated with the conclusions 
-#' about what will be used as the final date of diagnosis and date of surgery 
-#' nor have the criteria for dropping invalid records been finalized, so these 
-#' numbers are subject to change.
+#' Note: the below variables are subject to change as the validity criteria and
+#' creation of analytic variables from multiple columns of raw data evolve.
 #' 
-#+ TableOne
-dat2[,c('patient_num',v(c_analytic),'n_cstatus'
-        ,'a_n_race','a_n_dm','a_e_dm','a_e_kc')] %>% 
-  mutate(n_cstatus=ifelse(!patient_num%in%kcpatients.naaccr|is.na(n_cstatus)
-                          ,'Not in NAACCR',as.character(n_cstatus)) %>%
-         factor(levels=c(levels(n_cstatus),'Not in NAACCR'))
-         ,age_at_visit_days=age_at_visit_days/365.25) %>%
+#+ TableOne, cache=TRUE
+dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
+        ,'a_n_race','a_n_dm','a_e_dm','a_e_kc'))] %>% 
+  mutate(n_cstatus=ifelse(!patient_num%in%kcpatients.naaccr
+                          ,'No KC in NAACCR',as.character(n_cstatus)) %>%
+         factor(levels=c(levels(n_cstatus),'No KC in NAACCR'))
+         ,age_at_visit_days=age_at_visit_days/365.25
+         ,n_vtstat=n_vtstat!=-1
+         ,s_death=s_death!=-1
+         ,n_kcancer=n_kcancer>=0) %>%
   rename(`Age at Last Contact`=age_at_visit_days
          ,`Sex, i2b2`=sex_cd
          ,`Sex, Registry`=n_sex
@@ -205,7 +231,7 @@ dat2[,c('patient_num',v(c_analytic),'n_cstatus'
          ,`Race, i2b2`=race_cd
          ,`Race, Registry`=a_n_race
          ,`Marital Status, Registry`=n_marital
-         ,`Vital Status, Registry`=n_vtstat
+         ,`Deceased, Registry`=n_vtstat
          ,`Deceased, SSN`=s_death
          ,`Insurance, Registry`=n_payer
          ,`Diabetes, Registry`=a_n_dm
@@ -217,6 +243,7 @@ dat2[,c('patient_num',v(c_analytic),'n_cstatus'
   print(printToggle=F) %>% 
   set_rownames(gsub('^([A-Za-z].*)$','**\\1**'
                     ,gsub('   ','&nbsp;&nbsp;',rownames(.)))) %>%
+  gsub('0 \\( 0.0\\)','0',.) %>% 
   pander(split.table=600,justify='lrrrr',emphasize.rownames=F);
 
 #' ## Which EMR and NAACCR variables are reliable event indicators?
@@ -557,6 +584,50 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #' 
 #' ## Appendix III: Supplementary tables
 #' 
+#' ### How well do demographic variables match up for just the patients with
+#' mismatched birthdates?
+#' 
+#' #### Sex
+#' 
+dat2_bad_dob <- subset(dat2,patient_num %in% kcpatients.bad_dob);
+
+#' Columns represent NAACCR, rows represent EMR. Only DOB mismatched patients.
+with(dat2_bad_dob,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
+  pander(split.tables=600,justify='right'
+         ,emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
+
+#' #### Race
+#' 
+#' Columns represent NAACCR, rows represent EMR. Only DOB mismatched patients.
+with(dat2_bad_dob,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
+  pander(split.tables=600,justify='right'
+         ,emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4)));
+
+#' #### Hispanic ethnicity
+#' 
+#' This time columns represent EMR and rows represent EMR. Only DOB mismatched
+#' patients.
+with(dat2_bad_dob,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
+                              ,'Unknown'='Non_Hispanic'
+                              ,.default='Hispanic')
+                ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
+  `[`(,c('Non_Hispanic','Hispanic')) %>%
+  addmargins() %>% pander(justify='right'
+                          ,emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
+#'
+#' #### Nephrectomy according to EMR preceding diagnosis according to NAACCR
+#' 
+#' Only complete NAACCR records with mismatched DOBs.
+#' 
+#' Looks like the DOB-mismatched patients are not the same set with seemingly
+#' pre-diagnosis nephrectomies.
+xdat1_bad_dob <- subset(xdat1,patient_num %in% kcpatients.bad_dob);
+mutate_all(xdat1_bad_dob[,v(c_nephx)]
+           # break each column 
+           ,function(xx) cut(xx-xdat1_bad_dob$n_ddiag
+                             ,breaks=c(-Inf,-.00001,.00001,Inf)
+                             ,lab=c('before','same-day','after'),include=T)) %>%
+  sapply(table,useNA='always') %>% t %>% pander();
 #' ### What is the coverage of valid records in each data source.
 #' 
 #' How many patients are in NAACCR, the EMR, both, neither, or have a diagnosis
