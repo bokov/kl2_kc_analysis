@@ -6,7 +6,7 @@
 #' 
 #+ echo=FALSE, include=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -121,17 +121,39 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' 
 #' ## Consistency-Checks
 #' 
-#' How well does sex match up between the EMRs and NAACCR?
+#' ### How well do birthdates match between NAACCR and the EMR?
+#' 
+#+ create_xdat,cache=TRUE
+# To understand what the below code does, see the comments for the very similar
+# pattern in 'data.R' in the neighborhood lines 148-191 as of 8/19/2018
+# using 'union()' instead of 'c()' here to avoid cumulative growth if script is
+# re-run by hand
+l_tte <- union(l_tte,c('e_death','n_vtstat'));
+xdat1 <- sapply(l_tte
+                ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
+                                         else NA,env=list(ii=as.name(xx)))) %>% 
+  c(list(.data=select(subset(dat1,!eval(subs_criteria$prior_cancer))
+                      ,c('age_at_visit_days',l_tte))),.) %>% 
+  do.call(summarize,.);
+#' There are `r nrow(subset(xdat1,!is.na(n_ddiag)&is.na(n_dob)))` patients with
+#' a `n_ddiag` but no NAACCR birthdate (here referred to as `n_dob`). 
+#' Interestingly there are `r nrow(subset(xdat1,is.na(n_ddiag)&!is.na(n_dob)))`
+#' `n_dob` birthdates for patients who do _not_ have an `n_ddiag`. Of the 
+#' `r nrow(subset(xdat1,!is.na(n_ddiag)))` patients that do have an `n_ddiag`,
+#' `r nrow(subset(xdat1,!is.na(n_ddiag)&n_dob!=0))` have an `n_dob` that does 
+#' not match their EMR record.
+#' 
+#' ### How well does sex match up between the EMRs and NAACCR?
 with(dat2,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
   pander(split.tables=600,justify='right'
          ,emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
 
-#' How well does race match up between the EMRs and NAACCR?
+#' ### How well does race match up between the EMRs and NAACCR?
 with(dat2,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
   pander(split.tables=600,justify='right'
          ,emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4)));
 
-#' How well does Hispanic ethnicity match up between the EMRs and NAACCR?
+#' ### How well does Hispanic ethnicity match up between the EMRs and NAACCR?
 with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                               ,'Unknown'='Non_Hispanic'
                               ,.default='Hispanic')
@@ -210,18 +232,6 @@ dat2[,c(v(c_analytic),'n_cstatus'
 #' value for each of the above columns will be replaced with the age in days 
 #' when that event was recorded (if any, otherwise `NA`). This table will be 
 #' called `xdat1`. 
-#+ create_xdat,cache=TRUE
-# To understand what the below code does, see the comments for the very similar
-# pattern in 'data.R' in the neighborhood lines 148-191 as of 8/19/2018
-# using 'union()' instead of 'c()' here to avoid cumulative growth if script is
-# re-run by hand
-l_tte <- union(l_tte,c('e_death','n_vtstat'));
-xdat1 <- sapply(l_tte
-                ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
-                                         else NA,env=list(ii=as.name(xx)))) %>% 
-  c(list(.data=select(subset(dat1,!eval(subs_criteria$prior_cancer))
-                      ,c('age_at_visit_days',l_tte))),.) %>% 
-  do.call(summarize,.) %>% `[`(-1);
 #' 
 #' ### Initial diagnosis 
 #' 
