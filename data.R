@@ -120,8 +120,9 @@ dat1 <- mutate(dat1
                ,a_thdiag=tte(age_at_visit_days,e_kc_i10_i|e_kc_i9_i)
                ,a_tdiag=tte(age_at_visit_days
                             # only count n_ddiag when it's recorded as a cancer case
-                            ,(patient_num %in% kcpatients.naaccr & n_ddiag)|
-                              e_kc_i9|e_kc_i10)
+                            ,(patient_num %in% kcpatients.naaccr & n_ddiag)  #|
+                            #e_kc_i9|e_kc_i10)
+               )
                ,a_trecur=tte(age_at_visit_days,n_drecur)
                ,a_tsurg=tte(age_at_visit_days,n_dsurg)
                ,a_tdeath=tte(age_at_visit_days
@@ -224,6 +225,7 @@ dat1 <- (l_tte<-c(v(c_tte,dat1),v(c_tte,dat1,retcol = 'varname'))) %>%
 dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race)) %>% 
   factor(levels=levels(dat1$race_cd));
 #dat1$sex_cd <- factor(dat1$sex_cd,levels=levels(dat1$n_sex));
+dat1$n_sex <- factor(dat1$n_sex,levels=c('1','2'),labels=c('m','f'));
 
 kcpatients.pre_existing <- subset(dat1,a_thdiag>=0&a_tdiag<0)$patient_num %>% unique;
 
@@ -286,7 +288,7 @@ dat2 <- summarise_all(dat1,function(xx) {
 #' scope of `dat1` and will return a `TRUE`/`FALSE` vector
 subs_criteria <- alist(
    # from diagnosis to surgery
-   ,diag_surg = a_tdiag>=0 & a_tsurg<=0 & patient_num %in% kcpatients.naaccr
+    diag_surg = a_tdiag>=0 & a_tsurg<=0 & patient_num %in% kcpatients.naaccr
    # from surgery to recurrence
    ,surg_recur = a_tsurg>=0 & a_trecur<=0 & patient_num%in%kcpatients.naaccr
    # from surgery to death
