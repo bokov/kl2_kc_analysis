@@ -21,7 +21,7 @@ knitr::opts_chunk$set(echo = F,warning = F,message=F);
 # Set default arguments for some functions
 .args_default_v <- formals(v);
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
-#' ## Overview
+#' ### Overview
 #' 
 #' This is not (yet) a manuscript. We are still at the data cleaning/alignment
 #' stage and it is far too early to draw conclusions. Rather, this is a
@@ -103,9 +103,9 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'         2. [Surgery](#surgery-conclusion) = `n_dsurg` (NAACCR date of
 #'            surgery, no others)
 #'         3. Recurrence and prior occurrence: _in progress_
-#' * Q: Which records to exclude due to likely errors in the source data? I.e.
-#'   surgery precedes diagnosis, recurrence precedes surgery (for some analysis)
-#'   death precedes diagnosis or surgery
+#' * Question: Which records to exclude due to likely errors in the source data? 
+#'   E.g. surgery precedes diagnosis, recurrence precedes surgery (for some 
+#'   analysis) death precedes diagnosis or surgery
 #'   
 #' ### Outline
 #' 
@@ -223,7 +223,7 @@ xdat1 <- sapply(l_tte
                       ,c('age_at_visit_days',l_tte))),.) %>% 
   do.call(summarize,.) %>% `[`(-1);
 #' 
-#' #### Initial diagnosis 
+#' ### Initial diagnosis 
 #' 
 #' The `c_kcdiag` group of columns in `dct0`.
 #' 
@@ -270,7 +270,7 @@ xdat1[,v(c_kcdiag)] %>%
     table(ICD9=ff(e_kc_i9),ICD10=ff(e_kc_i10),useNA = 'if')}) %>% addmargins() %>% 
   # format for viewing
   pander(justify='right');
-#' #### Surgery
+#' ### Surgery
 #' 
 #' The `c_nephx` group of columns
 #' 
@@ -349,11 +349,11 @@ lines(xdat1_surg$n_dsdisc,col='red',lty=2);
 #' invalid records if any of them occur prior to `n_ddiag`.
 #' 
 #' 
-#' #### Re-ocurrence
+#' ### Re-occurrence
 #' 
-#' #### Death
+#' ### Death
 #'    
-#' #### Whether or not the patient is Hispanic
+#' ### Whether or not the patient is Hispanic
 #' 
 #' A similar process needs to be done for Hispanic ethnicity, but as an ordinary 
 #' static variable rather than time-to-event. I think I'll do two variables: one 
@@ -433,13 +433,16 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_recur))
 #' Does recurrence-free survival after surgery differ between hispanic and non 
 #' hispanic patients?
 #' 
+#'  
+#'
 subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death)) %>% 
   summarise(age=age_at_visit_days[a_tsurg==0]
             ,a_tsurg=last(a_tsurg),a_cdeath=last(a_cdeath)
             ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
   survfit(Surv(a_tsurg,a_cdeath)~hisp,.) %>% 
   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving'
-           ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1)) + 
+           ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1)
+           ,main='Survival After Surgery') + 
   guides(colour=guide_legend('Hispanic'),fill=guide_legend('Hispanic'));
 #' 
 #' Does survival after surgery (insofar that it is reliably represented in the
