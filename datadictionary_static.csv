@@ -77,7 +77,7 @@
 "_rx_dt_srgr","1200 RX Date--Surgery",,"n_dsurg",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,"FALSE","FALSE","FALSE","FALSE"
 "_sr_smr_stg","0759 SEER Summary Stage 2000",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
 "_vtl_sts","1760 Vital Status",,"n_vtstat","Vital Status, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","TRUE","FALSE","TRUE","FALSE"
-"_cncr_sts","1770 Cancer Status",,"n_cstatus","Cancer Status, Registry","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","FALSE","FALSE","TRUE"
+"_cncr_sts","1770 Cancer Status",,"n_cstatus","Cancer Status, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","FALSE","FALSE","TRUE"
 "_qlt_srvl","1780 Quality of Survival",,"n_qsurv",,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"TRUE","FALSE","FALSE","FALSE"
 "_rcrnc_dt_st","1860 Recurrence Date--1st",,"n_drecur",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,"TRUE",,,"FALSE","FALSE","FALSE","FALSE"
 "_cs_of_dth","1910 Cause of Death",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
