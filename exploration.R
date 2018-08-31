@@ -4,7 +4,7 @@
 #' date: "08/09/2018"
 #' ---
 #' 
-#+ echo=FALSE, include=FALSE, message=FALSE
+#+ init, echo=FALSE, include=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
 options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
