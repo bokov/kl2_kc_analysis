@@ -106,6 +106,9 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' * Question: Which records to exclude due to likely errors in the source data? 
 #'   E.g. surgery precedes diagnosis, recurrence precedes surgery (for some 
 #'   analysis) death precedes diagnosis or surgery
+#'       * Answer: Currently excluding as incomplete any record lacking either 
+#'         an `n_ddiag` event or both of `n_kcancer` and `n_seer_kcancer` events.
+# A list of valid patients can be found in 'kcpatients.naaccr'
 #'   
 #' ### Outline
 #' 
@@ -132,16 +135,23 @@ l_tte <- union(l_tte,c('e_death','n_vtstat'));
 xdat1 <- sapply(l_tte
                 ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
                                          else NA,env=list(ii=as.name(xx)))) %>% 
-  c(list(.data=select(subset(dat1,!eval(subs_criteria$prior_cancer))
+  c(list(.data=select(subset(dat1,eval(subs_criteria$naacr_complete)) #!eval(subs_criteria$prior_cancer))
                       ,c('age_at_visit_days',l_tte))),.) %>% 
   do.call(summarize,.);
-#' There are `r nrow(subset(xdat1,!is.na(n_ddiag)&is.na(n_dob)))` patients with
-#' a `n_ddiag` but no NAACCR birthdate (here referred to as `n_dob`). 
-#' Interestingly there are `r nrow(subset(xdat1,is.na(n_ddiag)&!is.na(n_dob)))`
-#' `n_dob` birthdates for patients who do _not_ have an `n_ddiag`. Of the 
-#' `r nrow(subset(xdat1,!is.na(n_ddiag)))` patients that do have an `n_ddiag`,
-#' `r nrow(subset(xdat1,!is.na(n_ddiag)&n_dob!=0))` have an `n_dob` that does 
-#' not match their EMR record.
+#' There are `r nrow(subset(xdat1,is.na(n_dob)))` patients with
+#' complete NAACCR records by current criteria but no NAACCR birthdate (here 
+#' referred to as `n_dob`). Interestingly there are a few `n_dob` birthdates for 
+#' patients who do _not_ have an `n_ddiag` (by informal inspection). There were
+#' a total of `r length(kcpatients.bad_dob)` patients with a mismatch between 
+#' their NAACCR and EMR birthdates, and __of the patients with complete records 
+#' by current criteria, `r length(kcpatients.naaccr_bad_dob)` have a mismatch 
+#' between their NAACCR and EMR birthdates__ . Below is a summary of the 
+#' distribution of their `birth_date` variable minus their NAACCR date of birth
+#' (in years):
+dat0[!is.na(dat0[[cstatic_n_dob]]) & 
+       dat0$patient_num%in%kcpatients.naaccr_bad_dob
+     ,c('birth_date',cstatic_n_dob)] %>% 
+  apply(2,as.Date) %>% apply(1,diff) %>% `/`(365.25) %>% summary %>% pander();
 #' 
 #' ### How well does sex match up between the EMRs and NAACCR?
 with(dat2,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
