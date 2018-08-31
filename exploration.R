@@ -425,7 +425,8 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
   setNames(c('patient_num'
              ,submulti(v(c_tnm,NA)
                        ,cbind(v(c_tnm,NA),v(c_tnm,NA,retcol = 'colname_long'))))) %>% 
-  head(5) %>% pander(split.tables=1000);
+  # head(5) %>% 
+  `[`(1:5,1:10) %>% pander(split.tables=1000);
 
 #' ---
 #' 
