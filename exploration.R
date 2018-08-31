@@ -370,7 +370,7 @@ lines(xdat1_surg$n_dsdisc,col='red',lty=2);
 #' 
 #' To avoid bias/overfitting all descriptive data and visualizations that relate
 #' the predictor variable to the outcome are done using a randomly selected 
-#' subset of the records (N=`r length(pat_samples$train`).
+#' subset of the records (N=`r length(pat_samples$train)`).
 #' 
 #+ surv_surg,cache=TRUE
 # subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) %>% 
