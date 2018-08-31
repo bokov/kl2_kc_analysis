@@ -182,7 +182,8 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
 #+ TableOne
 dat2[,c(v(c_analytic),'n_cstatus'
         ,'a_n_race','a_n_dm','a_e_dm','a_e_kc')] %>% 
-  mutate(n_cstatus=ifelse(is.na(n_cstatus),'Not in NAACCR',as.character(n_cstatus)) %>%
+  mutate(n_cstatus=ifelse(!patient_num%in%kcpatients.naaccr|is.na(n_cstatus)
+                          ,'Not in NAACCR',as.character(n_cstatus)) %>%
          factor(levels=c(levels(n_cstatus),'Not in NAACCR'))
          ,age_at_visit_days=age_at_visit_days/365.25) %>%
   rename(`Age at Last Contact`=age_at_visit_days
