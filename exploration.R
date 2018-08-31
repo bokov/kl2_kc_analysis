@@ -75,12 +75,30 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'   
 #' ### Questions to answer empirically:
 #' 
-#' * Q: Are NAACCR-EMR linkages now correct?
-#'     * A: [Yes](#consistency-checks)
-#' * Q: Which elements in the raw data to use as our highest priority analytic 
-#'   variables (dates of diagnosis, surgery, recurrence, and death as well as 
-#'   ethnicity)
-#'     * A: So far looking like:
+#' * Question: Are NAACCR-EMR linkages now correct?
+#'     * Motivation: For Sub-Aim 2a, I will be looking for possible mediators 
+#'       of disparity, many of which will come from data outside NAACCR, linked
+#'       via i2b2. For this reason I need to establish that NAACCR patients are
+#'       linked to the correct records in the rest of i2b2.
+#'     * Answer: [Yes](#consistency-checks)
+#' * Question: Which elements in the raw data to use as our highest priority 
+#'   analytic variables (dates of diagnosis, surgery, recurrence, and death as 
+#'   well as ethnicity)
+#'     * Motivation: For the main Aim 2, I am trying to determine whether there
+#'       is an outcomes disparity associated with Hispanic ethnicity. There 
+#'       needs to be a way to quickly validate it against data independent of 
+#'       UTHealth. With the local data we cannot conclude anything at all about
+#'       prevalence or incidence in the general population because we lack a
+#'       comparator group for that and this is not part of my project. Instead, 
+#'       I am testing the existence in outcome disparities among patients 
+#'       already diagnosed with kidney cancer and those who have undergone 
+#'       surgery for kidney cancer. Here local results _can_ be compared to 
+#'       de-identified NAACCR regional and national data. Therefore I need to 
+#'       establish the minimum set of NAACCR-only variables needed to replicate
+#'       this analysis. If possible it would also be good to find corresponding
+#'       EMR data elements so that incomplete NAACCR records can be back-filled
+#'       with EMR data from i2b2.
+#'     * Answer: So far looking like:
 #'         1. [Diagnosis](#initial-diagnosis) = `n_ddiag` (NAACCR date of diagnosis, no others)
 #'         2. [Surgery](#surgery-conclusion) = `n_dsurg` (NAACCR date of
 #'            surgery, no others)
@@ -466,6 +484,23 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'     * `1260 Date of Initial RX--SEER`
 #'     * `1270 Date of 1st Crs RX--CoC`
 #'     * `3170 RX Date--Most Defin Surg`
+#'     * income and education
+#' * TODO: Create access/quality variables including: number of visits per year, 
+#'         number of lab tests and imaging orders per visit, time spent with 
+#'         provider per visit
+#' * TODO: Resume effort to link Mays Center historic trial records from IDEAS 
+#'         to get information about enrollment in adjuvant trials
+#' * TODO: Start validating and using additional 2a variables already in current 
+#'         data
+#'     * `[CN101] OPIOID ANALGESICS` (EMR)
+#'     * `[CN103] NON-OPIOID ANALGESICS` (EMR)
+#'     * `0250 Birthplace` (NAACCR possibly EMR)
+#'     * Language (NAACCR and EMR)
+#'     * smoking and alcohol (EMR)
+#'     * Diabetes (NAACCR and EMR)
+#'     * Family history (EMR)
+#'     * Labs (EMR) including:  hemoglobin A1c, HDL, VLDL
+#'     * Vitals (EMR) including: systolic and diastolic blood pressure, BMI
 #' * DONE: ~~Re-run query with additional variables (_query completed_):~~
 #'     * ~~EMR codes for secondary tumors~~
 #'     * ~~median household income, 2016 and 2013~~
