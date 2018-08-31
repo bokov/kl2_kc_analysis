@@ -96,7 +96,7 @@
 "_mltplct_cntr","0446 Multiplicity Counter",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
 "_dbts_mlts","Diabetes Mellitus I","Family history",,,,"TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
 "_dbts_mlts_info","Diabetes Mellitus I",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
-"_kdn_rnl_plvs","Kidney and Renal Pelvis","SEER site",,,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,,,,
+"_kdn_rnl_plvs","Kidney and Renal Pelvis","SEER site","n_seer_kcancer",,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,,,,
 "_dcsd_pr_ss","Deceased per SSA",,"s_death","Vital Status, SSN","TRUE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,"TRUE",,"FALSE","TRUE","FALSE","FALSE"
 "_dstlc_prsr_num","Diastolic Blood Pressure (UTMed Only)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
 "_dstlc_prsr_info","Diastolic Blood Pressure (UTMed Only)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
