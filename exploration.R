@@ -135,7 +135,7 @@ l_tte <- union(l_tte,c('e_death','n_vtstat'));
 xdat1 <- sapply(l_tte
                 ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
                                          else NA,env=list(ii=as.name(xx)))) %>% 
-  c(list(.data=select(subset(dat1,eval(subs_criteria$naacr_complete)) #!eval(subs_criteria$prior_cancer))
+  c(list(.data=select(subset(dat1,eval(subs_criteria$naaccr_complete))
                       ,c('age_at_visit_days',l_tte))),.) %>% 
   do.call(summarize,.);
 #' There are `r nrow(subset(xdat1,is.na(n_dob)))` patients with
@@ -190,7 +190,7 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
 #' numbers are subject to change.
 #' 
 #+ TableOne
-dat2[,c(v(c_analytic),'n_cstatus'
+dat2[,c('patient_num',v(c_analytic),'n_cstatus'
         ,'a_n_race','a_n_dm','a_e_dm','a_e_kc')] %>% 
   mutate(n_cstatus=ifelse(!patient_num%in%kcpatients.naaccr|is.na(n_cstatus)
                           ,'Not in NAACCR',as.character(n_cstatus)) %>%
@@ -212,7 +212,7 @@ dat2[,c(v(c_analytic),'n_cstatus'
          ,`Diabetes, i2b2`=a_e_dm
          ,`Kidney Cancer, Registry`=n_kcancer
          ,`Kidney Cancer, i2b2`=a_e_kc
-         ,BMI=e_bmi) %>%
+         ,BMI=e_bmi) %>% select(-patient_num) %>%
   CreateTableOne(vars = setdiff(names(.),'n_cstatus'),strata='n_cstatus',data = .,includeNA = T,test = F) %>% 
   print(printToggle=F) %>% 
   set_rownames(gsub('^([A-Za-z].*)$','**\\1**'
