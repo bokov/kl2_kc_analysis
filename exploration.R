@@ -221,7 +221,7 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
 #'
 #' Summary of all the variables in the combined i2b2/NAACCR set. `Tumor_Free`
 #' means no recurrence, `Tumor` means recurrence, and `Unknown` means unknown.
-#' `Not in NAACCR` means there is an EMR diagnosis of kidney cancer but no 
+#' `No KC in NAACCR` means there is an EMR diagnosis of kidney cancer but no 
 #' record for that patient in NAACCR.
 #' 
 #' Note: the below variables are subject to change as the validity criteria and
