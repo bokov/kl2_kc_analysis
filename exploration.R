@@ -221,8 +221,9 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
 #'
 #' Summary of all the variables in the combined i2b2/NAACCR set. `Tumor_Free`
 #' means no recurrence, `Tumor` means recurrence, and `Unknown` means unknown.
-#' `No KC in NAACCR` means there is an EMR diagnosis of kidney cancer but no 
-#' record for that patient in NAACCR.
+#' `No KC in NAACCR` means there is an EMR diagnosis of kidney cancer and there
+#' may in some cases also be a _record_ for that patient in NAACCR but that 
+#' record does not show the patient's site of occurence being kidney. The 
 #' 
 #' Note: the below variables are subject to change as the validity criteria and
 #' creation of analytic variables from multiple columns of raw data evolve.
@@ -236,6 +237,7 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
          ,age_at_visit_days=age_at_visit_days/365.25
          ,n_vtstat=n_vtstat!=-1
          ,s_death=s_death!=-1
+         ,e_death=e_death!=-1
          ,n_kcancer=n_kcancer>=0) %>%
   rename(`Age at Last Contact`=age_at_visit_days
          ,`Sex, i2b2`=sex_cd
@@ -248,12 +250,14 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
          ,`Marital Status, Registry`=n_marital
          ,`Deceased, Registry`=n_vtstat
          ,`Deceased, SSN`=s_death
+         ,`Deceased, EMR`=e_death
          ,`Insurance, Registry`=n_payer
          ,`Diabetes, Registry`=a_n_dm
          ,`Diabetes, i2b2`=a_e_dm
          ,`Kidney Cancer, Registry`=n_kcancer
          ,`Kidney Cancer, i2b2`=a_e_kc
          ,BMI=e_bmi) %>% select(-patient_num) %>%
+  select(sort(names(.))) %>% 
   CreateTableOne(vars = setdiff(names(.),'n_cstatus'),strata='n_cstatus',data = .,includeNA = T,test = F) %>% 
   print(printToggle=F) %>% 
   set_rownames(gsub('^([A-Za-z].*)$','**\\1**'
