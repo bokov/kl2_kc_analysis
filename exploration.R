@@ -83,7 +83,14 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'       of disparity, many of which will come from data outside NAACCR, linked
 #'       via i2b2. For this reason I need to establish that NAACCR patients are
 #'       linked to the correct records in the rest of i2b2.
-#'     * Answer: [Yes](#consistency-checks)
+#'     * Answer: [Yes](#consistency-checks) because [dates of birth](#how-well-do-birthdates-match-between-naaccr-and-the-emr),
+#'       [sexes](#how-well-does-sex-match-up-between-the-emrs-and-naaccr), 
+#'       [races](#how-well-does-race-match-up-between-the-emrs-and-naaccr),
+#'       and [Hispanic ethnicity](#how-well-does-hispanic-ethnicity-match-up-between-the-emrs-and-naaccr)
+#'       do not exhibit a greater degree of mismatch between NAACCR records and
+#'       EMR records than would be expected from routine data entry errors at
+#'       the source. Furthermore, the mismatches do not seem to correlate with
+#'       each other.
 #' * Question: Which elements in the raw data to use as our highest priority 
 #'   analytic variables (dates of diagnosis, surgery, recurrence, and death as 
 #'   well as ethnicity)
@@ -111,7 +118,10 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'   analysis) death precedes diagnosis or surgery
 #'       * Answer: Currently excluding as incomplete any record lacking either 
 #'         an `n_ddiag` event or both of `n_kcancer` and `n_seer_kcancer` events.
-# A list of valid patients can be found in 'kcpatients.naaccr'
+#'         May soon start excluding the few patients with V/Z or surgical 
+#'         history codes indicating missing kidney prior to first NAACCR 
+#'         diagnosis.
+# A list of valid patients can be found in the 'kcpatients.naaccr'
 #'   
 #' ### Outline
 #' 
@@ -302,6 +312,8 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #'       onset
 #'     * Chart review of a sample of NAACCR patients to understand what information
 #'       visible in Epic sets them apart from non kidney cancer patients.
+#'     * Chart review of the 60-100 patients with ICD9/10 codes for kidney 
+#'       cancer that seemingly pre-date their `n_ddiag`.
 #+ xdat1_icdtimes,cache=TRUE
 # select the diagnosis-related variables
 xdat1[,v(c_kcdiag)] %>% 
