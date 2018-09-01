@@ -108,7 +108,9 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'       this analysis. If possible it would also be good to find corresponding
 #'       EMR data elements so that incomplete NAACCR records can be back-filled
 #'       with EMR data from i2b2.
-#'     * Answer: So far looking like:
+#'     * Answer: Cannot back-fill missing NAACCR values from EMR without chart
+#'       review and interviewing registrar but withing NAACCR the following 
+#'       have emerged as the main variables:
 #'         1. [Diagnosis](#initial-diagnosis) = `n_ddiag` ([NAACCR `0390 Date of Diagnosis`](http://datadictionary.naaccr.org/default.aspx?c=10#390)
 #'         , no others)
 #'         2. [Surgery](#surgery-conclusion) = `n_dsurg` ([NAACCR `1200 RX Date--Surgery`](http://datadictionary.naaccr.org/default.aspx?c=10#1200)
