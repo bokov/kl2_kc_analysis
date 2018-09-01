@@ -199,7 +199,7 @@ with(dat2,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>%
 
 #' ### How well does Hispanic ethnicity match up between the EMRs and NAACCR?
 #' 
-#' This time columns represent EMR and rows represent EMR. Whole dataset, not 
+#' This time columns represent EMR and rows represent NAACCR. Whole dataset, not 
 #' filtered for record completeness.
 with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                               ,'Unknown'='Non_Hispanic'
@@ -210,7 +210,7 @@ with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                           ,emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
 #' More detailed ethnicity breakdown...
 #' 
-#' Again columns represent EMR and rows represent EMR. Whole dataset, not 
+#' Again columns represent EMR and rows represent NAACCR. Whole dataset, not 
 #' filtered for record completeness.
 with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
   `[`(,c('Non_Hispanic','Hispanic')) %>%
@@ -609,6 +609,7 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #' 
 #' #### Sex
 #' 
+#+ dat2_bad_dob, cache=TRUE
 dat2_bad_dob <- subset(dat2,patient_num %in% kcpatients.bad_dob);
 
 #' Columns represent NAACCR, rows represent EMR. Only DOB mismatched patients.
@@ -625,8 +626,8 @@ with(dat2_bad_dob,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>%
 
 #' #### Hispanic ethnicity
 #' 
-#' This time columns represent EMR and rows represent EMR. Only DOB mismatched
-#' patients.
+#' This time columns represent EMR and rows represent NAACCR. Only DOB 
+#' mismatched patients.
 with(dat2_bad_dob,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                               ,'Unknown'='Non_Hispanic'
                               ,.default='Hispanic')
