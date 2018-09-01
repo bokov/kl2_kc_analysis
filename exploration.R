@@ -109,7 +109,7 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'       EMR data elements so that incomplete NAACCR records can be back-filled
 #'       with EMR data from i2b2.
 #'     * Answer: Cannot back-fill missing NAACCR values from EMR without chart
-#'       review and interviewing registrar but withing NAACCR the following 
+#'       review and interviewing registrar but within NAACCR the following 
 #'       have emerged as the main variables:
 #'         1. [Diagnosis](#initial-diagnosis) = `n_ddiag` ([NAACCR `0390 Date of Diagnosis`](http://datadictionary.naaccr.org/default.aspx?c=10#390)
 #'         , no others)
@@ -223,7 +223,7 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
 #' means no recurrence, `Tumor` means recurrence, and `Unknown` means unknown.
 #' `No KC in NAACCR` means there is an EMR diagnosis of kidney cancer and there
 #' may in some cases also be a _record_ for that patient in NAACCR but that 
-#' record does not show the patient's site of occurence being kidney. The 
+#' record does not show the patient's site of occurence being kidney.
 #' 
 #' Note: the below variables are subject to change as the validity criteria and
 #' creation of analytic variables from multiple columns of raw data evolve.
