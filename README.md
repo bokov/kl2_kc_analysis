@@ -33,18 +33,20 @@ Basic usage:
        production release, and then the audit functions from `trailR.R` will 
        deliberately throw an error.
 5. The following is what each file here does:
-     * `config.R`: sets the path to your local copy of the data
-     * `global.R`: calls config.R, then attempts to install all the needed R 
-     libraries and sources project-specific functions.
+     * `config.R`: sets the path to your local copy of the data... not part of 
+       the repo, but `example_config.R` has the names of the variables that need
+       to be set and extensive comments explaining what they should be set to.
+     * `global.R`: sources `config.R`, then attempts to install all the needed R 
+       libraries and sources project-specific functions.
      * `trailR.R`: the set of functions related to audit capabilities... someday to
-     become a stand-alone package.
+       become a stand-alone package.
      * `functions.R`: all the other custom functions
-     * `data.R`: sources global.R, reads in the data, and creates a dynamic 
-     data dictionary from `datadictionary_static.csv`
-     * `exploration.R`: takes the processed data created by `data.R` and generates
-     tables and plots from it. This is a separate file because `data.R` takes a
-     while to run, and at the moment does not change as quickly as does 
-     `exploration.R`.
+     * `data.R`: sources `global.R`, reads in the data, and creates a dynamic 
+        data dictionary from `datadictionary_static.csv`
+     * `exploration.R`: takes the processed data created by `data.R` and 
+       generates tables and plots from it. This is a separate file because 
+       `data.R` takes a while to run, and at the moment does not change as 
+       quickly as does `exploration.R` at the moment.
      * `nt_styletemplate.docx`: a Word document containing the style information
        for the report, to be used by `pandoc`.
      * `mk_progress_report.sh`: a one-liner shell script for invoking `pandoc`
