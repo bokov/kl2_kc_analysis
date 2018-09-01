@@ -109,7 +109,7 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'       EMR data elements so that incomplete NAACCR records can be back-filled
 #'       with EMR data from i2b2.
 #'     * Answer: Cannot back-fill missing NAACCR values from EMR without chart
-#'       review and interviewing registrar but withing NAACCR the following 
+#'       review and interviewing registrar but within NAACCR the following 
 #'       have emerged as the main variables:
 #'         1. [Diagnosis](#initial-diagnosis) = `n_ddiag` ([NAACCR `0390 Date of Diagnosis`](http://datadictionary.naaccr.org/default.aspx?c=10#390)
 #'         , no others)
@@ -199,7 +199,7 @@ with(dat2,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>%
 
 #' ### How well does Hispanic ethnicity match up between the EMRs and NAACCR?
 #' 
-#' This time columns represent EMR and rows represent EMR. Whole dataset, not 
+#' This time columns represent EMR and rows represent NAACCR. Whole dataset, not 
 #' filtered for record completeness.
 with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                               ,'Unknown'='Non_Hispanic'
@@ -210,7 +210,7 @@ with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                           ,emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
 #' More detailed ethnicity breakdown...
 #' 
-#' Again columns represent EMR and rows represent EMR. Whole dataset, not 
+#' Again columns represent EMR and rows represent NAACCR. Whole dataset, not 
 #' filtered for record completeness.
 with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
   `[`(,c('Non_Hispanic','Hispanic')) %>%
@@ -221,8 +221,9 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
 #'
 #' Summary of all the variables in the combined i2b2/NAACCR set. `Tumor_Free`
 #' means no recurrence, `Tumor` means recurrence, and `Unknown` means unknown.
-#' `No KC in NAACCR` means there is an EMR diagnosis of kidney cancer but no 
-#' record for that patient in NAACCR.
+#' `No KC in NAACCR` means there is an EMR diagnosis of kidney cancer and there
+#' may in some cases also be a _record_ for that patient in NAACCR but that 
+#' record does not show the patient's site of occurence being kidney.
 #' 
 #' Note: the below variables are subject to change as the validity criteria and
 #' creation of analytic variables from multiple columns of raw data evolve.
@@ -236,6 +237,7 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
          ,age_at_visit_days=age_at_visit_days/365.25
          ,n_vtstat=n_vtstat!=-1
          ,s_death=s_death!=-1
+         ,e_death=e_death!=-1
          ,n_kcancer=n_kcancer>=0) %>%
   rename(`Age at Last Contact`=age_at_visit_days
          ,`Sex, i2b2`=sex_cd
@@ -248,12 +250,14 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
          ,`Marital Status, Registry`=n_marital
          ,`Deceased, Registry`=n_vtstat
          ,`Deceased, SSN`=s_death
+         ,`Deceased, EMR`=e_death
          ,`Insurance, Registry`=n_payer
          ,`Diabetes, Registry`=a_n_dm
          ,`Diabetes, i2b2`=a_e_dm
          ,`Kidney Cancer, Registry`=n_kcancer
          ,`Kidney Cancer, i2b2`=a_e_kc
          ,BMI=e_bmi) %>% select(-patient_num) %>%
+  select(sort(names(.))) %>% 
   CreateTableOne(vars = setdiff(names(.),'n_cstatus'),strata='n_cstatus',data = .,includeNA = T,test = F) %>% 
   print(printToggle=F) %>% 
   set_rownames(gsub('^([A-Za-z].*)$','**\\1**'
@@ -340,9 +344,9 @@ xdat1[,v(c_kcdiag)] %>%
 #' The `c_nephx` group of columns
 #' 
 #' * NAACCR: in addition to `1200 RX Date--Surgery` (in this script
-#'   shortened to `n_dsurg`) and `3180 RX Date--Surgical Disch` the following 
-#'   possibly relevant fields are available in our local NAACCR and will be 
-#'   evaluated after the next data-pull:
+#'   shortened to `n_dsurg`) and `3180 RX Date--Surgical Disch` (shortened to 
+#'   `n_dsdisc` the following possibly relevant fields are available in our 
+#'   local NAACCR and will be evaluated after the next data-pull:
 #'      * `1260 Date of Initial RX--SEER`
 #'      * `1270 Date of 1st Crs RX--CoC`
 #'      * `3170 RX Date--Most Defin Surg`
@@ -394,7 +398,7 @@ mutate_all(xdat1[,v(c_nephx)]
 #' we can remove them as source data errors without ruining the sample size.
 #' 
 #' Now, as far as the two NAACCR variables go, does `n_dsdisc` (date of 
-#' discharge contribute anything more than `n_dsurg`? There are 
+#' discharge) contribute anything more than `n_dsurg`? There are 
 #' `r nrow(subset(xdat1,is.na(n_dsurg)&!is.na(n_dsdisc)))` non-missing values 
 #' of `n_dsdisc` when `n_dsurg` is missing. As can be seen from the plot below
 #' where `n_dsdisc` are the red dashed lines and `n_dsurg` are the black lines,
@@ -424,7 +428,7 @@ lines(xdat1_surg$n_dsdisc,col='red',lty=2);
 #' static variable rather than time-to-event. I think I'll do two variables: one 
 #' that is true if we are very sure the patient is Hispanic, and the other one 
 #' that is true if we aren't certain the patient is _not_ Hispanic. In both 
-#' cases, there will also be an `Unknown` bins for where all variables are 
+#' cases, there will also be `Unknown` bins for where all variables are 
 #' unanimous on the patient's Hispanic status being unknown.
 #' 
 #' Basically two variables because there are the two ends of the spectrum for
@@ -433,9 +437,9 @@ lines(xdat1_surg$n_dsdisc,col='red',lty=2);
 #' 
 #' ## Descriptive Plots (Preliminary)
 #' 
-#' To avoid bias/overfitting all descriptive data and visualizations that relate
-#' the predictor variable to the outcome are done using a randomly selected 
-#' subset of the records (N=`r length(pat_samples$train)`).
+#' To avoid bias/overfitting all descriptive data and visualizations below that 
+#' relate the predictor variable to the outcome are done using a randomly 
+#' selected subset of the records (N=`r length(pat_samples$train)`).
 #' 
 #+ surv_surg,cache=TRUE
 # subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) %>% 
@@ -532,7 +536,7 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
   # head(5) %>% 
   # show a sampling of rows and columns that fits on the page and remove the
   # the extra quotation marks
-  `[`(1:5,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
+  `[`(1:15,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
   pander(split.tables=1000);
 
 #' ---
@@ -601,11 +605,11 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #' 
 #' ## Appendix III: Supplementary tables
 #' 
-#' ### How well do demographic variables match up for just the patients with
-#' mismatched birthdates?
+#' ### How well do demographic variables match up for just the patients with mismatched birthdates?
 #' 
 #' #### Sex
 #' 
+#+ dat2_bad_dob, cache=TRUE
 dat2_bad_dob <- subset(dat2,patient_num %in% kcpatients.bad_dob);
 
 #' Columns represent NAACCR, rows represent EMR. Only DOB mismatched patients.
@@ -622,8 +626,8 @@ with(dat2_bad_dob,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>%
 
 #' #### Hispanic ethnicity
 #' 
-#' This time columns represent EMR and rows represent EMR. Only DOB mismatched
-#' patients.
+#' This time columns represent EMR and rows represent NAACCR. Only DOB 
+#' mismatched patients.
 with(dat2_bad_dob,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                               ,'Unknown'='Non_Hispanic'
                               ,.default='Hispanic')
@@ -636,8 +640,10 @@ with(dat2_bad_dob,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
 #' 
 #' Only complete NAACCR records with mismatched DOBs.
 #' 
-#' Looks like the DOB-mismatched patients are not the same set with seemingly
-#' pre-diagnosis nephrectomies.
+#' Looks like the `r length(kcpatients.naaccr_bad_dob)` DOB-mismatched patients 
+#' otherwise meeting completeness criteria for kidney cancer records do not 
+#' coincide with the set of patients seeming to have nephrectomies prior to 
+#' their NAACCR diagnoses.
 xdat1_bad_dob <- subset(xdat1,patient_num %in% kcpatients.bad_dob);
 mutate_all(xdat1_bad_dob[,v(c_nephx)]
            # break each column 
@@ -685,13 +691,15 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
 #' Then we will be ready to probe the degree of agreement and size of lags 
 #' between these variables.
 #' 
-#' We will then obtain a diagonal matrix of median differences between each pair 
-#' of variables. Not only the ones believed to reflect the same event, but all 
-#' of them. This is so that we can do an overall sanity check on the 
+#' We will then obtain diagonal matrices of various pairwise comparisons of
+#' the timing of events. Not only the ones believed to reflect the same event, 
+#' but all of them. This is so that we can do an overall sanity check on the 
 #' relationships between  groups of variables. For example, if the supposed 
 #' dates of surgery are in good agreement with each other, but they often happen 
 #' after the supposed date of reoccurence, then that would be a problem we need 
-#' to resolve before proceeding further. 
+#' to resolve before proceeding further. The below heatmap indicates the 
+#' fraction of the column events that occurred before or at the same time as the
+#' row events.
 #+ medians_heatmap,cache=TRUE,fig.width=10,fig.height=10
 xdat1.gteq<-outer(xdat1[,-1],xdat1[,-1],FUN = function(xx,yy)
   mapply(function(aa,bb) mean(aa>bb,na.rm = T),xx,yy));
@@ -724,18 +732,11 @@ heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F,margins=c(10,10)
 # ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
 #                      ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
 
-#' _RED indicates row-event occurred after column-event and BLUE indicates that
-#' row-event occurred before column-event._
 #' 
 #' A lot to unpack here! We can already see that some variables are in close
-#' agreement (but these are just medians, this needs to be confirmed
-#' on just those groups of variables by checking whether they EVER differ when
-#' when both are present... if they never differ, we can treat them as 
-#' synonymous in casese where one or the other is missing assuming these 
-#' conclusions are on a reasonably large sample size). Another early conclusion
-#' from this is that it isn't looking good for EMR events lining up with NAACCR 
-#' events out of the box... they seem to lag behind NAACCR dates, especially 
-#' diagnoses and (not surprisingly) surgical history. Might need to see if there
+#' agreement. Another early conclusion from this is that it isn't looking good 
+#' for EMR events lining up with NAACCR events... they seem to lag behind NAACCR 
+#' dates, especially diagnoses and surgical history. Might need to see if there
 #' is something in the EMR that captures date of surgery (especially in Sunrise)
 #' and chart review to see why the KC diagnosis codes lag behind NAACCR
 #' diagnosis date.
@@ -749,6 +750,11 @@ heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F,margins=c(10,10)
 #' latter are to distinguish variables that track each other from variables that
 #' are uncorrelated but their difference is unbiased in one direction versus 
 #' another.
+#' 
+#' However, most of this shotgun approach is now superseded by the more focused 
+#' investigation in the [initial diagnosis](#initial-diagnosis) and 
+#' [surgery](#surgery-conclusion) sections in the main document above. This is
+#' just for historic reference.
 #' 
 #' ---
 #' 
