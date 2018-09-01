@@ -34,25 +34,25 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' the time intervals between events are not distorted.
 #' 
 #' At this time the analysis of de-identified data is under Dr. Michalek's 
-#' exempt project IRB number HSC20170563N. Dr. Michalek has given me guidelines 
-#' under which we can share the de-identified data with UTHSCSA collaborators. 
-#' If you would like a copy of the data, please email me and I will get back to 
-#' you with further instructions and any additional information I might need to 
-#' obtain from you for our records. The following versions of the dataset are
-#' available:
+#' exempt project IRB number HSC20170563N. I have been given guidelines under 
+#' which we can share the de-identified data with UTHSCSA collaborators. If you 
+#' would like a copy of the data, please email me and I will get back to you 
+#' with further instructions and any additional information I might need from 
+#' you for our records. The following versions of the dataset are available:
 #' 
 #' * Raw: the data as it literally exists when I input it into my scripts.
 #' * Lightly curated: the main dataset as it is after my scripts are done processing it
 #' * Moderately curated: the dataset pared down to just the columns and rows
 #'   currently being used for analysis
 #'   
-#' Dr. Murphy, if you are interested in a copy of the data, I'll talk to IRB 
-#' about the best way to do that. It's probably time we start talking about 
-#' what approvals in general will be necessary for the full project. In case 
-#' you are wondering, I am doing Aim 2 ahead of Aim 1 because it will help me
-#' identify the need for any additional recurring data-transformation rules
-#' that I can then incorporate into DataFinisher all at once. I will switch to
-#' Aim 1, the i2b2 plugin, once I hit a natural pausing-point on Aim 2.
+#' Dr. Murphy, if you are interested in a copy of the data, I'll talk to my 
+#' local mentors and IRB about the best way to do that. It's probably time we 
+#' start talking about what approvals in general will be necessary for the full 
+#' project. In case you are wondering, I am doing parts of Aim 2 ahead of Aim 1 
+#' because it will help me identify the need for any additional recurring 
+#' data-transformation rules to incorporate into DataFinisher all at once. I 
+#' will switch to Aim 1, the i2b2 plugin, once I hit a natural pausing-point on 
+#' Aim 2.
 #' 
 #' ### Questions for mentors and other domain experts:
 #' 
