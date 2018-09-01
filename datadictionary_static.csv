@@ -1,158 +1,158 @@
-"colsuffix","colname_long","comment","varname","chartname","c_analytic","c_natf","c_naaccr_race","c_naaccr_comorb","c_tnm","c_tte","c_kcdiag","c_nephx","c_recur","c_death","c_patientvar","c_sortlabels","c_i2b2","c_naaccr","c_both_or_one"
-"patient_num","patient_num",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","FALSE","FALSE","FALSE","FALSE"
-"start_date","start_date",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"birth_date","birth_date",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"sex_cd","sex_cd",,"sex_cd","Sex, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","TRUE","FALSE","FALSE"
-"language_cd","language_cd",,"language_cd","Language, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","TRUE","FALSE","FALSE"
-"race_cd","race_cd",,"race_cd","Race, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","TRUE","FALSE","FALSE"
-"age_at_visit_days","age_at_visit_days",,"age_at_visit_days","Age at Last Contact","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"age_at_death_days","age_at_death_days",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","FALSE","FALSE","FALSE","FALSE"
-"_dt_lst_cntct","1750 Date of Last Contact",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_bn_crtnn_rt_3097_3_num","BUN/CREATININE RATIO(#1017)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_bn_crtnn_rt_3097_3_unit","BUN/CREATININE RATIO(#1017)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_bn_crtnn_rt_3097_3_info","BUN/CREATININE RATIO(#1017)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_dt_srgcl_dsch","3180 RX Date--Surgical Disch",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,,,,
-"_mlgnt_nplsm","C64 Malignant neoplasm of kidney, except renal pelvis",,"e_kc_i10","KC ICD10, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
-"_mlgnt_nplsm_inactive","C64 Malignant neoplasm of kidney, except renal pelvis",,"e_kc_i10_i","History of KC ICD10, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
-"_dbts_mlts","250 Diabetes mellitus",,"e_dm_i9","DM ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_dbts_mlts_inactive","250 Diabetes mellitus",,"e_dm_i9_i","History of DM ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_mlgnt_nplsm","189.0 Malignant neoplasm of kidney, except pelvis",,"e_kc_i9","KC ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
-"_mlgnt_nplsm_inactive","189.0 Malignant neoplasm of kidney, except pelvis",,"e_kc_i9_i","History of KC ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
-"_bd_ms_indx_num","Body Mass Index",,"e_bmi","BMI, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","TRUE","FALSE","FALSE"
-"_bd_ms_indx_info","Body Mass Index",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_scndr_nrndcrn","C7B-C7B Secondary neuroendocrine tumors (C7B)",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_scndr_nrndcrn_inactive","C7B-C7B Secondary neuroendocrine tumors (C7B)",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_mlgnt_unspcfd","C79 Secondary malignant neoplasm of other and unspecified sites",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_mlgnt_unspcfd_inactive","C79 Secondary malignant neoplasm of other and unspecified sites",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_rsprtr_dgstv","C78 Secondary malignant neoplasm of respiratory and digestive organs",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_rsprtr_dgstv_inactive","C78 Secondary malignant neoplasm of respiratory and digestive organs",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_unspcfd_mlgnt","C77 Secondary and unspecified malignant neoplasm of lymph nodes",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_unspcfd_mlgnt_inactive","C77 Secondary and unspecified malignant neoplasm of lymph nodes",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_unspcfd_mlgnt","196 Secondary and unspecified malignant neoplasm of lymph nodes",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_unspcfd_mlgnt_inactive","196 Secondary and unspecified malignant neoplasm of lymph nodes",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_rsprtr_dgstv","197 Secondary malignant neoplasm of respiratory and digestive systems",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_rsprtr_dgstv_inactive","197 Secondary malignant neoplasm of respiratory and digestive systems",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_mlgnt_spcfd","198 Secondary malignant neoplasm of other specified sites",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_mlgnt_spcfd_inactive","198 Secondary malignant neoplasm of other specified sites",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,
-"_rsn_fr_srgr","1340 Reason for No Surgery",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_drvd_ajcc_stg","3430 Derived AJCC-7 Stage Grp",,,,"FALSE",,"FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_dscrpt","3422 Derived AJCC-7 M Descript",,,,"FALSE",,"FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_cncr_and_tmr","Cancer and Tumor","Family history",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_cncr_and_tmr_info","Cancer and Tumor",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_drvd_ajcc_m","3420 Derived AJCC-7 M",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_dscrpt","3412 Derived AJCC-7 N Descript",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_ajcc_n","3410 Derived AJCC-7 N",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_dscrpt","3402 Derived AJCC-7 T Descript",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_ajcc_t","3400 Derived AJCC-7 T",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_ajcc_stg","3000 Derived AJCC-6 Stage Grp",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_dscrpt","2990 Derived AJCC-6 M Descript",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_ajcc_m","2980 Derived AJCC-6 M",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_dscrpt","2970 Derived AJCC-6 N Descript",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_ajcc_n","2960 Derived AJCC-6 N",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_dscrpt","2950 Derived AJCC-6 T Descript",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_drvd_ajcc_t","2940 Derived AJCC-6 T",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_cs_mts_at_dx","2850 CS Mets at DX",,,,,"FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_tnm_pth_dscrptr","0920 TNM Path Descriptor",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_tnm_pth_stg_grp","0910 TNM Path Stage Group",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_tnm_pth_m","0900 TNM Path M",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_tnm_pth_n","0890 TNM Path N",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_tnm_pth_t","0880 TNM Path T",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,
-"_mrtl_sts_dx","0150 Marital Status at DX",,"n_marital","Marital Status, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","FALSE","FALSE","TRUE"
-"_rc","0160 Race 1",,,,"FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_rc","0161 Race 2",,,,"FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_rc","0162 Race 3",,,,"FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_rc","0163 Race 4",,,,"FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_rc","0164 Race 5",,,,"FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_spnsh_hspnc","0190 Spanish/Hispanic Origin",,"n_hisp","Hispanic Origin, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","FALSE","TRUE","FALSE"
-"_sx","0220 Sex",,"n_sex","Sex, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","FALSE","TRUE","FALSE"
-"_dt_of_brth","0240 Date of Birth",,"n_dob",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_brthplc","0250 Birthplace",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","FALSE","FALSE","FALSE","FALSE"
-"_dt_of_dgns","0390 Date of Diagnosis",,"n_ddiag",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
-"_prmr_pr_at_dx","0630 Primary Payer at DX",,"n_payer","Insurance, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","FALSE","FALSE","TRUE"
-"_tnm_cln_t","0940 TNM Clin T",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_tnm_cln_n","0950 TNM Clin N",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_tnm_cln_m","0960 TNM Clin M",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_tnm_cln_stg_grp","0970 TNM Clin Stage Group",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_tnm_cln_dscrptr","0980 TNM Clin Descriptor",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_rx_dt_srgr","1200 RX Date--Surgery",,"n_dsurg",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,"FALSE","FALSE","FALSE","FALSE"
-"_sr_smr_stg","0759 SEER Summary Stage 2000",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_vtl_sts","1760 Vital Status",,"n_vtstat","Vital Status, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,"TRUE","TRUE","TRUE","FALSE","TRUE","FALSE"
-"_cncr_sts","1770 Cancer Status",,"n_cstatus","Cancer Status, Registry","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","FALSE","FALSE","TRUE"
-"_qlt_srvl","1780 Quality of Survival",,"n_qsurv",,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","FALSE","FALSE","FALSE"
-"_rcrnc_dt_st","1860 Recurrence Date--1st",,"n_drecur",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,"FALSE","FALSE","FALSE","FALSE"
-"_cs_of_dth","1910 Cause of Death",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_cmrbd_cmplctn","3110 Comorbid/Complication 1",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_cmrbd_cmplctn","3120 Comorbid/Complication 2",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_cmrbd_cmplctn","3130 Comorbid/Complication 3",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_cmrbd_cmplctn","3140 Comorbid/Complication 4",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_cmrbd_cmplctn","3150 Comorbid/Complication 5",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_cmrbd_cmplctn","3160 Comorbid/Complication 6",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_cmrbd_cmplctn","3161 Comorbid/Complication 7",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_cmrbd_cmplctn","3162 Comorbid/Complication 8",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_cmrbd_cmplctn","3163 Comorbid/Complication 9",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_cmrbd_cmplctn","3164 Comorbid/Complication 10",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_dt_cs_cmpltd","2090 Date Case Completed",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,,,,
-"_dt_cs_intd","2085 Date Case Initiated",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,,,,
-"_mltplct_cntr","0446 Multiplicity Counter",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_dbts_mlts","Diabetes Mellitus I","Family history",,,,"TRUE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_dbts_mlts_info","Diabetes Mellitus I",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_kdn_rnl_plvs","Kidney and Renal Pelvis","SEER site",,,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,,,
-"_dcsd_pr_ss","Deceased per SSA",,"s_death","Vital Status, SSN","TRUE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,"TRUE",,"FALSE","TRUE","FALSE","FALSE"
-"_dstlc_prsr_num","Diastolic Blood Pressure (UTMed Only)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_dstlc_prsr_info","Diastolic Blood Pressure (UTMed Only)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_qntttv_4548_4_num","HEMOGLOBIN A1C QUANTITATIVE(#3284)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_qntttv_4548_4_unit","HEMOGLOBIN A1C QUANTITATIVE(#3284)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_qntttv_4548_4_info","HEMOGLOBIN A1C QUANTITATIVE(#3284)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_insttn__ptnts","Institution[29,472,477 facts; 1,348,929 patients]","Is the visit UHS or UTMed",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_exprd__ptnts","Expired[7,579 facts; 7,544 patients]","Discharge Disposition",,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,,,"TRUE",,,,,
-"_frctn_ptnts","Fraction on SSI[747,013 facts; 747,013 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_wlfr__ptnts","Fraction on Welfare[747,013 facts; 747,013 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_hspnc_or_ltn","Hispanic or Latino",,"e_hisp","Hispanic Origin, i2b2","TRUE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","FALSE","FALSE","FALSE","FALSE"
-"_dbts_mlts","E08-E13 Diabetes mellitus (E08-E13)",,"e_dm_i10","DM ICD10, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_dbts_mlts_inactive","E08-E13 Diabetes mellitus (E08-E13)",,"e_dm_i10_i","History of DM, ICD10 i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","FALSE","FALSE"
-"_dbts","Diabetes","Family history",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_dbts_info","Diabetes",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_ethnct","Ethnicity","EMR demographics",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_hx_nphrctm","HX NEPHRECTOMY",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,,,
-"_dbts_mlts","Diabetes Mellitus II","Family history",,,,"TRUE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_dbts_mlts_info","Diabetes Mellitus II",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_hgh_chlstrl","High Cholesterol","Family history",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_hgh_chlstrl_info","High Cholesterol",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_mcv_generic_kuh_component_id_4285_num","MCV(#4285)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_mcv_generic_kuh_component_id_4285_unit","MCV(#4285)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_mcv_generic_kuh_component_id_4285_info","MCV(#4285)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_hshld_ptnts","Median Household Income ACS 2016[727,551 facts; 727,551 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_lng","Language",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_kdn_ns","Kidney, NOS",,"n_kcancer","KC, Registry","TRUE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,"FALSE","FALSE","TRUE","FALSE"
-"_hshld_ptnts","Median Household Income ACS 2013[747,004 facts; 747,004 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,"TRUE",,,,
-"_ys","Yes","Smoking",,,,"TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_mlgnt_nplsm","Z85 Personal history of malignant neoplasm",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,,,
-"_mlgnt_nplsm_inactive","Z85 Personal history of malignant neoplasm",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,,,
-"_rdw_rbc_at_rt_788_0_num","RDW RBC Auto-Rto (788-0)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_rdw_rbc_at_rt_788_0_unit","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_rdw_rbc_at_rt_788_0_info","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_rdw_rbc_at_rt_generic_kuh_component_id_5629_num","RDW RBC Auto-Rto (788-0)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_rdw_rbc_at_rt_generic_kuh_component_id_5629_unit","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_rdw_rbc_at_rt_generic_kuh_component_id_5629_info","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_rdw_generic_kuh_component_id_5629_num","RDW(#5629)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_rdw_generic_kuh_component_id_5629_unit","RDW(#5629)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_rdw_generic_kuh_component_id_5629_info","RDW(#5629)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_acqrd_absnc","V45.73 Acquired absence of kidney",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,,,
-"_acqrd_absnc_inactive","V45.73 Acquired absence of kidney",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,,,
-"_pltlt_cnt_generic_kuh_component_id_5341_num","PLATELET COUNT(#5341)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_pltlt_cnt_generic_kuh_component_id_5341_unit","PLATELET COUNT(#5341)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_pltlt_cnt_generic_kuh_component_id_5341_info","PLATELET COUNT(#5341)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_ntrgn_bn_3094_0_num","UREA NITROGEN (BUN)(#6815)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_ntrgn_bn_3094_0_unit","UREA NITROGEN (BUN)(#6815)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_ntrgn_bn_3094_0_info","UREA NITROGEN (BUN)(#6815)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_tmprtr_utmd_num","Temperature (F) (UTMed Only)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_tmprtr_utmd_info","Temperature (F) (UTMed Only)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_urlg","Urology",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_srgcl_onclg","Surgical Oncology",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_sstlc_prsr_num","Systolic Blood Pressure (UTMed Only)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_sstlc_prsr_info","Systolic Blood Pressure (UTMed Only)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_acqrd_absnc","Z90.5 Acquired absence of kidney",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,,,
-"_acqrd_absnc_inactive","Z90.5 Acquired absence of kidney",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,,,
-"_opd_anlgscs","[CN101] OPIOID ANALGESICS",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_nn_opd_anlgscs","[CN103] NON-OPIOID ANALGESICS",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,
-"_fncl_utmd","Financial Class (UTMed Only)",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","TRUE","FALSE","FALSE"
+"colsuffix","colname_long","comment","varname","chartname","c_analytic","c_natf","c_naaccr_race","c_naaccr_comorb","c_tnm","c_tte","c_kcdiag","c_preexist","c_nephx","c_recur","c_death","c_patientvar","c_sortlabels","c_i2b2","c_naaccr","c_both_or_one"
+"patient_num","patient_num",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","FALSE","FALSE","FALSE","FALSE"
+"start_date","start_date",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"birth_date","birth_date",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"sex_cd","sex_cd",,"sex_cd","Sex, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","TRUE","FALSE","FALSE"
+"language_cd","language_cd",,"language_cd","Language, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","TRUE","FALSE","FALSE"
+"race_cd","race_cd",,"race_cd","Race, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","TRUE","FALSE","FALSE"
+"age_at_visit_days","age_at_visit_days",,"age_at_visit_days","Age at Last Contact","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"age_at_death_days","age_at_death_days",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","FALSE","FALSE","FALSE","FALSE"
+"_dt_lst_cntct","1750 Date of Last Contact",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_bn_crtnn_rt_3097_3_num","BUN/CREATININE RATIO(#1017)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_bn_crtnn_rt_3097_3_unit","BUN/CREATININE RATIO(#1017)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_bn_crtnn_rt_3097_3_info","BUN/CREATININE RATIO(#1017)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_dt_srgcl_dsch","3180 RX Date--Surgical Disch",,"n_dsdisc",,,"TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,,
+"_mlgnt_nplsm","C64 Malignant neoplasm of kidney, except renal pelvis",,"e_kc_i10","KC ICD10, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_mlgnt_nplsm_inactive","C64 Malignant neoplasm of kidney, except renal pelvis",,"e_kc_i10_i","History of KC ICD10, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
+"_dbts_mlts","250 Diabetes mellitus",,"e_dm_i9","DM ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_dbts_mlts_inactive","250 Diabetes mellitus",,"e_dm_i9_i","History of DM ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_mlgnt_nplsm","189.0 Malignant neoplasm of kidney, except pelvis",,"e_kc_i9","KC ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_mlgnt_nplsm_inactive","189.0 Malignant neoplasm of kidney, except pelvis",,"e_kc_i9_i","History of KC ICD9, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,"FALSE","FALSE","FALSE","FALSE"
+"_bd_ms_indx_num","Body Mass Index",,"e_bmi","BMI, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","TRUE","FALSE","FALSE"
+"_bd_ms_indx_info","Body Mass Index",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_scndr_nrndcrn","C7B-C7B Secondary neuroendocrine tumors (C7B)",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_scndr_nrndcrn_inactive","C7B-C7B Secondary neuroendocrine tumors (C7B)",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_mlgnt_unspcfd","C79 Secondary malignant neoplasm of other and unspecified sites",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_mlgnt_unspcfd_inactive","C79 Secondary malignant neoplasm of other and unspecified sites",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_rsprtr_dgstv","C78 Secondary malignant neoplasm of respiratory and digestive organs",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_rsprtr_dgstv_inactive","C78 Secondary malignant neoplasm of respiratory and digestive organs",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_unspcfd_mlgnt","C77 Secondary and unspecified malignant neoplasm of lymph nodes",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_unspcfd_mlgnt_inactive","C77 Secondary and unspecified malignant neoplasm of lymph nodes",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_unspcfd_mlgnt","196 Secondary and unspecified malignant neoplasm of lymph nodes",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_unspcfd_mlgnt_inactive","196 Secondary and unspecified malignant neoplasm of lymph nodes",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_rsprtr_dgstv","197 Secondary malignant neoplasm of respiratory and digestive systems",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_rsprtr_dgstv_inactive","197 Secondary malignant neoplasm of respiratory and digestive systems",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_mlgnt_spcfd","198 Secondary malignant neoplasm of other specified sites",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_mlgnt_spcfd_inactive","198 Secondary malignant neoplasm of other specified sites",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,"TRUE",,,,,,
+"_rsn_fr_srgr","1340 Reason for No Surgery",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_drvd_ajcc_stg","3430 Derived AJCC-7 Stage Grp",,,,"FALSE",,"FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_dscrpt","3422 Derived AJCC-7 M Descript",,,,"FALSE",,"FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_cncr_and_tmr","Cancer and Tumor","Family history",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_cncr_and_tmr_info","Cancer and Tumor",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_drvd_ajcc_m","3420 Derived AJCC-7 M",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_dscrpt","3412 Derived AJCC-7 N Descript",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_ajcc_n","3410 Derived AJCC-7 N",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_dscrpt","3402 Derived AJCC-7 T Descript",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_ajcc_t","3400 Derived AJCC-7 T",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_ajcc_stg","3000 Derived AJCC-6 Stage Grp",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_dscrpt","2990 Derived AJCC-6 M Descript",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_ajcc_m","2980 Derived AJCC-6 M",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_dscrpt","2970 Derived AJCC-6 N Descript",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_ajcc_n","2960 Derived AJCC-6 N",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_dscrpt","2950 Derived AJCC-6 T Descript",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_drvd_ajcc_t","2940 Derived AJCC-6 T",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_cs_mts_at_dx","2850 CS Mets at DX",,,,,"FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_tnm_pth_dscrptr","0920 TNM Path Descriptor",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_tnm_pth_stg_grp","0910 TNM Path Stage Group",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_tnm_pth_m","0900 TNM Path M",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_tnm_pth_n","0890 TNM Path N",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_tnm_pth_t","0880 TNM Path T",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,
+"_mrtl_sts_dx","0150 Marital Status at DX",,"n_marital","Marital Status, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","FALSE","FALSE","TRUE"
+"_rc","0160 Race 1",,,,"FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_rc","0161 Race 2",,,,"FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_rc","0162 Race 3",,,,"FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_rc","0163 Race 4",,,,"FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_rc","0164 Race 5",,,,"FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_spnsh_hspnc","0190 Spanish/Hispanic Origin",,"n_hisp","Hispanic Origin, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","FALSE","TRUE","FALSE"
+"_sx","0220 Sex",,"n_sex","Sex, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","FALSE","TRUE","FALSE"
+"_dt_of_brth","0240 Date of Birth",,"n_dob",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_brthplc","0250 Birthplace",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","FALSE","FALSE","FALSE","FALSE"
+"_dt_of_dgns","0390 Date of Diagnosis",,"n_ddiag",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_prmr_pr_at_dx","0630 Primary Payer at DX",,"n_payer","Insurance, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","FALSE","FALSE","TRUE"
+"_tnm_cln_t","0940 TNM Clin T",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_tnm_cln_n","0950 TNM Clin N",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_tnm_cln_m","0960 TNM Clin M",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_tnm_cln_stg_grp","0970 TNM Clin Stage Group",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_tnm_cln_dscrptr","0980 TNM Clin Descriptor",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_rx_dt_srgr","1200 RX Date--Surgery",,"n_dsurg",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,"FALSE","FALSE","FALSE","FALSE"
+"_sr_smr_stg","0759 SEER Summary Stage 2000",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_vtl_sts","1760 Vital Status",,"n_vtstat","Vital Status, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,"TRUE","TRUE","TRUE","FALSE","TRUE","FALSE"
+"_cncr_sts","1770 Cancer Status",,"n_cstatus","Cancer Status, Registry","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","FALSE","FALSE","TRUE"
+"_qlt_srvl","1780 Quality of Survival",,"n_qsurv",,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"TRUE","FALSE","FALSE","FALSE"
+"_rcrnc_dt_st","1860 Recurrence Date--1st",,"n_drecur",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,"TRUE",,,"FALSE","FALSE","FALSE","FALSE"
+"_cs_of_dth","1910 Cause of Death",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3110 Comorbid/Complication 1",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3120 Comorbid/Complication 2",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3130 Comorbid/Complication 3",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3140 Comorbid/Complication 4",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3150 Comorbid/Complication 5",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3160 Comorbid/Complication 6",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3161 Comorbid/Complication 7",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3162 Comorbid/Complication 8",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3163 Comorbid/Complication 9",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_cmrbd_cmplctn","3164 Comorbid/Complication 10",,,,"FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_dt_cs_cmpltd","2090 Date Case Completed",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,,,,,
+"_dt_cs_intd","2085 Date Case Initiated",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,,,,,
+"_mltplct_cntr","0446 Multiplicity Counter",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_dbts_mlts","Diabetes Mellitus I","Family history",,,,"TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_dbts_mlts_info","Diabetes Mellitus I",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_kdn_rnl_plvs","Kidney and Renal Pelvis","SEER site","n_seer_kcancer",,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,,,,
+"_dcsd_pr_ss","Deceased per SSA",,"s_death","Vital Status, SSN","TRUE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,"TRUE",,"FALSE","TRUE","FALSE","FALSE"
+"_dstlc_prsr_num","Diastolic Blood Pressure (UTMed Only)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_dstlc_prsr_info","Diastolic Blood Pressure (UTMed Only)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_qntttv_4548_4_num","HEMOGLOBIN A1C QUANTITATIVE(#3284)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_qntttv_4548_4_unit","HEMOGLOBIN A1C QUANTITATIVE(#3284)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_qntttv_4548_4_info","HEMOGLOBIN A1C QUANTITATIVE(#3284)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_insttn__ptnts","Institution[29,472,477 facts; 1,348,929 patients]","Is the visit UHS or UTMed",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_exprd__ptnts","Expired[7,579 facts; 7,544 patients]","Discharge Disposition",,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,,,,"TRUE",,,,,
+"_frctn_ptnts","Fraction on SSI[747,013 facts; 747,013 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_wlfr__ptnts","Fraction on Welfare[747,013 facts; 747,013 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_hspnc_or_ltn","Hispanic or Latino",,"e_hisp","Hispanic Origin, i2b2","TRUE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","FALSE","FALSE","FALSE","FALSE"
+"_dbts_mlts","E08-E13 Diabetes mellitus (E08-E13)",,"e_dm_i10","DM ICD10, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_dbts_mlts_inactive","E08-E13 Diabetes mellitus (E08-E13)",,"e_dm_i10_i","History of DM, ICD10 i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_dbts","Diabetes","Family history",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_dbts_info","Diabetes",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_ethnct","Ethnicity","EMR demographics",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_hx_nphrctm","HX NEPHRECTOMY",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE","TRUE",,,,,,,
+"_dbts_mlts","Diabetes Mellitus II","Family history",,,,"TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_dbts_mlts_info","Diabetes Mellitus II",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_hgh_chlstrl","High Cholesterol","Family history",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_hgh_chlstrl_info","High Cholesterol",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_mcv_generic_kuh_component_id_4285_num","MCV(#4285)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_mcv_generic_kuh_component_id_4285_unit","MCV(#4285)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_mcv_generic_kuh_component_id_4285_info","MCV(#4285)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_hshld_ptnts","Median Household Income ACS 2016[727,551 facts; 727,551 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_lng","Language",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_kdn_ns","Kidney, NOS",,"n_kcancer","KC, Registry","TRUE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,"FALSE","FALSE","TRUE","FALSE"
+"_hshld_ptnts","Median Household Income ACS 2013[747,004 facts; 747,004 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,
+"_ys","Yes","Smoking",,,,"TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_mlgnt_nplsm","Z85 Personal history of malignant neoplasm",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,,,,
+"_mlgnt_nplsm_inactive","Z85 Personal history of malignant neoplasm",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,,,,,,,
+"_rdw_rbc_at_rt_788_0_num","RDW RBC Auto-Rto (788-0)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_rdw_rbc_at_rt_788_0_unit","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_rdw_rbc_at_rt_788_0_info","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_rdw_rbc_at_rt_generic_kuh_component_id_5629_num","RDW RBC Auto-Rto (788-0)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_rdw_rbc_at_rt_generic_kuh_component_id_5629_unit","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_rdw_rbc_at_rt_generic_kuh_component_id_5629_info","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_rdw_generic_kuh_component_id_5629_num","RDW(#5629)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_rdw_generic_kuh_component_id_5629_unit","RDW(#5629)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_rdw_generic_kuh_component_id_5629_info","RDW(#5629)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_acqrd_absnc","V45.73 Acquired absence of kidney",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE","TRUE",,,,,,,
+"_acqrd_absnc_inactive","V45.73 Acquired absence of kidney",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE","TRUE",,,,,,,
+"_pltlt_cnt_generic_kuh_component_id_5341_num","PLATELET COUNT(#5341)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_pltlt_cnt_generic_kuh_component_id_5341_unit","PLATELET COUNT(#5341)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_pltlt_cnt_generic_kuh_component_id_5341_info","PLATELET COUNT(#5341)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_ntrgn_bn_3094_0_num","UREA NITROGEN (BUN)(#6815)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_ntrgn_bn_3094_0_unit","UREA NITROGEN (BUN)(#6815)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_ntrgn_bn_3094_0_info","UREA NITROGEN (BUN)(#6815)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_tmprtr_utmd_num","Temperature (F) (UTMed Only)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_tmprtr_utmd_info","Temperature (F) (UTMed Only)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_urlg","Urology",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_srgcl_onclg","Surgical Oncology",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_sstlc_prsr_num","Systolic Blood Pressure (UTMed Only)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_sstlc_prsr_info","Systolic Blood Pressure (UTMed Only)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_acqrd_absnc","Z90.5 Acquired absence of kidney",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE","TRUE",,,,,,,
+"_acqrd_absnc_inactive","Z90.5 Acquired absence of kidney",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE","TRUE",,,,,,,
+"_opd_anlgscs","[CN101] OPIOID ANALGESICS",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_nn_opd_anlgscs","[CN103] NON-OPIOID ANALGESICS",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
+"_fncl_utmd","Financial Class (UTMed Only)",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","TRUE","FALSE","FALSE"

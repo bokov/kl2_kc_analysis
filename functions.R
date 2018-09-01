@@ -295,6 +295,49 @@ tte <- function(time,expr,...){
   out <- time - etime;
 }
 
+
+#' Take two vectors of names `ii` and `jj`, perform an aggregating 
+#' function on each vector respectively and then perform a comparison function 
+#' `fcmp` on the two aggregation results.
+#' 
+#' If the optional `env` is provided, returns a result vector 
+#' evaluated in the environment of env, otherwise return an unevaluated call.
+#'
+#' @param ii    A vector of object or variable names (required)
+#' @param jj    A vector of object or variable names (required)
+#' @param env   An optional list-like object containing above-named
+#'              objects.
+#' @param fii   The name (character) of a function that can take all the objects
+#'              represented in `ii` as its argument-list... 'pmax' by default.
+#' @param fjj   The name (character) of a function that can take all the objects
+#'              represented in `jj` as its argument-list. Set to `fii` by
+#'              default.
+#' @param fcmp  The name (character) of a function that will take the outputs of
+#'              functions named in `fii` and `fjj` as its two arguments. By 
+#'              default it's '<'.
+#' @param optii A named list of optional arguments to pass to `fii`. By default
+#'              it only name-value pair is `na.rm=T`
+#' @param optjj A named list of optional arguments to pass to `fii`. By default
+#'              it's set to `optjj`
+#'
+#' @return A call generated using the above arguments, unless `env`  is
+#'         given in which case the result of evaluating that call in the context
+#'         of `env`
+#' @export
+#'
+#' @examples comp_iijj(v(c_natf,dat1,retcol=c('colname','varname'))
+#'                    ,v(c_kcdiag,dat1,retcol=c('colname','varname')),dat1);
+#' 
+comp_iijj <- function(ii,jj,env,fii='pmax',fjj=fii,fcmp='>'
+                      ,optii=list(na.rm=T),optjj=optii){
+  ii <- lapply(ii,as.name); jj <- lapply(jj,as.name);
+  callii <- do.call(call,c(fii,ii,optii),quote=T);
+  calljj <- do.call(call,c(fjj,jj,optjj),quote=T);
+  out <- do.call(call,c(fcmp,callii,calljj),quote=T);
+  if(!missing(env)) out <- eval(out,envir = env);
+  return(out);
+}
+
 #' Code the output of `tte()` such that before an event observations get `0`
 #' during the (first) event observations get `1` and subsequent get `2`
 #' 
@@ -639,7 +682,8 @@ v <- function(var,dat
               ,matchcol='colname'
               # todo: let retcol take a vector argument
               ,retcol=matchcol
-              ,dictionary=dct0) {
+              ,dictionary=dct0
+              ,asname=F) {
   # convenience function: if forgot what column names are available, call with
   # no arguments and they will be listed
   if(missing(var)) return(names(dictionary));
@@ -647,20 +691,27 @@ v <- function(var,dat
   var<-as.character(substitute(var));
   # TODO: Think about what to do when nothing matches... not necessarily an error
   #       condition, might just be something to warn about and move on.
-  out<-dictionary[dictionary[[var]],retcol][[1]];
+  out <- unique(as.vector(na.omit(unlist(dictionary[dictionary[[var]],retcol]))));
+  # Why did I do the above in such a complicated way below? 
+  #out<-dictionary[dictionary[[var]],retcol][[1]];
   # if something other than matchcol is returned, give it a name to make it 
   # easier to align with column names in the data
-  if(retcol != matchcol){
-    out<-setNames(out,dictionary[dictionary[[var]],matchcol][[1]]);
-  }
-  # 'na.omit()' needed because we allows the 'dictionary' object to have NAs instead
+  #if(retcol != matchcol){
+  #  out<-setNames(out,dictionary[dictionary[[var]],matchcol][[1]]);
+  #}
+  
+  # 'na.omit()' needed because we allow the 'dictionary' object to have NAs instead
   # of FALSEs. 'c()' needed to strip na.omit metadata, so the output is a plain
   # old vector
-  out <- c(na.omit(out));
+  #out <- c(na.omit(out));
   # if a 'dat' argument is given, restrict the output so that only results having
   # having values found in the colnames of 'dat' are returned.
-  if(!missing(dat)) out <- out[out%in%colnames(dat)];
-  return(unname(out));
+  #if(!missing(dat)) out <- out[out%in%colnames(dat)];
+  if(!is(try(cnames<-colnames(dat),silent = T),'try-error')&&length(cnames)>0) {
+    out <- out[out%in%cnames];}
+  if(asname) out <- lapply(out,as.name);
+  #return(unname(out));
+  return(out);
   }
 
 #'.This function will create a variable summary table that will provide 

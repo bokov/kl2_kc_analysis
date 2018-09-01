@@ -31,6 +31,8 @@ colnames(dat0) <- tolower(colnames(dat0));
 #dct_stage <- 0;
 names(dat0)[1:8] %>% tibble(colname=.,colname_long=.,rule='demographics') %>% 
   rbind(tread(dctfile_raw,read_csv,na = '')) -> dct0;
+if(length(na.omit(dct0$varname))!=length(unique(na.omit(dct0$varname)))){
+  stop('Invalid data dictionary! Duplicate values in varname column');}
 dct0$colname <- tolower(dct0$colname);
 dct0 <- subset(dct0,dct0$colname %in% names(dat0));
 
@@ -55,7 +57,18 @@ if(debug>0){
 }
 #' end debug
 dct0$c_all <- TRUE;
-
+#' 
+#' A workaround for the fact that in `dat1` columns get transformed and we need
+#' an original value from `dat0`, but in `dat0` the column names are not yet 
+#' renamed to stable values.
+cstatic_n_dob <- subset(dct0,varname=='n_dob')$colname;
+#' We use this value to create a list of `patient_num` s that have mismatched
+#' dates of birth between NAACCR and EMR
+kcpatients.bad_dob <- dat0[as.character(dat0$birth_date)!=
+                             as.character(dat0[[cstatic_n_dob]]) & 
+                             !is.na(dat0[[cstatic_n_dob]]),'patient_num'] %>% 
+  unlist %>% unname;
+#' 
 #' Load the NAACCR manual code mappings
 levels_map <- tread(levels_map_file,read_csv,na='');
 
@@ -87,7 +100,10 @@ dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',x
 #' Find the patients which had active kidney cancer (rather than starting with 
 #' pre-existing)... first pass
 kcpatients.emr <- subset(dat1,e_kc_i10|e_kc_i9)$patient_num %>% unique;
-kcpatients.naaccr <- subset(dat1,n_kcancer)$patient_num %>% unique;
+#' Patients that are recorded in NAACCR as having kidney cancer and a diagnosis 
+#' date.
+kcpatients.naaccr <- subset(dat1,(n_seer_kcancer|n_kcancer) & n_ddiag)$patient_num %>% unique;
+kcpatients.naaccr_bad_dob <- intersect(kcpatients.naaccr,kcpatients.bad_dob);
 #' create the raw time-to-event (tte) and censoring (cte) variables
 #' along with making a_n_race and a_n_dm time invariant
 dat1 <- mutate(dat1
@@ -105,8 +121,9 @@ dat1 <- mutate(dat1
                ,a_thdiag=tte(age_at_visit_days,e_kc_i10_i|e_kc_i9_i)
                ,a_tdiag=tte(age_at_visit_days
                             # only count n_ddiag when it's recorded as a cancer case
-                            ,(patient_num %in% kcpatients.naaccr & n_ddiag)|
-                              e_kc_i9|e_kc_i10)
+                            ,(patient_num %in% kcpatients.naaccr & n_ddiag)  #|
+                            #e_kc_i9|e_kc_i10)
+               )
                ,a_trecur=tte(age_at_visit_days,n_drecur)
                ,a_tsurg=tte(age_at_visit_days,n_dsurg)
                ,a_tdeath=tte(age_at_visit_days
@@ -209,6 +226,7 @@ dat1 <- (l_tte<-c(v(c_tte,dat1),v(c_tte,dat1,retcol = 'varname'))) %>%
 dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race)) %>% 
   factor(levels=levels(dat1$race_cd));
 #dat1$sex_cd <- factor(dat1$sex_cd,levels=levels(dat1$n_sex));
+dat1$n_sex <- factor(dat1$n_sex,levels=c('1','2'),labels=c('m','f'));
 
 kcpatients.pre_existing <- subset(dat1,a_thdiag>=0&a_tdiag<0)$patient_num %>% unique;
 
@@ -263,22 +281,35 @@ pat_samples <- unique(dat1$patient_num) %>%
 #' multiple versions of the same graph,
 #' ### Create a version of the dataset that only has each patient's 1st encounter
 #' 
-dat2 <- group_by(dat1,patient_num) %>% 
-  summarise_all(function(xx) if(is.logical(xx)) any(xx) else last(na.omit(xx)));
+dat2 <- summarise_all(dat1,function(xx) {
+  if(is.logical(xx)) any(xx) else last(na.omit(xx))});
 
 #' Each name is a legal variable name for that subset, the value
 #' assigned to it is an R expression that can be evaluated in the
 #' scope of `dat1` and will return a `TRUE`/`FALSE` vector
 subs_criteria <- alist(
    # from diagnosis to surgery
-    diag_surg = a_tdiag>=0 & a_tsurg<=0 & patient_num %in% kcpatients.naaccr
+    diag_surg = a_tdiag>=0 & a_tsurg<=0 #& patient_num %in% kcpatients.naaccr
    # from surgery to recurrence
-   ,surg_recur = a_tsurg>=0 & a_trecur<=0 & patient_num%in%kcpatients.naaccr
+   ,surg_recur = a_tsurg>=0 & a_trecur<=0 #& patient_num%in%kcpatients.naaccr
    # from surgery to death
-   ,surg_death = a_tsurg>=0 & a_tdeath<=0 & patient_num%in%kcpatients.naaccr
+   ,surg_death = a_tsurg>=0 & a_tdeath<=0 #& patient_num%in%kcpatients.naaccr
    # from surgery to recurrence or death
    ,surg_drecur = a_tsurg>=0 & pmax(a_trecur,a_tdeath,na.rm = T)<=0 & patient_num%in%kcpatients.naaccr
 );
+# evidence of cancer prior to first diagnosis in NAACCR
+subs_criteria$prior_cancer <- comp_iijj(v(c_preexist,dat1
+                                          ,retcol=c('colname','varname'))
+                                        ,v(c_kcdiag,dat1
+                                           ,retcol=c('colname','varname')));
+
+# create complete versions of subsets according to current criteria
+for(ii in names(subs_criteria)) {
+  subs_criteria[[paste0(ii,'_complete')]] <- substitute(
+    ii&jj,env=c( ii=subs_criteria[[ii]]
+                ,jj=substitute(patient_num%in%kcpatients.naaccr)))};
+# standalone completeness criterion
+subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
 
 #' Creates a hierarchy of lists containing various subsets of interest
 sbs0 <- sapply(list(all=dat1,index=dat2),function(xx) do.call(ssply,c(list(dat=xx),subs_criteria[-1])),simplify=F);
