@@ -63,6 +63,6 @@ Basic usage:
      continue working without having to get re-written each time).
      * `update_datadictionary.R`: when the data changes, the old
      `datadictionary_static.csv` will continue to work but it will not see 
-     newly-include variables. This script can be run to update the
-     `datadictionary_staticl.csv` file so that new variables will now get added.
+     newly-included variables. This script can be run to update the
+     `datadictionary_static.csv` file so that new variables will now get added.
      It saves some but not quite all the drudgery of manually editing the CSV.
