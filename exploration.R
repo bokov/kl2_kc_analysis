@@ -536,7 +536,7 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
   # head(5) %>% 
   # show a sampling of rows and columns that fits on the page and remove the
   # the extra quotation marks
-  `[`(1:5,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
+  `[`(1:15,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
   pander(split.tables=1000);
 
 #' ---
