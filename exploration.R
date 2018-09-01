@@ -109,10 +109,13 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'       EMR data elements so that incomplete NAACCR records can be back-filled
 #'       with EMR data from i2b2.
 #'     * Answer: So far looking like:
-#'         1. [Diagnosis](#initial-diagnosis) = `n_ddiag` (NAACCR date of diagnosis, no others)
-#'         2. [Surgery](#surgery-conclusion) = `n_dsurg` (NAACCR date of
-#'            surgery, no others)
+#'         1. [Diagnosis](#initial-diagnosis) = `n_ddiag` ([NAACCR `0390 Date of Diagnosis`](http://datadictionary.naaccr.org/default.aspx?c=10#390)
+#'         , no others)
+#'         2. [Surgery](#surgery-conclusion) = `n_dsurg` ([NAACCR `1200 RX Date--Surgery`](http://datadictionary.naaccr.org/default.aspx?c=10#1200)
+#'            surgery, no others so far but may incorporate information from 
+#'            additional variables after next data update)
 #'         3. Recurrence and prior occurrence: _in progress_
+#'         4. Death (TODO)
 #' * Question: Which records to exclude due to likely errors in the source data? 
 #'   E.g. surgery precedes diagnosis, recurrence precedes surgery (for some 
 #'   analysis) death precedes diagnosis or surgery
