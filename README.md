@@ -23,8 +23,15 @@ Basic usage:
    repository will automatically attempt to satisfy all the necessary R packages,
    process the data, and generate a report similar to the one I have on 
    https://rpubs.com/bokov/kidneycancer . 
-       * If you have made edits to any files
-   you will need to either uncomment the line at ht
+     * If you have made edits to any files you will either need to uncomment the
+       line near the beginning of `exploration.R` that says 
+       `#options(gitstamp_prod=F);` or ...
+     * ...you will need to find some upstream repo to which you can push changes
+       (perhaps your own fork, or a local git repo), and commit all changes
+     * If you don't do at least one of the above you will have uncommitted 
+       changes which would make the reproducibility of your report uncertain for
+       production release, and then the audit functions from `trailR.R` will 
+       deliberately throw an error.
 5. The following is what each file here does:
      * `config.R`: sets the path to your local copy of the data
      * `global.R`: calls config.R, then attempts to install all the needed R 
@@ -38,14 +45,22 @@ Basic usage:
      tables and plots from it. This is a separate file because `data.R` takes a
      while to run, and at the moment does not change as quickly as does 
      `exploration.R`.
-   * `datadictionary_static.csv`: a spreadsheet template that associates various
+     * `nt_styletemplate.docx`: a Word document containing the style information
+       for the report, to be used by `pandoc`.
+     * `mk_progress_report.sh`: a one-liner shell script for invoking `pandoc`
+       on `exploration.docx` and `nt_styletemplate.docx` in order to create 
+       `progress_report.docx` (please don't check that into repos either, it's 
+       a frequently changing binary file that will waste space and bloat the 
+       repo).
+     * `levels_map.csv`: a table for renaming the levels of codes and other
+       discrete variables.
+     * `datadictionary_static.csv`: a spreadsheet template that associates various
      properties and metadata with the non-changing parts of the names of the 
      variables used by this project (the full names of the variables may change
      from one version of data to the other, and this allows the scripts to 
      continue working without having to get re-written each time).
-   * `update_datadictionary.R`: when the data changes, the old
+     * `update_datadictionary.R`: when the data changes, the old
      `datadictionary_static.csv` will continue to work but it will not see 
      newly-include variables. This script can be run to update the
      `datadictionary_staticl.csv` file so that new variables will now get added.
-     It replaces some but not quite all the drudgery of manual editing the CSV.
-   * 
+     It saves some but not quite all the drudgery of manually editing the CSV.
