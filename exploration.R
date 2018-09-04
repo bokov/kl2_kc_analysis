@@ -6,7 +6,7 @@
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -354,7 +354,7 @@ xdat1[,v(c_kcdiag)] %>%
 #'   kidney; or first occurence of surgical history of nephrectomy
 #+ xdat1_surg, cache=TRUE
 # make each date of surgery proxy relative to date of diagnosis
-xdat1_surg <- (xdat1[,v(c_nephx)] - xdat1$n_ddiag) %>% 
+xdat1_surg <- (xdat1[,c(v(c_nephx),'n_drecur')] - xdat1$n_ddiag) %>% 
   # keep only the ones that have a date of diagnosis and sort by NAACCR 
   # surgery date, then convert to weeks.
   subset(!is.na(xdat1$n_ddiag)) %>% arrange(n_dsurg) %>% '/'(7);
@@ -721,13 +721,15 @@ xdat1.mins<-outer(xdat1[,-1],xdat1[,-1],FUN=function(xx,yy)
     if(is.infinite(oo)) return(NA) else return(oo)},xx,yy));
 
 # We need to exclude the 'n_dob' variable because it otherwise screws up the
-# scaling
-.xdat1.keep <- colnames(xdat1.gteq) != 'n_dob';
+# scaling. Also excluding all variables that have fewer than 10 non-null 
+# observations
+.xdat1.keep <- !colnames(xdat1.gteq) %in% 
+  c(names(xdat1)[colSums(!is.na(xdat1))<10],'n_dob');
 # This is to distinguish missing values from 0 values in a heatmap! No other way
 # to do that!!
 #layout(matrix(1,nrow=2,ncol=2));
 par(bg='gray'); #,mfrow=1:2,mfcol=1:2);
-heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = F,margins=c(10,10)
+heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = T,margins=c(10,10)
         ,col=colorRampPalette(c('pink','red','darkred'))(2000));
 # ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
 #                      ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
