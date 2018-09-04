@@ -56,17 +56,28 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' 
 #' ### Questions for mentors and other domain experts:
 #' 
-#' * What are the main problems with the NAACCR stage and grade information that
+#' * Question: What are the main problems with the NAACCR stage and grade information that
 #'   I will need to clean up?
-#' * What is the typical time that elapses between diagnosis and surgery?
-#' * Is it possible for surgery to happen on the same day as the diagnosis? How
-#'   common is that?
-#' * What would be the threshold on the lag to surgery until we must conclude
-#'   that there is an error in that record? E.g. is four years too long?
-#' * What fraction of KC patients undergo surgery?
+#' * Question: What is the typical time that elapses between diagnosis and 
+#'   surgery?
+#'     * Answer (RR): 2-4 weeks, try to avoid more than 4
+#' * Question: Is it possible for surgery to happen on the same day as the 
+#'   diagnosis? How common is that?
+#'     * Answer (RR): Fairly common, if NAACCR diagnosis based on pathology 
+#'       rather than clinical examination, which is usually technically a renal 
+#'       mass, not a cancer. Might want to use imaging result date as the date 
+#'       of diagnosis if it isn't already being used as such.
+#' * Question: What would be the threshold on the lag to surgery until we must 
+#'   conclude that there is an error in that record? E.g. is four years too 
+#'   long?
+#'     * Answer (RR): No, there are a few local cases that took over a decade to 
+#'       get to surgery for various reasons (e.g. indolent tumor, or contact 
+#'       lost with patient).
+#' * Question: What fraction of KC patients undergo surgery?
+#'     * Answer (RR): Around 15%
 #' * How would one distinguish the chart of a patient who is was diagnosed for 
 #'   the first time with a kidney tumor from that of a patient experiencing a 
-#'   relapse...
+#'   relapse... (_need to reach out to Grace_)
 #'     * ...in Epic?
 #'     * ...in Sunrise?
 #' * Where in the chart would one positively establish the date of the patient's 
