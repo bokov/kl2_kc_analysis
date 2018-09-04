@@ -6,7 +6,7 @@
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-options(gitstamp_prod=F);
+#options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -396,6 +396,20 @@ mutate_all(xdat1[,v(c_nephx)]
 #' Not too bad. Though we cannot trust the ICD9/10 codes as replacements for
 #' missing surgery dates, there are few enough of them preceding diagnosis that
 #' we can remove them as source data errors without ruining the sample size.
+#' 
+# 
+# Here is a more general table, comparing every possible recurrence event or 
+# surgery event to the NAACCR surgery variable, to clean up and uncomment later
+# mutate_all(xdat1[,c(v(c_nephx),v(c_recur))]
+#            # break each column 
+#            ,function(xx) cut(xx-xdat1$n_dsurg,breaks=c(-Inf,-.00001,.00001,Inf)
+#                              ,lab=c('before','same-day','after'),include=T)) %>% 
+#   cbind(.,TOTAL=apply(.,1,function(xx) factor(
+#     ifelse(any(xx=='before',na.rm=T),'before'
+#            ,ifelse(any(xx=='same-day',na.rm=T),'same-day'
+#                    ,ifelse(any(xx=='after',na.rm=T),'after',NA)))
+#     ,levels=c('before','same-day','after')))) %>% 
+#   sapply(table,useNA='always') %>% t %>% pander();
 #' 
 #' Now, as far as the two NAACCR variables go, does `n_dsdisc` (date of 
 #' discharge) contribute anything more than `n_dsurg`? There are 
