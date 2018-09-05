@@ -735,3 +735,35 @@ v <- function(var,dat
 #   return(theresult)
 # }
 
+#' ## Functions specifically for Kidney Cancer project
+
+event_plot <- function(data,reference_event,secondary_event=NA
+                       ,sort_by=reference_event,start_event='n_ddiag'
+                       ,vars=setdiff(names(data)[sapply(data,is.numeric)]
+                                      ,start_event)
+                       ,main=sprintf('Time from %s to %s',start_event
+                                     ,reference_event)
+                       ,xlab=sprintf('Patients, sorted by %s',reference_event)
+                       ,tunit=c('days','weeks','months','years')
+                       ,ylim=NA,subset=TRUE,ylab=NA
+                       ,type='l',cols=c('black','red'),ltys=1:2
+                       ){
+  # subset the data
+  data <- subset(data,eval(subset));
+  conv = switch(tunit<-match.arg(tunit)
+                ,days=1,weeks=7,months=365.25/12,years=365.25);
+  # subtract start_event and convert to time unit
+  for(ii in vars) data[[ii]] <- (data[[ii]] - data[[start_event]])/conv;
+  # sort by indicated column, if any
+  if(!is.na(sort_by)) data <- arrange_(data,sort_by);
+  # set ylab if unspecified
+  if(is.na(ylab)) ylab <- sprintf('Time since %s, %s',start_event,tunit);
+  # set ylim if unspecified
+  if(is.na(ylim)) ylim <- range(data[,na.omit(c(reference_event
+                                                ,secondary_event))],na.rm=T);
+  plot(data[[reference_event]],type=type,ylim=ylim,main=main,xlab=xlab,ylab=ylab
+       ,col=cols[1],lty=ltys[1]);
+  if(!is.na(secondary_event)) lines(data[[secondary_event]],col=cols[2]
+                                    ,lty=ltys[2]);
+  return(data);
+}

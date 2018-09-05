@@ -521,6 +521,7 @@ subset(dat1
 #' finalized the Hispanic variable and this does not account for other 
 #' covariates like age and stage.
 #' 
+#+ surv_recur,cache=TRUE
 subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_recur)) %>% 
   summarise(age=age_at_visit_days[a_tsurg==0]
             ,a_tsurg=last(a_tsurg),a_crecur=last(a_crecur)
@@ -536,6 +537,7 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_recur))
 #' 
 #'  
 #'
+#+ surv_death,cache=TRUE
 subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death)) %>% 
   summarise(age=age_at_visit_days[a_tsurg==0]
             ,a_tsurg=last(a_tsurg),a_cdeath=last(a_cdeath)
@@ -593,8 +595,9 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'         provider per visit
 #' * TODO: Resume effort to link Mays Center historic trial records from IDEAS 
 #'         to get information about enrollment in adjuvant trials
-#' * TODO: Verify that the ETL gets `start_date` for `1770 Cancer Status` from 
-#'         `1772 Date of Last Cancer Status`
+#' * TODO: Verify that the [ETL](http://www.hostedredmine.com/issues/719444#note-11) 
+#'         gets `start_date` for `1770 Cancer Status` from 
+#'         [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1770)
 #' * TODO: Start validating and using additional 2a variables already in current 
 #'         data
 #'     * `[CN101] OPIOID ANALGESICS` (EMR)
