@@ -612,6 +612,8 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #' * TODO: In next re-run of query...
 #'     * Follow up re additional patient linkages, more recent NAACCR data
 #'     * Miperamine, other anti-depressants
+#'     * Should use [`0580 Date of 1st Contact`](http://datadictionary.naaccr.org/default.aspx?c=10#580)
+#'       as the diagnosis date if earlier than `n_ddiag`!
 #'     * Surgery fields:
 #'         * [`1260 Date of Initial RX--SEER`](http://datadictionary.naaccr.org/default.aspx?c=10#1260)
 #'         * [`1270 Date of 1st Crs RX--CoC`](http://datadictionary.naaccr.org/default.aspx?c=10#1270)
