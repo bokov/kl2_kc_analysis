@@ -6,7 +6,7 @@
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -19,6 +19,10 @@ if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 .loadedobjects <- tload(.depdata);
 knitr::opts_chunk$set(echo = F,warning = F,message=F);
 # Set default arguments for some functions
+panderOptions('table.split.table',Inf);
+panderOptions('missing','-');
+panderOptions('table.alignment.default','right');
+panderOptions('table.alignment.rownames','left');
 .args_default_v <- formals(v);
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' ### Overview
@@ -197,16 +201,14 @@ dat0[!is.na(dat0[[cstatic_n_dob]]) &
 #' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
 #' record completeness.
 with(dat2,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(split.tables=600,justify='right'
-         ,emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
+  pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
 
 #' ### How well does race match up between the EMRs and NAACCR?
 #' 
 #' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
 #' record completeness.
 with(dat2,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(split.tables=600,justify='right'
-         ,emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4)));
+  pander(emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4)));
 
 #' ### How well does Hispanic ethnicity match up between the EMRs and NAACCR?
 #' 
@@ -217,16 +219,14 @@ with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                               ,.default='Hispanic')
                 ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
   `[`(,c('Non_Hispanic','Hispanic')) %>%
-  addmargins() %>% pander(justify='right'
-                          ,emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
+  addmargins() %>% pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
 #' More detailed ethnicity breakdown...
 #' 
 #' Again columns represent EMR and rows represent NAACCR. Whole dataset, not 
 #' filtered for record completeness.
 with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
   `[`(,c('Non_Hispanic','Hispanic')) %>%
-  addmargins() %>% pander(justify='right'
-                          ,emphasize.strong.cells=as.matrix(expand.grid(1:6,1:2)));
+  addmargins() %>% pander(emphasize.strong.cells=as.matrix(expand.grid(1:6,1:2)));
 
 #' ## Cohort Characterization
 #'
@@ -274,7 +274,7 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
   set_rownames(gsub('^([A-Za-z].*)$','**\\1**'
                     ,gsub('   ','&nbsp;&nbsp;',rownames(.)))) %>%
   gsub('0 \\( 0.0\\)','0',.) %>% 
-  pander(split.table=600,justify='lrrrr',emphasize.rownames=F);
+  pander(emphasize.rownames=F);
 
 #' ## Which EMR and NAACCR variables are reliable event indicators?
 #' 
@@ -349,7 +349,7 @@ xdat1[,v(c_kcdiag)] %>%
     # use this function to make our table
     table(ICD9=ff(e_kc_i9),ICD10=ff(e_kc_i10),useNA = 'if')}) %>% addmargins() %>% 
   # format for viewing
-  pander(justify='right');
+  pander();
 #' ### Surgery
 #' 
 #' The `c_nephx` group of columns
@@ -391,7 +391,7 @@ t_priorcond <- paste(rownames(subset(xdat1_surg_summary,Min.<0)),collapse=', ');
 #' acquired absence of kidney are disqualified because they are very rare in 
 #' addition to being even more divergent from the `n_ddiag` than the 
 #' non-inactive codes.
-pander(xdat1_surg_summary,split.tables=600);
+pander(xdat1_surg_summary);
 #' It's understandable if the Epic EMR lags behind NAACCR (because as an 
 #' outpatient system, it's probably recording just the visits after the original
 #' surgery, and perhaps we are not yet importing the actual surgery events from 
@@ -444,6 +444,13 @@ lines(xdat1_surg$n_dsdisc,col='red',lty=2);
 #' 
 #' 
 #' ### Re-occurrence
+#' 
+#' The current available variables are: `n_cstatus` which corresponds to [`1770 Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1770)
+#' hopefully with `start_date` set by the ETL to [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772)
+#' (need to double-check that it is) and `n_drecur`, [`1860 Recurrence Date--1st `](http://datadictionary.naaccr.org/default.aspx?c=10#1860).
+#' It looks like it would also be useful in the next data
+#' pull to include [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880) 
+#' which our NAACCR does use.
 #' 
 #' ### Death
 #'    
@@ -562,7 +569,7 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
   # show a sampling of rows and columns that fits on the page and remove the
   # the extra quotation marks
   `[`(1:15,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
-  pander(split.tables=1000);
+  pander();
 
 #' ---
 #' 
@@ -586,6 +593,8 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'         provider per visit
 #' * TODO: Resume effort to link Mays Center historic trial records from IDEAS 
 #'         to get information about enrollment in adjuvant trials
+#' * TODO: Verify that the ETL gets `start_date` for `1770 Cancer Status` from 
+#'         `1772 Date of Last Cancer Status`
 #' * TODO: Start validating and using additional 2a variables already in current 
 #'         data
 #'     * `[CN101] OPIOID ANALGESICS` (EMR)
@@ -600,9 +609,11 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #' * TODO: In next re-run of query...
 #'     * Follow up re additional patient linkages, more recent NAACCR data
 #'     * Miperamine, other anti-depressants
-#'     * `1260 Date of Initial RX--SEER`
-#'     * `1270 Date of 1st Crs RX--CoC`
-#'     * `3170 RX Date--Most Defin Surg`
+#'     * Surgery fields:
+#'         * [`1260 Date of Initial RX--SEER`](http://datadictionary.naaccr.org/default.aspx?c=10#1260)
+#'         * [`1270 Date of 1st Crs RX--CoC`](http://datadictionary.naaccr.org/default.aspx?c=10#1270)
+#'         * [`3170 RX Date--Most Defin Surg`](http://datadictionary.naaccr.org/default.aspx?c=10#3170)
+#'     * Recurrence: [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880) 
 #'     * income and education
 #' * DONE: ~~tableOne~~
 #' * DONE: ~~Create time-since-first-diagnosis variable~~
@@ -639,15 +650,13 @@ dat2_bad_dob <- subset(dat2,patient_num %in% kcpatients.bad_dob);
 
 #' Columns represent NAACCR, rows represent EMR. Only DOB mismatched patients.
 with(dat2_bad_dob,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(split.tables=600,justify='right'
-         ,emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
+  pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
 
 #' #### Race
 #' 
 #' Columns represent NAACCR, rows represent EMR. Only DOB mismatched patients.
 with(dat2_bad_dob,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(split.tables=600,justify='right'
-         ,emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4)));
+  pander(emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4)));
 
 #' #### Hispanic ethnicity
 #' 
@@ -658,8 +667,7 @@ with(dat2_bad_dob,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                               ,.default='Hispanic')
                 ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
   `[`(,c('Non_Hispanic','Hispanic')) %>%
-  addmargins() %>% pander(justify='right'
-                          ,emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
+  addmargins() %>% pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
 #'
 #' #### Nephrectomy according to EMR preceding diagnosis according to NAACCR
 #' 
@@ -681,7 +689,7 @@ mutate_all(xdat1_bad_dob[,v(c_nephx)]
 #' How many patients are in NAACCR, the EMR, both, neither, or have a diagnosis
 #' prior to first available record?
 consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>% 
-  mutate(`N Cumulative`=rev(cumsum(rev(N)))) %>% pander(justify='right');
+  mutate(`N Cumulative`=rev(cumsum(rev(N)))) %>% pander();
 #' _This has been temporarily moved from the main section pending finalization
 #' of the recurrence variables. For now, the only ones we can be sure of 
 #' [as indicators of a pre-existing condition](#surgery-conclusion) as exclusion
