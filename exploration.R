@@ -446,8 +446,12 @@ lines(xdat1_surg$n_dsdisc,col='red',lty=2);
 #' ### Re-occurrence
 #' 
 #' The current available variables are: `n_cstatus` which corresponds to [`1770 Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1770)
-#' hopefully with `start_date` set by the ETL to [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772)
-#' (need to double-check that it is) and `n_drecur`, [`1860 Recurrence Date--1st `](http://datadictionary.naaccr.org/default.aspx?c=10#1860).
+#' ~~hopefully with `start_date` set by the ETL to [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772)
+#' (need to double-check that it is)~~ and `n_drecur`, [`1860 Recurrence Date--1st `](http://datadictionary.naaccr.org/default.aspx?c=10#1860).
+#' UPDATE: Our site is on NAACCR v16, not v18, and we do not have [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772).
+#' According to the v16 standard, instead the [`1750 Date of Last Contact`](http://datadictionary.naaccr.org/default.aspx?c=10#1750)
+#' should be used.
+#' 
 #' It looks like it would also be useful in the next data
 #' pull to include [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880) 
 #' which our NAACCR does use.
