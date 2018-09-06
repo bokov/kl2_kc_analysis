@@ -7,7 +7,7 @@
 "race_cd","race_cd",,"race_cd","Race, i2b2","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","TRUE","FALSE","FALSE"
 "age_at_visit_days","age_at_visit_days",,"age_at_visit_days","Age at Last Contact","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
 "age_at_death_days","age_at_death_days",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","FALSE","FALSE","FALSE","FALSE"
-"_dt_lst_cntct","1750 Date of Last Contact",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
+"_dt_lst_cntct","1750 Date of Last Contact",,"n_lc","Last Contact","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE",,,,,,,"FALSE","FALSE","FALSE","FALSE"
 "_bn_crtnn_rt_3097_3_num","BUN/CREATININE RATIO(#1017)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
 "_bn_crtnn_rt_3097_3_unit","BUN/CREATININE RATIO(#1017)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
 "_bn_crtnn_rt_3097_3_info","BUN/CREATININE RATIO(#1017)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,
