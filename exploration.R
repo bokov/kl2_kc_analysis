@@ -6,7 +6,7 @@
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -611,8 +611,6 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'     * Labs (EMR) including:  hemoglobin A1c, HDL, VLDL
 #'     * Vitals (EMR) including: systolic and diastolic blood pressure, BMI
 #'     * income (Census)
-#' * TODO: In next re-run of query...
-#'     * Follow up re additional patient linkages, more recent NAACCR data
 #'     * Miperamine, other anti-depressants
 #'     * Should use [`0580 Date of 1st Contact`](http://datadictionary.naaccr.org/default.aspx?c=10#580)
 #'       as the diagnosis date if earlier than `n_ddiag`!
@@ -621,6 +619,8 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'         * [`1270 Date of 1st Crs RX--CoC`](http://datadictionary.naaccr.org/default.aspx?c=10#1270)
 #'         * [`3170 RX Date--Most Defin Surg`](http://datadictionary.naaccr.org/default.aspx?c=10#3170)
 #'     * Recurrence: [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880) 
+#' * TODO: In next re-run of query...
+#'     * Follow up re additional patient linkages, more recent NAACCR data
 #'     * education (Census, not ready, ETL needs fixing)
 #' * DONE: ~~Verify that the [ETL](http://www.hostedredmine.com/issues/719444#note-11) 
 #'         gets `start_date` for `1770 Cancer Status` from 
