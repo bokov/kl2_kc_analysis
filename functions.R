@@ -260,6 +260,18 @@ grepor <- function(xx,patterns='.') {
   grep(paste0(patterns,collapse='|'),xx,val=T);
 }
 
+#' A not especially memory efficient way to add rows to a data.frame like 
+#' object when you want to make sure you don't accidentally introduce duplicates
+df.insert <- function(dat,...
+                      ,ALIST=alist(),UNIQUE=TRUE,NONEWCOLS=TRUE,DEFAULT=NA){
+  # create combined name-val list from ALIST and ...
+  # create 0 row subset and rbind DEFAULT
+  # NONEWCOLS check
+  # UNIQUE check
+  # insert new values & rbind
+  # return
+}
+
 #' Take an object name \code{obj}, check to see if it  exists in environment \code{env}
 #' and if it does not, run \code{expression} \code{EXPR} and assign its result to \code{obj}
 #'
@@ -736,7 +748,8 @@ v <- function(var,dat
 # }
 
 #' ## Functions specifically for Kidney Cancer project
-
+#' 
+#' TODO: write a roxygen skel for this one
 event_plot <- function(data,reference_event,secondary_event=NA
                        ,sort_by=reference_event,start_event='n_ddiag'
                        ,vars=setdiff(names(data)[sapply(data,is.numeric)]
