@@ -68,6 +68,20 @@ kcpatients.bad_dob <- dat0[as.character(dat0$birth_date)!=
                              as.character(dat0[[cstatic_n_dob]]) & 
                              !is.na(dat0[[cstatic_n_dob]]),'patient_num'] %>% 
   unlist %>% unname;
+
+#' A similar pattern for finding NAACCR dates in dat0, before we start 
+#' transforming it in dat1.
+cstatic_n_tpoints <- subset(dct0,varname %in% c('n_ddiag','n_fc','n_dsurg'
+                                                ,'n_drecur','n_lc'))$colname;
+#' And then recording the `patient_num`s for patients with multiple NAACCR 
+#' rows (until I can ascertain that values from the same row in NAACCR are
+#' bound together in some way recoverable from i2b2 such as instance numbers).
+#' Until then, might have to drop such cases.
+kcpatients.naaccr_dupe <- group_by(dat0,patient_num)[
+  ,c('patient_num',tpoint_names)] %>% 
+  summarize_all(function(xx) sum(!is.na(xx))) %>% 
+  apply(1,function(xx) c(xx[1],max(xx[-1]))) %>% t %>% data.frame %>% 
+  subset(V2>1) %>% `$`(patient_num);
 #' 
 #' Load the NAACCR manual code mappings
 levels_map <- tread(levels_map_file,read_csv,na='');

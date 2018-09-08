@@ -746,7 +746,7 @@ event_plot <- function(data,reference_event,secondary_event=NA
                        ,xlab=sprintf('Patients, sorted by %s',reference_event)
                        ,tunit=c('days','weeks','months','years')
                        ,ylim=NA,subset=TRUE,ylab=NA
-                       ,type='l',cols=c('black','red'),ltys=1:2
+                       ,type='l',cols=c('black','red'),ltys=1:2,log=''
                        ){
   # subset the data
   data <- subset(data,eval(subset));

@@ -452,10 +452,36 @@ lines(xdat1_surg$n_dsdisc,col='red',lty=2);
 #' According to the v16 standard, instead the [`1750 Date of Last Contact`](http://datadictionary.naaccr.org/default.aspx?c=10#1750)
 #' should be used.
 #' 
-#' It looks like it would also be useful in the next data
+#' ~~It looks like it would also be useful in the next data
 #' pull to include [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880) 
-#' which our NAACCR does use.
+#' which our NAACCR does use.~~ Done.
 #' 
+#' In the below plot, the white line is the time of `n_ddiag`. The black line is 
+#' the time from `n_ddiag` until `n_dsurg`. The red line is `n_lc` (last contact).
+#' The blue line is the minimum of several recurrence dates. Most of the time
+#' the recurrence date seems to be bounded by the last contact (`n_lc`) and 
+#' surgery `n_dsurg` dates. It is almost always bounded below by the diagnosis
+#' date `n_ddiag`.
+#+ event_plot_diag2surg,cache=TRUE
+.eventplot01 <-event_plot(subset(xdat1,!patient_num %in% kcpatients.naaccr_dupe)
+                          ,'n_dsurg','n_lc',start_event = 'n_ddiag'
+                          ,ltys = c(1,1));
+abline(h=0,col='white');
+lines(do.call(pmin,c(.eventplot01[,v(c_recur,.eventplot01)],na.rm=T)),col='blue'
+      ,lty=3);
+#' Here's something wierd though-- the date of first contact `n_fc` (red) is 
+#' almost always between last contact `n_lc` (black) and diagnosis `n_ddiag` 
+#' (white), though diagnosis is usually on a biopsy sample and that's why it's 
+#' dated as during or after surgery we thought. If first contact is some kind of 
+#' event after first diagnosis, what is it?
+#+ event_plot_diag2lc,cache=TRUE
+.eventplot02 <-event_plot(subset(xdat1,!patient_num %in% kcpatients.naaccr_dupe)
+                          ,'n_lc','n_fc',start_event = 'n_ddiag'
+                          ,ltys = c(1,1));
+abline(h=0,col='white');
+#' Surgery `n_dsurg` seems to happen in significant amounts both before and 
+#' after first contact `n_fc`.
+#'  
 #' ### Death
 #'    
 #' ### Whether or not the patient is Hispanic
