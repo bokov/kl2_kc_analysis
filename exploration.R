@@ -435,6 +435,9 @@ plot(xdat1_surg$n_dsurg,type='l',ylab='Weeks After Diagnosis'
      ,xlab='Patients, sorted by time from diagnosis to surgery'
      ,main='Time from diagnosis to surgery (black)\n or discharge (red)');
 lines(xdat1_surg$n_dsdisc,col='red',lty=2);
+# More preliminary code for surgery, once properly factored and annoatated this
+# should work fine for each of the classes of tte variables.
+# bar <- arrange(xdat1,n_dsurg-n_ddiag,n_lc-n_ddiag);bar[,-1] <- bar[,-1] +.01 - bar$n_ddiag; bar <- subset(bar,!patient_num %in% kcpatients.naaccr_dupe);plot(bar$n_dsurg,type='s',ylim=c(-2000,8000));for(ii in v(c_nephx,bar)[1:5]) lines(bar[[ii]],type='s',col='blue');
 #' 
 #' ##### Surgery Conclusion
 #' 
