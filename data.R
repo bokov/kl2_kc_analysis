@@ -78,7 +78,7 @@ cstatic_n_tpoints <- subset(dct0,varname %in% c('n_ddiag','n_fc','n_dsurg'
 #' bound together in some way recoverable from i2b2 such as instance numbers).
 #' Until then, might have to drop such cases.
 kcpatients.naaccr_dupe <- group_by(dat0,patient_num)[
-  ,c('patient_num',tpoint_names)] %>% 
+  ,c('patient_num',cstatic_n_tpoints)] %>% 
   summarize_all(function(xx) sum(!is.na(xx))) %>% 
   apply(1,function(xx) c(xx[1],max(xx[-1]))) %>% t %>% data.frame %>% 
   subset(V2>1) %>% `$`(patient_num);
