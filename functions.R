@@ -318,6 +318,28 @@ df.insert <- function(dat,...
   return(rbind(dat,inrow));
 }
 
+#' TODO: Function that takes the name of a file, a read function, and a set of 
+#'       name-value pairs, loads that file, runs df.insert on it, and saves it 
+#'       out (backing up the original). Option to complain when used in a 
+#'       script.
+#' TODO: A wrapper for the above function specifically the static data dictionary
+#'       template.
+#' TODO: A df.update function that works like one of these 
+#'       https://stackoverflow.com/questions/34096162/dplyr-mutate-replace-on-a-subset-of-rows
+#'       ...but with the option to add a brand new row if no existing are found
+#'       (thus maybe making df.insert not so useful after all)
+#' TODO: A wrapper for that one and external files, equivalent to the one for 
+#'       df.insert()
+#' TODO :A function for rebuilding and reloading a data dictionary. Called once
+#'       in data.R, but more importantly to be able to reload it during an 
+#'       interactive session without having to re-run all of data.R
+#' TODO: ...so that I can finally add the a_* created columns to the data
+#'       dictionary in a clean manner
+#' TODO: ...so that I can subset a_e_death and a_n_death and the to-be-created
+#'       additional a_n_* variables for surgery.
+#' TODO: ...so that I can have a tidy and understandable set of plots 
+#'       demonstrating the behavior of the various tte variables.
+
 #' Take an object name \code{obj}, check to see if it  exists in environment \code{env}
 #' and if it does not, run \code{expression} \code{EXPR} and assign its result to \code{obj}
 #'
