@@ -159,7 +159,7 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' 
 #' ### How well do birthdates match between NAACCR and the EMR?
 #' 
-#+ create_xdat,cache=TRUE
+#+ create_xdat
 # To understand what the below code does, see the comments for the very similar
 # pattern in 'data.R' in the neighborhood lines 148-191 as of 8/19/2018
 # using 'union()' instead of 'c()' here to avoid cumulative growth if script is
@@ -370,7 +370,6 @@ xdat1_surg <- (xdat1[,c(v(c_nephx),'n_drecur')] - xdat1$n_ddiag) %>%
   # keep only the ones that have a date of diagnosis and sort by NAACCR 
   # surgery date, then convert to weeks.
   subset(!is.na(xdat1$n_ddiag)) %>% arrange(n_dsurg) %>% '/'(7);
-#+ xdat1_surg_summary, cache=TRUE
 # make a summary table for the 'c_nephx' candidate surgery proxy variables
 xdat1_surg_summary <- summary(xdat1_surg) %>% 
   # extract the rownames from the arcane way that summary() returns them
@@ -399,7 +398,7 @@ pander(xdat1_surg_summary);
 #' Sunrise EMR). But for the V or Z or surgical history codes that precede 
 #' `n_ddiag`, it could mean that those NAACCR cases are not first-time 
 #' occurrences. How big of a problem is this?
-#' 
+#+ before_sameday_after_00,cache=TRUE
 mutate_all(xdat1[,v(c_nephx)]
            # break each column 
            ,function(xx) cut(xx-xdat1$n_ddiag,breaks=c(-Inf,-.00001,.00001,Inf)
@@ -431,6 +430,7 @@ mutate_all(xdat1[,v(c_nephx)]
 #' both relative to date of diagnosis, `n_dsdisc` either coincides with `n_dsurg`
 #' or lags by multiple weeks, as might be expected of a discharge date (what is 
 #' the plausible threshold on time from surgery to discharge?).
+#+ plot_xdat1_surg,cache=TRUE
 plot(xdat1_surg$n_dsurg,type='l',ylab='Weeks After Diagnosis'
      ,xlab='Patients, sorted by time from diagnosis to surgery'
      ,main='Time from diagnosis to surgery (black)\n or discharge (red)');
