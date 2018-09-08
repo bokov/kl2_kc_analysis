@@ -266,7 +266,7 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
          ,`Insurance, Registry`=n_payer
          ,`Diabetes, Registry`=a_n_dm
          ,`Diabetes, i2b2`=a_e_dm
-         ,`Kidney Cancer, Registry`=n_kcancer
+         #,`Kidney Cancer, Registry`=n_kcancer
          ,`Kidney Cancer, i2b2`=a_e_kc
          ,BMI=e_bmi) %>% select(-patient_num) %>%
   select(sort(names(.))) %>% 
