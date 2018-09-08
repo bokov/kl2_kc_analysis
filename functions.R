@@ -260,16 +260,62 @@ grepor <- function(xx,patterns='.') {
   grep(paste0(patterns,collapse='|'),xx,val=T);
 }
 
-#' A not especially memory efficient way to add rows to a data.frame like 
+#' A not especially memory efficient way to add on row to a data.frame like 
 #' object when you want to make sure you don't accidentally introduce duplicates
+#'
+#' @param dat       A `data.frame` like object.
+#' @param ...       Arbitrary name-value pairs with names corresponding to
+#'                  columns and values to what will be placed in them.
+#' @param VALLIST   A `list` (not an `alist`) that will be combined with `...`
+#'                  The purpose is to support programmatic invocation, optional.
+#' @param UNIQUE    If TRUE (default) and a duplicate row would have been 
+#'                  created instead gives a warning and returns the original 
+#'                  `dat` argument unchanged. If set to FALSE will insert
+#'                  duplicate rows.
+#' @param NONEWCOLS If TRUE (default) ignores columns that don't already exist
+#'                  in `dat` with a warning. Otherwise adds new columns.
+#' @param DEFAULT   The default value to put into columns for which no value is
+#'                  specified (default: NA)
+#' @param NOCOERCE  If TRUE (default) gives warning and returns the original 
+#'                  `dat` argument unchanged if inserting the new row would 
+#'                  alter the types of any of the columns. If set to FALSE 
+#'                  doesn't check.
 df.insert <- function(dat,...
-                      ,ALIST=alist(),UNIQUE=TRUE,NONEWCOLS=TRUE,DEFAULT=NA){
-  # create combined name-val list from ALIST and ...
-  # create 0 row subset and rbind DEFAULT
-  # NONEWCOLS check
+                      ,VALLIST=list(),UNIQUE=TRUE,NONEWCOLS=TRUE,DEFAULT=NA
+                      ,NOCOERCE=TRUE){
+  # create combined name-val list from VALLIST and ...
+  innames <- setdiff(names(invals <- c(...,VALLIST)),'');
+  if(length(innames)!=length(invals)) {
+    invals <- invals[innames];
+    warning('You specified either unnamed values which were all ignored or duplicate names, of which only the first one was used.');
+  }
+  # handle new columns
+  if(length(indiff<-setdiff(innames,names(dat)))>0){
+    if(NONEWCOLS) {
+      invals[indiff] <- NULL; innames <- names(invals);
+      warning(
+        "You specified columns that don't yet exist and they will be ignored. If you want them to be created you should set NONEWCOLS to FALSE");
+    } else {
+      warning('New columns added');
+      dat[,indiff] <- DEFAULT;}
+  }
+  # create 0 row subset and assign DEFAULT
+  inrow <- subset(dat,FALSE);
+  inrow[1,] <- DEFAULT;
+  inrow[,innames] <- invals[innames];
   # UNIQUE check
-  # insert new values & rbind
-  # return
+  if(UNIQUE){
+    if(isTRUE(any(apply(inrow[rep.int(1,nrow(dat)),]==dat,1,all)))){
+      warning('Row not inserted because at least one identical row already exists. If you want to allow duplicate rows, set UNIQUE=FALSE');
+      return(dat);}
+  }
+  if(NOCOERCE) {
+    if(!all(mapply(function(aa,bb) length(intersect(class(aa),class(bb)))>0
+                   ,inrow,dat))) {
+      warning('One of the values provided could change the data-type of its column, so the row was not added. If you don\'t want to protect against this, set NOCOERCE=FALSE');
+      return(dat);}
+  }
+  return(rbind(dat,inrow));
 }
 
 #' Take an object name \code{obj}, check to see if it  exists in environment \code{env}
