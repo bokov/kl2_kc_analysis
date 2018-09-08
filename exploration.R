@@ -266,7 +266,7 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
          ,`Insurance, Registry`=n_payer
          ,`Diabetes, Registry`=a_n_dm
          ,`Diabetes, i2b2`=a_e_dm
-         #,`Kidney Cancer, Registry`=n_kcancer
+         ,`Kidney Cancer, Registry`=n_kcancer
          ,`Kidney Cancer, i2b2`=a_e_kc
          ,BMI=e_bmi) %>% select(-patient_num) %>%
   select(sort(names(.))) %>% 
@@ -314,7 +314,7 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #'   DX](http://datadictionary.naaccr.org/default.aspx?c=10#443) but that is never
 #'   recorded in our NAACCR. All other NAACCR data elements containing the word
 #'   'date' seem to be retired or related to later events, not initial diagnosis.
-#'   Whatever the case, there are only `r nrow(subset(xdat1,is.na(n_ddiag)&!is.na(n_kcancer)))`
+#'   Whatever the case, there are only `r nrow(subset(xdat1,is.na(n_ddiag)))`
 #'   patients with a missing date of diagnosis but non-missing dates for the SEER
 #'   site variable, so within the range of reasonable error at the NAACCR end.
 #'   __Therefore `n_ddiag` (date of initial diagnosis) is the only NAACCR 
