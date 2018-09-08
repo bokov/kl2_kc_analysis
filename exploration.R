@@ -241,7 +241,7 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
 #' 
 #+ TableOne, cache=TRUE
 dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
-        ,'a_n_race','a_n_dm','a_e_dm','a_e_kc'))] %>% 
+        ,'a_n_race','a_n_dm','a_e_dm','a_e_kc','n_kcancer'))] %>% 
   mutate(n_cstatus=ifelse(!patient_num%in%kcpatients.naaccr
                           ,'No KC in NAACCR',as.character(n_cstatus)) %>%
          factor(levels=c(levels(n_cstatus),'No KC in NAACCR'))
@@ -249,7 +249,8 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
          ,n_vtstat=n_vtstat!=-1
          ,s_death=s_death!=-1
          ,e_death=e_death!=-1
-         ,n_kcancer=n_kcancer>=0) %>%
+         #,n_kcancer=n_kcancer>=0
+         ) %>%
   rename(`Age at Last Contact`=age_at_visit_days
          ,`Sex, i2b2`=sex_cd
          ,`Sex, Registry`=n_sex
