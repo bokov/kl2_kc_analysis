@@ -482,6 +482,22 @@ lines(do.call(pmin,c(.eventplot01[,v(c_recur,.eventplot01)],na.rm=T)),col='blue'
 abline(h=0,col='white');
 #' Surgery `n_dsurg` seems to happen in significant amounts both before and 
 #' after first contact `n_fc`.
+#' 
+#' 
+# Not ready for production code to plot ranked events...
+# baz<- subset(xdat1,!patient_num %in% kcpatients.naaccr_dupe)[,c('patient_num',v(c_kcdiag,xdat1),v(c_nephx,xdat1),v(c_recur,xdat1),v(c_death,xdat1),'n_lc')]
+# baz[,-1] <- t(apply( baz[,-1],1,rank,na.last='keep'))
+# baz<-arrange(baz,n_ddiag)
+# plot(baz$n_ddiag,type='l',ylim=c(0,21))
+# lines(baz$n_fc,col='red')
+# lines(baz$n_lc,col='black')
+# lines(baz$n_dsurg,col='green',lty=2)
+# lines(baz$n_dsurg,col='green',lwd=2)
+# lines(baz$n_drecur,col='blue',lwd=2)
+# for(ii in v(c_death,baz)) lines(baz[[ii]],col='orange',lwd=2)
+# for(ii in v(c_kcdiag,baz)[1:2]) lines(baz[[ii]],lty=3,col='pink')
+# for(ii in v(c_recur,baz)[-15]) lines(baz[[ii]],col='cyan')
+# for(ii in v(c_death,baz)) lines(baz[[ii]],col='orange',lwd=2)
 #'  
 #' ### Death
 #'    
