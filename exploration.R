@@ -351,6 +351,31 @@ xdat1[,v(c_kcdiag)] %>%
     table(ICD9=ff(e_kc_i9),ICD10=ff(e_kc_i10),useNA = 'if')}) %>% addmargins() %>% 
   # format for viewing
   pander();
+#' Here is a plot centered on NAACCR date of diagnosis (blue horizontal line at 
+#' 0) with black lines indicating ICD10 codes for primary kidney cancer from the
+#' EMR and dashed red lines indicating ICD9 codes. The dashed horizontal blue 
+#' lines indicate +- 3 months from date of diagnosis.
+.eplot_diag <- mutate(xdat1,icd=pmin(e_kc_i10,e_kc_i9,na.rm=T)) %>% 
+  event_plot('icd',tunit='months',type='s'
+             ,ylab='Months since NAACCR Date of Diagnosis'
+             ,xlab='Patients, sorted by time to first ICD10 code'
+             ,main='Time from Diagnosis to First ICD9/10 Code');
+abline(h=c(-3,0,3),lty=c(2,1,2),col='blue');
+.eplot_diag_summ <- summary(cut(.eplot_diag$icd,c(-Inf,-2,-.001,.001,Inf)));
+#' 
+#' From this we can conclude that for most patients 
+#' (`r sum(.eplot_diag_summ[2:4])`), the first EMR code is recorded 
+#' within 3 months of first diagnosis as recorded by NAACCR. Of those with a 
+#' larger time difference, the majority (`r .eplot_diag_summ[5]`) have their 
+#' first EMR code occur _after_ first NAACCR diagnosis. Only 
+#' `r .eplot_diag_summ[1]` patients have ICD9/10 diagnoses that preced their
+#' NAACCR diagnoses by more than 3 months. These might need to be eliminated 
+#' from the sample on the grounds of not being first occurrences of kidney 
+#' cancer. However, we cannot back-fill missing NAACCR records or NAACCR 
+#' records lacking a diagnosis date because there is too frequently a difference
+#' between the the two sources, and the EMR records are currently biased toward
+#' later dates.
+#' 
 #' ### Surgery
 #' 
 #' The `c_nephx` group of columns
