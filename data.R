@@ -32,8 +32,8 @@ colnames(dat0) <- tolower(colnames(dat0));
 dct0 <- names(dat0)[1:8] %>% 
   tibble(colname=.,colname_long=.,rule='demographics') %>% 
   rbind(tread(dctfile_raw,read_csv,na = ''));
-if(length(na.omit(dct0$varname))!=length(unique(na.omit(dct0$varname)))){
-  stop('Invalid data dictionary! Duplicate values in varname column');}
+if(length(na.omit(dct0$colname))!=length(unique(na.omit(dct0$colname)))){
+  stop('Invalid data dictionary! Duplicate values in colname column');}
 dct0$colname <- tolower(dct0$colname);
 #' Is this actually necessary?
 #dct0 <- subset(dct0,dct0$colname %in% names(dat0));
@@ -42,7 +42,8 @@ dct0$colname <- tolower(dct0$colname);
 #if(debug>0) if(!identical(names(dat0),dct0$colname)) 
 #  stop('Mismatch between dct0$colname and actual colnames');
 #' end debug
-dct0$class <- lapply(dat0[,dct0$colname],class) %>% sapply(head,1);
+shared <- intersect(names(dat0),dct0$colname);
+dct0$class <- lapply(dat0[,shared],class) %>% sapply(head,1);
 dct0$colsuffix <- gsub('^v[0-9]{3}','',dct0$colname);
 
 #' debug
@@ -50,6 +51,8 @@ if(debug>0) .dct0bak <- dct0;
 #' end debug
 dct0 <- left_join(dct0,tread(dctfile_tpl,read_csv,na='')
                   ,by=c('colsuffix','colname_long'));
+if(length(na.omit(dct0$varname))!=length(unique(na.omit(dct0$varname)))){
+  stop('Invalid data dictionary! Duplicate values in varname column');}
 #' debug
 if(debug>0){
   if(nrow(dct0)!=nrow(.dct0bak)) 
