@@ -912,6 +912,35 @@ v <- function(var,dat
 
 #' ## Functions specifically for Kidney Cancer project
 #' 
+rebuild_dct <- function(dat=dat0,rawdct=dctfile_raw,tpldct=dctfile_tpl,debuglev=0
+                        ,tread_fun=read_csv,na=''){
+  out <- names(dat)[1:8] %>% 
+    tibble(colname=.,colname_long=.,rule='demographics') %>% 
+    rbind(tread(rawdct,tread_fun,na = na));
+  if(length(na.omit(out$colname))!=length(unique(na.omit(out$colname)))){
+    stop('Invalid data dictionary! Duplicate values in colname column');}
+  out$colname <- tolower(out$colname);
+  #dct0 <- subset(dct0,dct0$colname %in% names(dat0));
+  shared <- intersect(names(dat),out$colname);
+  out[out$colname %in% shared,'class'] <- lapply(dat0[,shared],class) %>% sapply(head,1);
+  out$colsuffix <- gsub('^v[0-9]{3}','',out$colname);
+  #' debug
+  if(debug>0) .outbak <- out;
+  #' end debug
+  out <- left_join(out,tread(tpldct,tread_fun,na=na)
+                   ,by=c('colsuffix','colname_long'));
+  #' debug
+  if(debug>0){
+    if(nrow(out)!=nrow(.outbak)) 
+      stop('Number of rows changed in dct0 after join');
+    if(!identical(out$colname,.outbak$colname)) 
+      stop('colname values changed in dct0 after join');
+  }
+  #' end debug
+  out$c_all <- TRUE;
+  return(out);
+}
+#' 
 #' TODO: write a roxygen skel for this one
 event_plot <- function(data,reference_event,secondary_event=NA
                        ,sort_by=reference_event,start_event='n_ddiag'
