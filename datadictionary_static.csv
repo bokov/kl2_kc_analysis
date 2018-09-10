@@ -41,7 +41,7 @@
 "_cncr_and_tmr_info","Cancer and Tumor",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
 "_dt_of_st_cntct","0580 Date of 1st Contact","Can also be date of clinical (as opposed to path) diagnosis","n_fc",,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,,,,,,
 "_dt_srgcl_dsch","3180 RX Date--Surgical Disch",,"n_dsdisc",,,"TRUE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,,,,,"TRUE",
-"_rsn_fr_srgr","1340 Reason for No Surgery",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
+"_rsn_fr_srgr","1340 Reason for No Surgery",,"n_surgreason",,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
 "_drvd_ajcc_stg","3430 Derived AJCC-7 Stage Grp",,,,"FALSE",,"FALSE","FALSE","TRUE","FALSE",,,,,,,,,,,"TRUE",
 "_drvd_dscrpt","3422 Derived AJCC-7 M Descript",,,,"FALSE",,"FALSE","FALSE","TRUE","FALSE",,,,,,,,,,,"TRUE",
 "_drvd_ajcc_m","3420 Derived AJCC-7 M",,,,"FALSE","FALSE","FALSE","FALSE","TRUE","FALSE",,,,,,,,,,,"TRUE",
