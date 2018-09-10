@@ -27,42 +27,43 @@ dat0spec$cols[['patient_num']] <- col_number();
 dat0 <- tread(inputdata,read_csv,na=c('(null)',''),col_type=dat0spec);
 colnames(dat0) <- tolower(colnames(dat0));
 
-#' Read in the data dictionary
-#dct_stage <- 0;
-dct0 <- names(dat0)[1:8] %>% 
-  tibble(colname=.,colname_long=.,rule='demographics') %>% 
-  rbind(tread(dctfile_raw,read_csv,na = ''));
-if(length(na.omit(dct0$colname))!=length(unique(na.omit(dct0$colname)))){
-  stop('Invalid data dictionary! Duplicate values in colname column');}
-dct0$colname <- tolower(dct0$colname);
-#' Is this actually necessary?
-#dct0 <- subset(dct0,dct0$colname %in% names(dat0));
-
-#' debug
-#if(debug>0) if(!identical(names(dat0),dct0$colname)) 
-#  stop('Mismatch between dct0$colname and actual colnames');
-#' end debug
-shared <- intersect(names(dat0),dct0$colname);
-dct0[dct0$colname %in% shared,'class'] <- lapply(dat0[,shared],class) %>% sapply(head,1);
-message('Got done with class')
-dct0$colsuffix <- gsub('^v[0-9]{3}','',dct0$colname);
-
-#' debug
-if(debug>0) .dct0bak <- dct0;
-#' end debug
-dct0 <- left_join(dct0,tread(dctfile_tpl,read_csv,na='')
-                  ,by=c('colsuffix','colname_long'));
-if(length(na.omit(dct0$varname))!=length(unique(na.omit(dct0$varname)))){
-  stop('Invalid data dictionary! Duplicate values in varname column');}
-#' debug
-if(debug>0){
-  if(nrow(dct0)!=nrow(.dct0bak)) 
-    stop('Number of rows changed in dct0 after join');
-  if(!identical(dct0$colname,.dct0bak$colname)) 
-    stop('colname values changed in dct0 after join');
-}
-#' end debug
-dct0$c_all <- TRUE;
+#' Create the data dictionary
+dct0 <- rebuild_dct(dat0,dctfile_raw,dctfile_tpl,tread_fun = read_csv,na='');
+#' #dct_stage <- 0;
+#' dct0 <- names(dat0)[1:8] %>% 
+#'   tibble(colname=.,colname_long=.,rule='demographics') %>% 
+#'   rbind(tread(dctfile_raw,read_csv,na = ''));
+#' if(length(na.omit(dct0$colname))!=length(unique(na.omit(dct0$colname)))){
+#'   stop('Invalid data dictionary! Duplicate values in colname column');}
+#' dct0$colname <- tolower(dct0$colname);
+#' #' Is this actually necessary?
+#' #dct0 <- subset(dct0,dct0$colname %in% names(dat0));
+#' 
+#' #' debug
+#' #if(debug>0) if(!identical(names(dat0),dct0$colname)) 
+#' #  stop('Mismatch between dct0$colname and actual colnames');
+#' #' end debug
+#' shared <- intersect(names(dat0),dct0$colname);
+#' dct0[dct0$colname %in% shared,'class'] <- lapply(dat0[,shared],class) %>% sapply(head,1);
+#' message('Got done with class')
+#' dct0$colsuffix <- gsub('^v[0-9]{3}','',dct0$colname);
+#' 
+#' #' debug
+#' if(debug>0) .dct0bak <- dct0;
+#' #' end debug
+#' dct0 <- left_join(dct0,tread(dctfile_tpl,read_csv,na='')
+#'                   ,by=c('colsuffix','colname_long'));
+#' if(length(na.omit(dct0$varname))!=length(unique(na.omit(dct0$varname)))){
+#'   stop('Invalid data dictionary! Duplicate values in varname column');}
+#' #' debug
+#' if(debug>0){
+#'   if(nrow(dct0)!=nrow(.dct0bak)) 
+#'     stop('Number of rows changed in dct0 after join');
+#'   if(!identical(dct0$colname,.dct0bak$colname)) 
+#'     stop('colname values changed in dct0 after join');
+#' }
+#' #' end debug
+#' dct0$c_all <- TRUE;
 #' 
 #' A workaround for the fact that in `dat1` columns get transformed and we need
 #' an original value from `dat0`, but in `dat0` the column names are not yet 
