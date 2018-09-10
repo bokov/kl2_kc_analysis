@@ -361,7 +361,7 @@ xdat1[,v(c_kcdiag)] %>%
              ,xlab='Patients, sorted by time to first ICD10 code'
              ,main='Time from Diagnosis to First ICD9/10 Code');
 abline(h=c(-3,0,3),lty=c(2,1,2),col='blue');
-.eplot_diag_summ <- summary(cut(.eplot_diag$icd,c(-Inf,-2,-.001,.001,Inf)));
+.eplot_diag_summ <- summary(cut(.eplot_diag$icd,c(-Inf,-3,-.001,.001,3,Inf)));
 #' 
 #' From this we can conclude that for most patients 
 #' (`r sum(.eplot_diag_summ[2:4])`), the first EMR code is recorded 
@@ -383,10 +383,15 @@ abline(h=c(-3,0,3),lty=c(2,1,2),col='blue');
 #' * NAACCR: in addition to `1200 RX Date--Surgery` (in this script
 #'   shortened to `n_dsurg`) and `3180 RX Date--Surgical Disch` (shortened to 
 #'   `n_dsdisc` the following possibly relevant fields are available in our 
-#'   local NAACCR and will be evaluated after the next data-pull:
+#'   local NAACCR:
 #'      * `1260 Date of Initial RX--SEER`
 #'      * `1270 Date of 1st Crs RX--CoC`
 #'      * `3170 RX Date--Most Defin Surg`
+#'   Here are the questions raised:
+#'      * Do they agree with `n_dsurg` sufficiently that missing `n_dsurg` can 
+#'        be backfilled from some or all of them?
+#'      * Under what circumstances can they be interpreted as surgery dates 
+#'        rather dates for something else?
 #' * EMR: First occurrence of any ICD9/10 code for acquired absence of 
 #'   kidney; or first occurence of surgical history of nephrectomy
 #+ xdat1_surg, cache=TRUE
