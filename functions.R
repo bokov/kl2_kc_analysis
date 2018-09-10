@@ -260,75 +260,165 @@ grepor <- function(xx,patterns='.') {
   grep(paste0(patterns,collapse='|'),xx,val=T);
 }
 
-#' A not especially memory efficient way to add on row to a data.frame like 
-#' object when you want to make sure you don't accidentally introduce duplicates
+#' Perform `mutate()` on a subset of rows without breaking the pipeline but with
+#' a number of safety checks. Partly based on code by [G. Grothendieck](https://stackoverflow.com/users/516548/g-grothendieck)
+#' on [StackOverflow](https://stackoverflow.com/a/34096575). Not very efficient,
+#' the purpose is to reilably avoid unintended consequences when modifying
+#' data.frame like objects without aborting the overall process (hence warnings
+#' and unaltered returns instead of hard errors)
 #'
-#' @param dat       A `data.frame` like object.
-#' @param ...       Arbitrary name-value pairs with names corresponding to
-#'                  columns and values to what will be placed in them.
-#' @param VALLIST   A `list` (not an `alist`) that will be combined with `...`
-#'                  The purpose is to support programmatic invocation, optional.
-#' @param UNIQUE    If TRUE (default) and a duplicate row would have been 
-#'                  created instead gives a warning and returns the original 
-#'                  `dat` argument unchanged. If set to FALSE will insert
-#'                  duplicate rows.
-#' @param NONEWCOLS If TRUE (default) ignores columns that don't already exist
-#'                  in `dat` with a warning. Otherwise adds new columns.
-#' @param DEFAULT   The default value to put into columns for which no value is
-#'                  specified (default: NA)
-#' @param NOCOERCE  If TRUE (default) gives warning and returns the original 
-#'                  `dat` argument unchanged if inserting the new row would 
-#'                  alter the types of any of the columns. If set to FALSE 
-#'                  doesn't check.
-df.insert <- function(dat,...
-                      ,VALLIST=list(),UNIQUE=TRUE,NONEWCOLS=TRUE,DEFAULT=NA
-                      ,NOCOERCE=TRUE){
-  # create combined name-val list from VALLIST and ...
-  innames <- setdiff(names(invals <- c(...,VALLIST)),'');
+#' @param .data        A `data.frame` like object
+#' @param .condition   A condition for selecting rows to mutate, to be 
+#'                     to be evaluated in the scope of .data
+#' @param ...          Arbitrary arguments passed to `mutate()`
+#' @param .namevals    Name-value list (can be alist) prepended to `...` to 
+#'                     to make it easier to use this function programatically
+#' @param UNIQUE       Whether to enforce unique rows. If TRUE (default) then
+#'                     detection of new duplicate rows as a result of operation
+#'                     will cause a warning and the return of the original 
+#'                     `.data` unchanged.
+#' @param NONEWCOLS    Whether to ban creation of new columns. If TRUE (default)
+#'                     will cause a warning and skipping of any columns that 
+#'                     don't exist in `.data`. Otherwise will create any 
+#'                     additional columns that are specified.
+#' @param NOMULTI      Whether to ban updates of multiple rows at a time. If 
+#'                     TRUE (default) will give a warning and return `.data` 
+#'                     unchanged if `.condition` matches more than one row.
+#' @param NOCOERCE     Whether to ban changing the data-types of rows. If TRUE
+#'                     (default) will give a warning and return `.data` 
+#'                     unchanged if otherwise some columns would have been 
+#'                     converted from their original data types.
+#' @param NEWROWS      Whether to permit appending of a new row instead of 
+#'                     updating and existing one if `.condition` is not met. If
+#'                     TRUE (default) appends a new row and gives a message 
+#'                     saying so. Otherwise gives a warning and returns `.data`
+#'                     unchanged.
+#' @param DEFAULT      What value to insert into cells for which a value is not
+#'                     specified (`NA` by default).
+#' @param .envir       No need to set manually, used for evaluation of 
+#'                     `.condition`
+#'
+#' @return  A modified version of `.data` potentially with one additional row
+#'          or one or more existing rows altered. If safeguard conditions 
+#'          triggered, the original `.data` with a warning.
+#' @export
+#'
+#' @examples 
+#' 
+# # modifying an existing row
+# mutate_rows(iris,Species=='setosa'&Petal.Width<0.2
+# ,Petal.Length=1.5,Petal.Width=0.2,NOMULTI=FALSE,UNIQUE=FALSE)
+# 
+# # Appending a new row
+# mutate_rows(iris,F,Petal.Length=1.5,Petal.Width=0.2,NOMULTI=FALSE)
+#' 
+mutate_rows <- function(.data,.condition=FALSE,...,.namevals=list(),UNIQUE=TRUE
+                        ,NONEWCOLS=TRUE,NOMULTI=TRUE,NOCOERCE=TRUE,NEWROWS=TRUE
+                        ,DEFAULT=NA,.envir=parent.frame()){
+  # create combined name-val list from .namevals and ...
+  innames <- setdiff(names(invals <- c(...,.namevals)),'');
   if(length(innames)!=length(invals)) {
     invals <- invals[innames];
     warning('You specified either unnamed values which were all ignored or duplicate names, of which only the first one was used.');
   }
   # handle new columns
-  if(length(indiff<-setdiff(innames,names(dat)))>0){
+  if(length(indiff<-setdiff(innames,names(.data)))>0){
     if(NONEWCOLS) {
       invals[indiff] <- NULL; innames <- names(invals);
       warning(
         "You specified columns that don't yet exist and they will be ignored. If you want them to be created you should set NONEWCOLS to FALSE");
     } else {
       warning('New columns added');
-      dat[,indiff] <- DEFAULT;}
+      .data[,indiff] <- DEFAULT;}
   }
-  # create 0 row subset and assign DEFAULT
-  inrow <- subset(dat,FALSE);
-  inrow[1,] <- DEFAULT;
-  inrow[,innames] <- invals[innames];
-  # UNIQUE check
-  if(UNIQUE){
-    if(isTRUE(any(apply(inrow[rep.int(1,nrow(dat)),]==dat,1,all)))){
-      warning('Row not inserted because at least one identical row already exists. If you want to allow duplicate rows, set UNIQUE=FALSE');
-      return(dat);}
+  matches<-sum(.condition <- eval(eval(substitute(.condition), .data, .envir)
+                                  ,.data,.envir));
+  # if 0 matches, check NEWROWS
+  if(matches==0){
+    if(NEWROWS) {
+      mrows <- subset(.data,FALSE); mrows[1,]<-DEFAULT;
+      mrows[,innames] <- invals[innames];
+      out <- rbind(.data,mrows);
+      if(UNIQUE && nrow(unique(out)) < nrow(unique(.data))+1){
+        warning("Insertion of duplicate row detected, so nothing was changed. To allow duplicate rows, set UNIQUE=FALSE");
+        return(.data);
+      }
+      message('Adding a new row.');
+    } else {
+      warning("No existing rows matched your criteria and adding new rows disallowed, so nothing was changed. To add new rows, set NEWROWS=TRUE");
+      return(.data);}} else {
+        # if >1 matches, check NOMULTI
+        if(matches>1 && NOMULTI){
+          warning("More than one row matched your criteria, so nothing was changed. To allow multiple row updates, set NOMULTI=FALSE");
+          return(.data);}
+        out <- .data;
+        out[.condition,] <- do.call(mutate
+                                    ,c(list(.data=.data[.condition,]),invals));
+        # check for non-uniqueness
+        if(UNIQUE && nrow(unique(out)) < nrow(unique(.data))){
+          warning("Creation of duplicate row detected, so nothing was changed. To allow duplicate rows, set UNIQUE=FALSE");
+          return(.data);
+        }
+      }
+  # check for coercion 
+  if(NOCOERCE && !all(mapply(function(aa,bb) all.equal(class(aa),class(bb))
+                             ,.data,out))){
+    warning("Performing this update would have changed the data types of some columns, so nothing was changed. To allow changing data types, set NOCOERCE=TRUE");
+    return(.data);
   }
-  if(NOCOERCE) {
-    if(!all(mapply(function(aa,bb) length(intersect(class(aa),class(bb)))>0
-                   ,inrow,dat))) {
-      warning('One of the values provided could change the data-type of its column, so the row was not added. If you don\'t want to protect against this, set NOCOERCE=FALSE');
-      return(dat);}
-  }
-  return(rbind(dat,inrow));
+  return(out);
 }
 
-#' TODO: Function that takes the name of a file, a read function, and a set of 
-#'       name-value pairs, loads that file, runs df.insert on it, and saves it 
-#'       out (backing up the original). Option to complain when used in a 
-#'       script.
-#' TODO: A wrapper for the above function specifically the static data dictionary
-#'       template.
-#' TODO: A df.update function that works like one of these 
+#' Thin wrapper for dct_mod, see below
+dct_append <- function(varname_,c_lists=c(),...,NONEWCOLS=TRUE,NOCOERCE=TRUE
+                    ,file=dctfile_tpl
+                    ,readfun=function(xx) tread(xx,read_csv,na='')
+                    ,writefun=function(xx) write_csv(xx,file,na='')){
+  condition<-substitute(varname==varname_);
+  #namevals <- list(varname=varname_,...);
+  return(dct_mod(condition=condition,c_lists=c_lists,varname=varname,...
+                 ,UNIQUE=TRUE,NONEWCOLS=NONEWCOLS,NOCOERCE=NOCOERCE,NOMULTI=TRUE
+                 ,NEWROWS=TRUE,file=file,readfun=readfun,writefun=writefun));
+}
+
+#' TODO: document
+dct_mod <- function(colsuffix_,colname_long_,varname_,condition=TRUE,c_lists=c()
+                    ,...,UNIQUE=TRUE,NONEWCOLS=TRUE,NOMULTI=TRUE,NOCOERCE=TRUE
+                    ,NEWROWS=FALSE,file=dctfile_tpl
+                    ,readfun=function(xx) tread(xx,read_csv,na='')
+                    ,writefun=function(xx) write_csv(xx,file,na='')){
+  # build row condition
+  if(!missing(colsuffix_)) {
+    condition <- substitute(condition & colsuffix==colsuffix_);}
+  if(!missing(colname_long_)) {
+    condition <- substitute(condition & colname_long==colname_long_);}
+  if(!missing(varname_)) {
+    condition <- substitute(condition & varname==varname_);}
+  # build c_lists
+  lc <-length(c_lists <- grep('^c_',c_lists,val=T));
+  namevals <- if(lc>0) setNames(as.list(rep_len(TRUE,lc)),c_lists) else list();
+  namevals <- c(namevals,...);
+  # read dctfile
+  dct <- readfun(file);
+  # invoke mutate_rows
+  dctnew <- mutate_rows(dct,.condition=condition,.namevals=namevals
+                        ,UNIQUE=UNIQUE,NONEWCOLS=NONEWCOLS,NOMULTI=NOMULTI
+                        ,NOCOERCE=NOCOERCE,NEWROWS=NEWROWS);
+  # if update succeeded, write out and also return modified version, backing
+  # up the original
+  if(!identical(dct,dctnew)){
+    file.rename(file,paste(file_path_sans_ext(file),'dctbackup',file_ext(file),sep='.'));
+    writefun(dctnew);
+    return(dctnew);
+    # otherwise return the unmodified version and do nothing else
+  } else return(dct);
+}
+
+#' DONE: A df.update function that works like one of these 
 #'       https://stackoverflow.com/questions/34096162/dplyr-mutate-replace-on-a-subset-of-rows
 #'       ...but with the option to add a brand new row if no existing are found
 #'       (thus maybe making df.insert not so useful after all)
-#' TODO: A wrapper for that one and external files, equivalent to the one for 
+#' DONE: A wrapper for that one and external files, equivalent to the one for 
 #'       df.insert()
 #' TODO :A function for rebuilding and reloading a data dictionary. Called once
 #'       in data.R, but more importantly to be able to reload it during an 
