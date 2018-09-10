@@ -325,14 +325,19 @@ mutate_rows <- function(.data,.condition=FALSE,...,.namevals=list(),UNIQUE=TRUE
   if(length(indiff<-setdiff(innames,names(.data)))>0){
     if(NONEWCOLS) {
       invals[indiff] <- NULL; innames <- names(invals);
-      warning(
-        "You specified columns that don't yet exist and they will be ignored. If you want them to be created you should set NONEWCOLS to FALSE");
+      warning(sprintf(
+        "You specified columns %s that don't yet exist and they will be ignored. If you want them to be created you should set NONEWCOLS to FALSE"
+        ,paste0(indiff,collapse=', ')
+        ));
     } else {
       warning('New columns added');
       .data[,indiff] <- DEFAULT;}
   }
-  matches<-sum(.condition <- eval(eval(substitute(.condition), .data, .envir)
-                                  ,.data,.envir));
+  .condition <- eval(eval(substitute(.condition), .data, .envir),.data,.envir);
+  .condition <- .condition & !is.na(.condition);
+  matches <- sum(.condition);
+  #matches<-sum(.condition <- eval(eval(substitute(.condition), .data, .envir)
+  #                                ,.data,.envir),na.rm=TRUE);
   # if 0 matches, check NEWROWS
   if(matches==0){
     if(NEWROWS) {
@@ -352,7 +357,7 @@ mutate_rows <- function(.data,.condition=FALSE,...,.namevals=list(),UNIQUE=TRUE
           warning("More than one row matched your criteria, so nothing was changed. To allow multiple row updates, set NOMULTI=FALSE");
           return(.data);}
         out <- .data;
-        out[.condition,] <- do.call(mutate
+        out[.condition,] <- do.call(dplyr::mutate
                                     ,c(list(.data=.data[.condition,]),invals));
         # check for non-uniqueness
         if(UNIQUE && nrow(unique(out)) < nrow(unique(.data))){
@@ -376,12 +381,12 @@ dct_append <- function(varname_,c_lists=c(),...,NONEWCOLS=TRUE,NOCOERCE=TRUE
                     ,writefun=function(xx) write_csv(xx,file,na='')){
   condition<-substitute(varname==varname_);
   #namevals <- list(varname=varname_,...);
-  return(dct_mod(condition=condition,c_lists=c_lists,varname=varname,...
+  return(dct_mod(varname_=varname_,c_lists=c_lists,varname=varname_,...
                  ,UNIQUE=TRUE,NONEWCOLS=NONEWCOLS,NOCOERCE=NOCOERCE,NOMULTI=TRUE
                  ,NEWROWS=TRUE,file=file,readfun=readfun,writefun=writefun));
 }
 
-#' TODO: document
+#' TODO: document this function
 dct_mod <- function(colsuffix_,colname_long_,varname_,condition=TRUE,c_lists=c()
                     ,...,UNIQUE=TRUE,NONEWCOLS=TRUE,NOMULTI=TRUE,NOCOERCE=TRUE
                     ,NEWROWS=FALSE,file=dctfile_tpl
