@@ -44,6 +44,7 @@ dct0$colname <- tolower(dct0$colname);
 #' end debug
 shared <- intersect(names(dat0),dct0$colname);
 dct0$class <- lapply(dat0[,shared],class) %>% sapply(head,1);
+message('Got done with class\n');
 dct0$colsuffix <- gsub('^v[0-9]{3}','',dct0$colname);
 
 #' debug
