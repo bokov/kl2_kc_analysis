@@ -164,3 +164,4 @@
 "_acqrd_absnc_inactive","Z90.5 Acquired absence of kidney",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE","TRUE",,,,,,,,"TRUE",
 "_nn_opd_anlgscs","[CN103] NON-OPIOID ANALGESICS",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
 "_fncl_utmd","Financial Class (UTMed Only)",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","TRUE","FALSE","FALSE","TRUE",
+,,,"e_death",,,,,,,"TRUE",,,,,"TRUE",,,,,,,
