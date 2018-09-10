@@ -924,19 +924,23 @@ rebuild_dct <- function(dat=dat0,rawdct=dctfile_raw,tpldct=dctfile_tpl,debuglev=
   shared <- intersect(names(dat),out$colname);
   out[out$colname %in% shared,'class'] <- lapply(dat0[,shared],class) %>% sapply(head,1);
   out$colsuffix <- gsub('^v[0-9]{3}','',out$colname);
-  #' debug
   if(debug>0) .outbak <- out;
-  #' end debug
-  out <- left_join(out,tread(tpldct,tread_fun,na=na)
+  # end debug
+  out <- left_join(out,tpl<-tread(tpldct,tread_fun,na=na)
                    ,by=c('colsuffix','colname_long'));
-  #' debug
+  # debug
   if(debug>0){
     if(nrow(out)!=nrow(.outbak)) 
       stop('Number of rows changed in dct0 after join');
     if(!identical(out$colname,.outbak$colname)) 
       stop('colname values changed in dct0 after join');
   }
-  #' end debug
+  # find the dynamic named vars in tpl
+  outappend <- subset(tpl,!varname %in% out$varname);
+  # make sure same columns exist
+  outappend[,setdiff(names(out),names(outappend))] <- NA;
+  out <- rbind(out,outappend[,names(out)]);
+  # end debug
   out$c_all <- TRUE;
   return(out);
 }
