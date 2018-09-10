@@ -955,6 +955,7 @@ event_plot <- function(data,reference_event,secondary_event=NA
                        ,xlab=sprintf('Patients, sorted by %s',reference_event)
                        ,tunit=c('days','weeks','months','years')
                        ,ylim=NA,subset=TRUE,ylab=NA
+                       ,frame.plot=F
                        ,type='l',cols=c('black','red'),ltys=1:2,log=''
                        ){
   # subset the data
@@ -971,8 +972,8 @@ event_plot <- function(data,reference_event,secondary_event=NA
   if(is.na(ylim)) ylim <- range(data[,na.omit(c(reference_event
                                                 ,secondary_event))],na.rm=T);
   plot(data[[reference_event]],type=type,ylim=ylim,main=main,xlab=xlab,ylab=ylab
-       ,col=cols[1],lty=ltys[1]);
+       ,frame.plot=frame.plot,col=cols[1],lty=ltys[1]);
   if(!is.na(secondary_event)) lines(data[[secondary_event]],col=cols[2]
-                                    ,lty=ltys[2]);
+                                    ,type=type,lty=ltys[2]);
   return(data);
 }
