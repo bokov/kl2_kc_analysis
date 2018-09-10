@@ -29,8 +29,9 @@ colnames(dat0) <- tolower(colnames(dat0));
 
 #' Read in the data dictionary
 #dct_stage <- 0;
-names(dat0)[1:8] %>% tibble(colname=.,colname_long=.,rule='demographics') %>% 
-  rbind(tread(dctfile_raw,read_csv,na = '')) -> dct0;
+dct0 <- names(dat0)[1:8] %>% 
+  tibble(colname=.,colname_long=.,rule='demographics') %>% 
+  rbind(tread(dctfile_raw,read_csv,na = ''));
 if(length(na.omit(dct0$varname))!=length(unique(na.omit(dct0$varname)))){
   stop('Invalid data dictionary! Duplicate values in varname column');}
 dct0$colname <- tolower(dct0$colname);
@@ -179,8 +180,9 @@ dat1 <- mutate(dat1
 # renamed TO.
 # Note that we retain a copy of the vector created in the first expression for
 # later use.
-dat1 <- (l_tte<-c(v(c_tte,dat1),v(c_tte,dat1,retcol = 'varname'))) %>%
-  # Now we are going to create an unevaluated expression that operates on each
+#dat1 <- (l_tte<-c(v(c_tte,dat1),v(c_tte,dat1,retcol = 'varname'))) %>%
+dat1 <- (l_tte<-v(c_tte,dat1,retcol = c('colname','varname'))) %>%
+# Now we are going to create an unevaluated expression that operates on each
   # of these in turn. 
   sapply(function(xx) substitute(tte(age_at_visit_days,ii)
                                  # the vector we created in the above step of 
