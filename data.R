@@ -36,7 +36,7 @@ if(length(na.omit(dct0$varname))!=length(unique(na.omit(dct0$varname)))){
   stop('Invalid data dictionary! Duplicate values in varname column');}
 dct0$colname <- tolower(dct0$colname);
 #' Is this actually necessary?
-dct0 <- subset(dct0,dct0$colname %in% names(dat0));
+#dct0 <- subset(dct0,dct0$colname %in% names(dat0));
 
 #' debug
 if(debug>0) if(!identical(names(dat0),dct0$colname)) 
