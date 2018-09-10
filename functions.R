@@ -425,7 +425,7 @@ dct_mod <- function(colsuffix_,colname_long_,varname_,condition=TRUE,c_lists=c()
 #'       (thus maybe making df.insert not so useful after all)
 #' DONE: A wrapper for that one and external files, equivalent to the one for 
 #'       df.insert()
-#' TODO :A function for rebuilding and reloading a data dictionary. Called once
+#' DONE? :A function for rebuilding and reloading a data dictionary. Called once
 #'       in data.R, but more importantly to be able to reload it during an 
 #'       interactive session without having to re-run all of data.R
 #' TODO: ...so that I can finally add the a_* created columns to the data
