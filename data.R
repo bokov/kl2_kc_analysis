@@ -43,8 +43,8 @@ dct0$colname <- tolower(dct0$colname);
 #  stop('Mismatch between dct0$colname and actual colnames');
 #' end debug
 shared <- intersect(names(dat0),dct0$colname);
-dct0$class <- lapply(dat0[,shared],class) %>% sapply(head,1);
-message('Got done with class\n');
+dct0[dct0$colname %in% shared,'class'] <- lapply(dat0[,shared],class) %>% sapply(head,1);
+message('Got done with class')
 dct0$colsuffix <- gsub('^v[0-9]{3}','',dct0$colname);
 
 #' debug
