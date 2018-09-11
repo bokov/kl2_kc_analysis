@@ -114,15 +114,15 @@
 "n_rectype","99","Unknown if recurred or was ever gone","naaccr","It is unknown whether the disease has recurred or if the patient was ever disease-free."
 "n_rectype","60,70","Ambig_6070","naaccr",
 "n_rectype","70,00","Ambig_7000","naaccr",
-"n_marital",1,"Single","naaccr","Single (never married)"
-"n_marital",2,"Married","naaccr","Married (including common law)"
-"n_marital",3,"Separated","naaccr","Separated"
 "n_marital",4,"Divorced","naaccr","Divorced"
-"n_marital",5,"Widowed","naaccr","Widowed"
+"n_marital",3,"Separated","naaccr","Separated"
+"n_marital",2,"Married","naaccr","Married (including common law)"
 "n_marital",6,"Domestic Partner","naaccr","Unmarried or Domestic Partner (same sex or opposite sex, registered or unregistered, other than common law marriage)"
-"n_marital","2,3","Unknown","naaccr",
-"n_marital","9,2","Unknown","naaccr",
+"n_marital",1,"Single","naaccr","Single (never married)"
 "n_marital",9,"Unknown","naaccr","Unknown"
+"n_marital",5,"Widowed","naaccr","Widowed"
+"n_marital","2,3","Ambig_23","naaccr",
+"n_marital","9,2","Ambig_92","naaccr",
 "race_cd","white","White","i2b2",
 "race_cd","black","Black","i2b2",
 "race_cd","asian","Asian","i2b2",
