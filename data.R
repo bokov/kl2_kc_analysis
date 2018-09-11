@@ -80,7 +80,8 @@ dat1$a_n_recur <- factor(dat1$n_rectype);
 levels(dat1$a_n_recur)[!levels(dat1$a_n_recur) %in% 
                          c('Unknown if recurred or was ever gone'
                            ,'Never disease-free','Disease-free'
-                           ,grep('Ambig_',levels(foo),val=T))]<-'Recurred';
+                           ,grep('Ambig_',levels(dat1$a_n_recur)
+                                 ,val=T))]<-'Recurred';
 #' Convert NAACCR race codes
 dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>% 
   # clean up the non-informative-if-trailing codes
