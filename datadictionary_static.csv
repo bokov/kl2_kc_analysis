@@ -129,7 +129,7 @@
 "_kdn_rnl_plvs","Kidney and Renal Pelvis","SEER site","n_seer_kcancer",,,"TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,,,,"TRUE",
 "_imprmn_tblt","Imipramine Oral Tablet",,,,,,"FALSE","FALSE","FALSE",,,,,,,,,,,,,"TRUE"
 "_insttn__ptnts","Institution[29,472,477 facts; 1,348,929 patients]","Is the visit UHS or UTMed",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
-"_mrtl_sts","Marital Status",,"e_marital",,,,"FALSE","FALSE","FALSE",,,,,,,"TRUE",,,,,,
+"_mrtl_sts","Marital Status",,"e_marital","Marital Status, i2b2",,,"FALSE","FALSE","FALSE",,,,,,,"TRUE",,,,,,
 "_kdn_ns","Kidney, NOS",,"n_kcancer","KC, Registry","TRUE","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"FALSE","FALSE","TRUE","FALSE","TRUE",
 "_lng","Language",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
 "_hshld_ptnts","Median Household Income ACS 2013[747,004 facts; 747,004 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,,"TRUE",
