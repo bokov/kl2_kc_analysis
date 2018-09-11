@@ -75,10 +75,12 @@ for(ii in v(c_sortlabels,retcol='varname')){
 #' Clean up the pseudo-JSON around this variable
 dat1$e_marital <- gsub('^\\{\"cc\":\"DEM\\|MARITAL:','',dat1$e_marital) %>%
   gsub('\",\"ix.*$','',.) %>% factor;
-#' Convert NAACCR codes to readable labels where available
-# for(ii in intersect(names(dat1),levels_map$varname)){
-#   dat1[[ii]] <- gsub('"','',dat1[[ii]]) %>% 
-#     submulti(subset(levels_map,varname==ii)[,c('code','label')])};
+#' Simplified recurrence type
+dat1$a_n_recur <- factor(dat1$n_rectype);
+levels(dat1$a_n_recur)[!levels(dat1$a_n_recur) %in% 
+                         c('Unknown if recurred or was ever gone'
+                           ,'Never disease-free','Disease-free'
+                           ,grep('Ambig_',levels(foo),val=T))]<-'Recurred';
 #' Convert NAACCR race codes
 dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>% 
   # clean up the non-informative-if-trailing codes
@@ -104,6 +106,7 @@ dat1 <- mutate(dat1
                # problem in the first place
                ,n_sex=paste(c(unique(na.omit(n_sex)),NA)[1],collapse=',')
                ,a_n_race=paste(unique(na.omit(a_n_race)),collapse=',')
+               ,a_n_recur=paste(unique(na.omit(a_n_recur)),collapse=',')
                ,a_n_dm=any(a_n_dm)
                ,a_e_dm=e_dm_i9|e_dm_i10
                ,a_e_kc=e_kc_i9|e_kc_i10
