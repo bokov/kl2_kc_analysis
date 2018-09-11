@@ -80,7 +80,7 @@
 "n_payer","68","Indian PHS","naaccr","Indian/Public Health Service"
 "n_payer","99","Unknown","naaccr","Insurance status unknown"
 "n_rectype","00","Disease-free","naaccr","Patient became disease-free after treatment and has not had a recurrence; leukemia in remission."
-"n_rectype","04","In situ invasiv","naaccr","In situ recurrence of an invasive tumor."
+"n_rectype","04","In situ invasive","naaccr","In situ recurrence of an invasive tumor."
 "n_rectype","06","In situ original","naaccr","In situ recurrence of an in situ tumor."
 "n_rectype","10","Local, insufficient info","naaccr","Local recurrence and there is insufficient information available to code to 13-17. Recurrence is confined to the remnant of the organ of origin; to the organ of origin; to the anastomosis; or to scar tissue where the organ previously existed."
 "n_rectype","13","Local invasive","naaccr","Local recurrence of an invasive tumor."
