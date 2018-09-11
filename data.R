@@ -110,7 +110,7 @@ dat1 <- mutate(dat1
                ,a_n_recur=paste(unique(na.omit(a_n_recur)),collapse=',') %>%
                  # this is to insure that anything Disease-free gets paired 
                  # with wins out over dieasese-free
-                 gsub('^Disease-free,','',.) %>% gsub(',Disease-free$','') %>%
+                 gsub('^Disease-free,','',.) %>% gsub(',Disease-free$','',.) %>%
                  # temporary hack so that it's more visible later that I did
                  # this rather than silently hiding it in levels_map.csv
                  gsub('Ambig_...0','Never disease-free',.)
