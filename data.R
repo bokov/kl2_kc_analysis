@@ -217,6 +217,10 @@ dat1$n_sex <- factor(dat1$n_sex,levels=c('1','2'),labels=c('m','f'));
 
 kcpatients.pre_existing <- subset(dat1,a_thdiag>=0&a_tdiag<0)$patient_num %>% unique;
 
+#' Patients split by reason for (no) surgery
+kcpatients_surgreason <- split(dat1,dat1$n_surgreason) %>% 
+  lapply(function(xx) unique(xx$patient_num));
+
 cohorts <- data.frame(patient_num=unique(dat1$patient_num)) %>% 
   mutate( NAACCR=patient_num %in% kcpatients.naaccr
          ,EMR=patient_num %in% kcpatients.emr
