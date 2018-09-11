@@ -480,6 +480,10 @@ abline(h=0,col='blue');
 .eplot_surg0$icd <- apply(.eplot_surg0[,v(c_nephx,xdat1)[1:5]],1,min,na.rm=T);
 .eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
 lines(.eplot_surg0$icd,type='s',col='purple');
+points(.eplot_surg0$n_rx1270,col='green',pch=3);
+points(.eplot_surg0$n_rx1260,col='cyan',pch=4);
+points(.eplot_surg0$n_rx3170,col='orange',pch=1);
+
 
 par(xaxt='n');
 .eplot_surg1 <- subset(xdat1,!patient_num %in% 
