@@ -7,7 +7,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-options(gitstamp_prod=F);
+#options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -588,6 +588,45 @@ subset(dat2,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
 #' * `n_rectype` raw code includes 70 then assume never diease free
 #' * `n_rectype` is `Unknown if recurred or was ever gone` (unknown)
 #' * Otherwise, (recurred)
+#
+t_recur_drecur <- with(dat2,table(a_n_recur
+                                  ,`Has recurrence date`=n_drecur>=0,useNA='if'));
+#' Here is the condensed version after having followed the above rules. Looks 
+#' like the only ones who have a `n_drecur` (recurrence date) are the ones which
+#' also have a `Recurred` status for `a_n_recur` (with `r t_recur_drecur['Recurred','FALSE']`
+#' missing an `n_drecur`). The only exception is `r t_recur_drecur['Never disease-free','TRUE']`
+#' `Never diease-free` patient that had an `n_drecur`.
+pander(t_recur_drecur);
+#' This explains why  `n_drecur` values are relatively rare in the data-- they 
+#' are specific to actual recurrences which are not a majority of the cases. 
+#' This is a good from the standpoint of data consistency. Now we need to see to 
+#' what extent the EMR codes agree with this. We will highlight the recurred 
+#' patients.
+#' 
+.eplot_recur0 <-subset(xdat1,patient_num %in% 
+                         setdiff(kcpatients_surgreason$`Surgery Performed`
+                                 ,kcpatients.naaccr_dupe)) %>% 
+  mutate(.,rec=na_if(apply((.)[,v(c_recur)[-15]],1,min,na.rm=T),Inf)) %>% 
+  event_plot('rec',start_event = 'n_dsurg',type='s',ltys=c(1,1)
+             ,tunit = 'month');
+abline(h=c(-3,0,3),lty=c(3,1,3),col='blue');
+# Highlight patients with recurrence
+with(.eplot_recur0,abline(v=which(patient_num %in% kcpatients_rectype$Recurred)
+                          ,col='#FF000020',lwd=2.5));
+# ...never disease-free
+with(.eplot_recur0,abline(v=which(patient_num %in% 
+                                    kcpatients_rectype$`Never disease-free`)
+                          ,col='#FFFF0020',lwd=2.5));
+# ... and disease-free
+with(.eplot_recur0,abline(v=which(patient_num %in% 
+                                    kcpatients_rectype$`Disease-free`)
+                          ,col='#00FF0020',lwd=2.5));
+points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
+#' The green highlights are _mostly_ where one would expect, but why are there
+#' so many on the (left) side that does have EMR codes for secondary tumors? Did
+#' they present with secondary tumors to begin with but remain disease free 
+#' after surgery? Removing the `_inactive` versions of the secondary tumor codes
+#' does not make the left-side green patients go away.
 #' 
 #' In the below plot, the white line is the time of `n_ddiag`. The black line is 
 #' the time from `n_ddiag` until `n_dsurg`. The red line is `n_lc` (last contact).
