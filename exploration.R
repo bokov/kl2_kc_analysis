@@ -723,9 +723,6 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death))
 #   summarise_all(function(xx) last(na.omit(xx))) %>%
 #   survfit(Surv(a_tsurg,a_cdeath)~1,.) %>% 
 #   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving');
-
-#' ---
-#' 
 #' ## Appendix I: Example of stage/grade data
 #' 
 #' (proof of feasibility)
@@ -965,8 +962,6 @@ heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = T,margins=c(10,10)
 #' investigation in the [initial diagnosis](#initial-diagnosis) and 
 #' [surgery](#surgery-conclusion) sections in the main document above. This is
 #' just for historic reference.
-#' 
-#' ---
 #' 
 #' ## Appendix IV: Audit trail
 walktrail()[,-5] %>% pander(split.tables=600,,justify='left');
