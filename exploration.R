@@ -564,6 +564,19 @@ lapply(v(c_nephx,xdat1)[6:9],function(ii)
 #' pull to include [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880) 
 #' which our NAACCR does use.~~ Done.
 #' 
+#' Now we can reconcile the `n_cstatus` and `n_rectype` variables. We can see 
+#' below that almost all `n_cstatus` `Tumor_Free` patients also have a 
+#' `Disease-free` in their `n_rectype` column, the `Tumor` ones have a 
+#' variety of values, and the `Unknown` ones are also mostly `Unknown if recurred or was ever gone`.
+subset(dat2,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
+     with(table(n_rectype,n_cstatus)) %>% pander;
+#' This suggest the following rules for binning them:
+#' * `n_rectype` is `Disease-free` (disease free)
+#' * `n_rectype` is `Never disease-free` (never disease free)
+#' * `n_rectype` raw code includes 70 then assume never diease free
+#' * `n_rectype` is `Unknown if recurred or was ever gone` (unknown)
+#' * Otherwise, (recurred)
+#' 
 #' In the below plot, the white line is the time of `n_ddiag`. The black line is 
 #' the time from `n_ddiag` until `n_dsurg`. The red line is `n_lc` (last contact).
 #' The blue line is the minimum of several recurrence dates. Most of the time
