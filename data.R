@@ -72,6 +72,9 @@ names(dat1) <- submulti(names(dat1)
 for(ii in v(c_sortlabels,retcol='varname')){
   dat1[[ii]] <- factorclean(dat1[[ii]]
                             ,spec_mapper = levels_map,var=ii,droplevels = T)};
+#' Clean up the pseudo-JSON around this variable
+dat1$e_marital <- gsub('^\\{\"cc\":\"DEM\\|MARITAL:','',dat1$e_marital) %>%
+  gsub('\",\"ix.*$','',.) %>% factor;
 #' Convert NAACCR codes to readable labels where available
 # for(ii in intersect(names(dat1),levels_map$varname)){
 #   dat1[[ii]] <- gsub('"','',dat1[[ii]]) %>% 

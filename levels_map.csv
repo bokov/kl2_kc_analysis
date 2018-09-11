@@ -112,6 +112,8 @@
 "n_rectype","70","Since diagnosis, disease-free","naaccr","Since diagnosis, patient has never been disease-free. This includes cases with distant metastasis at diagnosis, systemic disease, unknown primary, or minimal disease that is not treated."
 "n_rectype","88","Recurred but no other info","naaccr","Disease has recurred, but the type of recurrence is unknown."
 "n_rectype","99","Unknown if recurred or was ever gone","naaccr","It is unknown whether the disease has recurred or if the patient was ever disease-free."
+"n_rectype","60,70","Ambig_6070","naaccr",
+"n_rectype","70,00","Ambig_7000","naaccr",
 "n_marital",1,"Single","naaccr","Single (never married)"
 "n_marital",2,"Married","naaccr","Married (including common law)"
 "n_marital",3,"Separated","naaccr","Separated"

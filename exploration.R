@@ -6,7 +6,7 @@
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -467,51 +467,89 @@ mutate_all(xdat1[,v(c_nephx)]
 # or lags by multiple weeks, as might be expected of a discharge date (what is 
 # the plausible threshold on time from surgery to discharge?).
 # 
-#' Below is a plot of 
+#' Below is a plot of all patients (sorted by `n_dsurg`, date of surgery) 
+#' (black line). On the same axis is `n_rx3170` (red line) which is almost 
+#' identical to `n_dsurg` except for a small number of cases where it occurs 
+#' later than `n_dsurg`. Never earlier. The purple lines indicate for each 
+#' patient the earliest EMR code implying that a surgery had taken place 
+#' (acquired absence of kidney ICD V/Z codes or surgical history of nephrectomy).
 #+ plot_xdat1_surg,cache=TRUE
 par(xaxt='n');
 .eplot_surg0 <- subset(xdat1,patient_num %in% 
                         kcpatients_surgreason$`Surgery Performed`) %>% 
   mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
-  event_plot('n_dsurg','nrx',tunit='months',type='s',ltys = c(1,1)
+  event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=0,col='blue');
 .eplot_surg0$icd <- apply(.eplot_surg0[,v(c_nephx,xdat1)[1:5]],1,min,na.rm=T);
 .eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
 lines(.eplot_surg0$icd,type='s',col='purple');
-points(.eplot_surg0$n_rx1270,col='green',pch=3);
-points(.eplot_surg0$n_rx1260,col='cyan',pch=4);
-points(.eplot_surg0$n_rx3170,col='orange',pch=1);
-
-
+#' Here we highlight in gray the patients for which one or more EMR codes are 
+#' recorded prior to `n_dsurg`. Not very many.
+.eplot_surg0 <- subset(xdat1,patient_num %in% 
+                         kcpatients_surgreason$`Surgery Performed`) %>% 
+  mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
+  event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
+             ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
+             ,ylim=c(-10,60));
+abline(h=0,col='blue');
+.eplot_surg0$icd <- apply(.eplot_surg0[,v(c_nephx,xdat1)[1:5]],1,min,na.rm=T);
+.eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
+lines(.eplot_surg0$icd,type='s',col='purple');
+with(.eplot_surg0,abline(v=which(icd<n_dsurg),col='#00000020',lwd=5));
+#' Now here are the `n_rx1270` (green) and `n_rx1260` (cyan) events superimposed
+#' on the same plot. They trend toward occurring earlier than `n_dsurg`.
+.eplot_surg0 <- subset(xdat1,patient_num %in% 
+                         kcpatients_surgreason$`Surgery Performed`) %>% 
+  mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
+  event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
+             ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
+             ,ylim=c(-10,60));
+abline(h=0,col='blue');
+lines(.eplot_surg0$n_rx1270,col='green',type='s');
+lines(.eplot_surg0$n_rx1260,col='cyan',type='s');
+#' Here is the same plot but for patients who do _not_ have a `n_surgreason` 
+#' code equal to `Surgery Performed`. Looks like there are many `n_rx1270`
+#' and `n_rx1260` events, but only a small number of `n_dsurg` (black) and 
+#' `n_rx3170` (red) and as before, they track each other perfectly. This 
+#' together with NAACCR data dictionary suggests that `n_rx3170` is the 
+#' legitimate principal surgery date in close agreement with `n_dsurg`, so 
+#' perhaps missing `n_rx3170` values can be filled in from `n_dsurg`. However 
+#' `n_rx1270` and `n_rx1260` may be non-primary surgeries or other events.
 par(xaxt='n');
 .eplot_surg1 <- subset(xdat1,!patient_num %in% 
                          kcpatients_surgreason$`Surgery Performed`) %>% 
   mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
-  event_plot('n_dsurg','nrx',tunit='months',type='s',ltys = c(1,1)
+  event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=0,col='blue');
 .eplot_surg1$icd <- apply(.eplot_surg1[,v(c_nephx,xdat1)[1:5]],1,min,na.rm=T);
 .eplot_surg1$icd[is.infinite(.eplot_surg1$icd)]<-NA;
 lines(.eplot_surg1$icd,type='s',col='purple');
+with(.eplot_surg1,abline(v=which(icd<n_dsurg),col='#00000020',lwd=5));
+lines(.eplot_surg1$n_rx1270,col='green',type='s',lty=3);
+lines(.eplot_surg1$n_rx1260,col='cyan',type='s',lty=3);
+#' Here is a table of every NAACCR surgery event variable versus the 
+#' `n_surgreason` variable:
+lapply(v(c_nephx,xdat1)[6:9],function(ii) 
+  table(dat2$n_surgreason,dat2[[ii]]>=0) %>% 
+    set_colnames(.,paste0(ii,'=',colnames(.)))) %>% do.call(cbind,.) %>% pander;
 
-# plot(xdat1_surg$n_dsurg,type='l',ylab='Weeks After Diagnosis'
-#      ,xlab='Patients, sorted by time from diagnosis to surgery'
-#      ,main='Time from diagnosis to surgery (black)\n or discharge (red)');
-# lines(xdat1_surg$n_dsdisc,col='red',lty=2);
-# More preliminary code for surgery, once properly factored and annoatated this
-# should work fine for each of the classes of tte variables.
-# bar <- arrange(xdat1,n_dsurg-n_ddiag,n_lc-n_ddiag);bar[,-1] <- bar[,-1] +.01 - bar$n_ddiag; bar <- subset(bar,!patient_num %in% kcpatients.naaccr_dupe);plot(bar$n_dsurg,type='s',ylim=c(-2000,8000));for(ii in v(c_nephx,bar)[1:5]) lines(bar[[ii]],type='s',col='blue');
-#' 
 #' ##### Surgery Conclusion
 #' 
-#' The sole variable on which we can rely for date of surgery is `n_dsurg`, 
-#' though this might get supplemented by additional NAACCR variables in the next 
-#' data-pull. However, we can rely on `r t_priorcond` for excluding possibly 
-#' invalid records if any of them occur prior to `n_ddiag`.
+#' As of now the sole variables on which I can rely for date of surgery are 
+#' `n_rx3170` supplemented by `n_dsurg`, and the small number of cases where EMR 
+#' codes imply surgery prior to diagnosis will be excluded. For the purposes of
+#' determining whether there is a difference in the time from diagnosis to 
+#' surgery I could also create an alternative 'naive' variable that is simply
+#' the earliest of all possible surgery events for each patient. For the time
+#' elapsed from surgery to death or recurrence, I will use the first (`n_rx3170`
+#' and `n_dsurg`) variable as above with the additional criterion that only 
+#' cases where the `n_surgreason` is `Surgery Performed` be included.
 #' 
+#' Might need to rework `t_priorcond`
 #' 
 #' ### Re-occurrence
 #' 
