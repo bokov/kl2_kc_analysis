@@ -571,6 +571,7 @@ lapply(v(c_nephx,xdat1)[6:9],function(ii)
 subset(dat2,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
      with(table(n_rectype,n_cstatus)) %>% pander;
 #' This suggest the following rules for binning them:
+#' 
 #' * `n_rectype` is `Disease-free` (disease free)
 #' * `n_rectype` is `Never disease-free` (never disease free)
 #' * `n_rectype` raw code includes 70 then assume never diease free
