@@ -355,6 +355,7 @@ xdat1[,v(c_kcdiag)] %>%
 #' 0) with black lines indicating ICD10 codes for primary kidney cancer from the
 #' EMR and dashed red lines indicating ICD9 codes. The dashed horizontal blue 
 #' lines indicate +- 3 months from date of diagnosis.
+par(xaxt='n');
 .eplot_diag <- mutate(xdat1,icd=pmin(e_kc_i10,e_kc_i9,na.rm=T)) %>% 
   event_plot('icd',tunit='months',type='s'
              ,ylab='Months since NAACCR Date of Diagnosis'
@@ -368,32 +369,37 @@ abline(h=c(-3,0,3),lty=c(2,1,2),col='blue');
 #' within 3 months of first diagnosis as recorded by NAACCR. Of those with a 
 #' larger time difference, the majority (`r .eplot_diag_summ[5]`) have their 
 #' first EMR code occur _after_ first NAACCR diagnosis. Only 
-#' `r .eplot_diag_summ[1]` patients have ICD9/10 diagnoses that preced their
-#' NAACCR diagnoses by more than 3 months. These might need to be eliminated 
-#' from the sample on the grounds of not being first occurrences of kidney 
-#' cancer. However, we cannot back-fill missing NAACCR records or NAACCR 
-#' records lacking a diagnosis date because there is too frequently a difference
-#' between the the two sources, and the EMR records are currently biased toward
-#' later dates.
+#' `r .eplot_diag_summ[1]` patients have ICD9/10 diagnoses that precede their
+#' NAACCR diagnoses by more than 3 months. And additional `r .eplot_diag_summ[2]`
+#' patients have first EMR diagnoses that precede NAACCR diagnosis by less than
+#' three months. These might need to be eliminated from the sample on the 
+#' grounds of not being first occurrences of kidney cancer. However, we cannot 
+#' back-fill missing NAACCR records or NAACCR records lacking a diagnosis date 
+#' because there is too frequently a difference between the the two sources, and 
+#' the EMR records are currently biased toward later dates.
 #' 
 #' ### Surgery
 #' 
 #' The `c_nephx` group of columns
 #' 
-#' * NAACCR: in addition to `1200 RX Date--Surgery` (in this script
-#'   shortened to `n_dsurg`) and `3180 RX Date--Surgical Disch` (shortened to 
-#'   `n_dsdisc` the following possibly relevant fields are available in our 
-#'   local NAACCR:
-#'      * `1260 Date of Initial RX--SEER`
-#'      * `1270 Date of 1st Crs RX--CoC`
-#'      * `3170 RX Date--Most Defin Surg`
-#'   Here are the questions raised:
-#'      * Do they agree with `n_dsurg` sufficiently that missing `n_dsurg` can 
-#'        be backfilled from some or all of them?
-#'      * Under what circumstances can they be interpreted as surgery dates 
-#'        rather dates for something else?
+#' * NAACCR: 
+#'      * In addition to `1200 RX Date--Surgery` (in this script shortened to 
+#'        `n_dsurg`) the following possibly relevant fields are available in our 
+#'        local NAACCR:
+#'          * `1260 Date of Initial RX--SEER`
+#'          * `1270 Date of 1st Crs RX--CoC`
+#'          * `3170 RX Date--Most Defin Surg`
+#'      * Here are the questions raised:
+#'          * Do they agree with `n_dsurg` sufficiently that missing `n_dsurg` 
+#'            can be backfilled from some or all of them?
+#'          * Under what circumstances can they be interpreted as surgery dates 
+#'            rather dates for something else?
+#'          * How accurate is [`1340 Reason for No Surgery`](http://datadictionary.naaccr.org/default.aspx?c=10#1340)
+#'            (here abbreviated as `n_surgreason`) in distinguishing surgical 
+#'            cases from non-surgical cases as per EMR records?
 #' * EMR: First occurrence of any ICD9/10 code for acquired absence of 
-#'   kidney; or first occurence of surgical history of nephrectomy
+#'   kidney; or first occurence of surgical history of nephrectomy. How much do 
+#'   they agree with NAACCR?
 #+ xdat1_surg, cache=TRUE
 # make each date of surgery proxy relative to date of diagnosis
 xdat1_surg <- (xdat1[,c(v(c_nephx),'n_drecur')] - xdat1$n_ddiag) %>% 
@@ -452,19 +458,45 @@ mutate_all(xdat1[,v(c_nephx)]
 #     ,levels=c('before','same-day','after')))) %>% 
 #   sapply(table,useNA='always') %>% t %>% pander();
 #' 
-#' Now, as far as the two NAACCR variables go, does `n_dsdisc` (date of 
-#' discharge) contribute anything more than `n_dsurg`? There are 
-#' `r nrow(subset(xdat1,is.na(n_dsurg)&!is.na(n_dsdisc)))` non-missing values 
-#' of `n_dsdisc` when `n_dsurg` is missing. As can be seen from the plot below
-#' where `n_dsdisc` are the red dashed lines and `n_dsurg` are the black lines,
-#' both relative to date of diagnosis, `n_dsdisc` either coincides with `n_dsurg`
-#' or lags by multiple weeks, as might be expected of a discharge date (what is 
-#' the plausible threshold on time from surgery to discharge?).
+# Now, as far as the two NAACCR variables go, does `n_dsdisc` (date of 
+# discharge) contribute anything more than `n_dsurg`? There are 
+# `r nrow(subset(xdat1,is.na(n_dsurg)&!is.na(n_dsdisc)))` non-missing values 
+# of `n_dsdisc` when `n_dsurg` is missing. As can be seen from the plot below
+# where `n_dsdisc` are the red dashed lines and `n_dsurg` are the black lines,
+# both relative to date of diagnosis, `n_dsdisc` either coincides with `n_dsurg`
+# or lags by multiple weeks, as might be expected of a discharge date (what is 
+# the plausible threshold on time from surgery to discharge?).
+# 
+#' Below is a plot of 
 #+ plot_xdat1_surg,cache=TRUE
-plot(xdat1_surg$n_dsurg,type='l',ylab='Weeks After Diagnosis'
-     ,xlab='Patients, sorted by time from diagnosis to surgery'
-     ,main='Time from diagnosis to surgery (black)\n or discharge (red)');
-lines(xdat1_surg$n_dsdisc,col='red',lty=2);
+par(xaxt='n');
+.eplot_surg0 <- subset(xdat1,patient_num %in% 
+                        kcpatients_surgreason$`Surgery Performed`) %>% 
+  mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
+  event_plot('n_dsurg','nrx',tunit='months',type='s',ltys = c(1,1)
+             ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
+             ,ylim=c(-10,60));
+abline(h=0,col='blue');
+.eplot_surg0$icd <- apply(.eplot_surg0[,v(c_nephx,xdat1)[1:5]],1,min,na.rm=T);
+.eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
+lines(.eplot_surg0$icd,type='s',col='purple');
+
+par(xaxt='n');
+.eplot_surg1 <- subset(xdat1,!patient_num %in% 
+                         kcpatients_surgreason$`Surgery Performed`) %>% 
+  mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
+  event_plot('n_dsurg','nrx',tunit='months',type='s',ltys = c(1,1)
+             ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
+             ,ylim=c(-10,60));
+abline(h=0,col='blue');
+.eplot_surg1$icd <- apply(.eplot_surg1[,v(c_nephx,xdat1)[1:5]],1,min,na.rm=T);
+.eplot_surg1$icd[is.infinite(.eplot_surg1$icd)]<-NA;
+lines(.eplot_surg1$icd,type='s',col='purple');
+
+# plot(xdat1_surg$n_dsurg,type='l',ylab='Weeks After Diagnosis'
+#      ,xlab='Patients, sorted by time from diagnosis to surgery'
+#      ,main='Time from diagnosis to surgery (black)\n or discharge (red)');
+# lines(xdat1_surg$n_dsdisc,col='red',lty=2);
 # More preliminary code for surgery, once properly factored and annoatated this
 # should work fine for each of the classes of tte variables.
 # bar <- arrange(xdat1,n_dsurg-n_ddiag,n_lc-n_ddiag);bar[,-1] <- bar[,-1] +.01 - bar$n_ddiag; bar <- subset(bar,!patient_num %in% kcpatients.naaccr_dupe);plot(bar$n_dsurg,type='s',ylim=c(-2000,8000));for(ii in v(c_nephx,bar)[1:5]) lines(bar[[ii]],type='s',col='blue');
