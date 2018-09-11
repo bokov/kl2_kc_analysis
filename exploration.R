@@ -5,6 +5,7 @@
 #' ---
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
+# init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
 options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
@@ -25,6 +26,7 @@ panderOptions('table.alignment.default','right');
 panderOptions('table.alignment.rownames','left');
 .args_default_v <- formals(v);
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
+# overview ---------------------------------------------------------------------
 #' ### Overview
 #' 
 #' This is not (yet) a manuscript. We are still at the data cleaning/alignment
@@ -58,6 +60,7 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' will switch to Aim 1, the i2b2 plugin, once I hit a natural pausing-point on 
 #' Aim 2.
 #' 
+# questions, domain experts ----------------------------------------------------
 #' ### Questions for mentors and other domain experts:
 #' 
 #' * Question: What are the main problems with the NAACCR stage and grade information that
@@ -91,6 +94,7 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' * Is there some additional data source that the UTHealth NAACCR registrar
 #'   consults?
 #'   
+# questions, empirical ---------------------------------------------------------
 #' ### Questions to answer empirically:
 #' 
 #' * Question: Are NAACCR-EMR linkages now correct?
@@ -143,6 +147,7 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'         diagnosis.
 # A list of valid patients can be found in the 'kcpatients.naaccr'
 #'   
+# outline ----------------------------------------------------------------------
 #' ### Outline
 #' 
 #' * [Consistency-Checks](#consistency-checks)
@@ -155,6 +160,7 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'     3. [Supplementary tables](#appendix-iii-supplementary-tables)
 #'     4. [Audit trail](#appendix-iv-audit-trail)
 #' 
+# crosschecks ------------------------------------------------------------------
 #' ## Consistency-Checks
 #' 
 #' ### How well do birthdates match between NAACCR and the EMR?
@@ -228,6 +234,7 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
   `[`(,c('Non_Hispanic','Hispanic')) %>%
   addmargins() %>% pander(emphasize.strong.cells=as.matrix(expand.grid(1:6,1:2)));
 
+# tableone ---------------------------------------------------------------------
 #' ## Cohort Characterization
 #'
 #' Summary of all the variables in the combined i2b2/NAACCR set. `Tumor_Free`
@@ -277,6 +284,7 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
   gsub('0 \\( 0.0\\)','0',.) %>% 
   pander(emphasize.rownames=F);
 
+# event indicators -------------------------------------------------------------
 #' ## Which EMR and NAACCR variables are reliable event indicators?
 #' 
 #' We need the following variables for starters. For most or all of these 
@@ -302,6 +310,7 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' when that event was recorded (if any, otherwise `NA`). This table will be 
 #' called `xdat1`. 
 #' 
+# diagnosis ====================================================================
 #' ### Initial diagnosis 
 #' 
 #' The `c_kcdiag` group of columns in `dct0`.
@@ -378,6 +387,7 @@ abline(h=c(-3,0,3),lty=c(2,1,2),col='blue');
 #' because there is too frequently a difference between the the two sources, and 
 #' the EMR records are currently biased toward later dates.
 #' 
+# surgery ======================================================================
 #' ### Surgery
 #' 
 #' The `c_nephx` group of columns
@@ -551,6 +561,7 @@ lapply(v(c_nephx,xdat1)[6:9],function(ii)
 #' 
 #' Might need to rework `t_priorcond`
 #' 
+# re-occurrence ================================================================
 #' ### Re-occurrence
 #' 
 #' The current available variables are: `n_cstatus` which corresponds to [`1770 Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1770)
@@ -620,8 +631,10 @@ abline(h=0,col='white');
 # for(ii in v(c_recur,baz)[-15]) lines(baz[[ii]],col='cyan')
 # for(ii in v(c_death,baz)) lines(baz[[ii]],col='orange',lwd=2)
 #'  
+# death ========================================================================
 #' ### Death
 #'    
+# hispanic ethnicity ===========================================================
 #' ### Whether or not the patient is Hispanic
 #' 
 #' A similar process needs to be done for Hispanic ethnicity, but as an ordinary 
@@ -635,6 +648,7 @@ abline(h=0,col='white');
 #' resolving disagreement about a binary variable between multiple sources.
 #' 
 #' 
+# descriptive plots ------------------------------------------------------------
 #' ## Descriptive Plots (Preliminary)
 #' 
 #' To avoid bias/overfitting all descriptive data and visualizations below that 
@@ -723,6 +737,8 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death))
 #   summarise_all(function(xx) last(na.omit(xx))) %>%
 #   survfit(Surv(a_tsurg,a_cdeath)~1,.) %>% 
 #   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving');
+#' ---
+# A1 stage/grade ---------------------------------------------------------------
 #' ## Appendix I: Example of stage/grade data
 #' 
 #' (proof of feasibility)
@@ -737,9 +753,9 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
   # the extra quotation marks
   `[`(1:15,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
   pander();
-
 #' ---
-#' 
+
+#  A2 next steps ---------------------------------------------------------------
 #' ## Appendix II: Next steps
 #' 
 #' * TODO: Prior to doing the above `tte()` put in a safeguard to make
@@ -811,6 +827,7 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #' 
 #' ---
 #' 
+# A3 supplementary tables ------------------------------------------------------
 #' ## Appendix III: Supplementary tables
 #' 
 #' ### How well do demographic variables match up for just the patients with mismatched birthdates?
@@ -963,5 +980,8 @@ heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = T,margins=c(10,10)
 #' [surgery](#surgery-conclusion) sections in the main document above. This is
 #' just for historic reference.
 #' 
+#' ---
+#' 
+# A4 audit ---------------------------------------------------------------------
 #' ## Appendix IV: Audit trail
 walktrail()[,-5] %>% pander(split.tables=600,,justify='left');
