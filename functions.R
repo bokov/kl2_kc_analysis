@@ -948,12 +948,14 @@ rebuild_dct <- function(dat=dat0,rawdct=dctfile_raw,tpldct=dctfile_tpl,debuglev=
 #' TODO: write a roxygen skel for this one
 event_plot <- function(data,reference_event,secondary_event=NA
                        ,sort_by=reference_event,start_event='n_ddiag'
+                       ,index='patient_num'
                        ,vars=setdiff(names(data)[sapply(data,is.numeric)]
-                                      ,start_event)
+                                      ,c(index,start_event))
                        ,main=sprintf('Time from %s to %s',start_event
                                      ,reference_event)
                        ,xlab=sprintf('Patients, sorted by %s',reference_event)
                        ,tunit=c('days','weeks','months','years')
+                       ,lwds=c(1,1)
                        ,ylim=NA,xlim=NA,subset=TRUE,ylab=NA
                        ,frame.plot=F
                        ,type='l',cols=c('black','red'),ltys=1:2,log=''
