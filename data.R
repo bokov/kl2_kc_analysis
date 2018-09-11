@@ -107,7 +107,13 @@ dat1 <- mutate(dat1
                # problem in the first place
                ,n_sex=paste(c(unique(na.omit(n_sex)),NA)[1],collapse=',')
                ,a_n_race=paste(unique(na.omit(a_n_race)),collapse=',')
-               ,a_n_recur=paste(unique(na.omit(a_n_recur)),collapse=',')
+               ,a_n_recur=paste(unique(na.omit(a_n_recur)),collapse=',') %>%
+                 # this is to insure that anything Disease-free gets paired 
+                 # with wins out over dieasese-free
+                 gsub('^Disease-free,','',.) %>% gsub(',Disease-free$','') %>%
+                 # temporary hack so that it's more visible later that I did
+                 # this rather than silently hiding it in levels_map.csv
+                 gsub('Ambig_...0','Never disease-free',.)
                ,a_n_dm=any(a_n_dm)
                ,a_e_dm=e_dm_i9|e_dm_i10
                ,a_e_kc=e_kc_i9|e_kc_i10
