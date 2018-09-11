@@ -7,6 +7,7 @@
 #' Please read this file through before trying to run it. The comments tell
 #' you what you need to edit in order to proceed.
 #' 
+# init -------------------------------------------------------------------------
 source('global.R');
 .currentscript <- parent.frame(2)$ofile;
 if(is.null(.currentscript)) .currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
@@ -18,6 +19,7 @@ l_truthy_default <- eval(formals(truthy.default)$truewords);
 #l_truthy_default <- c("Yes", l_truthy_default);
 l_missing <- c(NA,'Unknown','unknown','UNKNOWN');
 
+# read dat0 --------------------------------------------------------------------
 #' Initialize the column specification for parsing the input data
 dat0spec <- tread(inputdata,spec_csv,na=c('(null)',''),guess_max=5000);
 #' Force the `patient_num` column to be numeric rather than integer, to avoid
@@ -27,9 +29,11 @@ dat0spec$cols[['patient_num']] <- col_number();
 dat0 <- tread(inputdata,read_csv,na=c('(null)',''),col_type=dat0spec);
 colnames(dat0) <- tolower(colnames(dat0));
 
+# make data dictionary ---------------------------------------------------------
 #' Create the data dictionary
 dct0 <- rebuild_dct(dat0,dctfile_raw,dctfile_tpl,tread_fun = read_csv,na='');
 #' 
+# a few dat0 hacks -------------------------------------------------------------
 #' A workaround for the fact that in `dat1` columns get transformed and we need
 #' an original value from `dat0`, but in `dat0` the column names are not yet 
 #' renamed to stable values.
@@ -54,7 +58,8 @@ kcpatients.naaccr_dupe <- group_by(dat0,patient_num)[
   summarize_all(function(xx) sum(!is.na(xx))) %>% 
   apply(1,function(xx) c(xx[1],max(xx[-1]))) %>% t %>% data.frame %>% 
   subset(V2>1) %>% `$`(patient_num);
-#' 
+
+# dat1 organize codes ----------------------------------------------------------
 #' Load the NAACCR manual code mappings
 levels_map <- tread(levels_map_file,read_csv,na='');
 
@@ -89,6 +94,7 @@ dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>%
                                            ,var = '_rc',droplevels=T);
 #' Unified NAACCR diabetes comorbidity
 dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',xx))); 
+# kcpatients subsets -----------------------------------------------------------
 #' Find the patients which had active kidney cancer (rather than starting with 
 #' pre-existing)... first pass
 kcpatients.emr <- subset(dat1,e_kc_i10|e_kc_i9)$patient_num %>% unique;
@@ -98,6 +104,7 @@ kcpatients.naaccr <- subset(dat1,(n_seer_kcancer|n_kcancer) & n_ddiag)$patient_n
 kcpatients.naaccr_bad_dob <- intersect(kcpatients.naaccr,kcpatients.bad_dob);
 #' create the raw time-to-event (tte) and censoring (cte) variables
 #' along with making a_n_race and a_n_dm time invariant
+# dat1 more analytical variables  ----------------------------------------------
 dat1 <- mutate(dat1
                # the c() and paste() kind of screw up factors, making
                # extra code necessary down the line to restore them
@@ -139,6 +146,7 @@ dat1 <- mutate(dat1
                ,a_cdeath=cte(a_tdeath)
                );
 
+# time-to-event variables ------------------------------------------------------
 #' ### Mass-converting variables to time-to-event form
 #' 
 #' Warning: this gets really into the daRk aRts of R here but the alternative is
@@ -223,6 +231,7 @@ dat1 <- (l_tte<-v(c_tte,dat1,retcol = c('colname','varname'))) %>%
 #' Below is a hack to restore NAs to NAACCR race designation and turn some 
 #' character columns into factors with same order of levels as their i2b2 
 #' counterparts
+# more analytic variable tweaks ------------------------------------------------
 dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race)) %>% 
   factor(levels=levels(dat1$race_cd));
 #dat1$sex_cd <- factor(dat1$sex_cd,levels=levels(dat1$n_sex));
@@ -243,6 +252,7 @@ cohorts <- data.frame(patient_num=unique(dat1$patient_num)) %>%
 consort_table <- summarise(cohorts,NAACCR=any(NAACCR),EMR=any(EMR)
                            ,PreExisting=any(PreExisting)
                            ,N=length(patient_num))[,-1];
+# training/testing/validation samples ------------------------------------------
 #' Creating training/testing/validation samples
 #' 
 #' As long as the seed is the same, all random values will be generated the same
@@ -251,14 +261,6 @@ tseed(project_seed);
 #' Randomly to training, testing, or validation sets
 pat_samples <- unique(dat1$patient_num) %>% 
   split(.,sample(c('train','test','val'),size=length(.),rep=T));
-#' ## Transform certain columns
-# 
-#' Make sex/gender a factor
-# 
-#' TODO: do this dynamically via new c_ group for all columns that are safe to
-#' directly convert to factors
-#dat1$gender <- factor(dat1$gender);
-
 #' ## Create binned versions of certain numeric vars.
 # 
 #' (commented out until we can put a c_num2bin or something into dct0)
@@ -267,30 +269,18 @@ pat_samples <- unique(dat1$patient_num) %>%
 #   cut(ii,breaks = qii);
 # })
 
-#' ## Create response variables
-#
-#' ## Transform Rows
-#
-#' ## Sort the rows 
-#
-#' Creating an object to use as the lookup argument for `mapnames()``
-#' TODO: change the NSQIP_NAMES column name to a more generic one
-#dat1namelookup <- with(dct0,setNames(dataset_column_names
-#                                     ,ifelse(is.na(NSQIP_NAMES)
-#                                             ,dataset_column_names
-#                                             ,NSQIP_NAMES)));
-#' ### Make several subsets of dat1 all at once
-#
-#' for later use to make multiple versions of the same table and 
-#' multiple versions of the same graph,
+# dat2, one-per-patient --------------------------------------------------------
 #' ### Create a version of the dataset that only has each patient's 1st encounter
 #' 
 dat2 <- summarise_all(dat1,function(xx) {
   if(is.logical(xx)) any(xx) else last(na.omit(xx))});
-
-#' Each name is a legal variable name for that subset, the value
-#' assigned to it is an R expression that can be evaluated in the
-#' scope of `dat1` and will return a `TRUE`/`FALSE` vector
+# subs_criteria, multiple subsets ----------------------------------------------
+#' ### Make several subsets of dat1 all at once
+#
+#' for later use to make multiple versions of the same table and 
+#' multiple versions of the same graph. Each name is a legal variable name for 
+#' that subset, the value assigned to it is an R expression that can be 
+#' evaluated in the scope of `dat1` and will return a `TRUE`/`FALSE` vector
 subs_criteria <- alist(
    # from diagnosis to surgery
     diag_surg = a_tdiag>=0 & a_tsurg<=0 #& patient_num %in% kcpatients.naaccr
@@ -315,12 +305,14 @@ for(ii in names(subs_criteria)) {
 # standalone completeness criterion
 subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
 
-#' Creates a hierarchy of lists containing various subsets of interest
-sbs0 <- sapply(list(all=dat1,index=dat2),function(xx) do.call(ssply,c(list(dat=xx),subs_criteria[-1])),simplify=F);
+#' Creates a hierarchy of lists containing various subsets of interest. But so 
+#' far not really needed, commenting out for shorter load times.
+#sbs0 <- sapply(list(all=dat1,index=dat2),function(xx) do.call(ssply,c(list(dat=xx),subs_criteria[-1])),simplify=F);
 #' Subsetting by the earlier randomly assigned train and test groups
-sbs0$train <- lapply(sbs0$all,subset,patient_num%in%pat_samples$train);
-sbs0$test <- lapply(sbs0$all,subset,patient_num%in%pat_samples$test);
+#sbs0$train <- lapply(sbs0$all,subset,patient_num%in%pat_samples$train);
+#sbs0$test <- lapply(sbs0$all,subset,patient_num%in%pat_samples$test);
 
+# save out ---------------------------------------------------------------------
 #' ## Save all the processed data to an rdata file 
 #' 
 #' ...which includes the audit trail
