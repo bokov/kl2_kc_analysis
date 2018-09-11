@@ -239,10 +239,6 @@ dat1$n_sex <- factor(dat1$n_sex,levels=c('1','2'),labels=c('m','f'));
 
 kcpatients.pre_existing <- subset(dat1,a_thdiag>=0&a_tdiag<0)$patient_num %>% unique;
 
-#' Patients split by reason for (no) surgery
-kcpatients_surgreason <- split(dat1,dat1$n_surgreason) %>% 
-  lapply(function(xx) unique(xx$patient_num));
-
 cohorts <- data.frame(patient_num=unique(dat1$patient_num)) %>% 
   mutate( NAACCR=patient_num %in% kcpatients.naaccr
          ,EMR=patient_num %in% kcpatients.emr
@@ -275,6 +271,20 @@ pat_samples <- unique(dat1$patient_num) %>%
 dat2 <- summarise_all(dat1,function(xx) {
   if(is.logical(xx)) any(xx) else last(na.omit(xx))});
 # subs_criteria, multiple subsets ----------------------------------------------
+#' ### Some splits based on patient-level variables
+#' 
+#' Patients split by reason for (no) surgery. This used to be done on `dat1` and
+#' gave slightly different results, probably due to multiple entries per patient
+#' but the `dat2` versions seem like they are slightly better because they trend
+#' toward more surgeries and fewer unknowns-- which is what one might expect
+#' over time.
+# kcpatients_surgreason <- split(dat1,dat1$n_surgreason) %>% 
+#   lapply(function(xx) unique(xx$patient_num));
+kcpatients_surgreason <- split(dat2,dat2$n_surgreason) %>% 
+  lapply(pull,'patient_num');
+#' Patients split by recurrence type
+kcpatients_rectype <- split(dat2,dat2$a_n_recur) %>%
+  lapply(pull,'patient_num');
 #' ### Make several subsets of dat1 all at once
 #
 #' for later use to make multiple versions of the same table and 
