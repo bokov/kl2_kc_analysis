@@ -680,7 +680,7 @@ points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
 #' probably due to our i2b2 ETL already merging `e_dscdeath` and `s_death` into 
 #' `e_death`. But it is also encouraging that none of them seem (by visual 
 #' inspection) to occur prior to the date of last contact in NAACCR. That 
-#' suggestsm I can simply take the mininum of available death dates to fill in 
+#' suggests I can simply take the mininum of available death dates to fill in 
 #' data for patients that NAACCR is not aware are deceased. It also means that 
 #' the ETL's coverage of vital status can be further improved by using the 
 #' NAACCR vital status and last contact variables in combination.
@@ -779,30 +779,34 @@ subset(dat1
        # (according to NAACCR) and on or before the day of surgery (==0) or
        # last follow-up (<0), and also limit the patients to ones randomly 
        # assigned to the training set so we're not "peeking at the answers"
-       ,n_ddiag>=0&n_dsurg<=0&patient_num %in% pat_samples$train)[
-         # sorry to about the syntactically valid but awkward line break, we 
-         # are selecting only the columns from the subsetted data frame that
-         # we will need for this survival curve
-         ,c('patient_num','n_ddiag','n_dsurg','e_hisp','n_hisp')] %>% 
+       ,n_ddiag>=0 & n_dsurg<=0 & 
+         #a_hsp_broad!='Unknown' &
+         patient_num %in% pat_samples$train)[,c('patient_num','n_ddiag'
+                                                ,'n_dsurg','n_hisp'
+                                                ,'a_hsp_broad'
+                                                ,'a_hsp_strict')] %>% 
   # take the last non-missing event from each column
   summarise_all(function(xx) {
     if(is.logical(xx)) any(xx) else (last(na.omit(xx)))}) %>% 
   # convert time to weeks, and truncate on last followup period
-  mutate(n_ddiag=n_ddiag/7,n_ddiag=pmin(n_ddiag,52.179*2)
+  mutate(n_ddiag=n_ddiag/7,n_ddiag=pmin(n_ddiag,52.179*3)
          # we're setting the follow-up time to one year, and censoring any 
          # surgeries that happened more than a year from the initial diagnosis
          # (or that never happened, n_dsurg!=0)
-         ,cen=n_ddiag<52.179&n_dsurg==0
+         ,cen=n_ddiag<52.179*3&n_dsurg==0
          # simplifying the 'n_hisp' variable
-         ,n_hisp=!n_hisp%in%c('Non_Hispanic','Unknown')) %>% 
+         ,n_hisp=recode(n_hisp,Non_Hispanic='Non_Hispanic',Unknown='Unknown'
+                        ,.default='Hispanic')
+         ,predictor=a_hsp_broad) %>% 
+  subset(predictor!='Unknown') %>%
   # fitting a survival curve
-  survfit(Surv(n_ddiag,n_ddiag<=52.179*2&n_dsurg==0)~n_hisp,.) %>% 
+  survfit(Surv(n_ddiag,cen)~predictor,.) %>% 
   # generating a plot for the survival curve
   autoplot(mark.time=T
            ,xlab='Weeks Since Diagnosis',ylab='% Not Undergone Surgery'
            ,main='Time from Diagnosis to Surgery') + 
   # cleaning up the legend for this plot
-  guides(colour=guide_legend('Hispanic'),fill=guide_legend('Hispanic'));
+  guides(colour=guide_legend(''),fill=guide_legend(''));
 #' 
 #' So far it seems there is no great difference in the raw lag between Hispanic
 #' and non-Hispanic patients but with the major caveat that I have not yet 
