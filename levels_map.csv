@@ -121,8 +121,8 @@
 "n_marital",1,"Single","naaccr","Single (never married)"
 "n_marital",9,"Unknown","naaccr","Unknown"
 "n_marital",5,"Widowed","naaccr","Widowed"
-"n_marital","2,3","Ambig_23","naaccr",
-"n_marital","9,2","Ambig_92","naaccr",
+"n_marital","2,3","Separated","naaccr",
+"n_marital","9,2","Married","naaccr",
 "race_cd","white","White","i2b2",
 "race_cd","black","Black","i2b2",
 "race_cd","asian","Asian","i2b2",
