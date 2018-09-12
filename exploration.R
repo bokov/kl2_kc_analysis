@@ -671,6 +671,10 @@ points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
 #' 
 .eplot_death <- event_plot(xdat1,'n_lc','n_ddiag',start_event = 'n_dsurg'
                            ,tunit = 'mon',ltys = c(0,1),type='s');
+points(.eplot_death$e_death,pch=2,col='#FF00FF70');
+points(.eplot_death$s_death,pch=6,col='#00999970');
+points(.eplot_death$e_dscdeath,pch='*',col='#00FF0070');
+points(.eplot_death$n_vtstat,col='blue',cex=1.5);
 
 # hispanic ethnicity ===========================================================
 #' ### Whether or not the patient is Hispanic
