@@ -163,6 +163,15 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 # crosschecks ------------------------------------------------------------------
 #' ## Consistency-Checks
 #' 
+#' 
+#' ### How well do marital statuses match between NAACCR and the EMR?
+#' 
+#' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
+#' record completeness. Counts on the diagonal are the ones that agree between 
+#' the two sources, the off-diagonals disagree.
+with(dat2,table(e_marital,n_marital,useNA='if')) %>% addmargins %>%
+  pander(emphasize.strong.cells=cbind(2:9,1:8));
+#' 
 #' ### How well do birthdates match between NAACCR and the EMR?
 #' 
 #+ create_xdat
