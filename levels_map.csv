@@ -141,7 +141,7 @@
 "language_cd","chinese, cantonese (inc toishanese)","Other","i2b2",136163
 "language_cd","farsi; persian","Other","i2b2",108
 "language_cd","korean","Other","i2b2",114
-"language_cd","sign language","Other","i2b2",16
+"language_cd","sign language","Unknown","i2b2","Setting ASL to unknown since the purpose of language is one more source of inference on ethnicity and this is uninformative on ethnicity"
 "language_cd","@","Unknown","i2b2",20741
 "language_cd","unknown","Unknown","i2b2",734
 "sex_cd","m","m","i2b2",
