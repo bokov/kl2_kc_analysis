@@ -669,12 +669,32 @@ points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
 # death ========================================================================
 #' ### Death
 #' 
-.eplot_death <- event_plot(xdat1,'n_lc','n_ddiag',start_event = 'n_dsurg'
-                           ,tunit = 'mon',ltys = c(0,1),type='s');
-points(.eplot_death$e_death,pch=2,col='#FF00FF70');
-points(.eplot_death$s_death,pch=6,col='#00999970');
-points(.eplot_death$e_dscdeath,pch='*',col='#00FF0070');
-points(.eplot_death$n_vtstat,col='blue',cex=1.5);
+#' Below are plotted times of death (for patients that have them) relative to 
+#' date of diagnosis `n_ddiag` (horizontal blue line). The four data sources are
+#' `e_death` the EMR death date ($\tiny\color{magenta}\triangle$), `s_death` the social security
+#' death date ($\color{blue}\triangledown$), `e_dscdeath` the EMR hospital discharge death date
+#' ($\color{green}+$), and `n_vtstat` the NAACCR death date ($\tiny\color{brown}\bigcirc$).
+#' 
+#' When more than one source has a death date, they are in agreement. To be 
+#' fair, the agreement between `e_death`, `e_dscdeath`, and `s_death` is 
+#' probably due to our i2b2 ETL already merging `e_dscdeath` and `s_death` into 
+#' `e_death`. But it is also encouraging that none of them seem (by visual 
+#' inspection) to occur prior to the date of last contact in NAACCR. That 
+#' suggestsm I can simply take the mininum of available death dates to fill in 
+#' data for patients that NAACCR is not aware are deceased. It also means that 
+#' the ETL's coverage of vital status can be further improved by using the 
+#' NAACCR vital status and last contact variables in combination.
+.eplot_death <- event_plot(xdat1,'n_lc',start_event = 'n_ddiag'
+                           ,main='Time from Diagnosis to Death (if any)'
+                           ,ylab='Months Since Diagnosis'
+                           ,xlab='Patients, sorted by last contact date'
+                           ,tunit = 'mon',ltys = 0,type='s');
+points(.eplot_death$e_death,pch=2,col='#FF00FF70',lwd=2); # \triangle
+points(.eplot_death$s_death,pch=6,col='#00999970',lwd=3); # \nabla (not making this up!)
+points(.eplot_death$e_dscdeath,pch=3,col='#00FF0090',lwd=2); # +
+points(.eplot_death$e_disdeath,pch=3,col='#00FF0090',lwd=2);
+points(.eplot_death$n_vtstat,col='brown',cex=1.5,lwd=0.5); # \bigcirc
+abline(h=0,col='blue');
 
 # hispanic ethnicity ===========================================================
 #' ### Whether or not the patient is Hispanic
@@ -689,6 +709,50 @@ points(.eplot_death$n_vtstat,col='blue',cex=1.5);
 #' Basically two variables because there are the two ends of the spectrum for
 #' resolving disagreement about a binary variable between multiple sources.
 #' 
+#' Here are the variables to process:
+#' 
+#' * `language_cd` is an i2b2 PATIENT_DIMENSION variable that is simplified by 
+#'   `data.R` and `levels_map.csv`
+#'     * Hispanic : `Spanish`
+#'     * non-Hispanic: `Other`
+#'     * Unknown: `English` or `Unknown` or NA
+#' * `e_lng` is an i2b2 OBSERVATION_FACT variable currently in the raw form that
+#'   DataFinisher uses for complex variables lacking a specific rule. Below are 
+#'   regexp patterns for a non case-sensitive match.
+#'     * Hispanic: ` ^.*spanish.*$` ELSE
+#'     * Unknown: ` ^.*(english|sign language|unknown).*$` or NA ELSE
+#'     * non-Hispanic: anything not caught by the above two filters
+#' * `n_hisp` is the [`0190 Spanish/Hispanic Origin`](http://datadictionary.naaccr.org/default.aspx?c=10#190)
+#'   variable from NAACCR. Slightly processed by `data.R` and `levels_map.csv`
+#'     * non-Hispanic: `Non_Hispanic`
+#'     * Unknown: `Unknown`
+#'     * Hispanic: any other value
+#' * `e_hisp` is the indicator variable for Hispanic ethnicity from i2b2 
+#'   OBSERVATION_FACT.
+#'     * Hispanic: `TRUE`
+#'     * Unknown: `FALSE`
+#' * `e_eth` is the whole ethnicity variable from i2b2 OBSERVATION_FACT and
+#'   suprprisingly it is not in full agreement with `e_hisp`
+#'     * Hispanic: `hispanic`
+#'     * Unknown: `other`,`unknown`,`unknown/othe`,`i choose not`,`@`
+#'     * non-Hispanic: `arab-amer`,`non-hispanic`
+#'     
+#' The strict Hispanic variable.
+#' 
+#' * Hispanic if ALL non-missing values of `n_hisp`, `e_hisp`, and `e_eth` are 
+#'   unanimous for `Hispanic`
+#' * non-Hispanic if ALL non-missing values of `n_hisp` and `e_eth` are 
+#'   unanimous for `non-Hispanic` (note that `e_hisp` not included here) and
+#'   neither `e_lng` nor `language_cd` vote for `Hispanic`
+#' * Unknown if any other result.
+#' 
+#' The lenient Hispanic variable.
+#' 
+#' * Hispanic if ANY non-missing values of `language_cd`, `e_lng`, `n_hisp`,
+#'   `e_hisp`, and `e_eth` have value `Hispanic`
+#' * Unknown if ALL non-missing values of `language_cd`, `e_lng`, `n_hisp`,
+#'   `e_hisp`, and `e_eth` are unanimous for `Unknown` 
+#' * non-Hispanic if any other result
 #' 
 # descriptive plots ------------------------------------------------------------
 #' ## Descriptive Plots (Preliminary)
@@ -805,14 +869,14 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'         are right now as it happens, but nothing enforces that.
 #' * TODO: Create combined (if applicable) variables for each of the following:
 #'     * ~~Initial diagnosis~~
-#'     * ~~Surgery~~ _pending additional variables from next data pull_
-#'     * Re-ocurrence
-#'     * _Last follow-up ?_
-#'     * Death
+#'     * ~~Surgery~~ 
+#'     * ~~Re-ocurrence~~
+#'     * ~~_Last follow-up ?_~~
+#'     * ~~Death~~
 #'     * Strict Hispanic designator
 #'     * Lenient Hispanic designator
+#'     * NAACCR-only Hispanic designator
 #' * TODO: Clean up TNM variables, in consultation with domain expert (Peter?)
-#' * TODO: Create unified Hispanic indicators
 #' * TODO: Create access/quality variables including: number of visits per year, 
 #'         number of lab tests and imaging orders per visit, time spent with 
 #'         provider per visit
@@ -831,13 +895,15 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'     * Vitals (EMR) including: systolic and diastolic blood pressure, BMI
 #'     * income (Census)
 #'     * Miperamine, other anti-depressants
-#'     * Should use [`0580 Date of 1st Contact`](http://datadictionary.naaccr.org/default.aspx?c=10#580)
-#'       as the diagnosis date if earlier than `n_ddiag`!
-#'     * Surgery fields:
-#'         * [`1260 Date of Initial RX--SEER`](http://datadictionary.naaccr.org/default.aspx?c=10#1260)
-#'         * [`1270 Date of 1st Crs RX--CoC`](http://datadictionary.naaccr.org/default.aspx?c=10#1270)
-#'         * [`3170 RX Date--Most Defin Surg`](http://datadictionary.naaccr.org/default.aspx?c=10#3170)
-#'     * Recurrence: [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880) 
+#'     * DONE: ~~Should use [`0580 Date of 1st Contact`](http://datadictionary.naaccr.org/default.aspx?c=10#580)
+#'       as the diagnosis date if earlier than `n_ddiag`!~~ _Actually, evidence 
+#'       that it's neither a diagnosis date nor a first contact. Not known what
+#'       it is._
+#'     * DONE: ~~Surgery fields:~~
+#'         * ~~[`1260 Date of Initial RX--SEER`](http://datadictionary.naaccr.org/default.aspx?c=10#1260)~~
+#'         * ~~[`1270 Date of 1st Crs RX--CoC`](http://datadictionary.naaccr.org/default.aspx?c=10#1270)~~
+#'         * ~~[`3170 RX Date--Most Defin Surg`](http://datadictionary.naaccr.org/default.aspx?c=10#3170)~~
+#'     * DONE: ~~Recurrence: [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880) ~~
 #' * TODO: In next re-run of query...
 #'     * Follow up re additional patient linkages, more recent NAACCR data
 #'     * education (Census, not ready, ETL needs fixing)
