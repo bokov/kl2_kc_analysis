@@ -7,7 +7,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -167,10 +167,10 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' ### How well do marital statuses match between NAACCR and the EMR?
 #' 
 #' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
-#' record completeness. Counts on the diagonal are the ones that agree between 
-#' the two sources, the off-diagonals disagree.
+#' record completeness. Counts in bold are ones that agree between the two 
+#' sources.
 with(dat2,table(e_marital,n_marital,useNA='if')) %>% addmargins %>%
-  pander(emphasize.strong.cells=cbind(2:9,1:8));
+  pander(emphasize.strong.cells=cbind(c(2:4,6:9),1:8));
 #' 
 #' ### How well do birthdates match between NAACCR and the EMR?
 #' 
@@ -216,14 +216,14 @@ dat0[!is.na(dat0[[cstatic_n_dob]]) &
 #' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
 #' record completeness.
 with(dat2,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
+  pander(emphasize.strong.cells=cbind(1:2,1:2));
 
 #' ### How well does race match up between the EMRs and NAACCR?
 #' 
 #' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
-#' record completeness.
+#' record completeness. Bolded values are those which agree between sources.
 with(dat2,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4)));
+  pander(emphasize.strong.cells=cbind(1:6,1:6));
 
 #' ### How well does Hispanic ethnicity match up between the EMRs and NAACCR?
 #' 
@@ -234,14 +234,14 @@ with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                               ,.default='Hispanic')
                 ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
   `[`(,c('Non_Hispanic','Hispanic')) %>%
-  addmargins() %>% pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
+  addmargins() %>% pander(emphasize.strong.cells=cbind(1:2,1:2));
 #' More detailed ethnicity breakdown...
 #' 
 #' Again columns represent EMR and rows represent NAACCR. Whole dataset, not 
 #' filtered for record completeness.
 with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
   `[`(,c('Non_Hispanic','Hispanic')) %>%
-  addmargins() %>% pander(emphasize.strong.cells=as.matrix(expand.grid(1:6,1:2)));
+  addmargins() %>% pander(emphasize.strong.cells=cbind(1:7,c(1,2,2,2,2,2,2)));
 
 # tableone ---------------------------------------------------------------------
 #' ## Cohort Characterization
@@ -503,9 +503,19 @@ par(xaxt='n');
 abline(h=0,col='blue');
 .eplot_surg0$icd <- apply(.eplot_surg0[,v(c_nephx,xdat1)[1:5]],1,min,na.rm=T);
 .eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
-lines(.eplot_surg0$icd,type='s',col='purple');
-#' Here we highlight in gray the patients for which one or more EMR codes are 
-#' recorded prior to `n_dsurg`. Not very many.
+lines(.eplot_surg0$icd,type='s',col='#FF00FF50');
+with(.eplot_surg0,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
+#' In the above plot the `r sum(with(.eplot_surg0,icd<n_dsurg),na.rm=T)` 
+#' patients for which one or more EMR codes are recorded prior to `n_dsurg` are
+#' highlighted in yellow.
+#' 
+#' 
+#' 
+#' In the below plot the `n_rx1270` (green) and `n_rx1260` (cyan) events are 
+#' superimposed over time until `n_dsurg` from above (but EMR codes for 
+#' nephrectomy are omitted on this one). The `n_rx1270` and `n_rx1260` variables 
+#' trend toward occurring earlier than `n_dsurg`.
+par(xaxt='n');
 .eplot_surg0 <- subset(xdat1,patient_num %in% 
                          kcpatients_surgreason$`Surgery Performed`) %>% 
   mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
@@ -513,29 +523,18 @@ lines(.eplot_surg0$icd,type='s',col='purple');
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=0,col='blue');
-.eplot_surg0$icd <- apply(.eplot_surg0[,v(c_nephx,xdat1)[1:5]],1,min,na.rm=T);
-.eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
-lines(.eplot_surg0$icd,type='s',col='purple');
-with(.eplot_surg0,abline(v=which(icd<n_dsurg),col='#00000020',lwd=5));
-#' Now here are the `n_rx1270` (green) and `n_rx1260` (cyan) events superimposed
-#' on the same plot. They trend toward occurring earlier than `n_dsurg`.
-.eplot_surg0 <- subset(xdat1,patient_num %in% 
-                         kcpatients_surgreason$`Surgery Performed`) %>% 
-  mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
-  event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
-             ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
-             ,ylim=c(-10,60));
-abline(h=0,col='blue');
-lines(.eplot_surg0$n_rx1270,col='green',type='s');
-lines(.eplot_surg0$n_rx1260,col='cyan',type='s');
-#' Here is the same plot but for patients who do _not_ have a `n_surgreason` 
-#' code equal to `Surgery Performed`. Looks like there are many `n_rx1270`
-#' and `n_rx1260` events, but only a small number of `n_dsurg` (black) and 
-#' `n_rx3170` (red) and as before, they track each other perfectly. This 
-#' together with NAACCR data dictionary suggests that `n_rx3170` is the 
-#' legitimate principal surgery date in close agreement with `n_dsurg`, so 
-#' perhaps missing `n_rx3170` values can be filled in from `n_dsurg`. However 
-#' `n_rx1270` and `n_rx1260` may be non-primary surgeries or other events.
+lines(.eplot_surg0$n_rx1270,col='#00FF0060',type='s');
+lines(.eplot_surg0$n_rx1260,col='#00FFFF60',type='s');
+#' Furthermore, it can be seen from an equivalent plot but for patients who do 
+#' _not_ have a `n_surgreason` code equal to `Surgery Performed` the there are 
+#' many `n_rx1270` and `n_rx1260` events, but only a small number of `n_dsurg` 
+#' (black) and #' `n_rx3170` (red). The `n_dsurg` and `n_rx3170` that do occur 
+#' track each other perfectly. Together with NAACCR data dictionary's 
+#' description suggests that `n_rx3170` is the legitimate principal surgery date 
+#' in close agreement with `n_dsurg`, so perhaps missing `n_rx3170` values can 
+#' be filled in from `n_dsurg`. However `n_rx1270` and `n_rx1260` seem like they
+#' could be non-primary surgeries or other events occurring in the course of 
+#' treatment.
 par(xaxt='n');
 .eplot_surg1 <- subset(xdat1,!patient_num %in% 
                          kcpatients_surgreason$`Surgery Performed`) %>% 
@@ -546,10 +545,10 @@ par(xaxt='n');
 abline(h=0,col='blue');
 .eplot_surg1$icd <- apply(.eplot_surg1[,v(c_nephx,xdat1)[1:5]],1,min,na.rm=T);
 .eplot_surg1$icd[is.infinite(.eplot_surg1$icd)]<-NA;
-lines(.eplot_surg1$icd,type='s',col='purple');
-with(.eplot_surg1,abline(v=which(icd<n_dsurg),col='#00000020',lwd=5));
-lines(.eplot_surg1$n_rx1270,col='green',type='s',lty=3);
-lines(.eplot_surg1$n_rx1260,col='cyan',type='s',lty=3);
+lines(.eplot_surg1$icd,type='s',col='#FF00FF50');
+with(.eplot_surg1,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
+lines(.eplot_surg1$n_rx1270,col='#00FF0060',type='s');
+lines(.eplot_surg1$n_rx1260,col='#00FFFF60',type='s');
 #' Here is a table of every NAACCR surgery event variable versus the 
 #' `n_surgreason` variable:
 lapply(v(c_nephx,xdat1)[6:9],function(ii) 
@@ -568,7 +567,7 @@ lapply(v(c_nephx,xdat1)[6:9],function(ii)
 #' and `n_dsurg`) variable as above with the additional criterion that only 
 #' cases where the `n_surgreason` is `Surgery Performed` be included.
 #' 
-#' Might need to rework `t_priorcond`
+#' TODO: Might need to rework `t_priorcond`
 #' 
 # re-occurrence ================================================================
 #' ### Re-occurrence
@@ -605,63 +604,51 @@ t_recur_drecur <- with(dat2,table(a_n_recur
 #' also have a `Recurred` status for `a_n_recur` (with `r t_recur_drecur['Recurred','FALSE']`
 #' missing an `n_drecur`). The only exception is `r t_recur_drecur['Never disease-free','TRUE']`
 #' `Never diease-free` patient that had an `n_drecur`.
-pander(t_recur_drecur);
+t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>% 
+  pander(emphasize.strong.cells=cbind(2:5,c(1,1,2,1)));
 #' This explains why  `n_drecur` values are relatively rare in the data-- they 
 #' are specific to actual recurrences which are not a majority of the cases. 
 #' This is a good from the standpoint of data consistency. Now we need to see to 
-#' what extent the EMR codes agree with this. We will highlight the recurred 
-#' patients.
+#' what extent the EMR codes agree with this. In the below plot, the black line
+#' represents months elapsed between surgery and the first occurence of an EMR 
+#' code for secondary tumors, if any. The horizontal red line segments indicate 
+#' individual NAACCR dates of recurrence, `n_drecur`. The blue horizontal line 
+#' is the date of surgery. Patients whose status (`n_rectype`) is `Disease-free`
+#' are highlighted in green, `Never disease-free` in yellow, and `Recurred` in 
+#' red.
 #' 
+par(xaxt='n');
 .eplot_recur0 <-subset(xdat1,patient_num %in% 
                          setdiff(kcpatients_surgreason$`Surgery Performed`
                                  ,kcpatients.naaccr_dupe)) %>% 
   mutate(.,rec=na_if(apply((.)[,v(c_recur)[-15]],1,min,na.rm=T),Inf)) %>% 
   event_plot('rec',start_event = 'n_dsurg',type='s',ltys=c(1,1)
+             ,main='Time from Surgery to Recurrence'
+             ,ylab='Months Since Surgery'
+             ,xlab='Patients, sorted by time to first mets according to EMR'
              ,tunit = 'month');
 abline(h=c(-3,0,3),lty=c(3,1,3),col='blue');
 # Highlight patients with recurrence
 with(.eplot_recur0,abline(v=which(patient_num %in% kcpatients_rectype$Recurred)
-                          ,col='#FF000020',lwd=2.5));
+                          ,col='#FF000020',lwd=2));
 # ...never disease-free
 with(.eplot_recur0,abline(v=which(patient_num %in% 
                                     kcpatients_rectype$`Never disease-free`)
-                          ,col='#FFFF0020',lwd=2.5));
+                          ,col='#FFFF0060',lwd=2));
 # ... and disease-free
 with(.eplot_recur0,abline(v=which(patient_num %in% 
                                     kcpatients_rectype$`Disease-free`)
-                          ,col='#00FF0020',lwd=2.5));
+                          ,col='#00FF0020',lwd=2));
 points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
 #' The green highlights are _mostly_ where one would expect, but why are there
-#' so many on the (left) side that does have EMR codes for secondary tumors? Did
-#' they present with secondary tumors to begin with but remain disease free 
-#' after surgery? Removing the `_inactive` versions of the secondary tumor codes
-#' does not make the left-side green patients go away.
-#' 
-#' In the below plot, the white line is the time of `n_ddiag`. The black line is 
-#' the time from `n_ddiag` until `n_dsurg`. The red line is `n_lc` (last contact).
-#' The blue line is the minimum of several recurrence dates. Most of the time
-#' the recurrence date seems to be bounded by the last contact (`n_lc`) and 
-#' surgery `n_dsurg` dates. It is almost always bounded below by the diagnosis
-#' date `n_ddiag`.
-#+ event_plot_diag2surg,cache=TRUE
-.eventplot01 <-event_plot(subset(xdat1,!patient_num %in% kcpatients.naaccr_dupe)
-                          ,'n_dsurg','n_lc',start_event = 'n_ddiag'
-                          ,ltys = c(1,1));
-abline(h=0,col='white');
-lines(do.call(pmin,c(.eventplot01[,v(c_recur,.eventplot01)],na.rm=T)),col='blue'
-      ,lty=3);
-#' Here's something wierd though-- the date of first contact `n_fc` (red) is 
-#' almost always between last contact `n_lc` (black) and diagnosis `n_ddiag` 
-#' (white), though diagnosis is usually on a biopsy sample and that's why it's 
-#' dated as during or after surgery we thought. If first contact is some kind of 
-#' event after first diagnosis, what is it?
-#+ event_plot_diag2lc,cache=TRUE
-.eventplot02 <-event_plot(subset(xdat1,!patient_num %in% kcpatients.naaccr_dupe)
-                          ,'n_lc','n_fc',start_event = 'n_ddiag'
-                          ,ltys = c(1,1));
-abline(h=0,col='white');
-#' Surgery `n_dsurg` seems to happen in significant amounts both before and 
-#' after first contact `n_fc`.
+#' `r nrow(subset(.eplot_recur0,patient_num %in% kcpatients_rectype[['Disease-free']] & !is.na(rec)))`
+#' patients on the left side of the plot that have EMR codes for secondary 
+#' tumors? Also, there are `r nrow(subset(.eplot_recur0,rec<0))` patients with 
+#' metastatic tumor codes earlier than `n_dsurg` and of those 
+#' `r nrow(subset(.eplot_recur0,rec< -3))` occur more than 3 months prior to 
+#' `n_dsurg`. Did they present with secondary tumors to begin with but remained 
+#' disease free after surgery? Removing the `_inactive` versions of the 
+#' secondary tumor codes does not make the left-side green patients go away.
 #' 
 #' 
 # Not ready for production code to plot ranked events...
@@ -681,7 +668,10 @@ abline(h=0,col='white');
 #'  
 # death ========================================================================
 #' ### Death
-#'    
+#' 
+.eplot_death <- event_plot(xdat1,'n_lc','n_ddiag',start_event = 'n_dsurg'
+                           ,tunit = 'mon',ltys = c(0,1),type='s');
+
 # hispanic ethnicity ===========================================================
 #' ### Whether or not the patient is Hispanic
 #' 
@@ -934,6 +924,21 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
 #' prior to `n_ddiag` and those will exclude far fewer records than suggested 
 #' by this table_ .
 #' 
+#' ### What is going on with the first contact variable?
+#' Wierd observation-- the date of first contact `n_fc` (red) is 
+#' almost always between last contact `n_lc` (black) and diagnosis `n_ddiag` 
+#' (white), though diagnosis is usually on a biopsy sample and that's why it's 
+#' dated as during or after surgery we thought. If first contact is some kind of 
+#' event after first diagnosis, what is it?
+#+ event_plot_diag2lc,cache=TRUE
+.eplot_fc <-event_plot(subset(xdat1,!patient_num %in% kcpatients.naaccr_dupe)
+                       ,'n_lc','n_fc',start_event = 'n_ddiag'
+                       ,ltys = c(1,1));
+abline(h=0,col='white');
+#' 
+#' Surgery `n_dsurg` seems to happen in significant amounts both before and 
+#' after first contact `n_fc`.
+
 #' ### Which variables are near-synonymous?
 #' 
 #' Some variables will, despite what they sound like will be clearly unrelated 
