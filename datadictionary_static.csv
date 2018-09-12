@@ -139,7 +139,7 @@
 "_hshld_ptnts","Median Household Income ACS 2016[727,551 facts; 727,551 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,,"TRUE",
 "_opd_anlgscs","[CN101] OPIOID ANALGESICS",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
 "_ys","Yes","Smoking",,,,"TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
-"_srgcl_onclg","Surgical Oncology",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
+"_srgcl_onclg","Surgical Oncology",,"e_surgonc","Visit to Surgical Oncology",,,"FALSE","FALSE","FALSE","TRUE",,,"TRUE",,,,"TRUE",,,,"TRUE",
 "_rdw_rbc_at_rt_788_0_num","RDW RBC Auto-Rto (788-0)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
 "_rdw_rbc_at_rt_788_0_unit","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
 "_rdw_rbc_at_rt_788_0_info","RDW RBC Auto-Rto (788-0)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
