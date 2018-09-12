@@ -980,3 +980,18 @@ event_plot <- function(data,reference_event,secondary_event=NA
                                     ,type=type,lty=ltys[2]);
   return(data);
 }
+
+# take a vector with possibly missing or varying values, and standardize to one
+# of several pre-defined values in order of priority
+adjudicate_levels <- function(xx,levs=list(),...,DEFAULT=NA,MISSING=NA){
+  xx <- unique(na.omit(xx));
+  # If there are no values, return the default value
+  if(length(xx)==0) return(MISSING);
+  # otherwise, step through the levs list of values and return the first matched
+  # note that it's okay for levs to contain name-value pairs like FOO='FOO'
+  ll <- names(levs);
+  while(length(ll)>0){
+    if(xx %in% levs[[ll[1]]]) return(ll[1]) else (ll<-ll[-1]);
+  }
+  if(is.na(DEFAULT)) return(tail(xx,1)) else return(DEFAULT);
+}
