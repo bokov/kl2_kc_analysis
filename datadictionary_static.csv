@@ -110,7 +110,7 @@
 "_hspnc_or_ltn","Hispanic or Latino",,"e_hisp","Hispanic Origin, i2b2","TRUE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","FALSE","FALSE","FALSE","FALSE","TRUE",
 "_dbts_mlts","E08-E13 Diabetes mellitus (E08-E13)",,"e_dm_i10","DM ICD10, i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",
 "_dbts_mlts_inactive","E08-E13 Diabetes mellitus (E08-E13)",,"e_dm_i10_i","History of DM, ICD10 i2b2","FALSE","TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",
-"_exprd__ptnts","Expired[7,579 facts; 7,544 patients]","Discharge Disposition","e_dscdeath",,,"TRUE","FALSE","FALSE","FALSE","TRUE",,,,,"FALSE",,,,,,"TRUE",
+"_exprd__ptnts","Expired[7,579 facts; 7,544 patients]","Discharge Disposition","e_dscdeath",,,"TRUE","FALSE","FALSE","FALSE","TRUE",,,,,"TRUE",,,,,,"TRUE",
 "_frctn_ptnts","Fraction on SSI[747,013 facts; 747,013 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,,"TRUE",
 "_wlfr__ptnts","Fraction on Welfare[747,013 facts; 747,013 patients]",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,,"TRUE",
 "_dbts","Diabetes","Family history",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,,"TRUE",
