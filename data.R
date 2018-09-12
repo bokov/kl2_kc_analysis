@@ -236,6 +236,33 @@ dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race)) %>%
   factor(levels=levels(dat1$race_cd));
 #dat1$sex_cd <- factor(dat1$sex_cd,levels=levels(dat1$n_sex));
 dat1$n_sex <- factor(dat1$n_sex,levels=c('1','2'),labels=c('m','f'));
+# hispanic strict and lenient --------------------------------------------------
+formals(adjudicate_levels)$levs <- list(Hispanic='Hispanic',`non-Hispanic`='non-Hispanic');
+formals(adjudicate_levels)$DEFAULT <- 'Unknown';
+.tmp_hspvar <- transmute(
+  dat1
+  ,temp_e_eth=adjudicate_levels(
+    e_eth,levs=list(Hispanic='hispanic'
+                    ,`non-Hispanic`=c('arab-amer','non-hispanic')))
+  ,temp_e_hisp=if(any(e_hisp)) 'Hispanic' else NA
+  ,temp_n_hisp=recode(n_hisp,Non_Hispanic='non-Hispanic',Unknown='Unknown'
+                      ,.default='Hispanic') %>% adjudicate_levels
+  ,temp_language_cd=recode(language_cd,Spanish='Hispanic',Other='non-Hispanic'
+                           ,.default='Unknown') %>% adjudicate_levels
+  ,temp_e_lng=gsub('^.*spanish.*$','Hispanic',e_lng,ignore.case = T) %>% 
+    gsub('^.*(english|sign language|unknown).*$','Unknown',.,ignore.case = T) %>% 
+    ifelse((.)%in%c('Hispanic','Unknown',NA),.,'non-Hispanic') %>% 
+    adjudicate_levels
+  );
+
+dat1[,c('a_hsp_broad','a_hsp_strict')] <- apply(
+  .tmp_hspvar[,-1],1,function(xx) c(
+    broad=if(any(xx=='Hispanic',na.rm=T)) {
+      'Hispanic' } else if(all(xx=='Unknown',na.rm=T)) 'Unknown' else {
+        'non-Hispanic'}
+    ,strict=if(all(xx[1:3]=='Hispanic',na.rm=T)&&!any(xx[4:5]=='non-Hispanic',na.rm=T)) {
+      'Hispanic' } else if(all(xx[c(1,3)]=='non-Hispanic',na.rm=T)&&!any(xx[4:5]=='Hispanic',na.rm=T)){
+        'non-Hispanic'} else 'Unknown')) %>% t %>% data.frame;
 
 kcpatients.pre_existing <- subset(dat1,a_thdiag>=0&a_tdiag<0)$patient_num %>% unique;
 
