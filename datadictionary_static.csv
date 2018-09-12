@@ -166,3 +166,5 @@
 "_fncl_utmd","Financial Class (UTMed Only)",,,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","TRUE","FALSE","FALSE","TRUE",
 "e_death",,,"e_death",,,,,,,"TRUE",,,,,"TRUE",,,,,,,
 "a_n_recur",,,"a_n_recur",,,,,,,,,,,,,"TRUE",,,,,,
+"a_hsp_broad",,"Code patients as Hispanic if there is even the slightest evidence they are, otherwise assume they re non-Hispanic, and only if there is really zero evidence either way return Unknown","a_hsp_broad",,"TRUE",,,,,,,,,,,"TRUE",,,,,,
+"a_hsp_strict",,"Code patients as Hispanic or non-Hispanic only if all available evidence is unanimous, otherwise err on the side of Unknown","a_hsp_strict",,"TRUE",,,,,,,,,,,"TRUE",,,,,,
