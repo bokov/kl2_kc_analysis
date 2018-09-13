@@ -83,6 +83,7 @@ for(ii in v(c_sortlabels,retcol='varname')){
 dat1$e_marital <- gsub('^\\{\"cc\":\"DEM\\|MARITAL:','',dat1$e_marital) %>%
   gsub('\",\"ix.*$','',.) %>% factor;
 #' Simplified recurrence type
+#' RECURRENCE VARIABLE
 dat1$a_n_recur <- factor(dat1$n_rectype);
 levels(dat1$a_n_recur)[!levels(dat1$a_n_recur) %in% 
                          c('Unknown if recurred or was ever gone'
