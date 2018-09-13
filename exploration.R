@@ -867,6 +867,8 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #  A2 next steps ---------------------------------------------------------------
 #' ## Appendix II: Next steps
 #' 
+#' * TODO: Update and clean up the plots, including labels.
+#' * TODO: Update and streamline the narrative.
 #' * TODO: Prior to doing the above `tte()` put in a safeguard to make
 #'         sure all the `c_tte` variables are `TRUE/FALSE` only. They
 #'         are right now as it happens, but nothing enforces that.
@@ -897,7 +899,7 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'         * ~~[`1260 Date of Initial RX--SEER`](http://datadictionary.naaccr.org/default.aspx?c=10#1260)~~
 #'         * ~~[`1270 Date of 1st Crs RX--CoC`](http://datadictionary.naaccr.org/default.aspx?c=10#1270)~~
 #'         * ~~[`3170 RX Date--Most Defin Surg`](http://datadictionary.naaccr.org/default.aspx?c=10#3170)~~
-#'     * DONE: ~~Recurrence: [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880) ~~
+#'     * DONE: ~~Recurrence: [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880)~~
 #' * TODO: In a future re-run of query...
 #'     * Follow up re additional patient linkages, more recent NAACCR data
 #'     * education (Census, not ready, ETL needs fixing)
@@ -909,7 +911,7 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'     * ~~Death~~ `a_tdeath`, `a_cdeath`
 #'     * ~~Strict Hispanic designator~~ `a_hsp_strict`
 #'     * ~~Lenient Hispanic designator~~ `a_hsp_broad`
-#'     * NAACCR-only Hispanic designator `a_hsp_naaccr`
+#'     * ~~NAACCR-only Hispanic designator~~ `a_hsp_naaccr`
 #' * DONE: ~~Verify that the [ETL](http://www.hostedredmine.com/issues/719444#note-11) 
 #'         gets `start_date` for `1770 Cancer Status` from 
 #'         [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1770)~~
