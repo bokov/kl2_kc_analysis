@@ -532,9 +532,21 @@ clearenv <- function(env=.GlobalEnv) rm(list=setdiff(ls(all=T,envir=env),'cleare
 #' 
 fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
                ,tooltip='',class='fl'
-               ,template="<a href='%2$s' class='%3$s' title='%4$s'>%1$s</a>"
+               ,template='[%1$s]: %2$s "%4$s"\n'
+               # Turns out that the below template will generate links, but they
+               # only render properly for HTML output because pandoc doesn't 
+               # interpret them. However, if we use the markdown implicit link
+               # format (https://pandoc.org/MANUAL.html#reference-links) we 
+               # don't have to wrap links in anything, but we _can_ use fs()
+               # with the new template default above to generate a block of 
+               # link info all at once in the end. No longer a point in using
+               # the fs_reg feature for this case, the missing links will be
+               # easy to spot in the output hopefully
+               #,template="<a href='%2$s' class='%3$s' title='%4$s'>%1$s</a>"
                ,dct=dct0,col_tooltip='colname_long',col_class='',col_url=''
-               ,col_text='',match_col='varname',fs_reg='fs_reg'
+               ,col_text='',match_col='varname',fs_reg=NULL
+               ,retfun=cat
+               #,fs_reg='fs_reg'
                ,...){
   # if a data dictionary is specified use that instead of the default values 
   # for arguments where the user has not explicitly provided values (if there
@@ -559,8 +571,9 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
   out <- sprintf(template,text,url,class,tooltip,...);
   # register each unique str called by fs in a global option specified by 
   # fs_register
-  do.call(options,setNames(list(union(getOption(fs_reg),str)),fs_reg));
-  return(out);
+  if(!is.null(fs_reg)) {
+    do.call(options,setNames(list(union(getOption(fs_reg),str)),fs_reg));}
+  retfun(out);
 }
 #' Plots in the style we've been doing (continuous y, discrete x and optionally z)
 #' 
