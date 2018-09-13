@@ -528,6 +528,41 @@ cte <- function(...,shift=1,fn=`+`) fn(sign(pmax(...,na.rm=T)),shift);
 #' Delete all the junk in your environment, for testing
 clearenv <- function(env=.GlobalEnv) rm(list=setdiff(ls(all=T,envir=env),'clearenv'),envir=env);
 
+#' Fancy Span (or any other special formatting of strings)
+#' 
+fs <- function(str,text=str,url=paste0('#',gsub('[^a-z]','-',tolower(str)))
+               ,tooltip='',class='fl'
+               ,template="<a href='%2$s' class='%3$s' title='%4$s'>%1$s</a>"
+               ,dct=dct0,col_tooltip='',col_class='',col_url='',col_text=''
+               ,match_col='varname',fs_reg='fs_reg'
+               ,...){
+  # if a data dictionary is specified use that instead of the default values 
+  # for arguments where the user has not explicitly provided values (if there
+  # is no data dictionary or if the data dictionary doesn't have those columns,
+  # fall back on the default values)
+  if(is.data.frame(dct) && 
+     match_col %in% names(dct) &&
+     !all(is.na(dctinfo <- dct[dct[[match_col]]==str,][1,]))){
+    if(missing(tooltip) && 
+       length(dct_tooltip<-na.omit(dctinfo[[col_tooltip]]))==1) {
+      tooltip <- dct_tooltip;}
+    if(missing(text) && 
+       length(dct_text<-na.omit(dctinfo[[col_text]]))==1) {
+      text <- dct_text;}
+    if(missing(url) && 
+       length(dct_url<-na.omit(dctinfo[[col_url]]))==1) {
+      url <- dct_url;}
+    if(missing(class) && 
+       length(dct_class<-na.omit(dctinfo[[col_class]]))==1) {
+      class <- dct_class;}
+  }
+  out <- sprintf(template,text,url,class,tooltip,...);
+  # register each unique str called by fs in a global option specified by 
+  # fs_register
+  do.call(options,setNames(list(union(getOption(fs_reg),str)),fs_reg));
+  browser();
+  return(out);
+}
 #' Plots in the style we've been doing (continuous y, discrete x and optionally z)
 #' 
 #' Instead of creating new tables for 'All', just set xx=T
