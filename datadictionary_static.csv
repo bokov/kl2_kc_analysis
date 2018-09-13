@@ -153,7 +153,7 @@
 "_rdw_generic_kuh_component_id_5629_num","RDW(#5629)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
 "_rdw_generic_kuh_component_id_5629_unit","RDW(#5629)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
 "_rdw_generic_kuh_component_id_5629_info","RDW(#5629)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
-"_urlg","Urology",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
+"_urlg","Urology",,"e_urology","Visit to a Urology clinic",,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
 "_tfrnl_mg_p_tbs","TOFRANIL 10 MG PO TABS","Combine with imipramine",,,,"TRUE","FALSE","FALSE","FALSE",,,,,,,,,,,,,"TRUE"
 "_pltlt_cnt_generic_kuh_component_id_5341_num","PLATELET COUNT(#5341)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
 "_pltlt_cnt_generic_kuh_component_id_5341_unit","PLATELET COUNT(#5341)",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
