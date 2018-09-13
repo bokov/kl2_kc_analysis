@@ -1,0 +1,102 @@
+/*
+ * I add this to html files generated with pandoc.
+ * From original CSS file written by Pascal Hertleif
+ * https://gist.github.com/killercup/5917178/40840de5352083adb2693dc742e9f75dbb18650f
+ */
+
+html {
+  font-size: 100%;
+  overflow-y: scroll;
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+body {
+  color: #444;
+  font-family: Georgia, Palatino, 'Palatino Linotype', Times, 'Times New Roman', serif;
+  font-size: 12.5px;
+  /*
+  line-height: 1.7;
+  padding: 1em;
+  margin: auto;
+  max-width: 42em;
+  */
+  background: #fefefe;
+  text-align: justify;
+  text-justify: inter-character;
+}
+
+a {
+  color: #0645ad;
+  text-decoration: none;
+}
+
+a:visited {
+  color: #0b0080;
+}
+
+a:hover {
+  color: #06e;
+}
+
+a:active {
+  color: #faa700;
+}
+
+a:focus {
+  outline: thin dotted;
+}
+
+*::-moz-selection {
+  background: rgba(255, 255, 0, 0.3);
+  color: #000;
+}
+
+*::selection {
+  background: rgba(255, 255, 0, 0.3);
+  color: #000;
+}
+
+a::-moz-selection {
+  background: rgba(255, 255, 0, 0.3);
+  color: #0645ad;
+}
+
+a::selection {
+  background: rgba(255, 255, 0, 0.3);
+  color: #0645ad;
+}
+
+.title, .author, .date { 
+  text-align: center;
+}
+
+h1,h2,h3,h4 {
+  font-weight: 500;
+}
+
+h1 {
+  font-size: 2.3em;
+}
+
+h2 {
+  font-size: 1.8em;
+}
+
+h3 {
+  font-size: 1.4em;
+}
+
+h4 {
+  font-size: 1.2em;
+}
+
+h5 {
+  font-size: 1em; 
+  font-style: italic;
+}
+
+h6 {
+  font-size: 0.9em; 
+  font-style: italic;
+}
