@@ -854,7 +854,7 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death))
 #   summarise_all(function(xx) last(na.omit(xx))) %>%
 #   survfit(Surv(a_tsurg,a_cdeath)~1,.) %>% 
 #   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving');
-#' ---
+#' ***
 # A1 stage/grade ---------------------------------------------------------------
 #' ## Appendix I: Example of stage/grade data
 #' 
@@ -870,7 +870,7 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
   # the extra quotation marks
   `[`(1:15,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
   pander();
-#' ---
+#' ***
 
 #  A2 next steps ---------------------------------------------------------------
 #' ## Appendix II: Next steps
@@ -946,7 +946,7 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'     * ~~HbA1c~~
 #'     * ~~Family history of diabetes and cancer~~
 #' 
-#' ---
+#' ***
 #' 
 # A3 supplementary tables ------------------------------------------------------
 #' ## Appendix III: Supplementary tables
@@ -1021,7 +1021,7 @@ abline(h=0,col='white');
 #' 
 #' Surgery `n_dsurg` seems to happen in significant amounts both before and 
 #' after first contact `n_fc`.
-
+#' 
 #' ### Which variables are near-synonymous?
 #' 
 #' Some variables will, despite what they sound like will be clearly unrelated 
@@ -1116,7 +1116,7 @@ heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = T,margins=c(10,10)
 #' [surgery](#surgery-conclusion) sections in the main document above. This is
 #' just for historic reference.
 #' 
-#' ---
+#' ***
 #' 
 # A4 variables -----------------------------------------------------------------
 #'
@@ -1127,6 +1127,7 @@ heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = T,margins=c(10,10)
   apply(1,function(xx) fs(xx[1],tooltip=xx[2]));
 #' Here are descriptions of the variables referenced in this document.
 #+ readablefootnotes, results='asis'
+cat('***\n');
 .junk <- subset(dct0,!is.na(varname)
                 ,select = c('varname','colname_long','comment','col_url')) %>% 
   apply(1,function(xx) cat(
