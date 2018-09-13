@@ -7,7 +7,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-options(gitstamp_prod=F);
+#options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -779,28 +779,27 @@ subset(dat1
        # (according to NAACCR) and on or before the day of surgery (==0) or
        # last follow-up (<0), and also limit the patients to ones randomly 
        # assigned to the training set so we're not "peeking at the answers"
-       ,n_ddiag>=0 & n_dsurg<=0 & 
+       ,a_tdiag>=0 & a_tsurg<=0 & 
          #a_hsp_broad!='Unknown' &
-         patient_num %in% pat_samples$train)[,c('patient_num','n_ddiag'
-                                                ,'n_dsurg','n_hisp'
-                                                ,'a_hsp_broad'
-                                                ,'a_hsp_strict')] %>% 
+         patient_num %in% pat_samples$train)[,c(
+           'patient_num','n_ddiag','n_dsurg','a_tdiag','a_tsurg'
+           ,'n_hisp','a_hsp_broad','a_hsp_strict')] %>% 
   # take the last non-missing event from each column
   summarise_all(function(xx) {
     if(is.logical(xx)) any(xx) else (last(na.omit(xx)))}) %>% 
   # convert time to weeks, and truncate on last followup period
-  mutate(n_ddiag=n_ddiag/7,n_ddiag=pmin(n_ddiag,52.179*3)
+  mutate(a_tdiag=a_tdiag/7,a_tdiag=pmin(a_tdiag,52.179*3)
          # we're setting the follow-up time to one year, and censoring any 
          # surgeries that happened more than a year from the initial diagnosis
          # (or that never happened, n_dsurg!=0)
-         ,cen=n_ddiag<52.179*3&n_dsurg==0
+         ,cen=a_tdiag<52.179*3&a_tsurg==0
          # simplifying the 'n_hisp' variable
          ,n_hisp=recode(n_hisp,Non_Hispanic='Non_Hispanic',Unknown='Unknown'
                         ,.default='Hispanic')
          ,predictor=a_hsp_broad) %>% 
   subset(predictor!='Unknown') %>%
   # fitting a survival curve
-  survfit(Surv(n_ddiag,cen)~predictor,.) %>% 
+  survfit(Surv(a_tdiag,cen)~predictor,.) %>% 
   # generating a plot for the survival curve
   autoplot(mark.time=T
            ,xlab='Weeks Since Diagnosis',ylab='% Not Undergone Surgery'
@@ -871,15 +870,6 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #' * TODO: Prior to doing the above `tte()` put in a safeguard to make
 #'         sure all the `c_tte` variables are `TRUE/FALSE` only. They
 #'         are right now as it happens, but nothing enforces that.
-#' * TODO: Create combined (if applicable) variables for each of the following:
-#'     * ~~Initial diagnosis~~
-#'     * ~~Surgery~~ 
-#'     * ~~Re-ocurrence~~
-#'     * ~~_Last follow-up ?_~~
-#'     * ~~Death~~
-#'     * Strict Hispanic designator
-#'     * Lenient Hispanic designator
-#'     * NAACCR-only Hispanic designator
 #' * TODO: Clean up TNM variables, in consultation with domain expert (Peter?)
 #' * TODO: Create access/quality variables including: number of visits per year, 
 #'         number of lab tests and imaging orders per visit, time spent with 
@@ -908,9 +898,18 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'         * ~~[`1270 Date of 1st Crs RX--CoC`](http://datadictionary.naaccr.org/default.aspx?c=10#1270)~~
 #'         * ~~[`3170 RX Date--Most Defin Surg`](http://datadictionary.naaccr.org/default.aspx?c=10#3170)~~
 #'     * DONE: ~~Recurrence: [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880) ~~
-#' * TODO: In next re-run of query...
+#' * TODO: In a future re-run of query...
 #'     * Follow up re additional patient linkages, more recent NAACCR data
 #'     * education (Census, not ready, ETL needs fixing)
+#' * DONE: ~~Create combined (if applicable) variables for each of the following:~~
+#'     * ~~Initial diagnosis~~ `a_tdiag`, `a_cdiag`
+#'     * ~~Surgery~~ `a_tsurg`, `a_csurg`
+#'     * ~~Re-ocurrence~~ `a_trecur`, `a_crecur`
+#'     * ~~_Last follow-up ?_~~ 
+#'     * ~~Death~~ `a_tdeath`, `a_cdeath`
+#'     * ~~Strict Hispanic designator~~ `a_hsp_strict`
+#'     * ~~Lenient Hispanic designator~~ `a_hsp_broad`
+#'     * NAACCR-only Hispanic designator `a_hsp_naaccr`
 #' * DONE: ~~Verify that the [ETL](http://www.hostedredmine.com/issues/719444#note-11) 
 #'         gets `start_date` for `1770 Cancer Status` from 
 #'         [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1770)~~
