@@ -24,6 +24,7 @@ instrequire(c('compiler'                                   # just-in-time compil
              #,'lubridate'
              #,'ggplot2','grid','GGally'                  # plotting
              ,'ggfortify','heatmap3'
+             ,'stringi'                                   # string manipulation
              #,'survminer','gridExtra','scales'
              #,'stargazer','broom','janitor'              # table formatting
              ,'pander','tableone'
