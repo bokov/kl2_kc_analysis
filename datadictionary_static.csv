@@ -120,7 +120,7 @@
 "_dbts_mlts","Diabetes Mellitus I","Family history",,,,"TRUE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,,"TRUE",
 "_dbts_mlts_info","Diabetes Mellitus I",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,,"TRUE",
 "_ethnct","Ethnicity","EMR demographics","e_eth",,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,,"TRUE",
-"_hx_nphrctm","HX NEPHRECTOMY",,,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE","TRUE",,,,,,,,"TRUE",
+"_hx_nphrctm","HX NEPHRECTOMY","Surgical history",,,,"TRUE","FALSE","FALSE","FALSE","TRUE",,"TRUE","TRUE",,,,,,,,"TRUE",
 "_hgh_chlstrl","High Cholesterol","Family history",,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,,"TRUE",
 "_hgh_chlstrl_info","High Cholesterol",,,,"FALSE",,"FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,,"TRUE",
 "_ntrgn_bn_3094_0_num","UREA NITROGEN (BUN)(#6815)",,,,,,"FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
