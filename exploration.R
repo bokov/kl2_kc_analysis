@@ -2,12 +2,13 @@
 #' title: "Kidney Cancer Data Exploration (KL2 Aim 2)"
 #' author: "Alex F. Bokov"
 #' date: "08/09/2018"
+#' css: production.css
 #' ---
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -130,9 +131,9 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #'     * Answer: Cannot back-fill missing NAACCR values from EMR without chart
 #'       review and interviewing registrar but within NAACCR the following 
 #'       have emerged as the main variables:
-#'         1. [Diagnosis](#initial-diagnosis) = `n_ddiag` ([NAACCR `0390 Date of Diagnosis`](http://datadictionary.naaccr.org/default.aspx?c=10#390)
+#'         1. [Diagnosis](#initial-diagnosis) = [n_ddiag][] ([NAACCR `0390 Date of Diagnosis`](http://datadictionary.naaccr.org/default.aspx?c=10#390)
 #'         , no others)
-#'         2. [Surgery](#surgery-conclusion) = `n_dsurg` ([NAACCR `1200 RX Date--Surgery`](http://datadictionary.naaccr.org/default.aspx?c=10#1200)
+#'         2. [Surgery](#surgery-conclusion) = [n_dsurg][] ([NAACCR `1200 RX Date--Surgery`](http://datadictionary.naaccr.org/default.aspx?c=10#1200)
 #'            surgery, no others so far but may incorporate information from 
 #'            additional variables after next data update)
 #'         3. Recurrence and prior occurrence: _in progress_
@@ -257,16 +258,22 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
 #' 
 #+ TableOne, cache=TRUE
 dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
-        ,'a_n_race','a_n_dm','a_e_dm','a_e_kc','n_kcancer'))] %>% 
-  mutate(n_cstatus=ifelse(!patient_num%in%kcpatients.naaccr
-                          ,'No KC in NAACCR',as.character(n_cstatus)) %>%
-         factor(levels=c(levels(n_cstatus),'No KC in NAACCR'))
-         ,age_at_visit_days=age_at_visit_days/365.25
-         ,n_vtstat=n_vtstat!=-1
-         ,s_death=s_death!=-1
-         ,e_death=e_death!=-1
-         #,n_kcancer=n_kcancer>=0
-         ) %>%
+        ,'a_n_race','a_n_dm','a_e_dm','a_e_kc','n_kcancer','a_n_recur'))] %>% 
+  mutate(
+    a_n_recur=ifelse(!patient_num %in% kcpatients.naaccr | a_n_recur==''
+                     ,'NONE',as.character(a_n_recur)) %>% 
+      # changing the order of the levels so the NONE ends up on the right side
+      factor(.,levels=c(setdiff(unique(.),'NONE'),'NONE')) %>% 
+      recode(NONE='Not in NAACCR')
+    # n_cstatus=ifelse(!patient_num%in%kcpatients.naaccr
+    #                  ,'No KC in NAACCR',as.character(n_cstatus)) %>%
+    #   factor(levels=c(levels(n_cstatus),'No KC in NAACCR')),
+    ,age_at_visit_days=age_at_visit_days/365.25
+    ,n_vtstat=n_vtstat!=-1
+    ,s_death=s_death!=-1
+    ,e_death=e_death!=-1
+    #,n_kcancer=n_kcancer>=0
+    ) %>%
   rename(`Age at Last Contact`=age_at_visit_days
          ,`Sex, i2b2`=sex_cd
          ,`Sex, Registry`=n_sex
@@ -286,7 +293,8 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
          ,`Kidney Cancer, i2b2`=a_e_kc
          ,BMI=e_bmi) %>% select(-patient_num) %>%
   select(sort(names(.))) %>% 
-  CreateTableOne(vars = setdiff(names(.),'n_cstatus'),strata='n_cstatus',data = .,includeNA = T,test = F) %>% 
+  CreateTableOne(vars = setdiff(names(.),'a_n_recur'),strata='a_n_recur'
+                 ,data = .,includeNA = T,test = F) %>% 
   print(printToggle=F) %>% 
   set_rownames(gsub('^([A-Za-z].*)$','**\\1**'
                     ,gsub('   ','&nbsp;&nbsp;',rownames(.)))) %>%
@@ -1110,6 +1118,22 @@ heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = T,margins=c(10,10)
 #' 
 #' ---
 #' 
-# A4 audit ---------------------------------------------------------------------
-#' ## Appendix IV: Audit trail
+# A4 variables -----------------------------------------------------------------
+#'
+#' ## Appendix IV: Variable descriptions
+#' 
+#+ progfootnotes, results='asis'
+.junk <- subset(dct0,!is.na(varname),select = c('varname','colname_long')) %>% 
+  apply(1,function(xx) fs(xx[1],tooltip=xx[2]));
+#' Here are descriptions of the variables referenced in this document.
+#+ readablefootnotes, results='asis'
+.junk <- subset(dct0,!is.na(varname)
+                ,select = c('varname','colname_long','comment','col_url')) %>% 
+  apply(1,function(xx) cat(
+    '######',xx[1],'\n\n'
+    ,ifelse(length(na.omit(xx[2:3]))>0
+            ,iconv(paste(na.omit(xx[2:3]),collapse='; '),to='UTF-8',sub=''),'')
+    ,ifelse(is.na(xx[4]),'',paste('\n\nLink:',xx[4])),'\n\n***\n'));
+# A5 audit ---------------------------------------------------------------------
+#' ## Appendix V: Audit trail
 walktrail()[,-5] %>% pander(split.tables=600,,justify='left');
