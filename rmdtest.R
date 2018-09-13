@@ -2,7 +2,7 @@
 #' title: "RMD Sandbox"
 #' author: "Alex F. Bokov"
 #' date: "09/13/2018"
-#' css: fancy.css
+#' css: production.css
 #' ---
 #' 
 #' Note: in the YAML header, the `reference_docx` argument seems to get ignored
@@ -39,6 +39,31 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' This is a script for testing how how various RMarkdown features work without 
 #' the overhead of running one of the main scripts.
 #' 
+#' # Headers 
+#'
+#+ results='asis' 
+cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
+#' ## H2
+#' 
+#+ results='asis' 
+cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
+#' ### H3
+#' 
+#+ results='asis' 
+cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
+#' #### H4
+#' 
+#+ results='asis' 
+cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
+#' ##### H5
+#' 
+#+ results='asis' 
+cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
+#' ###### H6
+#' 
+#+ results='asis' 
+cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
+# links ------------------------------------------------------------------------
 #' # Embedding URLs
 #' 
 #' What happens if I embed explicit HTML... `r "<a href='https://rpubs.com/bokov/kidneycancer#consistency-checks'>This Is A Link</a>"`
