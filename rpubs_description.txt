@@ -1,0 +1,1 @@
+A regularly updated summary of preparing and verifying analytic variables from raw i2b2 data (containing de-identified linked NAACCR and EMR records along with population data from public sources). Eventually this will have the results of analysis as well.

@@ -66,3 +66,12 @@ Basic usage:
      newly-included variables. This script can be run to update the
      `datadictionary_static.csv` file so that new variables will now get added.
      It saves some but not quite all the drudgery of manually editing the CSV.
+
+Lessons learned
+     * Apparently the `dvipsnames` and `amssymb` LaTeX packages automagically
+     are available to RMarkDown, which means I can use fancy `\color{FOO}` type
+     directives as well as symbols like `\triangledown` inline without having to
+     do anything special. Might even get properly exported to Word docs...
+     * By default the `\footnotesize` LaTeX font modifier is not recognized, 
+     `\small` has little or no effect, but `\tiny` works.
+     
