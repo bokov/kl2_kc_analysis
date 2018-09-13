@@ -530,11 +530,11 @@ clearenv <- function(env=.GlobalEnv) rm(list=setdiff(ls(all=T,envir=env),'cleare
 
 #' Fancy Span (or any other special formatting of strings)
 #' 
-fs <- function(str,text=str,url=paste0('#',gsub('[^a-z]','-',tolower(str)))
+fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
                ,tooltip='',class='fl'
                ,template="<a href='%2$s' class='%3$s' title='%4$s'>%1$s</a>"
-               ,dct=dct0,col_tooltip='',col_class='',col_url='',col_text=''
-               ,match_col='varname',fs_reg='fs_reg'
+               ,dct=dct0,col_tooltip='colname_long',col_class='',col_url=''
+               ,col_text='',match_col='varname',fs_reg='fs_reg'
                ,...){
   # if a data dictionary is specified use that instead of the default values 
   # for arguments where the user has not explicitly provided values (if there
@@ -542,7 +542,7 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^a-z]','-',tolower(str)))
   # fall back on the default values)
   if(is.data.frame(dct) && 
      match_col %in% names(dct) &&
-     !all(is.na(dctinfo <- dct[dct[[match_col]]==str,][1,]))){
+     !all(is.na(dctinfo <- dct[which(dct[[match_col]]==str)[1],]))){
     if(missing(tooltip) && 
        length(dct_tooltip<-na.omit(dctinfo[[col_tooltip]]))==1) {
       tooltip <- dct_tooltip;}
@@ -560,7 +560,6 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^a-z]','-',tolower(str)))
   # register each unique str called by fs in a global option specified by 
   # fs_register
   do.call(options,setNames(list(union(getOption(fs_reg),str)),fs_reg));
-  browser();
   return(out);
 }
 #' Plots in the style we've been doing (continuous y, discrete x and optionally z)
