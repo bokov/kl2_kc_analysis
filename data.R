@@ -18,6 +18,8 @@ debug <- 1;
 l_truthy_default <- eval(formals(truthy.default)$truewords);
 #l_truthy_default <- c("Yes", l_truthy_default);
 l_missing <- c(NA,'Unknown','unknown','UNKNOWN');
+#' Default args
+formals(v)$dat <- as.name('dat1');
 
 # read dat0 --------------------------------------------------------------------
 #' Initialize the column specification for parsing the input data
@@ -124,25 +126,54 @@ dat1 <- mutate(dat1
                ,a_n_dm=any(a_n_dm)
                ,a_e_dm=e_dm_i9|e_dm_i10
                ,a_e_kc=e_kc_i9|e_kc_i10
-               ,a_thdiag=tte(age_at_visit_days,e_kc_i10_i|e_kc_i9_i)
+               # THE DIAGNOSIS EVENT (PURE NAACCR)
                ,a_tdiag=tte(age_at_visit_days
                             # only count n_ddiag when it's recorded as a cancer case
                             ,(patient_num %in% kcpatients.naaccr & n_ddiag)  #|
                             #e_kc_i9|e_kc_i10)
                )
+               # If we take at face value the very first occurrence of a kidney 
+               # cancer diagnosis regardless of whether it is in NAACCR or in 
+               # the EMR
+               ,a_naive_tdiag=tte(age_at_visit_days
+                                  ,e_kc_i10_i|e_kc_i9_i|
+                                    (patient_num %in% kcpatients.naaccr & 
+                                       n_ddiag))
+               # THE RECURRENCE EVENT (PURE NAACCR)
+               # look below the time-to-event section for the naive recurrence
+               # event
                ,a_trecur=tte(age_at_visit_days,n_drecur)
-               ,a_tsurg=tte(age_at_visit_days,n_dsurg)
+               # THE SURGERY EVENT (PURE NAACCR)
+               ,a_tsurg=tte(age_at_visit_days
+                            ,if(any(n_rx3170)) n_rx3170 else n_dsurg)
+               # the old surgery event, for comparison purposes, will be removed 
+               # eventually
+               ,a_tsurg_bak=tte(age_at_visit_days,n_dsurg)
+               # look below the time-to-event section for the naive surgery 
+               # event
+               # THE DEATH EVENT (COMBINED)
+               # the pure NAACCR event is n_vtstat-- right now it's a factor
+               # but in the time-to-event section of this script (below) it
+               # gets converted to a tte just like these here.
                ,a_tdeath=tte(age_at_visit_days
                              # EMR death
                              ,isTRUE(age_at_death_days==age_at_visit_days)|
+                               # death on discharge
+                               e_dscdeath|
                                # SSN death
                                s_death|
                                # NAACCR death
                                isTRUE(n_vtstat=="Dead")
                              )
+               # THE DIAGNOSIS CENSORING VARIABLE
                ,a_cdiag=cte(a_tdiag)
+               # (naive version)
+               ,a_naive_cdiag=cte(a_naive_tdiag)
+               # THE RECURRENCE CENSORING VARIABLE
                ,a_crecur=cte(a_trecur)
+               # THE SURGERY CENSORING VARIABLE
                ,a_csurg=cte(a_tsurg)
+               # THE DEATH CENSORING VARIABLE
                ,a_cdeath=cte(a_tdeath)
                );
 
@@ -212,6 +243,7 @@ dat1 <- (l_tte<-v(c_tte,dat1,retcol = c('colname','varname'))) %>%
             # with its visit date set to the date of death-- if so that will 
             # save a few steps
            ,n_vtstat=tte(age_at_visit_days,n_vtstat=='Dead')
+           ,n_cvtstat=cte(n_vtstat)
            )) %>% 
   # Instead we have a list with one more item at hte beginning than it had 
   # before. That item is dat1, and everything else is an unevaluated expression 
@@ -226,12 +258,25 @@ dat1 <- (l_tte<-v(c_tte,dat1,retcol = c('colname','varname'))) %>%
   # are, instead of TRUE/FALSE integers showing how many days are until the
   # first occurences of their respetive events, 0 at those events if they happen
   # and positive numbers for as long as we have visits for after those events.
-
+#' The the larger a TTE variable's value, the closer to the event it is or the 
+#' longer ago the event took place. So to pick the first of several events we
+#' need to take their parallel maximum.
 #' 
+#' Naive surgery variable-- earliest surgery of any kind accross all sources. No
+#' attempts at sanity checks.
+dat1$a_naive_tsurg <- dat1[,v(c_nephx)] %>% do.call(pmax,.);
+#' Naive recurrence variable-- earliest secondary tumor of any kind, accross all
+#' sources. No attempts at sanity checks.
+dat1$a_naive_trecur <- dat1[,v(c_recur)] %>% do.call(pmax,.);
+#' Their censoring variables
+dat1[,c('a_naive_csurg','a_naive_crecur')] <- transmute(
+  dat1,a_naive_csurg=cte(a_naive_tsurg),a_naive_crecur=cte(a_naive_tsurg)) %>%
+  `[`(,-1);
+#' 
+# more analytic variable tweaks ------------------------------------------------
 #' Below is a hack to restore NAs to NAACCR race designation and turn some 
 #' character columns into factors with same order of levels as their i2b2 
 #' counterparts
-# more analytic variable tweaks ------------------------------------------------
 dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race)) %>% 
   factor(levels=levels(dat1$race_cd));
 #dat1$sex_cd <- factor(dat1$sex_cd,levels=levels(dat1$n_sex));
@@ -264,7 +309,7 @@ dat1[,c('a_hsp_broad','a_hsp_strict')] <- apply(
       'Hispanic' } else if(all(xx[c(1,3)]=='non-Hispanic',na.rm=T)&&!any(xx[4:5]=='Hispanic',na.rm=T)){
         'non-Hispanic'} else 'Unknown')) %>% t %>% data.frame;
 
-kcpatients.pre_existing <- subset(dat1,a_thdiag>=0&a_tdiag<0)$patient_num %>% unique;
+kcpatients.pre_existing <- subset(dat1,a_naive_tdiag>=0&a_tdiag<0)$patient_num %>% unique;
 
 cohorts <- data.frame(patient_num=unique(dat1$patient_num)) %>% 
   mutate( NAACCR=patient_num %in% kcpatients.naaccr
