@@ -3,9 +3,6 @@
 #' author: "Alex F. Bokov"
 #' date: "08/09/2018"
 #' css: production.css
-#' output:
-#'  html_document:
-#'   keep_md: true
 #' ---
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
