@@ -356,7 +356,7 @@ l_tte<-union(l_tte,c('e_death','n_vtstat'));
 dat3 <- sapply(l_tte
                 ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
                                          else NA,env=list(ii=as.name(xx)))) %>% 
-  c(list(.data=select(subset(dat1,eval(subs_criteria$naaccr_complete))
+  c(list(.data=select(subset(dat1,patient_num %in% kcpatients.naaccr)
                       ,c('age_at_visit_days',l_tte))),.) %>% 
   do.call(summarize,.);
 # subs_criteria, multiple subsets ----------------------------------------------
