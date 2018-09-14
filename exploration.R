@@ -189,15 +189,14 @@ with(dat2,table(e_marital,n_marital,useNA='if')) %>% addmargins %>%
 #' ### How well do birthdates match between NAACCR and the EMR?
 #' 
 #' There are `r nrow(subset(dat3,is.na(n_dob)))` patients with
-#' complete NAACCR records by current criteria but no NAACCR birthdate (here 
-#' referred to as `n_dob`). Interestingly there are a few `n_dob` birthdates for 
-#' patients who do _not_ have an `n_ddiag` (by informal inspection). There were
-#' a total of `r length(kcpatients.bad_dob)` patients with a mismatch between 
-#' their NAACCR and EMR birthdates, and __of the patients with complete records 
-#' by current criteria, `r length(kcpatients.naaccr_bad_dob)` have a mismatch 
+#' complete NAACCR records by current criteria but no NAACCR birthdate 
+#' `r fs('n_dob')`. Interestingly there are a few `r fs('n_dob')` birthdates for 
+#' patients who do _not_ have an `r fs('n_ddiag')` (by informal inspection). 
+#' There were a total of `r length(kcpatients.bad_dob)` patients with a mismatch 
+#' between  their NAACCR and EMR birthdates, and __of the patients with complete 
+#' records by current criteria, `r length(kcpatients.naaccr_bad_dob)` have a mismatch 
 #' between their NAACCR and EMR birthdates__ . Below is a summary of the 
-#' distribution of their `birth_date` variable minus their NAACCR date of birth
-#' (in years):
+#' distribution of their `r fs('birth_date')` variable minus `r fs('n_dob')`:
 dat0[!is.na(dat0[[cstatic_n_dob]]) & 
        dat0$patient_num%in%kcpatients.naaccr_bad_dob
      ,c('birth_date',cstatic_n_dob)] %>% 
@@ -205,8 +204,7 @@ dat0[!is.na(dat0[[cstatic_n_dob]]) &
 #' 
 #' The `r length(kcpatients.naaccr_bad_dob)` patients with otherwise complete 
 #' records but mismatched birth dates vary by huge amounts from the EMR versions
-#' of their respective birth dates. However, as can be seen in [supplementary 
-#' tables at the end of this document](#how-well-do-demographic-variables-match-up-for-just-the-patients-with) 
+#' of their respective birth dates. However, as can be seen in [supplementary tables at the end of this document](#how-well-do-demographic-variables-match-up-for-just-the-patients-with) 
 #' the `r length(kcpatients.bad_dob)` total patients with DOB mismatches are not 
 #' particularly enriched for other mismatches I have tested so far which is more 
 #' consistent with isolated errors in those respective variables rather than 
@@ -322,7 +320,7 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' Therefore for each of the below we will also need a third analytic variable 
 #' combining NAACCR and EMR information. 
 #' 
-#' Our standard way of indexing time in this study is `age_at_visit_days`. 
+#' Our standard way of indexing time in this study is `r fs('age_at_visit_days')`. 
 #' The main table `dat1` will be collapsed into one row per patient, and the 
 #' value for each of the above columns will be replaced with the age in days 
 #' when that event was recorded (if any, otherwise `NA`). This table will be 
@@ -333,35 +331,37 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' 
 #' The `c_kcdiag` group of columns in `dct0`.
 #' 
-#' * NAACCR: `n_ddiag`. The other two-- the date accompanying the SEER site and
-#'   the date accompanying the NAACCR primary site-- are not date fields in
-#'   NAACCR, so whatever `start_date` they are getting assigned must be from our
-#'   ETL process, not NAACCR and that is the code I will need to review. There is
-#'   data element 443, [Date Conclusive
+#' * NAACCR: `r fs('n_ddiag')`. The other two-- the date accompanying the SEER 
+#'   site and the date accompanying the NAACCR primary site-- are not date 
+#'   fields in NAACCR, so whatever `r fs('start_date')` they are getting 
+#'   assigned must be from our ETL process, not NAACCR and that is the code I 
+#'   will need to review. There is data element 443, [Date Conclusive
 #'   DX](http://datadictionary.naaccr.org/default.aspx?c=10#443) but that is never
 #'   recorded in our NAACCR. All other NAACCR data elements containing the word
 #'   'date' seem to be retired or related to later events, not initial diagnosis.
 #'   Whatever the case, there are only `r nrow(subset(dat3,is.na(n_ddiag)))`
-#'   patients with a missing date of diagnosis but non-missing dates for the SEER
-#'   site variable, so within the range of reasonable error at the NAACCR end.
-#'   __Therefore `n_ddiag` (date of initial diagnosis) is the only NAACCR 
-#'   variable on which we can rely for onset.__
+#'   patients with a missing date of diagnosis but non-missing dates for the 
+#'   SEER site variable, so within the range of reasonable error at the NAACCR 
+#'   end. __Therefore `r fs('n_ddiag')` is the only NAACCR variable on which we 
+#'   can rely for onset.__
 #' * EMR: First occurence of any ICD9/10 code for kidney cancer. Naively, I had
 #'   hoped that the first ICD9/10 code for kidney cancer would closely track the
-#'   date for the `n_ddiag`. Unfortunately, as can be seen from the below table,
-#'   for the `r sum(!is.na(dat3$n_ddiag))` patients who have non-missing `n_ddiag` values, the first ICD9 
-#'   and first ICD10 code most often occurs after initial diagnosis, sometimes 
-#'   before the date of diagnosis, and coinciding with the date of diagnosis 
-#'   rarest of all. By inspection I found that several of the ICD9/10 first 
-#'   observed dates lead or trail the `n_ddiag` by multiple years! **Therefore, 
-#'   one or both of the following steps are needed before EMR data can be relied 
-#'   on at all for establishing date of onset** :
+#'   date for the `r fs('n_ddiag')`. Unfortunately, as can be seen from the 
+#'   below table, for the `r sum(!is.na(dat3$n_ddiag))` patients who have 
+#'   non-missing `n_ddiag` values, the first ICD9 and first ICD10 code most 
+#'   often occurs after initial diagnosis, sometimes before the date of 
+#'   diagnosis, and coinciding with the date of diagnosis rarest of all. By 
+#'   inspection I found that several of the ICD9/10 first observed dates lead or 
+#'   trail the `r fs('n_ddiag')` by multiple years! **Therefore, one or both of 
+#'   the following steps are needed before EMR data can be relied on at all for 
+#'   establishing date of onset** :
 #'     * Meeting with CTRC NAACCR registrar to see how she obtains her dates of 
 #'       onset
-#'     * Chart review of a sample of NAACCR patients to understand what information
-#'       visible in Epic sets them apart from non kidney cancer patients.
+#'     * Chart review of a sample of NAACCR patients to understand what 
+#'       information visible in Epic sets them apart from non kidney cancer 
+#'       patients.
 #'     * Chart review of the 60-100 patients with ICD9/10 codes for kidney 
-#'       cancer that seemingly pre-date their `n_ddiag`.
+#'       cancer that seemingly pre-date their `r fs('n_ddiag')`.
 #+ dat3_icdtimes,cache=TRUE
 # select the diagnosis-related variables
 dat3[,v(c_kcdiag)] %>% 
@@ -378,10 +378,10 @@ dat3[,v(c_kcdiag)] %>%
     table(ICD9=ff(e_kc_i9),ICD10=ff(e_kc_i10),useNA = 'if')}) %>% addmargins() %>% 
   # format for viewing
   pander();
-#' Here is a plot centered on NAACCR date of diagnosis (blue horizontal line at 
+#' Here is a plot centered on `r fs('n_ddiag')` (blue horizontal line at 
 #' 0) with black lines indicating ICD10 codes for primary kidney cancer from the
 #' EMR and dashed red lines indicating ICD9 codes. The dashed horizontal blue 
-#' lines indicate +- 3 months from date of diagnosis.
+#' lines indicate +- 3 months from `r fs('n_ddiag')`.
 par(xaxt='n');
 .eplot_diag <- mutate(dat3,icd=pmin(e_kc_i10,e_kc_i9,na.rm=T)) %>% 
   event_plot('icd',tunit='months',type='s'
@@ -408,22 +408,20 @@ abline(h=c(-3,0,3),lty=c(2,1,2),col='blue');
 # surgery ======================================================================
 #' ### Surgery
 #' 
-#' The `c_nephx` group of columns
+# The `c_nephx` group of columns
 #' 
 #' * NAACCR: 
-#'      * In addition to `1200 RX Date--Surgery` (in this script shortened to 
-#'        `n_dsurg`) the following possibly relevant fields are available in our 
-#'        local NAACCR:
-#'          * `1260 Date of Initial RX--SEER`
-#'          * `1270 Date of 1st Crs RX--CoC`
-#'          * `3170 RX Date--Most Defin Surg`
+#'      * In addition to `r fs('n_dsurg')`) the following possibly relevant 
+#'        fields are available in our local NAACCR:
+#'          * `r fs('n_rx1260')`
+#'          * `r fs('n_rx1270')`
+#'          * `r fs('n_rx3170')`
 #'      * Here are the questions raised:
-#'          * Do they agree with `n_dsurg` sufficiently that missing `n_dsurg` 
-#'            can be backfilled from some or all of them?
+#'          * Do they agree with `r fs('n_dsurg')` sufficiently that missing 
+#'            `r fs('n_dsurg')` can be backfilled from some or all of them?
 #'          * Under what circumstances can they be interpreted as surgery dates 
 #'            rather dates for something else?
-#'          * How accurate is [`1340 Reason for No Surgery`](http://datadictionary.naaccr.org/default.aspx?c=10#1340)
-#'            (here abbreviated as `n_surgreason`) in distinguishing surgical 
+#'          * How accurate is `r fs('n_surgreason')` in distinguishing surgical 
 #'            cases from non-surgical cases as per EMR records?
 #' * EMR: First occurrence of any ICD9/10 code for acquired absence of 
 #'   kidney; or first occurence of surgical history of nephrectomy. How much do 
@@ -446,21 +444,21 @@ dat3_surg_summary <- summary(dat3_surg) %>%
 # list of variables that can first occur before 'n_ddiag'
 t_priorcond <- paste(rownames(subset(dat3_surg_summary,Min.<0)),collapse=', ');
 #' As can be seen in the table below, the variables `r t_priorcond` _sometimes_ 
-#' precede `n_ddiag` by many weeks. However, they _usually_ follow `n_ddiag` by 
-#' more weeks than the two NAACCR variables `n_dsdisc` and `n_dsurg`. Those two 
-#' NAACCR variables never occur before `n_ddiag` and usually occur within 2-8 
-#' weeks.
+#' precede `r fs('n_ddiag')` by many weeks. However, they _usually_ follow 
+#' `r fs('n_ddiag')` by more weeks than the two NAACCR variables 
+#' `r fs('n_dsdisc')` and `r fs('n_dsurg')`. Those two NAACCR variables never occur 
+#' before `r fs('n_ddiag')` and usually occur within 2-8 weeks after it.
 #' 
 #' As can be seen from the `NA's` column, the inactive ICD9/10 V/Z codes for
 #' acquired absence of kidney are disqualified because they are very rare in 
-#' addition to being even more divergent from the `n_ddiag` than the 
+#' addition to being even more divergent from the `r fs('n_ddiag')` than the 
 #' non-inactive codes.
 pander(dat3_surg_summary);
 #' It's understandable if the Epic EMR lags behind NAACCR (because as an 
 #' outpatient system, it's probably recording just the visits after the original
 #' surgery, and perhaps we are not yet importing the actual surgery events from 
 #' Sunrise EMR). But for the V or Z or surgical history codes that precede 
-#' `n_ddiag`, it could mean that those NAACCR cases are not first-time 
+#' `r fs('n_ddiag')`, it could mean that those NAACCR cases are not first-time 
 #' occurrences. How big of a problem is this?
 #+ before_sameday_after_00,cache=TRUE
 mutate_all(dat3[,v(c_nephx)]
@@ -495,10 +493,10 @@ mutate_all(dat3[,v(c_nephx)]
 # or lags by multiple weeks, as might be expected of a discharge date (what is 
 # the plausible threshold on time from surgery to discharge?).
 # 
-#' Below is a plot of all patients (sorted by `n_dsurg`, date of surgery) 
-#' (black line). On the same axis is `n_rx3170` (red line) which is almost 
-#' identical to `n_dsurg` except for a small number of cases where it occurs 
-#' later than `n_dsurg`. Never earlier. The purple lines indicate for each 
+#' Below is a plot of all patients sorted by `r fs('n_dsurg')` (black line). 
+#' On the same axis is `r fs('n_rx3170')` (red line) which is almost  identical 
+#' to `r fs('n_dsurg')` except for a small number of cases where it occurs later 
+#' than `r fs('n_dsurg')`. Never earlier. The purple lines indicate for each
 #' patient the earliest EMR code implying that a surgery had taken place 
 #' (acquired absence of kidney ICD V/Z codes or surgical history of nephrectomy).
 #+ plot_dat3_surg,cache=TRUE
@@ -507,6 +505,9 @@ par(xaxt='n');
                         kcpatients_surgreason$`Surgery Performed`) %>% 
   mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
+             ,main='Time from Diagnosis to Surgery'
+             ,ylab='Months Since Diagnosis'
+             ,xlab='Patients, sorted by time to surgery'
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=0,col='blue');
@@ -515,40 +516,45 @@ abline(h=0,col='blue');
 lines(.eplot_surg0$icd,type='s',col='#FF00FF50');
 with(.eplot_surg0,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
 #' In the above plot the `r sum(with(.eplot_surg0,icd<n_dsurg),na.rm=T)` 
-#' patients for which one or more EMR codes are recorded prior to `n_dsurg` are
-#' highlighted in yellow.
+#' patients for which one or more EMR codes are recorded prior to 
+#' `r fs('n_dsurg')` are highlighted in yellow.
 #' 
-#' 
-#' 
-#' In the below plot the `n_rx1270` (green) and `n_rx1260` (cyan) events are 
-#' superimposed over time until `n_dsurg` from above (but EMR codes for 
-#' nephrectomy are omitted on this one). The `n_rx1270` and `n_rx1260` variables 
-#' trend toward occurring earlier than `n_dsurg`.
+#' In the below plot the `r fs('n_rx1270')` (green) and `r fs('n_rx1260')` 
+#' (cyan) events are superimposed over time until `r fs('n_dsurg')` from above 
+#' (but EMR codes for nephrectomy are omitted on this one). The 
+#' `r fs('n_rx1270')` and `r fs('n_rx1260')` variables trend toward occurring 
+#' earlier than `r fs('n_dsurg')`.
 par(xaxt='n');
 .eplot_surg0 <- subset(dat3,patient_num %in% 
                          kcpatients_surgreason$`Surgery Performed`) %>% 
   mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
+             ,main='Time from Diagnosis to Surgery'
+             ,ylab='Months Since Diagnosis'
+             ,xlab='Patients, sorted by time to surgery'
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=0,col='blue');
 lines(.eplot_surg0$n_rx1270,col='#00FF0060',type='s');
 lines(.eplot_surg0$n_rx1260,col='#00FFFF60',type='s');
 #' Furthermore, it can be seen from an equivalent plot but for patients who do 
-#' _not_ have a `n_surgreason` code equal to `Surgery Performed` the there are 
-#' many `n_rx1270` and `n_rx1260` events, but only a small number of `n_dsurg` 
-#' (black) and #' `n_rx3170` (red). The `n_dsurg` and `n_rx3170` that do occur 
-#' track each other perfectly. Together with NAACCR data dictionary's 
-#' description suggests that `n_rx3170` is the legitimate principal surgery date 
-#' in close agreement with `n_dsurg`, so perhaps missing `n_rx3170` values can 
-#' be filled in from `n_dsurg`. However `n_rx1270` and `n_rx1260` seem like they
-#' could be non-primary surgeries or other events occurring in the course of 
-#' treatment.
+#' _not_ have a `r fs('n_surgreason')` code equal to `Surgery Performed` there 
+#' are many `r fs('n_rx1270')` and `r fs('n_rx1260')` events, but only a small 
+#' number of `r fs('n_dsurg')` (black) and `r fs('n_rx3170')` (red). The 
+#' `r fs('n_dsurg')` and `r fs('n_rx3170')` that do occur track each other 
+#' perfectly. Together with NAACCR data dictionary's description this suggests 
+#' that `r fs('n_rx3170')` is the legitimate principal surgery date in close 
+#' agreement with `r fs('n_dsurg')`, so perhaps missing `r fs('n_rx3170')` 
+#' values can be filled in from `r fs('n_dsurg')`. However `r fs('n_rx1270')` 
+#' and `r fs('n_rx1260')` seem like non-primary surgeries or other events 
 par(xaxt='n');
 .eplot_surg1 <- subset(dat3,!patient_num %in% 
                          kcpatients_surgreason$`Surgery Performed`) %>% 
   mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
+             ,main='Time from Diagnosis to Surgery'
+             ,ylab='Months Since Diagnosis'
+             ,xlab='Patients, sorted by time to surgery'
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=0,col='blue');
@@ -559,7 +565,7 @@ with(.eplot_surg1,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
 lines(.eplot_surg1$n_rx1270,col='#00FF0060',type='s');
 lines(.eplot_surg1$n_rx1260,col='#00FFFF60',type='s');
 #' Here is a table of every NAACCR surgery event variable versus the 
-#' `n_surgreason` variable:
+#' `r fs('n_surgreason')` variable:
 lapply(v(c_nephx,dat3)[6:9],function(ii) 
   table(dat2$n_surgreason,dat2[[ii]]>=0) %>% 
     set_colnames(.,paste0(ii,'=',colnames(.)))) %>% do.call(cbind,.) %>% pander;
