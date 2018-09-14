@@ -103,10 +103,14 @@ h6 {
   display: inline;
 }
 
-table {
-  width: 180%;
-}
-
 tbody {
   vertical-align: top;
+}
+
+#toc table {
+  width: 280%;
+}
+
+#toc h1 {
+  display: none;
 }
