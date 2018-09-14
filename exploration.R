@@ -485,11 +485,11 @@ mutate_all(dat3[,v(c_nephx)]
 #   sapply(table,useNA='always') %>% t %>% pander();
 #' 
 # Now, as far as the two NAACCR variables go, does `n_dsdisc` (date of 
-# discharge) contribute anything more than `n_dsurg`? There are 
+# discharge) contribute anything more than `r fs('n_dsurg')`? There are 
 # `r nrow(subset(dat3,is.na(n_dsurg)&!is.na(n_dsdisc)))` non-missing values 
-# of `n_dsdisc` when `n_dsurg` is missing. As can be seen from the plot below
-# where `n_dsdisc` are the red dashed lines and `n_dsurg` are the black lines,
-# both relative to date of diagnosis, `n_dsdisc` either coincides with `n_dsurg`
+# of `n_dsdisc` when `r fs('n_dsurg')` is missing. As can be seen from the plot below
+# where `n_dsdisc` are the red dashed lines and `r fs('n_dsurg')` are the black lines,
+# both relative to date of diagnosis, `n_dsdisc` either coincides with `r fs('n_dsurg')`
 # or lags by multiple weeks, as might be expected of a discharge date (what is 
 # the plausible threshold on time from surgery to discharge?).
 # 
@@ -573,13 +573,13 @@ lapply(v(c_nephx,dat3)[6:9],function(ii)
 #' ##### Surgery Conclusion
 #' 
 #' As of now the sole variables on which I can rely for date of surgery are 
-#' `n_rx3170` supplemented by `n_dsurg`, and the small number of cases where EMR 
+#' `n_rx3170` supplemented by `r fs('n_dsurg')`, and the small number of cases where EMR 
 #' codes imply surgery prior to diagnosis will be excluded. For the purposes of
 #' determining whether there is a difference in the time from diagnosis to 
 #' surgery I could also create an alternative 'naive' variable that is simply
 #' the earliest of all possible surgery events for each patient. For the time
 #' elapsed from surgery to death or recurrence, I will use the first (`n_rx3170`
-#' and `n_dsurg`) variable as above with the additional criterion that only 
+#' and `r fs('n_dsurg')`) variable as above with the additional criterion that only 
 #' cases where the `n_surgreason` is `Surgery Performed` be included.
 #' 
 #' TODO: Might need to rework `t_priorcond`
@@ -659,9 +659,9 @@ points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
 #' `r nrow(subset(.eplot_recur0,patient_num %in% kcpatients_rectype[['Disease-free']] & !is.na(rec)))`
 #' patients on the left side of the plot that have EMR codes for secondary 
 #' tumors? Also, there are `r nrow(subset(.eplot_recur0,rec<0))` patients with 
-#' metastatic tumor codes earlier than `n_dsurg` and of those 
+#' metastatic tumor codes earlier than `r fs('n_dsurg')` and of those 
 #' `r nrow(subset(.eplot_recur0,rec< -3))` occur more than 3 months prior to 
-#' `n_dsurg`. Did they present with secondary tumors to begin with but remained 
+#' `r fs('n_dsurg')`. Did they present with secondary tumors to begin with but remained 
 #' disease free after surgery? Removing the `_inactive` versions of the 
 #' secondary tumor codes does not make the left-side green patients go away.
 #' 
@@ -1026,7 +1026,7 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
                        ,ltys = c(1,1));
 abline(h=0,col='white');
 #' 
-#' Surgery `n_dsurg` seems to happen in significant amounts both before and 
+#' Surgery `r fs('n_dsurg')` seems to happen in significant amounts both before and 
 #' after first contact `n_fc`.
 #' 
 #' ### Which variables are near-synonymous?
