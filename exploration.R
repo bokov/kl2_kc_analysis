@@ -58,7 +58,7 @@ So far, only de-identified data has been used to generate these results any
 dates or [`patient_num`](#patient%5Fnum) values you see here are also de-identified (with size
 of time intervals preserved).\\
 \\
-This portion of the project is under Dr. Michalek's exempt project IRB number 
+This portion of the study is under Dr. Michalek's exempt project IRB number 
 HSC20170563N. If you are a UT Health researcher who would like a copy of the 
 data, please email me and I will get back to you with further instructions and 
 any additional information I might need from you for our records.\\

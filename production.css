@@ -67,8 +67,18 @@ a::selection {
   color: #0645ad;
 }
 
-.title, .author, .date { 
+.title, .author, .date, .subtitle { 
   text-align: center;
+}
+
+/* you have to be really specific to override an explicit em but it can be done */
+.subtitle em {
+  font-style: normal;
+}
+
+h3.subtitle,.date,div.abstract { 
+  margin-top: 0; 
+  margin-bottom: 30px;
 }
 
 h1,h2,h3,h4 {
@@ -113,4 +123,19 @@ tbody {
 
 #toc h1 {
   display: none;
+}
+
+p.abstract {
+    color: red;
+    line-height: 0;
+    text-indent: -99999px;
+}
+
+p.abstract:after {
+    line-height: initial;
+    color: initial;
+    text-indent: initial;
+    display: block;
+    visibility: visible;
+    content: 'Latest Developments';
 }
