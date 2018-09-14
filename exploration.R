@@ -3,6 +3,9 @@
 #' author: "Alex F. Bokov"
 #' date: "08/09/2018"
 #' css: production.css
+#' output:
+#'  html_document:
+#'   keep_md: true
 #' ---
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
@@ -26,9 +29,18 @@ panderOptions('missing','-');
 panderOptions('table.alignment.default','right');
 panderOptions('table.alignment.rownames','left');
 .args_default_v <- formals(v);
+# default arguments for getting lists of column names
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
+# defaults for 'fancy span' string transformation of variable names 
+# IN THE MAIN SECTION ONLY!! The retfun should be return for inline use and cat
+# for use generating asis chunks.
+formals(fs)[c('url','template','fs_reg','retfun')] <- alist(str,'[`%1$s`][%2$s]'
+                                                            ,'fs_reg',return);
+# We don't yet explicitly reference patient_num outside the news block, so I'm 
+# priming the fs_reg option with it here manually
+options(fs_reg='patient_num');
 # note_toc ---------------------------------------------------------------------
-#' 
+#' # TOC
 #+ news_toc,results='asis'
 .news <- c("
 This is not (yet) a manuscript. We are still at the data cleaning/alignment
@@ -39,7 +51,7 @@ or Sunrise because I value your perspective and it might even be useful to your
 own work.\\
 \\
 So far, only de-identified data has been used to generate these results any 
-dates or `patient_num` values you see here are also de-identified (with size
+dates or [`patient_num`][patient_num] values you see here are also de-identified (with size
 of time intervals preserved).\\
 \\
 This portion of the project is under Dr. Michalek's exempt project IRB number 
@@ -57,18 +69,21 @@ to the i2b2 plugin (Aim 1) once I hit a natural pausing-point on Aim 2."
 
 .toc <- rep_len(NA,length(.news));
 .toc[1] <- "
-- [Overview](#overview)
-- Experimentation
-____- [Lists in Tables](#lists-in-tables)
-____- [Headers](#headers)
-____- [Links](#embedding-urls)
-________- [Footnotes](#footnotes)
-- [Audit Trail](#appendix-i-audit-trail)
+* [Consistency-Checks](#consistency-checks)
+* [Cohort Characterization](#cohort-characterization)
+* [Understanding NAACCR Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)
+* [Descriptive Plots (Preliminary)](#descriptive-plots-preliminary)
+* Appendices
+____1. [Example of stage/grade data](#appendix-i-example-of-stagegrade-data)
+____2. [Next steps](#appendix-ii-next-steps)
+____3. [Supplementary tables](#appendix-iii-supplementary-tables)
+____4. [Variable descriptions](#appendix-iv-variable-descriptions)
+____5. [Audit trail](#appendix-v-audit-trail)
 ";
 .temp0 <- cbind(.news,.toc) %>% unname;
-.temp1<-pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
+pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
                ,split.cells=c(30,Inf),missing='')[1] %>% 
-  gsub('_',' ',.) %>% cat(.temp1);
+  gsub('_',' ',.) %>% cat;
 # overview ---------------------------------------------------------------------
 #' ### Overview
 #' 
@@ -76,8 +91,8 @@ ________- [Footnotes](#footnotes)
 # questions, domain experts ----------------------------------------------------
 #' ### Questions for mentors and other domain experts:
 #' 
-#' * Question: What are the main problems with the NAACCR stage and grade information that
-#'   I will need to clean up?
+#' * Question: What are the main problems with the NAACCR stage and grade 
+#'   information that I will need to clean up?
 #' * Question: What is the typical time that elapses between diagnosis and 
 #'   surgery?
 #'     * Answer (RR): 2-4 weeks, try to avoid more than 4
@@ -143,36 +158,22 @@ ________- [Footnotes](#footnotes)
 #'     * Answer: Cannot back-fill missing NAACCR values from EMR without chart
 #'       review and interviewing registrar but within NAACCR the following 
 #'       have emerged as the main variables:
-#'         1. [Diagnosis](#initial-diagnosis) = [n_ddiag][] ([NAACCR `0390 Date of Diagnosis`](http://datadictionary.naaccr.org/default.aspx?c=10#390)
+#'         1. [Diagnosis](#initial-diagnosis) = `r fs('n_ddiag')`
 #'         , no others)
-#'         2. [Surgery](#surgery-conclusion) = [n_dsurg][] ([NAACCR `1200 RX Date--Surgery`](http://datadictionary.naaccr.org/default.aspx?c=10#1200)
+#'         2. [Surgery](#surgery-conclusion) = `r fs('n_dsurg')`
 #'            surgery, no others so far but may incorporate information from 
 #'            additional variables after next data update)
-#'         3. Recurrence and prior occurrence: _in progress_
-#'         4. Death (TODO)
+#'         3. Recurrence and prior occurrence = `r fs('n_drecur')`
+#'         4. Death = `r fs('a_tdeath')`
 #' * Question: Which records to exclude due to likely errors in the source data? 
 #'   E.g. surgery precedes diagnosis, recurrence precedes surgery (for some 
 #'   analysis) death precedes diagnosis or surgery
 #'       * Answer: Currently excluding as incomplete any record lacking either 
-#'         an `n_ddiag` event or both of `n_kcancer` and `n_seer_kcancer` events.
-#'         May soon start excluding the few patients with V/Z or surgical 
-#'         history codes indicating missing kidney prior to first NAACCR 
-#'         diagnosis.
+#'         an `r fs('n_ddiag')` event or both of `r fs('n_kcancer')` and 
+#'         `r fs('n_seer_kcancer')` events. May soon start excluding the few 
+#'         patients with V/Z or surgical history codes indicating missing kidney 
+#'         prior to first NAACCR diagnosis.
 # A list of valid patients can be found in the 'kcpatients.naaccr'
-#'   
-# outline ----------------------------------------------------------------------
-#' ### Outline
-#' 
-#' * [Consistency-Checks](#consistency-checks)
-#' * [Cohort Characterization](#cohort-characterization)
-#' * [Which EMR and NAACCR variables are reliable event indicators?](#which-emr-and-naaccr-variables-are-reliable-event-indicators)
-#' * [Descriptive Plots (Preliminary)](#descriptive-plots-preliminary)
-#' * Appendices
-#'     1. [Example of stage/grade data](#appendix-i-example-of-stagegrade-data)
-#'     2. [Next steps](#appendix-ii-next-steps)
-#'     3. [Supplementary tables](#appendix-iii-supplementary-tables)
-#'     4. [Audit trail](#appendix-iv-audit-trail)
-#' 
 # crosschecks ------------------------------------------------------------------
 #' ## Consistency-Checks
 #' 
@@ -187,18 +188,6 @@ with(dat2,table(e_marital,n_marital,useNA='if')) %>% addmargins %>%
 #' 
 #' ### How well do birthdates match between NAACCR and the EMR?
 #' 
-#+ create_xdat
-# To understand what the below code does, see the comments for the very similar
-# pattern in 'data.R' in the neighborhood lines 148-191 as of 8/19/2018
-# using 'union()' instead of 'c()' here to avoid cumulative growth if script is
-# re-run by hand
-l_tte <- union(l_tte,c('e_death','n_vtstat'));
-xdat1 <- sapply(l_tte
-                ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
-                                         else NA,env=list(ii=as.name(xx)))) %>% 
-  c(list(.data=select(subset(dat1,eval(subs_criteria$naaccr_complete))
-                      ,c('age_at_visit_days',l_tte))),.) %>% 
-  do.call(summarize,.);
 #' There are `r nrow(subset(xdat1,is.na(n_dob)))` patients with
 #' complete NAACCR records by current criteria but no NAACCR birthdate (here 
 #' referred to as `n_dob`). Interestingly there are a few `n_dob` birthdates for 
@@ -1135,18 +1124,24 @@ heatmap(xdat1.gteq[.xdat1.keep,.xdat1.keep],symm = T,na.rm = T,margins=c(10,10)
 #' ## Appendix IV: Variable descriptions
 #' 
 #+ progfootnotes, results='asis'
-.junk <- subset(dct0,!is.na(varname),select = c('varname','colname_long')) %>% 
+# set new template for creating the internal link VALUES
+formals(fs)[c('url','template','retfun')] <- alist(paste0('#',str)
+                                          ,'[%1$s]: %2$s "%4$s"\n',cat);
+.junk <- subset(dct0,varname %in% getOption('fs_reg')
+                ,select = c('varname','colname_long')) %>% 
   apply(1,function(xx) fs(xx[1],tooltip=xx[2]));
 #' Here are descriptions of the variables referenced in this document.
 #+ readablefootnotes, results='asis'
+# set new template for creating the internal link TARGETS
 cat('***\n');
-.junk <- subset(dct0,!is.na(varname)
-                ,select = c('varname','colname_long','comment','col_url')) %>% 
+.junk <- subset(dct0,varname %in% getOption('fs_reg')
+                ,select = c('varname','colname_long','chartname','comment'
+                            ,'col_url')) %>% 
   apply(1,function(xx) cat(
     '######',xx[1],'\n\n'
-    ,ifelse(length(na.omit(xx[2:3]))>0
-            ,iconv(paste(na.omit(xx[2:3]),collapse='; '),to='UTF-8',sub=''),'')
-    ,ifelse(is.na(xx[4]),'',paste('\n\nLink:',xx[4])),'\n\n***\n'));
+    ,ifelse(length(na.omit(xx[2:4]))>0
+            ,iconv(paste(na.omit(xx[2:4]),collapse='; '),to='UTF-8',sub=''),'')
+    ,ifelse(is.na(xx[5]),'',paste('\n\nLink:',xx[5])),'\n\n***\n'));
 # A5 audit ---------------------------------------------------------------------
 #' ## Appendix V: Audit trail
 walktrail()[,-5] %>% pander(split.tables=600,,justify='left');
