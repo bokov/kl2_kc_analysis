@@ -20,7 +20,9 @@ l_truthy_default <- eval(formals(truthy.default)$truewords);
 l_missing <- c(NA,'Unknown','unknown','UNKNOWN');
 #' Default args
 formals(v)$dat <- as.name('dat1');
-
+#' Saving original file-list so we don't keep exporting functions and 
+#' environment variables to other scripts
+.origfiles <- ls();
 # read dat0 --------------------------------------------------------------------
 #' Initialize the column specification for parsing the input data
 dat0spec <- tread(inputdata,spec_csv,na=c('(null)',''),guess_max=5000);
@@ -344,6 +346,19 @@ pat_samples <- unique(dat1$patient_num) %>%
 #' 
 dat2 <- summarise_all(dat1,function(xx) {
   if(is.logical(xx)) any(xx) else last(na.omit(xx))});
+# dat3, timevars ---------------------------------------------------------------
+#+ create_xdat
+# To understand what the below code does, see the comments for the very similar
+# pattern in 'data.R' in the neighborhood lines 148-191 as of 8/19/2018
+# using 'union()' instead of 'c()' here to avoid cumulative growth if script is
+# re-run by hand
+l_tte<-union(l_tte,c('e_death','n_vtstat'));
+dat3 <- sapply(l_tte
+                ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
+                                         else NA,env=list(ii=as.name(xx)))) %>% 
+  c(list(.data=select(subset(dat1,eval(subs_criteria$naaccr_complete))
+                      ,c('age_at_visit_days',l_tte))),.) %>% 
+  do.call(summarize,.);
 # subs_criteria, multiple subsets ----------------------------------------------
 #' ### Some splits based on patient-level variables
 #' 
@@ -400,4 +415,4 @@ subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
 #' ## Save all the processed data to an rdata file 
 #' 
 #' ...which includes the audit trail
-tsave(file=paste0(.currentscript,'.rdata'),list=ls());
+tsave(file=paste0(.currentscript,'.rdata'),list=setdiff(ls(),.origfiles));
