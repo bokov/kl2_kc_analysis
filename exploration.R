@@ -27,39 +27,51 @@ panderOptions('table.alignment.default','right');
 panderOptions('table.alignment.rownames','left');
 .args_default_v <- formals(v);
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
+# note_toc ---------------------------------------------------------------------
+#' 
+#+ news_toc,results='asis'
+.news <- c("
+This is not (yet) a manuscript. We are still at the data cleaning/alignment
+stage and it is far too early to draw conclusions. Rather, this is a
+regularly updated progress report that I am sharing with you to keep you in
+the loop on my work and/or because you are also working on NAACCR, i2b2, Epic,
+or Sunrise because I value your perspective and it might even be useful to your
+own work.\\
+\\
+So far, only de-identified data has been used to generate these results any 
+dates or `patient_num` values you see here are also de-identified (with size
+of time intervals preserved).\\
+\\
+This portion of the project is under Dr. Michalek's exempt project IRB number 
+HSC20170563N. If you are a UT Health researcher who would like a copy of the 
+data, please email me and I will get back to you with further instructions and 
+any additional information I might need from you for our records.\\
+\\
+Dr. Murphy, if you are interested in a copy of the data, I will talk to my
+local mentors and IRB about the best way to do that. It's probably time we start 
+talking about what approvals in general will be necessary for the full project. 
+I am doing these parts of Aim 2 ahead of Aim 1 to help me identify the need for 
+additional data-transformations to incorporate into DataFinisher and will switch 
+to the i2b2 plugin (Aim 1) once I hit a natural pausing-point on Aim 2."
+);
+
+.toc <- rep_len(NA,length(.news));
+.toc[1] <- "
+- [Overview](#overview)
+- Experimentation
+____- [Lists in Tables](#lists-in-tables)
+____- [Headers](#headers)
+____- [Links](#embedding-urls)
+________- [Footnotes](#footnotes)
+- [Audit Trail](#appendix-i-audit-trail)
+";
+.temp0 <- cbind(.news,.toc) %>% unname;
+.temp1<-pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
+               ,split.cells=c(30,Inf),missing='')[1] %>% 
+  gsub('_',' ',.) %>% cat(.temp1);
 # overview ---------------------------------------------------------------------
 #' ### Overview
 #' 
-#' This is not (yet) a manuscript. We are still at the data cleaning/alignment
-#' stage and it is far too early to draw conclusions. Rather, this is a
-#' regularly updated progress report that I am sharing with you to keep you in
-#' the loop on my work and/or because you are also working on NAACCR, i2b2, Epic,
-#' or Sunrise and this might be useful to you or you might wish to offer advice.
-#' 
-#' So far, only de-identified data has been used to generate these results and
-#' any dates or `patient_num` values you see here are also de-identified, though
-#' the time intervals between events are not distorted.
-#' 
-#' At this time the analysis of de-identified data is under Dr. Michalek's 
-#' exempt project IRB number HSC20170563N. I have been given guidelines under 
-#' which we can share the de-identified data with UTHSCSA collaborators. If you 
-#' would like a copy of the data, please email me and I will get back to you 
-#' with further instructions and any additional information I might need from 
-#' you for our records. The following versions of the dataset are available:
-#' 
-#' * Raw: the data as it literally exists when I input it into my scripts.
-#' * Lightly curated: the main dataset as it is after my scripts are done processing it
-#' * Moderately curated: the dataset pared down to just the columns and rows
-#'   currently being used for analysis
-#'   
-#' Dr. Murphy, if you are interested in a copy of the data, I'll talk to my 
-#' local mentors and IRB about the best way to do that. It's probably time we 
-#' start talking about what approvals in general will be necessary for the full 
-#' project. In case you are wondering, I am doing parts of Aim 2 ahead of Aim 1 
-#' because it will help me identify the need for any additional recurring 
-#' data-transformation rules to incorporate into DataFinisher all at once. I 
-#' will switch to Aim 1, the i2b2 plugin, once I hit a natural pausing-point on 
-#' Aim 2.
 #' 
 # questions, domain experts ----------------------------------------------------
 #' ### Questions for mentors and other domain experts:
