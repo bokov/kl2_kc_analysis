@@ -1,7 +1,14 @@
 #' ---
-#' title: "Kidney Cancer Data Exploration (KL2 Aim 2)"
-#' author: "Alex F. Bokov"
+#' title: "Kidney Cancer Data Exploration"
+#' subtitle: "KL2 Aim 2"
+#' author: 
+#' - "Alex F. Bokov^[UT Health, Department of Epidemiology and Biostatistics]"
 #' date: '`r format(Sys.Date(), "%B %d, %Y")`'
+#' tags: [data characterization, preliminary, NAACCR, urology, cancer]
+#' abstract: |
+#'   Latest developments: minimal necessary NAACCR variables chosen and 
+#'   process documented for preparing them for analysis, as well as 
+#'   supplementing some of them with additional data from EMR if available.
 #' css: production.css
 #' ---
 #' 
