@@ -1,5 +1,5 @@
 "colsuffix","colname_long","comment","varname","chartname","col_url","c_analytic","c_natf","c_naaccr_race","c_naaccr_comorb","c_tnm","c_tte","c_kcdiag","c_preexist","c_nephx","c_recur","c_death","c_patientvar","c_sortlabels","c_i2b2","c_naaccr","c_both_or_one","c_180808","c_imiparmine"
-"patient_num","patient_num",,"patient_num","Patient (anonymized)",,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","FALSE","FALSE","FALSE","FALSE","TRUE",
+"patient_num","Patient Number (anonymized)",,"patient_num","Patient",,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","FALSE","FALSE","FALSE","FALSE","TRUE",
 "start_date","start_date",,"start_date",,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",
 "birth_date","birth_date",,"birth_date",,,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",
 "sex_cd","sex_cd",,"sex_cd","Sex, i2b2",,"TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE","TRUE","TRUE","FALSE","FALSE","TRUE",
