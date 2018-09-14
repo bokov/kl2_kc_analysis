@@ -100,4 +100,13 @@ h5 {
 h6 {
   font-size: 0.9em; 
   font-style: italic;
+  display: inline;
+}
+
+table {
+  width: 180%;
+}
+
+tbody {
+  vertical-align: top;
 }
