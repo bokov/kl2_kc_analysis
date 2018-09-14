@@ -1,7 +1,7 @@
 #' ---
 #' title: "Kidney Cancer Data Exploration (KL2 Aim 2)"
 #' author: "Alex F. Bokov"
-#' date: "08/09/2018"
+#' date: '`r format(Sys.Date(), "%B %d, %Y")`'
 #' css: production.css
 #' ---
 #' 
