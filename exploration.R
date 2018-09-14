@@ -11,7 +11,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-options(gitstamp_prod=F);
+#options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'data.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -47,11 +47,11 @@ This is not (yet) a manuscript. We are still at the data cleaning/alignment
 stage and it is far too early to draw conclusions. Rather, this is a
 regularly updated progress report that I am sharing with you to keep you in
 the loop on my work and/or because you are also working on NAACCR, i2b2, Epic,
-or Sunrise because I value your perspective and it might even be useful to your
-own work.\\
+or Sunrise because I value your perspective and perhaps my results might be 
+useful to your own work.\\
 \\
 So far, only de-identified data has been used to generate these results any 
-dates or [`patient_num`][patient_num] values you see here are also de-identified (with size
+dates or [`patient_num`](#patient%5Fnum) values you see here are also de-identified (with size
 of time intervals preserved).\\
 \\
 This portion of the project is under Dr. Michalek's exempt project IRB number 
@@ -71,7 +71,7 @@ to the i2b2 plugin (Aim 1) once I hit a natural pausing-point on Aim 2."
 .toc[1] <- "
 * [Consistency-Checks](#consistency-checks)
 * [Cohort Characterization](#cohort-characterization)
-* [Understanding NAACCR Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)
+* [Testing/Interpreting Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)
 * [Descriptive Plots (Preliminary)](#descriptive-plots-preliminary)
 * Appendices
 ____1. [Example of stage/grade data](#appendix-i-example-of-stagegrade-data)
@@ -580,16 +580,16 @@ lapply(v(c_nephx,dat3)[6:9],function(ii)
 #' the earliest of all possible surgery events for each patient. For the time
 #' elapsed from surgery to death or recurrence, I will use the first (`r fs('n_rx3170')`
 #' and `r fs('n_dsurg')`) variable as above with the additional criterion that only 
-#' cases where the `n_surgreason` is `Surgery Performed` be included.
+#' cases where the `r fs('n_surgreason')` is `Surgery Performed` be included.
 #' 
 #' TODO: Might need to rework `t_priorcond`
 #' 
 # re-occurrence ================================================================
 #' ### Re-occurrence
 #' 
-#' The current available variables are: `n_cstatus` which corresponds to [`1770 Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1770)
-#' ~~hopefully with `start_date` set by the ETL to [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772)
-#' (need to double-check that it is)~~ and `n_drecur`, [`1860 Recurrence Date--1st `](http://datadictionary.naaccr.org/default.aspx?c=10#1860).
+#' The current available variables are: `r fs('n_cstatus')` which corresponds to [`1770 Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1770)
+#' ~~hopefully with `r fs('start_date')` set by the ETL to [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772)
+#' (need to double-check that it is)~~ and `r fs('n_drecur')`, [`1860 Recurrence Date--1st `](http://datadictionary.naaccr.org/default.aspx?c=10#1860).
 #' UPDATE: Our site is on NAACCR v16, not v18, and we do not have [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772).
 #' According to the v16 standard, instead the [`1750 Date of Last Contact`](http://datadictionary.naaccr.org/default.aspx?c=10#1750)
 #' should be used.
@@ -598,37 +598,37 @@ lapply(v(c_nephx,dat3)[6:9],function(ii)
 #' pull to include [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880) 
 #' which our NAACCR does use.~~ Done.
 #' 
-#' Now we can reconcile the `n_cstatus` and `n_rectype` variables. We can see 
-#' below that almost all `n_cstatus` `Tumor_Free` patients also have a 
-#' `Disease-free` in their `n_rectype` column, the `Tumor` ones have a 
+#' Now we can reconcile the `r fs('n_cstatus')` and `r fs('n_rectype')` variables. We can see 
+#' below that almost all `r fs('n_cstatus')` `Tumor_Free` patients also have a 
+#' `Disease-free` in their `r fs('n_rectype')` column, the `Tumor` ones have a 
 #' variety of values, and the `Unknown` ones are also mostly `Unknown if recurred or was ever gone`.
 subset(dat2,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
      with(table(n_rectype,n_cstatus)) %>% pander;
 #' This suggest the following rules for binning them:
 #' 
-#' * `n_rectype` is `Disease-free` (disease free)
-#' * `n_rectype` is `Never disease-free` (never disease free)
-#' * `n_rectype` raw code includes 70 then assume never diease free
-#' * `n_rectype` is `Unknown if recurred or was ever gone` (unknown)
+#' * `r fs('n_rectype')` is `Disease-free` (disease free)
+#' * `r fs('n_rectype')` is `Never disease-free` (never disease free)
+#' * `r fs('n_rectype')` raw code includes 70 then assume never diease free
+#' * `r fs('n_rectype')` is `Unknown if recurred or was ever gone` (unknown)
 #' * Otherwise, (recurred)
 #
 t_recur_drecur <- with(dat2,table(a_n_recur
                                   ,`Has recurrence date`=n_drecur>=0,useNA='if'));
 #' Here is the condensed version after having followed the above rules. Looks 
-#' like the only ones who have a `n_drecur` (recurrence date) are the ones which
-#' also have a `Recurred` status for `a_n_recur` (with `r t_recur_drecur['Recurred','FALSE']`
-#' missing an `n_drecur`). The only exception is `r t_recur_drecur['Never disease-free','TRUE']`
-#' `Never diease-free` patient that had an `n_drecur`.
+#' like the only ones who have a `r fs('n_drecur')` (recurrence date) are the ones which
+#' also have a `Recurred` status for `r fs('a_n_recur')` (with `r t_recur_drecur['Recurred','FALSE']`
+#' missing an `r fs('n_drecur')`). The only exception is `r t_recur_drecur['Never disease-free','TRUE']`
+#' `Never diease-free` patient that had an `r fs('n_drecur')`.
 t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>% 
   pander(emphasize.strong.cells=cbind(2:5,c(1,1,2,1)));
-#' This explains why  `n_drecur` values are relatively rare in the data-- they 
+#' This explains why  `r fs('n_drecur')` values are relatively rare in the data-- they 
 #' are specific to actual recurrences which are not a majority of the cases. 
 #' This is a good from the standpoint of data consistency. Now we need to see to 
 #' what extent the EMR codes agree with this. In the below plot, the black line
 #' represents months elapsed between surgery and the first occurence of an EMR 
 #' code for secondary tumors, if any. The horizontal red line segments indicate 
-#' individual NAACCR dates of recurrence, `n_drecur`. The blue horizontal line 
-#' is the date of surgery. Patients whose status (`n_rectype`) is `Disease-free`
+#' individual NAACCR dates of recurrence, `r fs('n_drecur')`. The blue horizontal line 
+#' is the date of surgery. Patients whose status (`r fs('n_rectype')`) is `Disease-free`
 #' are highlighted in green, `Never disease-free` in yellow, and `Recurred` in 
 #' red.
 #' 
@@ -686,14 +686,14 @@ points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
 #' 
 #' Below are plotted times of death (for patients that have them) relative to 
 #' date of diagnosis `r fs('n_ddiag')` (horizontal blue line). The four data sources are
-#' `e_death` the EMR death date ($\tiny\color{magenta}\triangle$), `s_death` the social security
-#' death date ($\color{blue}\triangledown$), `e_dscdeath` the EMR hospital discharge death date
+#' `r fs('e_death')` the EMR death date ($\tiny\color{magenta}\triangle$), `r fs('s_death')` the social security
+#' death date ($\color{blue}\triangledown$), `r fs('e_dscdeath')` the EMR hospital discharge death date
 #' ($\color{green}+$), and `n_vtstat` the NAACCR death date ($\tiny\color{brown}\bigcirc$).
 #' 
 #' When more than one source has a death date, they are in agreement. To be 
-#' fair, the agreement between `e_death`, `e_dscdeath`, and `s_death` is 
-#' probably due to our i2b2 ETL already merging `e_dscdeath` and `s_death` into 
-#' `e_death`. But it is also encouraging that none of them seem (by visual 
+#' fair, the agreement between `r fs('e_death')`, `r fs('e_dscdeath')`, and `r fs('s_death')` is 
+#' probably due to our i2b2 ETL already merging `r fs('e_dscdeath')` and `r fs('s_death')` into 
+#' `r fs('e_death')`. But it is also encouraging that none of them seem (by visual 
 #' inspection) to occur prior to the date of last contact in NAACCR. That 
 #' suggests I can simply take the mininum of available death dates to fill in 
 #' data for patients that NAACCR is not aware are deceased. It also means that 
@@ -726,47 +726,47 @@ abline(h=0,col='blue');
 #' 
 #' Here are the variables to process:
 #' 
-#' * `language_cd` is an i2b2 PATIENT_DIMENSION variable that is simplified by 
+#' * `r fs('language_cd')` is an i2b2 PATIENT_DIMENSION variable that is simplified by 
 #'   `data.R` and `levels_map.csv`
 #'     * Hispanic : `Spanish`
 #'     * non-Hispanic: `Other`
 #'     * Unknown: `English` or `Unknown` or NA
-#' * `e_lng` is an i2b2 OBSERVATION_FACT variable currently in the raw form that
+#' * `r fs('e_lng')` is an i2b2 OBSERVATION_FACT variable currently in the raw form that
 #'   DataFinisher uses for complex variables lacking a specific rule. Below are 
 #'   regexp patterns for a non case-sensitive match.
 #'     * Hispanic: ` ^.*spanish.*$` ELSE
 #'     * Unknown: ` ^.*(english|sign language|unknown).*$` or NA ELSE
 #'     * non-Hispanic: anything not caught by the above two filters
-#' * `n_hisp` is the [`0190 Spanish/Hispanic Origin`](http://datadictionary.naaccr.org/default.aspx?c=10#190)
+#' * `r fs('n_hisp')` is the [`0190 Spanish/Hispanic Origin`](http://datadictionary.naaccr.org/default.aspx?c=10#190)
 #'   variable from NAACCR. Slightly processed by `data.R` and `levels_map.csv`
 #'     * non-Hispanic: `Non_Hispanic`
 #'     * Unknown: `Unknown`
 #'     * Hispanic: any other value
-#' * `e_hisp` is the indicator variable for Hispanic ethnicity from i2b2 
+#' * `r fs('e_hisp')` is the indicator variable for Hispanic ethnicity from i2b2 
 #'   OBSERVATION_FACT.
 #'     * Hispanic: `TRUE`
 #'     * Unknown: `FALSE`
-#' * `e_eth` is the whole ethnicity variable from i2b2 OBSERVATION_FACT and
-#'   suprprisingly it is not in full agreement with `e_hisp`
+#' * `r fs('e_eth')` is the whole ethnicity variable from i2b2 OBSERVATION_FACT and
+#'   suprprisingly it is not in full agreement with `r fs('e_hisp')`
 #'     * Hispanic: `hispanic`
 #'     * Unknown: `other`,`unknown`,`unknown/othe`,`i choose not`,`@`
 #'     * non-Hispanic: `arab-amer`,`non-hispanic`
 #'     
 #' The strict Hispanic variable.
 #' 
-#' * Hispanic if ALL non-missing values of `n_hisp`, `e_hisp`, and `e_eth` are 
+#' * Hispanic if ALL non-missing values of `r fs('n_hisp')`, `r fs('e_hisp')`, and `r fs('e_eth')` are 
 #'   unanimous for `Hispanic`
-#' * non-Hispanic if ALL non-missing values of `n_hisp` and `e_eth` are 
-#'   unanimous for `non-Hispanic` (note that `e_hisp` not included here) and
-#'   neither `e_lng` nor `language_cd` vote for `Hispanic`
+#' * non-Hispanic if ALL non-missing values of `r fs('n_hisp')` and `r fs('e_eth')` are 
+#'   unanimous for `non-Hispanic` (note that `r fs('e_hisp')` not included here) and
+#'   neither `r fs('e_lng')` nor `r fs('language_cd')` vote for `Hispanic`
 #' * Unknown if any other result.
 #' 
 #' The lenient Hispanic variable.
 #' 
-#' * Hispanic if ANY non-missing values of `language_cd`, `e_lng`, `n_hisp`,
-#'   `e_hisp`, and `e_eth` have value `Hispanic`
-#' * Unknown if ALL non-missing values of `language_cd`, `e_lng`, `n_hisp`,
-#'   `e_hisp`, and `e_eth` are unanimous for `Unknown` 
+#' * Hispanic if ANY non-missing values of `r fs('language_cd')`, `r fs('e_lng')`, `r fs('n_hisp')`,
+#'   `r fs('e_hisp')`, and `r fs('e_eth')` have value `Hispanic`
+#' * Unknown if ALL non-missing values of `r fs('language_cd')`, `r fs('e_lng')`, `r fs('n_hisp')`,
+#'   `r fs('e_hisp')`, and `r fs('e_eth')` are unanimous for `Unknown` 
 #' * non-Hispanic if any other result
 #' 
 # descriptive plots ------------------------------------------------------------
@@ -919,18 +919,18 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'     * Follow up re additional patient linkages, more recent NAACCR data
 #'     * education (Census, not ready, ETL needs fixing)
 #' * DONE: ~~Create combined (if applicable) variables for each of the following:~~
-#'     * ~~Initial diagnosis~~ `a_tdiag`, `a_cdiag`
-#'     * ~~Surgery~~ `a_tsurg`, `a_csurg`
-#'     * ~~Re-ocurrence~~ `a_trecur`, `a_crecur`
+#'     * ~~Initial diagnosis~~ `r fs('a_tdiag')`, `r fs('a_cdiag')`
+#'     * ~~Surgery~~ `r fs('a_tsurg')`, `r fs('a_csurg')`
+#'     * ~~Re-ocurrence~~ `r fs('a_trecur')`, `r fs('a_crecur')`
 #'     * ~~_Last follow-up ?_~~ 
-#'     * ~~Death~~ `a_tdeath`, `a_cdeath`
-#'     * ~~Strict Hispanic designator~~ `a_hsp_strict`
-#'     * ~~Lenient Hispanic designator~~ `a_hsp_broad`
-#'     * ~~NAACCR-only Hispanic designator~~ `a_hsp_naaccr`
+#'     * ~~Death~~ `r fs('a_tdeath')`, `r fs('a_cdeath')`
+#'     * ~~Strict Hispanic designator~~ `r fs('a_hsp_strict')`
+#'     * ~~Lenient Hispanic designator~~ `r fs('a_hsp_broad')`
+#'     * ~~NAACCR-only Hispanic designator~~ `r fs('a_hsp_naaccr')`
 #' * DONE: ~~Verify that the [ETL](http://www.hostedredmine.com/issues/719444#note-11) 
-#'         gets `start_date` for `1770 Cancer Status` from 
+#'         gets `r fs('start_date')` for `1770 Cancer Status` from 
 #'         [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1770)~~
-#'         _in NAACCR v16 it doesn't need to_
+#'         _in NAACCR v16 it cannot/doesn't need to_
 #' * DONE: ~~tableOne~~
 #' * DONE: ~~Create time-since-first-diagnosis variable~~
 #' * DONE: ~~Create a special TTE variable from the main i2b2 age at death~~
@@ -1015,8 +1015,8 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
 #' by this table_ .
 #' 
 #' ### What is going on with the first contact variable?
-#' Wierd observation-- the date of first contact `n_fc` (red) is 
-#' almost always between last contact `n_lc` (black) and diagnosis `r fs('n_ddiag')` 
+#' Wierd observation-- the date of first contact `r fs('n_fc')` (red) is 
+#' almost always between last contact `r fs('n_lc')` (black) and diagnosis `r fs('n_ddiag')` 
 #' (white), though diagnosis is usually on a biopsy sample and that's why it's 
 #' dated as during or after surgery we thought. If first contact is some kind of 
 #' event after first diagnosis, what is it?
@@ -1027,7 +1027,7 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
 abline(h=0,col='white');
 #' 
 #' Surgery `r fs('n_dsurg')` seems to happen in significant amounts both before and 
-#' after first contact `n_fc`.
+#' after first contact `r fs('n_fc')`.
 #' 
 #' ### Which variables are near-synonymous?
 #' 
