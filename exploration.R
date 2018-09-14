@@ -348,7 +348,7 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #'   hoped that the first ICD9/10 code for kidney cancer would closely track the
 #'   date for the `r fs('n_ddiag')`. Unfortunately, as can be seen from the 
 #'   below table, for the `r sum(!is.na(dat3$n_ddiag))` patients who have 
-#'   non-missing `n_ddiag` values, the first ICD9 and first ICD10 code most 
+#'   non-missing `r fs('n_ddiag')` values, the first ICD9 and first ICD10 code most 
 #'   often occurs after initial diagnosis, sometimes before the date of 
 #'   diagnosis, and coinciding with the date of diagnosis rarest of all. By 
 #'   inspection I found that several of the ICD9/10 first observed dates lead or 
@@ -573,12 +573,12 @@ lapply(v(c_nephx,dat3)[6:9],function(ii)
 #' ##### Surgery Conclusion
 #' 
 #' As of now the sole variables on which I can rely for date of surgery are 
-#' `n_rx3170` supplemented by `r fs('n_dsurg')`, and the small number of cases where EMR 
+#' `r fs('n_rx3170')` supplemented by `r fs('n_dsurg')`, and the small number of cases where EMR 
 #' codes imply surgery prior to diagnosis will be excluded. For the purposes of
 #' determining whether there is a difference in the time from diagnosis to 
 #' surgery I could also create an alternative 'naive' variable that is simply
 #' the earliest of all possible surgery events for each patient. For the time
-#' elapsed from surgery to death or recurrence, I will use the first (`n_rx3170`
+#' elapsed from surgery to death or recurrence, I will use the first (`r fs('n_rx3170')`
 #' and `r fs('n_dsurg')`) variable as above with the additional criterion that only 
 #' cases where the `n_surgreason` is `Surgery Performed` be included.
 #' 
@@ -685,7 +685,7 @@ points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
 #' ### Death
 #' 
 #' Below are plotted times of death (for patients that have them) relative to 
-#' date of diagnosis `n_ddiag` (horizontal blue line). The four data sources are
+#' date of diagnosis `r fs('n_ddiag')` (horizontal blue line). The four data sources are
 #' `e_death` the EMR death date ($\tiny\color{magenta}\triangle$), `s_death` the social security
 #' death date ($\color{blue}\triangledown$), `e_dscdeath` the EMR hospital discharge death date
 #' ($\color{green}+$), and `n_vtstat` the NAACCR death date ($\tiny\color{brown}\bigcirc$).
@@ -907,7 +907,7 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #'     * income (Census)
 #'     * Miperamine, other anti-depressants
 #'     * DONE: ~~Should use [`0580 Date of 1st Contact`](http://datadictionary.naaccr.org/default.aspx?c=10#580)
-#'       as the diagnosis date if earlier than `n_ddiag`!~~ _Actually, evidence 
+#'       as the diagnosis date if earlier than `r fs('n_ddiag')`!~~ _Actually, evidence 
 #'       that it's neither a diagnosis date nor a first contact. Not known what
 #'       it is._
 #'     * DONE: ~~Surgery fields:~~
@@ -1011,12 +1011,12 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
 #' of the recurrence variables. For now, the only ones we can be sure of 
 #' [as indicators of a pre-existing condition](#surgery-conclusion) as exclusion
 #' criteria for possibly invalid records are `r t_priorcond` if they occur 
-#' prior to `n_ddiag` and those will exclude far fewer records than suggested 
+#' prior to `r fs('n_ddiag')` and those will exclude far fewer records than suggested 
 #' by this table_ .
 #' 
 #' ### What is going on with the first contact variable?
 #' Wierd observation-- the date of first contact `n_fc` (red) is 
-#' almost always between last contact `n_lc` (black) and diagnosis `n_ddiag` 
+#' almost always between last contact `n_lc` (black) and diagnosis `r fs('n_ddiag')` 
 #' (white), though diagnosis is usually on a biopsy sample and that's why it's 
 #' dated as during or after surgery we thought. If first contact is some kind of 
 #' event after first diagnosis, what is it?
