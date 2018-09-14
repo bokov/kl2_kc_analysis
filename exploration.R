@@ -1017,17 +1017,21 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
 #' ### What is going on with the first contact variable?
 #' Wierd observation-- the date of first contact `r fs('n_fc')` (red) is 
 #' almost always between last contact `r fs('n_lc')` (black) and diagnosis `r fs('n_ddiag')` 
-#' (white), though diagnosis is usually on a biopsy sample and that's why it's 
+#' (blue), though diagnosis is usually on a biopsy sample and that's why it's 
 #' dated as during or after surgery we thought. If first contact is some kind of 
 #' event after first diagnosis, what is it?
 #+ event_plot_diag2lc,cache=TRUE
 .eplot_fc <-event_plot(subset(dat3,!patient_num %in% kcpatients.naaccr_dupe)
                        ,'n_lc','n_fc',start_event = 'n_ddiag'
+                       ,main='Time from Diagnosis to Last Contact'
+                       ,ylab='Months Since Diagnosis'
+                       ,xlab='Patients, sorted by Last Contact'
+                       ,tunit = 'mon'
                        ,ltys = c(1,1));
-abline(h=0,col='white');
+abline(h=0,col='blue');
 #' 
-#' Surgery `r fs('n_dsurg')` seems to happen in significant amounts both before and 
-#' after first contact `r fs('n_fc')`.
+#' Surgery `r fs('n_dsurg')` seems to happen in significant amounts both before 
+#' and after first contact `r fs('n_fc')`.
 #' 
 #' ### Which variables are near-synonymous?
 #' 
@@ -1045,9 +1049,9 @@ abline(h=0,col='white');
 #'  
 #' 1. Take for each patient the first visit where the variable is TRUE, 
 #'    non-missing, or in some cases meets some other criteria.
-#' 2. Center the `age_at_visit_days` variable on that visit, so for that patient
-#'    it is `0` on the visit, a negative integer prior to the visit, and a 
-#'    positive integer after. It will be seen later that this will help make
+#' 2. Center the `r fs('age_at_visit_days')` variable on that visit, so for that 
+#'    patient it is `0` on the visit, a negative integer prior to the visit, and 
+#'    a positive integer after. It will be seen later that this will help make
 #'    survival analysis easier when we get to it. For patients where an event is
 #'    never observed, these numbers will be shifted to that the value at the
 #'    last visit is `-1`, _not_ `0`. This is so that we can easily distinguish 
