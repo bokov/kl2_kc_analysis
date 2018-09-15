@@ -17,15 +17,18 @@
 # if running in test-mode, uncomment the line below
 #options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
-.depends <- 'data.R';
+.depends <- c('dictionary.R','data.R');
 .depdata <- paste0(.depends,'.rdata');
 .currentscript <- parent.frame(2)$ofile;
 if(is.null(.currentscript)) .currentscript <- knitr::current_input();
 if(is.null(.currentscript)) .currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 tself(scriptname=.currentscript);
 project_seed <- 20180803;
-if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
-.loadedobjects <- tload(.depdata);
+.loadedobjects <- c();
+for(ii in seq_along(.depends)) {
+  if(!file.exists(.depdata[ii])) system(sprintf('R -e "source(\'%s\')"',.depends[ii]));
+  .loadedobjects <- union(.loadedobjects,tload(.depdata[ii]));
+}
 knitr::opts_chunk$set(echo = F,warning = F,message=F);
 # Set default arguments for some functions
 panderOptions('table.split.table',Inf);
