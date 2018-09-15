@@ -50,7 +50,7 @@ options(fs_reg='patient_num');
 #' # TOC
 #+ news_toc,results='asis'
 .news <- c("
-This is not (yet) a manuscript. We are still at the data cleaning/alignment
+**Note:** This is not (yet) a manuscript. We are still at the data cleaning/alignment
 stage and it is far too early to draw conclusions. Rather, this is a
 regularly updated progress report that I am sharing with you to keep you in
 the loop on my work and/or because you are also working on NAACCR, i2b2, Epic,
