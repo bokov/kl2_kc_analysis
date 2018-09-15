@@ -67,16 +67,27 @@ a::selection {
   color: #0645ad;
 }
 
-.title, .author, .date { 
+.title, .author, .date, .subtitle { 
   text-align: center;
+}
+
+/* you have to be really specific to override an explicit em but it can be done */
+.subtitle em {
+  font-style: normal;
+}
+
+h3.subtitle,.date,div.abstract { 
+  margin-top: 0; 
+  margin-bottom: 30px;
 }
 
 h1,h2,h3,h4 {
   font-weight: 500;
 }
 
-h1 {
-  font-size: 2.3em;
+/* otherwise the title h1 doesn't inherit the fontsize correctly */
+h1,h1.title {
+  font-size: 2em;
 }
 
 h2 {
@@ -99,4 +110,32 @@ h5 {
 h6 {
   font-size: 0.9em; 
   font-style: italic;
+  display: inline;
+}
+
+tbody {
+  vertical-align: top;
+}
+
+#toc table {
+  width: 280%;
+}
+
+#toc h1 {
+  display: none;
+}
+
+p.abstract {
+    color: red;
+    line-height: 0;
+    text-indent: -99999px;
+}
+
+p.abstract:after {
+    line-height: initial;
+    color: initial;
+    text-indent: initial;
+    display: block;
+    visibility: visible;
+    content: 'Latest Developments';
 }
