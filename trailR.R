@@ -17,6 +17,10 @@
 #' trail = For 'rdata', if a trail object exists, dump it into this field. And it can have its own trail objects
 #'   so we have an arbitrarily long "family tree" of ancestor objects!
 #' 
+#' TODO: (maybe) find a way to pass 'non-production' status to scripts that
+#'       get sourced by R to satisfy dependencies... or perhaps non-production
+#'       should not be that convenient, perhaps it should be manually turned
+#'       on and off for each file and it's better not to inherit it.
 #' TODO: function to write out .trail as a JSON or XML file (to accompany 
 #'       non-rdata saveouts)
 #' TODO: modify tread() to check for the existance of a trail flat-file as above
@@ -45,6 +49,79 @@
 #' (except if it is being interactively run)
 currentscript <- parent.frame(2)$ofile;
 if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
+
+#' 
+#' `fingerprint()` is supposed to be a more flexible and robust way to get 
+#' reproducibility info about a file, and allows the same syntax to be used on
+#' any file whether it is tracked or not, and even if the file doesn't actually
+#' exist. In the future I plan to rewrite `gitstamp()`, `tload()`, and `tread()`
+#' to all use `fingerprint()` internally but as of right now they are independent
+#' from `fingerprint()`
+#' 
+#' It returns a list with elements that include... 
+#' 
+#' * `in.repo`: whether or not the current working directory is a git repo
+#' * `repo`: URL of the git repo, NA if `in.repo` is false
+#' * `branch`: currently checked-out branch
+#' * `branch.on.origin`: whether the currently checked-out branch has already 
+#'   been pushed to origin... because that's not a given and we don't want this
+#'   scenario preventing reproduceability from taking us by surprise when we
+#'   least expect it
+#' * `last.branch.commit`: the hash of whatever is currently checked out
+#' * `uncommitted.changes`: whether or not there are uncommited changes to 
+#'   any tracked files
+#' * `file.tracked`: if the optional `filename` argument is used, whether or not
+#'   that file is being tracked by git.
+#' * `file`: the value of the optional `filename` argument.
+#' * `file.hash.or.last.commit`: if `file.tracked` then the hash for the last
+#'   commit THAT INCLUDED CHANGES TO `file` (which is not necessarily the
+#'   same thing as `last.branch.commit` if the file has not been changed during
+#'   the most recent commit). Otherwise, it's the `md5sum()` of the file. If the
+#'   file doesn't exist, this value is `NA`.
+#' * `timestamp`: when `fingerprint()` ran (doesn't tell you anything about the
+#'   file or the repo themselves).
+fingerprint <- function(filename=NA) {
+  # in case something passes an empty filename somehow
+  filename <- c(filename,NA)[1];
+  # are we in a repo?
+  inrepo <- suppressWarnings(
+    isTRUE(
+      'true'==system("git rev-parse --is-inside-work-tree"
+                     ,intern=T,ignore.stderr=T)));
+  # initialize the fhs to be NULL
+  frp <- fhs <- hsh <- brn <- brn.ogn <- ogn <- NA;
+  if(inrepo){
+    frp <- filename %in% system('git ls-files',intern = T);
+    if(frp) suppressWarnings(
+      fhs <- c(system(paste0('git log -n 1 --pretty="format:%h" -- ',filename)
+                      ,intern=T),NA)[1]);
+    # what hash are we on?
+    hsh <- system("git log --pretty=format:'%h' -n 1",intern=T);
+    # what branch are we on? NOTE: don't know yet what happens in wierd cases,
+    # e.g. detached head, or stash or whatever... might return something 
+    # unexpected and error in a subsequent command, be aware
+    brn <- system("git rev-parse --abbrev-ref HEAD",intern=T);
+    # origin (i.e. what upstream repo does this project use for pushes/pulls)
+    ogn <- system('git config --get remote.origin.url',intern=T);
+    # does this branch exist on origin?
+    brn.ogn <- any(grepl(paste0('/',brn,'$'),system("git branch --remote",intern=T)));
+    # are there uncommitted changes?
+    needupd <- suppressWarnings(
+      system("git update-index --refresh && git diff-index HEAD --",intern = T));
+    
+  }
+  # if for whatever reason git hash not available for a file, try to calculate 
+  # an md5sum(). If file doesn't exist (including NA) then this outputs 'NA'
+  if(is.na(fhs)) fhs <- unname(tools::md5sum(c(na.omit(filename),'')[1]));
+  return(list(
+    in.repo=inrepo,repo=ogn,branch=brn,branch.on.origin=brn.ogn
+    ,last.branch.commit=hsh
+    ,uncommited.changes=if(inrepo) length(needupd)>0 else NA
+    ,file.tracked=frp,file=filename,file.hash.or.last.commit=fhs
+    ,timestamp=Sys.time()));
+}
+
+
 
 #' Return a commit hash (for inclusion in reports for example) after first making
 #' sure all changes are committed and pushed
@@ -100,9 +177,20 @@ walktrail <- function(trail=tinit(),prepend='',seqcol=names(trail)[1]
                       ,prepend=paste0(trail[[seqcol]][ii],sep)
                       ,seqcol = seqcol,nestingcol = nestingcol));
   }
+  class(out) <- c('walktrail',class(out));
   return(out);
 }
 
+print.walktrail <- function(xx
+                            ,sub=c('sequence','time','type','name_value','hash')
+                            ,...){
+  sub <- sub[sub %in% c('name_value',names(xx))];
+  mutate(xx
+         ,name_value=paste(name
+                           ,name_value=ifelse(type=='info','...',value),sep='='))[,sub];
+}
+
+summary.walktrail <- print.walktrail;
 
 # script registering itself... adds a gitstamp and its own name to trail
 tself <- function(scriptname=parent.frame(2)$ofile
@@ -133,7 +221,8 @@ crashing. Please try again in clean environment.',trailobj));
     ptrail <- envir[[trailobj]];
     rm(list=trailobj,envir=envir);
   } else ptrail <- 'NO_TRAIL_FOUND';
-  tupdate('rdata',name=filename,value=file,hash=filehash,parent.trail = ptrail);
+  tupdate('rdata',name=sprintf('%s = "%s"',filename,file)
+          ,value=file,hash=filehash,parent.trail = ptrail);
   return(out);
 }
 
@@ -144,7 +233,8 @@ tread <- function(file,readfun,...){
   filename <- deparse(match.call()$file);
   filehash <- tools::md5sum(file);
   loaded <- readfun(file,...);
-  tupdate('file',name=filename,value=file,hash=filehash);
+  tupdate('file',name=sprintf('%s = "%s"',filename,file)
+          ,value=file,hash=filehash);
   return(loaded);
 }
 
@@ -170,3 +260,4 @@ tsave <- function(...,list=character(),envir=parent.frame(),trailobj='.trail'){
 # if(is.null(currentscript)) currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 # tself(scriptname=currentscript);
 # tsave(mtcars,file='junktestsave.rdata');
+

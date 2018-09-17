@@ -20,12 +20,14 @@ instrequire(c('compiler'                                   # just-in-time compil
              #,'survAUC','survivalROC','pROC'              # evaluating predictive power
              #,'Matrix'                                    # for pd matrices needed by faker()
              ,'readr','dplyr','stringr','magrittr'        # data manipulation & piping
+             ,'tools'
              #,'lubridate'
              #,'ggplot2','grid','GGally'                  # plotting
-             ,'ggfortify'
+             ,'ggfortify','heatmap3'
+             ,'stringi'                                   # string manipulation
              #,'survminer','gridExtra','scales'
-             #,'stargazer','broom', 'tableone','janitor'   # table formatting
-             ,'pander'
+             #,'stargazer','broom','janitor'              # table formatting
+             ,'pander','tableone'
              #,'knitr','htmltab'
              ));
 #' Turn JIT to max: pre-compile all closures, `for`, `while`, and `repeat` loops
@@ -51,3 +53,6 @@ dctfile <- paste0('dct_',basename(inputdata));
 #' for this project. Upon the final stage it should get set to `Inf` in the 
 #' script that does it. WIP
 dct_stage <- Inf;
+#' This is the file that lists levels of discrete variables and what each listed
+#' level should be renamed to.
+levels_map_file <- 'levels_map.csv';
