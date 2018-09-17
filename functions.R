@@ -886,8 +886,6 @@ stratatable <- function(xx,vars=NULL,...){
 #' @param var        Either a string or a name, of a column in `dictionary`
 #' @param dat        An optional data.frame, to constrain which rows of the 
 #'                   'dictionary' object get used
-#' @param matchcol   Optional column that maps the rows of 'dictionary' to the rows
-#'                   of a 'data.frame' of interest
 #' @param retcol     Which column to return-- by default the same as used for 'matchcol'
 #' @param dictionary A 'data.frame' that is used as a data dictionary. It must at 
 #'                   minimum contain a column of column-names for the dataset for
@@ -901,8 +899,7 @@ stratatable <- function(xx,vars=NULL,...){
 #'                   column names begin with 'c_' but this convention is not 
 #'                   (currently) enforced programmatically.
 v <- function(var,dat
-              ,matchcol='colname'
-              # todo: let retcol take a vector argument
+              # DONE: let retcol take a vector argument
               ,retcol=matchcol
               ,dictionary=dct0
               ,asname=F) {
