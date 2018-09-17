@@ -1039,3 +1039,33 @@ adjudicate_levels <- function(xx,levs=list(),...,DEFAULT=NA,MISSING=NA){
   }
   if(is.na(DEFAULT)) return(tail(xx,1)) else return(DEFAULT);
 }
+
+#' Wrapper for taking data in the form of age-at-event, subtracting a starting
+#' event, truncating on one or more ending events, and generating a survival
+#' curve while outputting a surv object.
+survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars
+                           ,default.censrvars=c()
+                           ,eventfun=pmin,censrfun=pmin,startfun=pmin
+                           ,followup=Inf,scale=1,unit=NA
+                           ,plotfun=autoplot,plotargs=list(),plotadd=NA
+                           ,survfun=survfit,survargs=list(),...){
+  browser();
+  # get the name of the data object
+  datname <- as.character(substitute(dat));
+  # collect the names of the tte vars and static vars
+  # tte vars
+  tvars0 <- na.omit(union(c(eventvars,censrvars,default.censrvars,startvars)));
+  tvars1 <- intersect(tvars0,names(dat));
+  if(length(tvars0)!=length(tvars1)) warning(sprintf(
+    'The variables %s were not found in %s'
+    ,paste0(setdiff(tvars0,tvars1),collapse=', '),datname));
+  # use startfun to make startvar out of startvars
+  # subract startvar from eventvars and censrvars
+  # use eventfun/censfun (with followup) to create eventvar and censrvar
+  # create tt as pmin() of eventvar and censrvar
+  # create cc as tt <= censor
+  # fit survfun
+  # create plot object
+  # add plotadd to plot object
+  # return plot object and optionally surv object along with call
+}
