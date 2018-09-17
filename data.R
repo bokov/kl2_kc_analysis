@@ -308,7 +308,7 @@ pat_samples <- unique(dat1$patient_num) %>%
 #' ### Create a version of the dataset that only has each patient's 1st encounter
 #' 
 #' 
-dat2a <- c()
+dat2a <- c();
 #' This is the original dat2 that, after testing, will be replaced by the above
 #' dat2a that will enable more flexible creation of survival curves.
 dat2 <- summarise_all(dat1,function(xx) {
