@@ -67,7 +67,7 @@ fstmplts <- list(
   # [`0390 Date of Diagnosis`][#n_ddiag]
   ,link_colnamelong="[`%4$s`][%2$s]"
   # `0390 Date of Diagnosis`
-  ,text_colnamelong=`%4$s`
+  ,text_colnamelong="`%4$s`"
 );
 
 c()
