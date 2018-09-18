@@ -24,6 +24,7 @@
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
 options(gitstamp_prod=F);
+options(markdown.extensions=c(markdown::markdownExtensions(),'fenced_divs'));
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- 'dictionary.R';
 .depdata <- paste0(.depends,'.rdata');
@@ -46,14 +47,53 @@ panderOptions('missing','-');
 panderOptions('table.alignment.default','right');
 panderOptions('table.alignment.rownames','left');
 .args_default_v <- formals(v);
-formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
+#formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 # overview ---------------------------------------------------------------------
 #' # Overview
 #' 
-#' 
-#' 
 #' This is a script for testing how how various RMarkdown features work without 
 #' the overhead of running one of the main scripts.
+#' 
+#' 
+# definitions and divs ---------------------------------------------------------
+#' 
+#' [Here is](#fooid1) a link to the first span below and here is a link to the 
+#' [second one](#fooid2). Another link to [the second][ref_fooid2] one using the ref
+#' link syntax.
+#' 
+#' Pandoc definitions, here we go.
+#' 
+#' Term 1
+#'   ~ Definition 1 `r stri_rand_lipsum(1)`
+#'
+#' Term 2 
+#'   ~ Definition 2a `r stri_rand_lipsum(1)`
+#'   ~ Definition 2b `r stri_rand_lipsum(1)`
+#' 
+#' Term 3
+#'   ~   Indented paragraph `r stri_rand_lipsum(1)`
+#'   ~   Another indented paragraph `r stri_rand_lipsum(1)`
+#'   
+#' Term 4
+#' 
+#' : Definition 4a `r stri_rand_lipsum(1)`
+#' 
+#' : Definition 4b `r stri_rand_lipsum(1)`
+#'   
+#'   
+#' Fenced divs...
+#' 
+#' ::::: {#special .sidebar}
+#' Here is a paragraph.
+#'   
+#' And another.
+#' :::::
+#' 
+#' Okay, that didn't work. Another approach: spans.
+#' 
+#' This is [a span] without any particular link. This is [another span]{#fooid1 .barclass}
+#' that has a class and an ID. This is a [span with custom style]{custom-style="foostyle"}
+#' and [this is]{#fooid2 .barclass custom-style="foostyle"} a span with both.
 #' 
 # list_tables ------------------------------------------------------------------
 #' # Lists in tables
@@ -250,6 +290,7 @@ cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
 #' 
 #' [format01_link]: #embedding-urls "Tooltip format 01"
 #' [link format 02]: #embedding-urls "Tooltip format 02"
+#' [ref_fooid2]: #fooid2
 #'
 # programmatic_footnotes -------------------------------------------------------
 #+ fnotes, results='asis'
