@@ -630,6 +630,13 @@ autoboxplot <- function(pdata, xx, yy, zz, subset=T
 
 getCall.list <- getCall.data.frame <- getCall.gg <- function(xx) attr(xx,'call');
 
+# why not update calls?
+update.call <- function(xx,...){
+  dots <- list(...);
+  for(ii in names(dots)) xx[[ii]] <- dots[[ii]];
+  xx;
+}
+
 #' From ... https://menugget.blogspot.com/2011/11/define-color-steps-for-colorramppalette.html#more
 #' Manually shape the intervals of a color gradient
 color.palette <- function(steps, n.steps.between=NULL, ...){
@@ -1051,10 +1058,8 @@ adjudicate_levels <- function(xx,levs=list(),...,DEFAULT=NA,MISSING=NA){
 #' Wrapper for taking data in the form of age-at-event, subtracting a starting
 #' event, truncating on one or more ending events, and generating a survival
 #' curve while outputting a surv object.
-survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars
-                            ,formula=as.formula(paste0('Surv(tt,cc)~'
-                                                       ,paste0(predvars
-                                                               ,collapse='+')))
+survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars='1'
+                            ,formula=NA
                             ,default.censrvars=c('age_at_visit_days')
                             ,subs=patient_num %in% kcpatients.naaccr
                             ,thrunique=5,thrsmsize=20
@@ -1093,6 +1098,7 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars
   dat$tt <- pmin(event,censr)/scale;
   # create cc as tt <= censor
   dat$cc <- event < censr;
+  # TODO: if they are numeric, bin them instead
   # remove the too-sparse levels of variables
   for(ii in predvars) if(length(unique(na.omit(ii)))<thrunique){
     iitab <- table(dat[[ii]]);
@@ -1100,6 +1106,10 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars
       dat[[ii]][dat[[ii]] %in% names(iitab)[iitab<thrsmsize]] <- NA;
     }
   }
+  # TODO: sanity-check predvars to make sure they exist 
+  if(all(is.na(formula))) formula <- as.formula(paste0('Surv(tt,cc)~'
+                                                       ,paste0(predvars
+                                                               ,collapse='+')));
   # fit survfun
   sfit <- do.call(survfun,c(formula,list(dat),survargs));
   # create plot object
