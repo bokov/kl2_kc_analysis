@@ -111,7 +111,7 @@ dat1 <- mutate(dat1
                ,a_trecur=tte(age_at_visit_days,n_drecur)
                # THE SURGERY EVENT (PURE NAACCR)
                ,a_tsurg=tte(age_at_visit_days
-                            ,if(any(n_rx3170)) n_rx3170 else n_dsurg)
+                            ,if(any(n_rx3170,na.rm=T)) n_rx3170 else n_dsurg)
                # the old surgery event, for comparison purposes, will be removed 
                # eventually
                ,a_tsurg_bak=tte(age_at_visit_days,n_dsurg)
@@ -136,7 +136,7 @@ dat1 <- mutate(dat1
                                s_death|
                                # NAACCR death
                                #isTRUE(n_vtstat=="Dead")
-                               n_vtstat
+                               n_vtstat=='Dead'
                              )
                # THE DIAGNOSIS CENSORING VARIABLE
                ,a_cdiag=cte(a_tdiag)
