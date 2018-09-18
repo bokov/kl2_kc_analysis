@@ -900,7 +900,7 @@ stratatable <- function(xx,vars=NULL,...){
 #'                   (currently) enforced programmatically.
 v <- function(var,dat
               # DONE: let retcol take a vector argument
-              ,retcol=matchcol
+              ,retcol=c('colname','varname')
               ,dictionary=dct0
               ,asname=F) {
   # convenience function: if forgot what column names are available, call with
