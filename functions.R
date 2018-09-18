@@ -1086,9 +1086,9 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars
   dat[,tvars1] <- dat[,tvars1] - start;
   # use eventfun/censfun (with followup) to create eventvar and censrvar
   event <- do.call(eventfun,c(dat[,intersect(eventvars,tvars1)],na.rm=T));
-  censr <- do.call(censrfun,c(dat[,intersect(c(censrvars,default.censrvars)
-                                             ,tvars1)],followup=followup
-                              ,na.rm=T));
+  censr <- do.call(censrfun
+                   ,c(dat[,intersect(c(censrvars,default.censrvars),tvars1)]
+                      ,followup=followup,na.rm=T));
   # create tt as pmin() of eventvar and censrvar and then scale
   dat$tt <- pmin(event,censr)/scale;
   # create cc as tt <= censor
