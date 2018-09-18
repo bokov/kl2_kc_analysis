@@ -192,6 +192,9 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' sources.
 with(dat2,table(e_marital,n_marital,useNA='if')) %>% addmargins %>%
   pander(emphasize.strong.cells=cbind(c(2:4,6:9),1:8));
+with(dat2a,table(e_marital,n_marital,useNA='if')) %>% addmargins %>%
+  pander(emphasize.strong.cells=cbind(c(2:4,6:9),1:8));
+
 #' 
 #' ### How well do birthdates match between NAACCR and the EMR?
 #' 
@@ -224,12 +227,16 @@ dat0[!is.na(dat0[[cstatic_n_dob]]) &
 #' record completeness.
 with(dat2,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
   pander(emphasize.strong.cells=cbind(1:2,1:2));
+with(dat2a,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
+  pander(emphasize.strong.cells=cbind(1:2,1:2));
 
 #' ### How well does race match up between the EMRs and NAACCR?
 #' 
 #' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
 #' record completeness. Bolded values are those which agree between sources.
 with(dat2,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
+  pander(emphasize.strong.cells=cbind(1:6,1:6));
+with(dat2a,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
   pander(emphasize.strong.cells=cbind(1:6,1:6));
 
 #' ### How well does Hispanic ethnicity match up between the EMRs and NAACCR?
@@ -242,11 +249,21 @@ with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                 ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
   `[`(,c('Non_Hispanic','Hispanic')) %>%
   addmargins() %>% pander(emphasize.strong.cells=cbind(1:2,1:2));
+with(dat2a,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
+                              ,'Unknown'='Non_Hispanic'
+                              ,.default='Hispanic')
+                ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
+  `[`(,c('Non_Hispanic','Hispanic')) %>%
+  addmargins() %>% pander(emphasize.strong.cells=cbind(1:2,1:2));
+
 #' More detailed ethnicity breakdown...
 #' 
 #' Again columns represent EMR and rows represent NAACCR. Whole dataset, not 
 #' filtered for record completeness.
 with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
+  `[`(,c('Non_Hispanic','Hispanic')) %>%
+  addmargins() %>% pander(emphasize.strong.cells=cbind(1:7,c(1,2,2,2,2,2,2)));
+with(dat2a,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
   `[`(,c('Non_Hispanic','Hispanic')) %>%
   addmargins() %>% pander(emphasize.strong.cells=cbind(1:7,c(1,2,2,2,2,2,2)));
 
@@ -611,6 +628,8 @@ lapply(v(c_nephx,dat3)[6:9],function(ii)
 #' variety of values, and the `Unknown` ones are also mostly `Unknown if recurred or was ever gone`.
 subset(dat2,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
      with(table(n_rectype,n_cstatus)) %>% pander;
+subset(dat2a,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
+  with(table(n_rectype,n_cstatus)) %>% pander;
 #' This suggest the following rules for binning them:
 #' 
 #' * `r fs('n_rectype')` is `Disease-free` (disease free)
@@ -628,6 +647,13 @@ t_recur_drecur <- with(dat2,table(a_n_recur
 #' `Never diease-free` patient that had an `r fs('n_drecur')`.
 t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>% 
   pander(emphasize.strong.cells=cbind(2:5,c(1,1,2,1)));
+
+t_recur_drecur <- with(dat2,table(a_n_recur
+                                  ,`Has recurrence date`=n_drecur>=0,useNA='if'));
+t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>% 
+  pander(emphasize.strong.cells=cbind(2:5,c(1,1,2,1)));
+
+
 #' This explains why  `r fs('n_drecur')` values are relatively rare in the data-- they 
 #' are specific to actual recurrences which are not a majority of the cases. 
 #' This is a good from the standpoint of data consistency. Now we need to see to 
