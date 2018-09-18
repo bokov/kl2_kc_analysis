@@ -73,7 +73,6 @@ kcpatients.naaccr_bad_dob <- intersect(kcpatients.naaccr,kcpatients.bad_dob);
 #' create the raw time-to-event (tte) and censoring (cte) variables
 #' along with making a_n_race and a_n_dm time invariant
 # dat1 more analytical variables  ----------------------------------------------
-browser();
 dat1 <- mutate(dat1
                # the c() and paste() kind of screw up factors, making
                # extra code necessary down the line to restore them
@@ -124,15 +123,20 @@ dat1 <- mutate(dat1
                # gets converted to a tte just like these here.
                # TODO: double-check these components, a_tdeath is coming out as
                # if it is missing the contribution of =n_vtstat
+               # ...might be because isTRUE returns a scalar value... not needed
+               # anyway, let's see if with these changes 'a_tdeath' is in better
+               # agreement with n_vtstat
                ,a_tdeath=tte(age_at_visit_days
                              # EMR death
-                             ,isTRUE(age_at_death_days==age_at_visit_days)|
+                             #,isTRUE(age_at_death_days==age_at_visit_days)|
+                             ,age_at_death_days==age_at_visit_days|
                                # death on discharge
                                e_dscdeath|
                                # SSN death
                                s_death|
                                # NAACCR death
-                               isTRUE(n_vtstat=="Dead")
+                               #isTRUE(n_vtstat=="Dead")
+                               n_vtstat
                              )
                # THE DIAGNOSIS CENSORING VARIABLE
                ,a_cdiag=cte(a_tdiag)
