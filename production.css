@@ -139,3 +139,10 @@ p.abstract:after {
     visibility: visible;
     content: 'Latest Developments';
 }
+
+/* 
+This is how you hide a header without hiding the whole div. I guess H6 is now my 
+de-facto div tag, and I'll edit the corresponding style in Word to be invisible.
+.hideheader h6 {
+  display: none;
+}
