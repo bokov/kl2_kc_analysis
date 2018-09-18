@@ -1070,7 +1070,12 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars='1'
                             ,plotadd=list(
                               guides(colour=guide_legend('')
                                      ,fill=guide_legend('')))
-                            ,survfun=survfit,survargs=list(),...){
+                            ,survfun=survfit,survargs=list()
+                            # set to empty list in order to use fs() defaults
+                            # set to NA or any other atomic value to disable
+                            ,fsargs=alist(retfun=return
+                                          ,col_tooltip = 'chartname'
+                                          ,template="%4$s"),...){
   # get the name of the data object
   datname <- deparse(substitute(dat));
   # take the subset of dat that has relevant/valid records
@@ -1112,11 +1117,17 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars='1'
                                                                ,collapse='+')));
   # fit survfun
   sfit <- do.call(survfun,c(formula,list(dat),survargs));
-  # create plot object
+  lstartvars <- startvars; leventvars <- eventvars;
+  if(length(find('fs'))>0 && is.list(eval(fsargs))){
+    lstartvars <- sapply(startvars,function(xx) do.call(fs,c(xx,fsargs)));
+    lstartvars[str_length(lstartvars)==0] <- startvars;
+    leventvars <- sapply(eventvars,function(xx) do.call(fs,c(xx,fsargs)));
+    leventvars[str_length(leventvars)==0] <- eventvars;
+  }
   if(any(c('...','main') %in% names(formals(plotfun)))) {
     if(is.na(main)){main <- sprintf('Time from %s to %s'
-                                    ,paste0(startvars,collapse='/')
-                                    ,paste0(eventvars,collapse='/'));}
+                                    ,paste0(lstartvars,collapse='/')
+                                    ,paste0(leventvars,collapse='/'));}
     plotargs[['main']] <- main;}
   if(any(c('...','xlab') %in% names(formals(plotfun)))){
     if(is.na(xlab)){xlab <- 'Time';
@@ -1124,8 +1135,9 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars='1'
     plotargs[['xlab']] <- xlab;} 
   if(any(c('...','ylab') %in% names(formals(plotfun)))){
     if(is.na(ylab)){
-      ylab <- sprintf('Fraction without %s',paste0(eventvars,collapse='/'));}
+      ylab <- sprintf('Fraction without %s',paste0(leventvars,collapse='/'));}
     plotargs[['ylab']] <- ylab;}
+  # create plot object
   splot <- do.call(plotfun,c(list(sfit),plotargs));
   # add plotadd to plot object
   if(!all(is.na(plotadd))) for(ii in plotadd) splot <- splot + ii;
