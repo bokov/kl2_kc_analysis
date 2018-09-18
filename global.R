@@ -36,8 +36,10 @@ instrequire(c('compiler'                                   # just-in-time compil
 #' 
 source('./config.R');
 
-
 #' ## Set generic variables
+#' 
+#' That is to say, variables which can be set without reference to the data and
+#' do not take a lot of time to do.
 #' 
 #' data dictionary produced by datafinisher, should physically accompany inputdata
 dctfile_raw <- paste0(dirname(inputdata),'/meta_',basename(inputdata));
@@ -56,3 +58,16 @@ dct_stage <- Inf;
 #' This is the file that lists levels of discrete variables and what each listed
 #' level should be renamed to.
 levels_map_file <- 'levels_map.csv';
+#' templates for `fs()`
+fstmplts <- list(
+  # [n_ddiag]: #n_ddiag "0390 Date of Diagnosis"
+   linkref="[%1$s]: %2$s \"%4$s\"\n"  
+  # [`n_ddiag`][#n_ddiag]
+  ,link_varname="[`%1$s`][%2$s]"
+  # [`0390 Date of Diagnosis`][#n_ddiag]
+  ,link_colnamelong="[`%4$s`][%2$s]"
+  # `0390 Date of Diagnosis`
+  ,text_colnamelong=`%4$s`
+);
+
+c()
