@@ -1092,7 +1092,7 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars
   # create tt as pmin() of eventvar and censrvar and then scale
   dat$tt <- pmin(event,censr)/scale;
   # create cc as tt <= censor
-  dat$cc <- event <= censr;
+  dat$cc <- event < censr;
   # remove the too-sparse levels of variables
   for(ii in predvars) if(length(unique(na.omit(ii)))<thrunique){
     iitab <- table(dat[[ii]]);
@@ -1103,28 +1103,19 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars
   # fit survfun
   sfit <- do.call(survfun,c(formula,list(dat),survargs));
   # create plot object
-  if(is.na(main)){
-    main <- sprintf('Time from %s to %s'
-                    ,paste0(startvars,collapse='/')
-                    ,paste0(eventvars,collapse='/'));
-    if(any(c('...','main') %in% names(formals(plotfun)))) {
-      plotargs[['main']] <- main;
-    }
-  }
-  if(is.na(xlab)){
-    xlab <- 'Time';
-    if(!is.na(unit)) xlab <- paste0('Time',' (',unit,')');
-    if(any(c('...','xlab') %in% names(formals(plotfun)))){
-      plotargs[['xlab']] <- xlab;
-    } 
-  }
-  if(is.na(ylab)){
-    ylab <- sprintf('Fraction without %s',paste0(eventvars,collapse='/'));
-    if(any(c('...','ylab') %in% names(formals(plotfun)))){
-      plotargs[['ylab']] <- ylab;
-    }
-  }
-  browser();
+  if(any(c('...','main') %in% names(formals(plotfun)))) {
+    if(is.na(main)){main <- sprintf('Time from %s to %s'
+                                    ,paste0(startvars,collapse='/')
+                                    ,paste0(eventvars,collapse='/'));}
+    plotargs[['main']] <- main;}
+  if(any(c('...','xlab') %in% names(formals(plotfun)))){
+    if(is.na(xlab)){xlab <- 'Time';
+    if(!is.na(unit)) xlab <- paste0('Time',' (',unit,')');}
+    plotargs[['xlab']] <- xlab;} 
+  if(any(c('...','ylab') %in% names(formals(plotfun)))){
+    if(is.na(ylab)){
+      ylab <- sprintf('Fraction without %s',paste0(eventvars,collapse='/'));}
+    plotargs[['ylab']] <- ylab;}
   splot <- do.call(plotfun,c(list(sfit),plotargs));
   # add plotadd to plot object
   if(!all(is.na(plotadd))) for(ii in plotadd) splot <- splot + ii;
