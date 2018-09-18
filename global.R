@@ -58,7 +58,8 @@ dct_stage <- Inf;
 #' This is the file that lists levels of discrete variables and what each listed
 #' level should be renamed to.
 levels_map_file <- 'levels_map.csv';
-#' templates for `fs()`
+#' templates for `fs()` ... note that the actual values inserted depend on 
+#' the other arguments of `fs()` and the columns of the data dictionary
 fstmplts <- list(
   # [n_ddiag]: #n_ddiag "0390 Date of Diagnosis"
    linkref="[%1$s]: %2$s \"%4$s\"\n"  
@@ -67,7 +68,9 @@ fstmplts <- list(
   # [`0390 Date of Diagnosis`][#n_ddiag]
   ,link_colnamelong="[`%4$s`][%2$s]"
   # `0390 Date of Diagnosis`
-  ,text_colnamelong="`%4$s`"
+  ,code_colnamelong="`%4$s`"
+  # 0390 Date of Diagnosis
+  ,plain_colnamelong="%4$s"
 );
 
 c()
