@@ -25,14 +25,15 @@
 # if running in test-mode, uncomment the line below
 options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
-.depends <- 'data.R';
+.depends <- 'dictionary.R';
 .depdata <- paste0(.depends,'.rdata');
 .currentscript <- parent.frame(2)$ofile;
 if(is.null(.currentscript)) .currentscript <- knitr::current_input();
 if(is.null(.currentscript)) .currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 tself(scriptname=.currentscript);
 project_seed <- 20180803;
-if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
+if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"'
+                                          ,gsub('\\.light','',.depends)));
 .loadedobjects <- tload(.depdata);
 # a hack pending until we can separate the light and heavy parts of data.R 
 # somehow
