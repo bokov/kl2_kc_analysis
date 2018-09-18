@@ -4,24 +4,29 @@
 #' date: "09/13/2018"
 #' css: production.css
 #' toc: true
-#' output:
-#'  html_document:
-#'   keep_md: true
-#'  word_document:
-#'   keep_md: true
-#'  pdf_document:
-#'   keep_md: true
 #' ---
 #' 
 #+ echo=FALSE
-# output:
-#  html_document:
-#    keep_md: yes
 #' Note: in the YAML header, the `reference_docx` argument seems to get ignored
 #' if it's at the top level.
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
+#' Things that do not work in YAML header.
+#' 
+#' Ignored:
+# variant: markdown+fenced_divs
+#' Error: `pandoc: Unknown extension: fenced_divs`
+# md_document:
+#   variant: markdown+fenced_divs
+#' Works but Rstudio builds the first item on the list, does not prompt, 
+#' annoying
+# output:
+#  html_document:
+#    keep_md: yes
+#  word_document:
+#    keep_md: yes
+#
 # if running in test-mode, uncomment the line below
 options(gitstamp_prod=F);
 options(markdown.extensions=c(markdown::markdownExtensions(),'fenced_divs'));
