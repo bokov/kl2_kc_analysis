@@ -1061,12 +1061,15 @@ adjudicate_levels <- function(xx,levs=list(),...,DEFAULT=NA,MISSING=NA){
 survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars='1'
                             ,formula=NA
                             ,default.censrvars=c('age_at_visit_days')
-                            ,subs=patient_num %in% kcpatients.naaccr
-                            ,thrunique=5,thrsmsize=20
+                            ,subs=patient_num %in% kcpatients.naaccr 
+                            ,thrunique=5,thrsmsize=20,drop_pred=NA
                             ,eventfun=pmin,censrfun=pmin,startfun=pmin
                             ,followup=Inf,scale=1,unit=NA
-                            ,plotfun=autoplot,plotargs=list(mark.time=T)
+                            ,plotfun=autoplot
+                            ,plotargs=list(mark.time=T,conf.int.alpha=0.1
+                                           ,surv.size=2)
                             ,main=NA,xlab=NA,ylab=NA
+                            ,numeric_pred_breaks=3
                             ,plotadd=list(
                               guides(colour=guide_legend('')
                                      ,fill=guide_legend('')))
@@ -1105,11 +1108,18 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars='1'
   dat$cc <- event < censr;
   # TODO: if they are numeric, bin them instead
   # remove the too-sparse levels of variables
-  for(ii in predvars) if(length(unique(na.omit(ii)))<thrunique){
+  drop_pred <- na.omit(drop_pred);
+  # if(length(unique(na.omit(ii)))<thrunique)
+  for(ii in predvars) {
+    if(!is.na(numeric_pred_breaks) && numeric_pred_breaks>0 && 
+              is.numeric(dat[[ii]])){
+      dat[[ii]] <- cut(dat[[ii]]
+                       ,quantile(dat[[ii]]
+                                 ,c(0,seq_len(numeric_pred_breaks))/
+                                   numeric_pred_breaks,na.rm=T)
+                       ,include.lowest = T)}
     iitab <- table(dat[[ii]]);
-    if(any(iitab<thrsmsize)) {
-      dat[[ii]][dat[[ii]] %in% names(iitab)[iitab<thrsmsize]] <- NA;
-    }
+    dat[[ii]][dat[[ii]] %in% c(names(iitab)[iitab<thrsmsize],drop_pred)] <- NA;
   }
   # TODO: sanity-check predvars to make sure they exist 
   if(all(is.na(formula))) formula <- as.formula(paste0('Surv(tt,cc)~'
