@@ -10,7 +10,7 @@
 #' Note: in the YAML header, the `reference_docx` argument seems to get ignored
 #' if it's at the top level.
 #' 
-#+ init, echo=FALSE, include=FALSE, message=FALSE
+#+ init_chunk, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 #' Things that do not work in YAML header.
 #' 
@@ -27,6 +27,7 @@
 #  word_document:
 #    keep_md: yes
 #
+#+ init, echo=FALSE, include=FALSE, message=FALSE
 # if running in test-mode, uncomment the line below
 options(gitstamp_prod=F);
 options(markdown.extensions=c(markdown::markdownExtensions(),'fenced_divs'));
@@ -99,6 +100,13 @@ panderOptions('table.alignment.rownames','left');
 #' This is [a span] without any particular link. This is [another span]{#fooid1 .barclass}
 #' that has a class and an ID. This is a [span with custom style]{custom-style="foostyle"}
 #' and [this is]{#fooid2 .barclass custom-style="foostyle"} a span with both.
+#' 
+#' Spans work for class and Word style but only work as anchors in HTML, not in 
+#' Word. I wonder if I can make a header have a custom style.
+#' 
+#' ###### Hi, I'm an annoying header {#annoying .annoyingclass custom-style="foostyle"}
+#' 
+#' Stuff under an annoying header.
 #' 
 # list_tables ------------------------------------------------------------------
 #' # Lists in tables
