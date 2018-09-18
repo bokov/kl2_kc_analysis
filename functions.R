@@ -908,7 +908,7 @@ fullargs <- function(syspar=sys.parent(),env=parent.frame(2L),expand.dots=TRUE){
 #'                   (currently) enforced programmatically.
 v <- function(var,dat
               # DONE: let retcol take a vector argument
-              ,retcol=matchcol
+              ,retcol
               ,dictionary=dct0
               ,asname=F) {
   # convenience function: if forgot what column names are available, call with
