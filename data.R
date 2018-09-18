@@ -308,11 +308,27 @@ pat_samples <- unique(dat1$patient_num) %>%
 #' ### Create a version of the dataset that only has each patient's 1st encounter
 #' 
 #' 
-dat2a <- c();
+dat2a <- mutate_at(dat1,v(c_istte)
+                   ,.funs=funs(ifelse(any((.)==0,na.rm=T)
+                                      ,(age_at_visit_days)[(.)==0]
+                                      , max(age_at_visit_days)))) %>%
+  summarise_all(function(xx){
+    if(is.logical(xx)) any(xx) else (last(na.omit(xx)))});
 #' This is the original dat2 that, after testing, will be replaced by the above
 #' dat2a that will enable more flexible creation of survival curves.
 dat2 <- summarise_all(dat1,function(xx) {
   if(is.logical(xx)) any(xx) else last(na.omit(xx))});
+#' Column names for non-tte variables shared by dat2a and dat2
+.nontte<-setdiff(intersect(names(dat2a),names(dat2)),v(c_tte));
+#' Test to confirm that the non-tte columns of `dat2a` and `dat2` are identical
+#' In all rows of .data2a_data2_eq the Total column is the sum of the `dat2` 
+#' NA values and values where `dat2` is equal to `dat2a`... if this column is 
+#' invariant and equal to the total number of rows that means the only cases 
+#' where the values differ is where the `dat2` one is NA
+.dat2a_dat2_eq <- mapply(function(aa,bb) {
+  eq<-sum(aa==bb,na.rm=T);
+  c(Equal=eq,`dat2 missing`=sum(is.na(bb)),Total=eq+sum(is.na(bb)))}
+  ,dat2a[,.nontte],dat2[,.nontte]) %>% t;
 # dat3, timevars ---------------------------------------------------------------
 #+ create_xdat
 # To understand what the below code does, see the comments for the very similar
@@ -326,6 +342,14 @@ dat3 <- sapply(l_tte
   c(list(.data=select(subset(dat1,patient_num %in% kcpatients.naaccr)
                       ,c('age_at_visit_days',l_tte))),.) %>% 
   do.call(summarize,.);
+#' Test to confirm that all l_tte variables are the same between dat3 and the 
+#' equivalent subset of dat2a. Again, `Total` always being the same and equal to
+#' the number of rows in `dat3` means the TTE columns have been correctly 
+#' transformed.
+.dat2a_dat3_eq <- mapply(function(aa,bb) {
+  eq<-sum(aa==bb,na.rm=T);
+  c(Equal=eq,`dat3 missing`=sum(is.na(bb)),Total=eq+sum(is.na(bb)))}
+  ,subset(dat2a,patient_num %in% kcpatients.naaccr)[,l_tte],dat3[,l_tte]) %>% t
 # subs_criteria, multiple subsets ----------------------------------------------
 #' ### Some splits based on patient-level variables
 #' 

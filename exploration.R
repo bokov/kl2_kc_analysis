@@ -15,7 +15,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- c('dictionary.R','data.R');
 .depdata <- paste0(.depends,'.rdata');
@@ -828,6 +828,17 @@ subset(dat1
            ,main='Time from Diagnosis to Surgery') + 
   # cleaning up the legend for this plot
   guides(colour=guide_legend(''),fill=guide_legend(''));
+
+# new version
+.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
+                                 ,startvars = 'a_tdiag',predvars = 'a_hsp_broad'
+                                 ,subs = patient_num %in% kcpatients.naaccr & 
+                                   patient_num %in% pat_samples$train
+                                 ,followup = 365.25*3,scale=7,unit='Weeks'
+                                 ,main='Time from Diagnosis to Surgery dat2a'
+                                 ,ylab='% Not Undergone Surgery'
+                                 ,xlab='Weeks Since Diagnosis');
+.survfit_plot0$plot;
 #' 
 #' So far it seems there is no great difference in the raw lag between Hispanic
 #' and non-Hispanic patients but with the major caveat that I have not yet 
@@ -836,14 +847,36 @@ subset(dat1
 #' 
 #+ surv_recur,cache=TRUE
 subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_recur)) %>% 
-  summarise(age=age_at_visit_days[a_tsurg==0]
+    summarise(age=age_at_visit_days[a_tsurg==0]
             ,a_tsurg=last(a_tsurg),a_crecur=last(a_crecur)
             ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
+  # roll-it-yourself tee function, for debugging
+  (function(xx){.GlobalEnv$.dat1hisp<-subset(xx,hisp)$patient_num; 
+  .GlobalEnv$.dat1pats<-xx$patient_num;return(xx)}) %>%
   survfit(Surv(a_tsurg,a_crecur)~hisp,.) %>% 
   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving in Remission'
            ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1)
            ,main='Time from Surgery to Recurrence') +
   guides(colour=guide_legend('Hispanic'),fill=guide_legend('Hispanic'));
+# Now the new version using above's inclusion criteria
+.survfit_plot1 <- survfit_wrapper(mutate(dat2a,hisp=patient_num %in% .dat1hisp)
+                                  ,eventvars = 'a_trecur',censrvars=c()
+                                  ,startvars = 'a_tsurg',predvars='hisp'
+                                  ,subs=patient_num%in%.dat1pats
+                                  ,plotargs = list(mark.time=T,xlim=c(0,2000)
+                                                   ,ylim=c(.55,1),surv.size=2
+                                                   ,conf.int.alpha=0.1)
+                                  ,main='Time from Surgery to Recurrence dat2a'
+                                  ,ylab='% Surviving in Remission'
+                                  ,xlab='Days Since Surgery'
+                                  ,plotadd = list(
+                                    guides(colour=guide_legend('Hispanic')
+                                           ,fill=guide_legend('Hispanic'))));
+.survfit_plot1$plot;
+# The old Hispanic calculation happens to be broken, and is missing lots of
+# patients who are Hispanic, but the point of this commit-set is to demonstrate
+# that the new survival plot can precisely duplicate the old, and that at least
+# the tte variables work identically.
 #' 
 #' Does recurrence-free survival after surgery differ between hispanic and non 
 #' hispanic patients?
@@ -855,11 +888,16 @@ subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death))
   summarise(age=age_at_visit_days[a_tsurg==0]
             ,a_tsurg=last(a_tsurg),a_cdeath=last(a_cdeath)
             ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
+  (function(xx){.GlobalEnv$.dat1hisp<-subset(xx,hisp)$patient_num; 
+  .GlobalEnv$.dat1pats<-xx$patient_num;return(xx)}) %>%
   survfit(Surv(a_tsurg,a_cdeath)~hisp,.) %>% 
   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving'
            ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1)
            ,main='Survival After Surgery') + 
   guides(colour=guide_legend('Hispanic'),fill=guide_legend('Hispanic'));
+.survfit_plot2<-update(.survfit_plot1,eventvars='a_tdeath'
+                       ,main='Survival After Surgery dat2a',ylab='% Surviving');
+.survfit_plot2$plot;
 #' 
 #' Does survival after surgery (insofar that it is reliably represented in the
 #' records) differ between hispanic and non-hispanic patients?

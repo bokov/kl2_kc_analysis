@@ -628,7 +628,14 @@ autoboxplot <- function(pdata, xx, yy, zz, subset=T
   out;
 }
 
-getCall.data.frame <- getCall.gg <- function(xx) attr(xx,'call');
+getCall.list <- getCall.data.frame <- getCall.gg <- function(xx) attr(xx,'call');
+
+# why not update calls?
+update.call <- function(xx,...){
+  dots <- list(...);
+  for(ii in names(dots)) xx[[ii]] <- dots[[ii]];
+  xx;
+}
 
 #' From ... https://menugget.blogspot.com/2011/11/define-color-steps-for-colorramppalette.html#more
 #' Manually shape the intervals of a color gradient
@@ -877,8 +884,16 @@ stratatable <- function(xx,vars=NULL,...){
   return(res);
 }
 
-
-
+#' returns call with ALL arguments specified, both the defaults and those
+#' explicitly provided by the user
+fullargs <- function(syspar=sys.parent(),env=parent.frame(2L),expand.dots=TRUE){
+  fn <- sys.function(syspar);
+  frm <- formals(fn);
+  cll <- match.call(fn,sys.call(syspar),expand.dots = expand.dots,envir = env);
+  defaults <- setdiff(names(frm),c(names(cll),'...'));
+  for(ii in defaults) cll[[ii]] <- frm[[ii]];
+  return(cll);
+}
 #' Returns a list of column names from the data dictionary for which the column
 #' named in the first argument is true. The first arg can be either a string or 
 #' a name. The second must be a data.frame
@@ -900,7 +915,7 @@ stratatable <- function(xx,vars=NULL,...){
 #'                   (currently) enforced programmatically.
 v <- function(var,dat
               # DONE: let retcol take a vector argument
-              ,retcol=matchcol
+              ,retcol
               ,dictionary=dct0
               ,asname=F) {
   # convenience function: if forgot what column names are available, call with
@@ -1038,4 +1053,84 @@ adjudicate_levels <- function(xx,levs=list(),...,DEFAULT=NA,MISSING=NA){
     if(xx %in% levs[[ll[1]]]) return(ll[1]) else (ll<-ll[-1]);
   }
   if(is.na(DEFAULT)) return(tail(xx,1)) else return(DEFAULT);
+}
+
+#' Wrapper for taking data in the form of age-at-event, subtracting a starting
+#' event, truncating on one or more ending events, and generating a survival
+#' curve while outputting a surv object.
+survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars='1'
+                            ,formula=NA
+                            ,default.censrvars=c('age_at_visit_days')
+                            ,subs=patient_num %in% kcpatients.naaccr
+                            ,thrunique=5,thrsmsize=20
+                            ,eventfun=pmin,censrfun=pmin,startfun=pmin
+                            ,followup=Inf,scale=1,unit=NA
+                            ,plotfun=autoplot,plotargs=list(mark.time=T)
+                            ,main=NA,xlab=NA,ylab=NA
+                            ,plotadd=list(
+                              guides(colour=guide_legend('')
+                                     ,fill=guide_legend('')))
+                            ,survfun=survfit,survargs=list(),...){
+  # get the name of the data object
+  datname <- deparse(substitute(dat));
+  # take the subset of dat that has relevant/valid records
+  sbs <- substitute(subs);
+  # No idea why subset(dat,subs) gives "object 'FOO' not found" when subs 
+  # references column FOO which is in dat but this roundabout way works....
+  dat <- dat[with(dat,eval(sbs)),];
+  # collect the names of the tte vars and static vars
+  # tte vars
+  tvars0 <- na.omit(unique(c(eventvars,censrvars,default.censrvars,startvars)));
+  tvars1 <- intersect(tvars0,names(dat));
+  if(length(tvars0)!=length(tvars1)) warning(sprintf(
+    'The variables %s were not found in %s'
+    ,paste0(setdiff(tvars0,tvars1),collapse=', '),datname));
+  # use startfun to make startvar out of startvars
+  start <- do.call(startfun,c(dat[,intersect(startvars,tvars1)],na.rm=T));
+  # subract start from eventvars and censrvars, we are now done with that var
+  dat[,tvars1] <- dat[,tvars1] - start;
+  # use eventfun/censfun (with followup) to create eventvar and censrvar
+  event <- do.call(eventfun,c(dat[,intersect(eventvars,tvars1)],na.rm=T));
+  censr <- do.call(censrfun
+                   ,c(dat[,intersect(c(censrvars,default.censrvars),tvars1)]
+                      ,followup=followup,na.rm=T));
+  # create tt as pmin() of eventvar and censrvar and then scale
+  dat$tt <- pmin(event,censr)/scale;
+  # create cc as tt <= censor
+  dat$cc <- event < censr;
+  # TODO: if they are numeric, bin them instead
+  # remove the too-sparse levels of variables
+  for(ii in predvars) if(length(unique(na.omit(ii)))<thrunique){
+    iitab <- table(dat[[ii]]);
+    if(any(iitab<thrsmsize)) {
+      dat[[ii]][dat[[ii]] %in% names(iitab)[iitab<thrsmsize]] <- NA;
+    }
+  }
+  # TODO: sanity-check predvars to make sure they exist 
+  if(all(is.na(formula))) formula <- as.formula(paste0('Surv(tt,cc)~'
+                                                       ,paste0(predvars
+                                                               ,collapse='+')));
+  # fit survfun
+  sfit <- do.call(survfun,c(formula,list(dat),survargs));
+  # create plot object
+  if(any(c('...','main') %in% names(formals(plotfun)))) {
+    if(is.na(main)){main <- sprintf('Time from %s to %s'
+                                    ,paste0(startvars,collapse='/')
+                                    ,paste0(eventvars,collapse='/'));}
+    plotargs[['main']] <- main;}
+  if(any(c('...','xlab') %in% names(formals(plotfun)))){
+    if(is.na(xlab)){xlab <- 'Time';
+    if(!is.na(unit)) xlab <- paste0('Time',' (',unit,')');}
+    plotargs[['xlab']] <- xlab;} 
+  if(any(c('...','ylab') %in% names(formals(plotfun)))){
+    if(is.na(ylab)){
+      ylab <- sprintf('Fraction without %s',paste0(eventvars,collapse='/'));}
+    plotargs[['ylab']] <- ylab;}
+  splot <- do.call(plotfun,c(list(sfit),plotargs));
+  # add plotadd to plot object
+  if(!all(is.na(plotadd))) for(ii in plotadd) splot <- splot + ii;
+  # return plot object and optionally surv object along with call
+  out <- list(fit=sfit,plot=splot);
+  attr(out,'call') <- fullargs();
+  invisible(out);
 }
