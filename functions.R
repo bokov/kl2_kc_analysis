@@ -572,7 +572,10 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
   # register each unique str called by fs in a global option specified by 
   # fs_register
   if(!is.null(fs_reg)) {
-    do.call(options,setNames(list(union(getOption(fs_reg),str)),fs_reg));}
+    dbg<-try(do.call(options,setNames(list(union(getOption(fs_reg),str))
+                                      ,fs_reg)));
+    if(is(dbg,'try-error')) browser();
+    }
   retfun(out);
 }
 #' Plots in the style we've been doing (continuous y, discrete x and optionally z)
