@@ -577,7 +577,7 @@ lines(.eplot_surg1$n_rx1260,col='#00FFFF60',type='s');
 #' `r fs('n_surgreason')` variable:
 lapply(v(c_nephx,dat3)[6:9],function(ii) 
   table(dat2$n_surgreason,dat2[[ii]]>=0) %>% 
-    set_colnames(.,paste0(ii,'=',colnames(.)))) %>% do.call(cbind,.) %>% pander;
+    set_colnames(.,paste0(ii,' = ',colnames(.)))) %>% do.call(cbind,.) %>% pander;
 
 #' ##### Surgery Conclusion
 #' 
@@ -1197,12 +1197,12 @@ cat('***\n');
                 ,select = c('varname','colname_long','chartname','comment'
                             ,'col_url')) %>% 
   apply(1,function(xx) cat(
-    '######',xx[1],'\n\n',xx[1],':\n\n  ~ '
+    '######',xx[1],'\n\n',na.omit(xx[2:1])[1],':\n\n  ~ '
     ,ifelse(length(na.omit(xx[2:4]))>0
             ,iconv(paste(na.omit(xx[2:4]),collapse='; '),to='UTF-8',sub=''),'')
     ,ifelse(is.na(xx[5]),'',paste('\n\n  ~ Link:',xx[5])),'\n\n***\n'));
 # A5 audit ---------------------------------------------------------------------
 #' ## Appendix V: Audit trail
 walktrail()[,-5] %>% pander(split.tables=600,,justify='left');
-
+#+ results='hide'
 c()
