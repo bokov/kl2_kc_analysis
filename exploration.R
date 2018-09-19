@@ -1193,10 +1193,10 @@ cat('***\n');
                 ,select = c('varname','colname_long','chartname','comment'
                             ,'col_url')) %>% 
   apply(1,function(xx) cat(
-    '######',xx[1],'\n\n'
+    '######',xx[1],'\n\n',xx[1],':\n\n  ~ '
     ,ifelse(length(na.omit(xx[2:4]))>0
             ,iconv(paste(na.omit(xx[2:4]),collapse='; '),to='UTF-8',sub=''),'')
-    ,ifelse(is.na(xx[5]),'',paste('\n\nLink:',xx[5])),'\n\n***\n'));
+    ,ifelse(is.na(xx[5]),'',paste('\n\n  ~ Link:',xx[5])),'\n\n***\n'));
 # A5 audit ---------------------------------------------------------------------
 #' ## Appendix V: Audit trail
 walktrail()[,-5] %>% pander(split.tables=600,,justify='left');
