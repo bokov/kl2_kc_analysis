@@ -110,7 +110,7 @@ h5 {
 h6 {
   font-size: 0.9em; 
   font-style: italic;
-  display: inline;
+  display: none;
 }
 
 tbody {
