@@ -42,8 +42,8 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 # IN THE MAIN SECTION ONLY!! The retfun should be return for inline use and cat
 # for use generating asis chunks.
 .args_default_fs <- formals(fs);
-formals(fs)[c('url','template','fs_reg','retfun')] <- alist(str,'fs_reg',return);
-formals(fs)$template <- fstmplts$link_varname;
+formals(fs)[c('url','fs_reg','retfun')] <- alist(str,'fs_reg',return);
+formals(fs)$template <- fstmplts$link_colnamelong;
 
 # We don't yet explicitly reference patient_num outside the news block, so I'm 
 # priming the fs_reg option with it here manually
