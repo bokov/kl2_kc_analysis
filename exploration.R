@@ -41,8 +41,10 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 # defaults for 'fancy span' string transformation of variable names 
 # IN THE MAIN SECTION ONLY!! The retfun should be return for inline use and cat
 # for use generating asis chunks.
-formals(fs)[c('url','template','fs_reg','retfun')] <- alist(str,'[`%1$s`][%2$s]'
-                                                            ,'fs_reg',return);
+.args_default_fs <- formals(fs);
+formals(fs)[c('url','template','fs_reg','retfun')] <- alist(str,'fs_reg',return);
+formals(fs)$template <- fstmplts$link_varname;
+
 # We don't yet explicitly reference patient_num outside the news block, so I'm 
 # priming the fs_reg option with it here manually
 options(fs_reg='patient_num');
@@ -1180,8 +1182,10 @@ heatmap(dat3.gteq[.dat3.keep,.dat3.keep],symm = T,na.rm = T,margins=c(10,10)
 #' 
 #+ progfootnotes, results='asis'
 # set new template for creating the internal link VALUES
-formals(fs)[c('url','template','retfun')] <- alist(paste0('#',str)
-                                          ,'[%1$s]: %2$s "%4$s"\n',cat);
+# formals(fs)[c('url','template','retfun')] <- alist(paste0('#',str)
+#                                           ,'[%1$s]: %2$s "%4$s"\n',cat);
+formals(fs)[c('url','retfun')] <- alist(paste0('#',str),cat);
+formals(fs)$template <- fstmplts$linkref;
 .junk <- subset(dct0,varname %in% getOption('fs_reg')
                 ,select = c('varname','colname_long')) %>% 
   apply(1,function(xx) fs(xx[1],tooltip=xx[2]));
@@ -1200,3 +1204,5 @@ cat('***\n');
 # A5 audit ---------------------------------------------------------------------
 #' ## Appendix V: Audit trail
 walktrail()[,-5] %>% pander(split.tables=600,,justify='left');
+
+c()
