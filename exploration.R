@@ -783,109 +783,72 @@ abline(h=0,col='blue');
 #' 
 #' To avoid bias/overfitting all descriptive data and visualizations below that 
 #' relate the predictor variable to the outcome are done using a randomly 
-#' selected subset of the records (N=`r length(pat_samples$train)`).
-#' 
-#+ surv_surg,cache=TRUE
-# subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) %>% 
-#   summarise(age=age_at_visit_days[a_tdiag==0]
-#             ,a_tdiag=last(a_tdiag),a_csurg=last(a_csurg)
-#             ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
-#   survfit(Surv(a_tdiag,a_csurg)~hisp,.) %>% 
-#   autoplot(mark.time=T,xlab='Days Since Diagnosis',ylab='% No Surgery Yet'
-#            ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2);
-# subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$diag_surg)) %>% 
-#   summarise_all(function(xx) {browser();last(na.omit(xx))}) %>%
-#   survfit(Surv(a_tdiag,a_csurg)~1,.) %>% 
-#   autoplot(mark.time=T,xlim=c(0,2000)
-#            ,xlab='Days Since Diagnosis',ylab='% Not Undergone Surgery');
-subset(dat1
-       # subset the patient histories to on and after the day of diagnosis
-       # (according to NAACCR) and on or before the day of surgery (==0) or
-       # last follow-up (<0), and also limit the patients to ones randomly 
-       # assigned to the training set so we're not "peeking at the answers"
-       ,a_tdiag>=0 & a_tsurg<=0 & 
-         #a_hsp_broad!='Unknown' &
-         patient_num %in% pat_samples$train)[,c(
-           'patient_num','n_ddiag','n_dsurg','a_tdiag','a_tsurg'
-           ,'n_hisp','a_hsp_broad','a_hsp_strict')] %>% 
-  # take the last non-missing event from each column
-  summarise_all(function(xx) {
-    if(is.logical(xx)) any(xx) else (last(na.omit(xx)))}) %>% 
-  # convert time to weeks, and truncate on last followup period
-  mutate(a_tdiag=a_tdiag/7,a_tdiag=pmin(a_tdiag,52.179*3)
-         # we're setting the follow-up time to one year, and censoring any 
-         # surgeries that happened more than a year from the initial diagnosis
-         # (or that never happened, n_dsurg!=0)
-         ,cen=a_tdiag<52.179*3&a_tsurg==0
-         # simplifying the 'n_hisp' variable
-         ,n_hisp=recode(n_hisp,Non_Hispanic='Non_Hispanic',Unknown='Unknown'
-                        ,.default='Hispanic')
-         ,predictor=a_hsp_broad) %>% 
-  subset(predictor!='Unknown') %>%
-  # fitting a survival curve
-  survfit(Surv(a_tdiag,cen)~predictor,.) %>% 
-  # generating a plot for the survival curve
-  autoplot(mark.time=T
-           ,xlab='Weeks Since Diagnosis',ylab='% Not Undergone Surgery'
-           ,main='Time from Diagnosis to Surgery') + 
-  # cleaning up the legend for this plot
-  guides(colour=guide_legend(''),fill=guide_legend(''));
-
-# new version
-.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
-                                 ,startvars = 'a_tdiag',predvars = 'a_hsp_broad'
-                                 ,subs = patient_num %in% kcpatients.naaccr & 
-                                   patient_num %in% pat_samples$train
-                                 ,followup = 365.25*3,scale=7,unit='Weeks'
-                                 ,main='Time from Diagnosis to Surgery dat2a'
-                                 ,ylab='% Not Undergone Surgery'
-                                 ,xlab='Weeks Since Diagnosis');
-.survfit_plot0$plot;
-#' 
-#' So far it seems there is no great difference in the raw lag between Hispanic
-#' and non-Hispanic patients but with the major caveat that I have not yet 
-#' finalized the Hispanic variable and this does not account for other 
-#' covariates like age and stage.
-#' 
-#+ surv_recur,cache=TRUE
-subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_recur)) %>% 
-    summarise(age=age_at_visit_days[a_tsurg==0]
-            ,a_tsurg=last(a_tsurg),a_crecur=last(a_crecur)
-            ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
-  # roll-it-yourself tee function, for debugging
-  (function(xx){.GlobalEnv$.dat1hisp<-subset(xx,hisp)$patient_num; 
-  .GlobalEnv$.dat1pats<-xx$patient_num;return(xx)}) %>%
-  survfit(Surv(a_tsurg,a_crecur)~hisp,.) %>% 
-  autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving in Remission'
-           ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1)
-           ,main='Time from Surgery to Recurrence') +
-  guides(colour=guide_legend('Hispanic'),fill=guide_legend('Hispanic'));
-# Now the new version using above's inclusion criteria
-.survfit_plot1 <- survfit_wrapper(mutate(dat2a,hisp=patient_num %in% .dat1hisp)
-                                  ,eventvars = 'a_trecur',censrvars=c()
-                                  ,startvars = 'a_tsurg',predvars='hisp'
-                                  ,subs=patient_num%in%.dat1pats
-                                  ,plotargs = list(mark.time=T,xlim=c(0,2000)
-                                                   ,ylim=c(.55,1),surv.size=2
-                                                   ,conf.int.alpha=0.1)
-                                  ,main='Time from Surgery to Recurrence dat2a'
-                                  ,ylab='% Surviving in Remission'
-                                  ,xlab='Days Since Surgery'
+#' selected subset of the records (N=`r length(intersect(pat_samples$train,kcpatients.naaccr))`).
+#' The below results are still preliminary because, among other things, they 
+#' have not been normalized for covariates including age and stage at diagnosis.
+#+ survfit0,fig.lp='Figure',fig.cap='No great short-term difference between Hispanic and non-Hispanic patients. In the longer term a greater fraction of Hispanic patients eventually undergo surgery.'
+(.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
+                                  ,startvars = 'a_tdiag'
+                                  ,predvars = 'a_hsp_naaccr'
+                                  ,default.censrvars = c('n_lc','n_vtstat')
+                                  #,censrfun = pmax
+                                  # Reduce(intersect,list(...)) is how one can
+                                  # do intersect with >2 vectors
+                                  ,subs = patient_num %in% 
+                                    Reduce(intersect,list(kcpatients.naaccr
+                                                          ,pat_samples$train))
+                                  ,followup = 365.25*2,scale=7,unit='Weeks'
+                                  ,main='Time from diagnosis to surgery'
+                                  ,ylab='Fraction not undergone surgery'
+                                  ,xlab='Weeks since diagnosis'
                                   ,plotadd = list(
                                     guides(colour=guide_legend('Hispanic')
-                                           ,fill=guide_legend('Hispanic'))));
-.survfit_plot1$plot;
-# The old Hispanic calculation happens to be broken, and is missing lots of
-# patients who are Hispanic, but the point of this commit-set is to demonstrate
-# that the new survival plot can precisely duplicate the old, and that at least
-# the tte variables work identically.
-#' 
+                                           ,fill=guide_legend('Hispanic'))))
+ )$plot;
+# Now plot two different scenarios on the same axes, the original and enhanced 
+# by EMR variables. Strict
+# plot(.survfit_plot0$fit,col=c('red','blue'),mark.time = T,xlim=c(-1,150)
+#      ,lwd=2,main='Time from Diagnosis to Surgery',ylab='Not Undergone Surgery'
+#      ,xlab='Weeks Since Diagnosis');
+# lines(update(.survfit_plot0,default.censrvars=c('a_tdeath','age_at_visit_days')
+#              ,predvars='a_hsp_strict')$fit
+#       ,col=c('#0000ff40','#00ff0040','#ff000040'),lwd=4,mark.time=T);
+# lines(update(.survfit_plot0,default.censrvars=c('a_tdeath','age_at_visit_days')
+#              ,predvars='a_hsp_broad')$fit
+#       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
+#+ surv_recur,cache=TRUE,fig.lp='Figure',fig.cap='No difference in recurrence risk observed with recurrence and surgery variables as currently prepared.'
+(.survfit_plot1 <- update(.survfit_plot0,eventvars='a_trecur'
+                          ,startvars='a_tsurg'
+                          ,subs = patient_num %in% 
+                            Reduce(intersect,list(kcpatients.naaccr
+                                                  ,kcpatients.surg
+                                                  ,pat_samples$train))
+                          ,main='Time from surgery to recurrence'
+                          ,ylab='Fraction recurrence-free'
+                          ,xlab='Weeks since surgery'))$plot;
+# plot(.survfit_plot1$fit,col=c('red','blue'),mark.time = T,xlim=c(-1,150)
+#      ,lwd=2,main='Time from surgery to recurrence',ylab='Fraction recurrence-free'
+#      ,xlab='Weeks since surgery',ylim=c(.7,1));
+# lines(update(.survfit_plot1,default.censrvars=c('a_tdeath','age_at_visit_days')
+#              ,predvars='a_hsp_strict')$fit
+#       ,col=c('#ff000040','#00ff0040','#0000ff40'),lwd=4,mark.time=T);
+# lines(update(.survfit_plot1,default.censrvars=c('a_tdeath','age_at_visit_days')
+#              ,predvars='a_hsp_broad')$fit
+#       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
 #' Does recurrence-free survival after surgery differ between hispanic and non 
 #' hispanic patients?
-#' 
-#'  
-#'
 #+ surv_death,cache=TRUE
+(.survfit_plot2 <- update(.survfit_plot1,eventvars='n_vtstat'
+                          ,default.censrvars = 'n_lc'
+                          # ,subs = patient_num %in% 
+                          #   Reduce(intersect,list(kcpatients.naaccr
+                          #                         ,kcpatients.surg
+                          #                         ,pat_samples$train)) &
+                          #   a_tsurg != 1e6
+                          ,censrfun=pmin
+                          ,main='Time from surgery to death'
+                          ,ylab='Fraction alive'))$plot;
+
 subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death)) %>% 
   summarise(age=age_at_visit_days[a_tsurg==0]
             ,a_tsurg=last(a_tsurg),a_cdeath=last(a_cdeath)
