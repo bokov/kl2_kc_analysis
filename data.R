@@ -425,3 +425,4 @@ subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
 #' 
 #' ...which includes the audit trail
 tsave(file=paste0(.currentscript,'.rdata'),list=setdiff(ls(),.origfiles));
+c()
