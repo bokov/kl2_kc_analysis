@@ -16,7 +16,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- c('dictionary.R','data.R');
 .depdata <- paste0(.depends,'.rdata');
@@ -194,8 +194,12 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
 #' record completeness. Counts in bold are ones that agree between the two 
 #' sources.
+#+ marital_status
 with(dat2,table(e_marital,n_marital,useNA='if')) %>% addmargins %>%
-  pander(emphasize.strong.cells=cbind(c(2:4,6:9),1:8));
+  set_rownames(.,gsub('@','',rownames(.))) %>% 
+  pander(emphasize.strong.cells=cbind(c(2:4,6:9),1:8)
+         ,caption='[Table 1]{#tab01 .table_title} This is a test table caption');
+
 #' 
 #' ### How well do birthdates match between NAACCR and the EMR?
 #' 
@@ -697,7 +701,7 @@ points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
 #' 
 #' Below are plotted times of death (for patients that have them) relative to 
 #' date of diagnosis `r fs('n_ddiag')` (horizontal blue line). The four data sources are
-#' `r fs('e_death')` the EMR death date ($\tiny\color{magenta}\triangle$), `r fs('s_death')` the social security
+#' `r fs('e_death')` the EMR death date (![](resources/pinktriangle.png){width=10}), `r fs('s_death')` the social security
 #' death date ($\color{blue}\triangledown$), `r fs('e_dscdeath')` the EMR hospital discharge death date
 #' ($\color{green}+$), and `n_vtstat` the NAACCR death date ($\tiny\color{brown}\bigcirc$).
 #' 
