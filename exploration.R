@@ -95,7 +95,8 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
                ,split.cells=c(30,Inf),missing='')[1] %>% 
   gsub('_',' ',.) %>% cat;
 # overview ---------------------------------------------------------------------
-#' ### Overview
+#' 
+#' ## Overview
 #' 
 #' 
 # questions, domain experts ----------------------------------------------------
