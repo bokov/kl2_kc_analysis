@@ -1107,12 +1107,13 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars='1'
             ,as.list(dat[,intersect(c(censrvars,default.censrvars),tvars1)]))
     ,followup,na.rm=T);
   # create tt as pmin() of eventvar and censrvar and then scale
-  # TODO: does it break anything for this to be pmin(event,followup)/scale?
-  #       because it does seem to break stuff to have the whole competing risk
-  #       (i.e. censr) be part of the pmin statment...
-  dat$tt <- pmin(event,censr)/scale;
   # create cc as tt <= censor
   dat$cc <- event < censr;
+  # NOTE: does it break anything for this to be pmin(event,followup)/scale?
+  #       because it does seem to break stuff to have the whole competing risk
+  #       (i.e. censr) be part of the pmin statment...  no, we need event to 
+  #       truncate at censoring.
+  dat$tt <- pmin(event,censr)/scale;
   # TODO: if they are numeric, bin them instead
   # remove the too-sparse levels of variables
   drop_pred <- na.omit(drop_pred);
