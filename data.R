@@ -68,7 +68,8 @@ dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',x
 kcpatients.emr <- subset(dat1,e_kc_i10|e_kc_i9)$patient_num %>% unique;
 #' Patients that are recorded in NAACCR as having kidney cancer and a diagnosis 
 #' date.
-kcpatients.naaccr <- subset(dat1,(n_seer_kcancer|n_kcancer) & n_ddiag)$patient_num %>% unique;
+kcpatients.naaccr <- subset(dat1,(n_seer_kcancer|n_kcancer) & 
+                              n_ddiag)$patient_num %>% unique;
 kcpatients.naaccr_bad_dob <- intersect(kcpatients.naaccr,kcpatients.bad_dob);
 #' create the raw time-to-event (tte) and censoring (cte) variables
 #' along with making a_n_race and a_n_dm time invariant
