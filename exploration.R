@@ -2,7 +2,7 @@
 #' title: "Kidney Cancer Data Exploration"
 #' subtitle: "KL2 Aim 2"
 #' author: 
-#' - "Alex F. Bokov^[UT Health, Department of Epidemiology and Biostatistics]"
+#' - "Alex F. Bokov^[UT Health San Antonio]"
 #' date: '`r format(Sys.Date(), "%B %d, %Y")`'
 #' tags: [data characterization, preliminary, NAACCR, urology, cancer]
 #' abstract: |
@@ -10,6 +10,7 @@
 #'   process documented for preparing them for analysis, as well as 
 #'   supplementing some of them with additional data from EMR if available.
 #' css: production.css
+#' fig_caption: yes
 #' ---
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
@@ -29,7 +30,7 @@ for(ii in seq_along(.depends)) {
   if(!file.exists(.depdata[ii])) system(sprintf('R -e "source(\'%s\')"',.depends[ii]));
   .loadedobjects <- union(.loadedobjects,tload(.depdata[ii]));
 }
-knitr::opts_chunk$set(echo = F,warning = F,message=F);
+knitr::opts_chunk$set(echo = F,warning = F,message=F,fig.scap=NA,fig.lp='');
 # Set default arguments for some functions
 panderOptions('table.split.table',Inf);
 panderOptions('missing','-');
@@ -49,7 +50,7 @@ formals(fs)$template <- fstmplts$link_colnamelong;
 # priming the fs_reg option with it here manually
 options(fs_reg='patient_num');
 # note_toc ---------------------------------------------------------------------
-#' # TOC
+#' ###### TOC
 #+ news_toc,results='asis'
 .news <- c("
 **Note:** This is not (yet) a manuscript. We are still at the data cleaning/alignment
@@ -805,7 +806,7 @@ if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
 #' selected subset of the records (N=`r length(intersect(pat_samples$train,kcpatients.naaccr))`).
 #' The below results are still preliminary because, among other things, they 
 #' have not been normalized for covariates including age and stage at diagnosis.
-#+ survfit0,fig.lp='Figure',fig.cap='No great short-term difference between Hispanic and non-Hispanic patients. In the longer term a greater fraction of Hispanic patients eventually undergo surgery.'
+#+ surv_surg,fig.cap='No great short-term difference between Hispanic and non-Hispanic patients. In the longer term a greater fraction of Hispanic patients eventually undergo surgery.'
 (.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
                                   ,startvars = 'a_tdiag'
                                   ,predvars = 'a_hsp_naaccr'
@@ -834,7 +835,8 @@ if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
 # lines(update(.survfit_plot0,default.censrvars=c('a_tdeath','age_at_visit_days')
 #              ,predvars='a_hsp_broad')$fit
 #       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
-#+ surv_recur,cache=TRUE,fig.lp='',fig.cap='No difference in recurrence risk observed with recurrence and surgery variables as currently prepared.'
+#' How long do pat
+#+ surv_recur,cache=TRUE,fig.cap='No difference in recurrence risk observed with recurrence and surgery variables as currently prepared.'
 (.survfit_plot1 <- update(.survfit_plot0,eventvars='a_trecur'
                           ,startvars='a_tsurg'
                           # turns out there needs to be a requirement that
@@ -857,8 +859,6 @@ if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
 # lines(update(.survfit_plot1,default.censrvars=c('a_tdeath','age_at_visit_days')
 #              ,predvars='a_hsp_broad')$fit
 #       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
-#' Does recurrence-free survival after surgery differ between hispanic and non 
-#' hispanic patients?
 #+ surv_death,cache=TRUE,fig.cap='No strong difference in mortality risk observed with vital status and surgery variables as currently prepared.'
 (.survfit_plot2 <- update(.survfit_plot1,eventvars='n_vtstat'
                           ,main='Time from surgery to death'
