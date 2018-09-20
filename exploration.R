@@ -835,7 +835,9 @@ if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
 # lines(update(.survfit_plot0,default.censrvars=c('a_tdeath','age_at_visit_days')
 #              ,predvars='a_hsp_broad')$fit
 #       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
-#' How long do pat
+#' 
+#' What is the risk of relapse for patients after nephrectomy?
+#' 
 #+ surv_recur,cache=TRUE,fig.cap='No difference in recurrence risk observed with recurrence and surgery variables as currently prepared.'
 (.survfit_plot1 <- update(.survfit_plot0,eventvars='a_trecur'
                           ,startvars='a_tsurg'
@@ -859,10 +861,16 @@ if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
 # lines(update(.survfit_plot1,default.censrvars=c('a_tdeath','age_at_visit_days')
 #              ,predvars='a_hsp_broad')$fit
 #       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
+#' 
+#' What is the mortality risk for patients after nephrectomy?
+#' 
 #+ surv_death,cache=TRUE,fig.cap='No strong difference in mortality risk observed with vital status and surgery variables as currently prepared.'
 (.survfit_plot2 <- update(.survfit_plot1,eventvars='n_vtstat'
                           ,main='Time from surgery to death'
                           ,ylab='Fraction alive'))$plot;
+#' 
+#' How much difference does it make to supplement this with EMR data?
+#' 
 #+ surv_death_EMR,cache=TRUE,fig.cap='When additional vital status, ethnicity, and last-visit information from EMR is included, there are markedly more events but still no discernible difference.'
 (.survfit_plot2a <- update(
   .survfit_plot2,eventvars='a_tdeath'
