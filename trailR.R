@@ -250,8 +250,9 @@ tsave <- function(...,list=character(),envir=parent.frame(),trailobj='.trail'
   envir[[trailobj]] <- tupdate('save',name='save',value=val);
   # save with the args as given
   if(verbose) message('tsave is saving to file...');
-  save(...,list=c(trailobj,list),envir=envir);
-  if(verbose) message('...tsave is done saving.');
+  savetime<-system.time(save(...,list=c(trailobj,list),envir=envir));
+  if(verbose) message(sprintf('...tsave is done saving. Time elapsed: %f')
+                      ,savetime[3]);
   # remove the trailobj
   rm(list = trailobj,envir = envir);
 }
