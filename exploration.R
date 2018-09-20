@@ -719,7 +719,26 @@ points(.eplot_death$e_dscdeath,pch=3,col='#00FF0090',lwd=2); # +
 points(.eplot_death$e_disdeath,pch=3,col='#00FF0090',lwd=2);
 points(.eplot_death$n_vtstat,col='brown',cex=1.5,lwd=0.5); # \bigcirc
 abline(h=0,col='blue');
-
+.xch_vtstat_lc<-subset(dat2a
+                       ,n_vtstat==n_lc&n_lc!=age_at_visit_days+1)$patient_num;
+.xch_vtstat_lc_death = intersect(kcpatients.naaccr_death,.xch_vtstat_lc);
+if(length(.xch_vtstat_lc_death)!=length(.xch_vstat_lc)){
+  stop('.xch_vtstat_lc check failed')};
+#' Here are some crosschecks on the NAACCR-only death indicator `r fs('n_vtstat')`.
+#' Overall there are `r length(kcpatients.naaccr_death)` patients that according
+#' to `r fs('n_vtstat')` are deceased. For all `r length(.xch_vtstat_lc)` of these
+#' patients, _and only for them_, the condition also holds that `r fs('n_vtstat')` 
+#' is equal to `r fs('n_lc')` but `r fs('n_lc')` happens before or on `r fs('age_at_visit_days')`.
+#' If something is coded as happening _after_ `r fs('age_at_visit_days')` then 
+#' because of how the data is summarized in the `dat2` section of the `data.R` 
+#' script it means that the event never happened. If `r fs('n_lc')` never 
+#' happened it means that patient has evidence of kidney cancer in the EMR data 
+#' but no accompanying NAACCR record. In short, we are filtering for existence 
+#' of NAACCR records. That, in turn, means that `r fs('n_vtstat')` `<=` `r fs('n_lc')`
+#' is a valid censoring criteria (censored if false) provided that the input
+#' data is filtered to include only patients with NAACCR records (for other 
+#' patients, both `r fs('n_vtstat')` and `r fs('age_at_visit_days')` should be 
+#' interpreted as missing).
 # hispanic ethnicity ===========================================================
 #' ### Whether or not the patient is Hispanic
 #' 
@@ -790,14 +809,13 @@ abline(h=0,col='blue');
 (.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
                                   ,startvars = 'a_tdiag'
                                   ,predvars = 'a_hsp_naaccr'
-                                  ,default.censrvars = c('n_lc','n_vtstat')
-                                  #,censrfun = pmax
+                                  ,default.censrvars = 'n_lc'
                                   # Reduce(intersect,list(...)) is how one can
                                   # do intersect with >2 vectors
-                                  ,subs = patient_num %in% 
+                                  ,subs = a_tdiag <= n_lc & patient_num %in% 
                                     Reduce(intersect,list(kcpatients.naaccr
                                                           ,pat_samples$train))
-                                  ,followup = 365.25*2,scale=7,unit='Weeks'
+                                  ,followup = 365.25*3,scale=7,unit='Weeks'
                                   ,main='Time from diagnosis to surgery'
                                   ,ylab='Fraction not undergone surgery'
                                   ,xlab='Weeks since diagnosis'
@@ -816,10 +834,14 @@ abline(h=0,col='blue');
 # lines(update(.survfit_plot0,default.censrvars=c('a_tdeath','age_at_visit_days')
 #              ,predvars='a_hsp_broad')$fit
 #       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
-#+ surv_recur,cache=TRUE,fig.lp='Figure',fig.cap='No difference in recurrence risk observed with recurrence and surgery variables as currently prepared.'
+#+ surv_recur,cache=TRUE,fig.lp='',fig.cap='No difference in recurrence risk observed with recurrence and surgery variables as currently prepared.'
 (.survfit_plot1 <- update(.survfit_plot0,eventvars='a_trecur'
                           ,startvars='a_tsurg'
-                          ,subs = patient_num %in% 
+                          # turns out there needs to be a requirement that
+                          # the startvars be no larger than the censrvars
+                          # (their respective pmins actually, but right now 
+                          # there) is just one of each.
+                          ,subs = a_tsurg<=n_lc & patient_num %in% 
                             Reduce(intersect,list(kcpatients.naaccr
                                                   ,kcpatients.surg
                                                   ,pat_samples$train))
@@ -837,40 +859,16 @@ abline(h=0,col='blue');
 #       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
 #' Does recurrence-free survival after surgery differ between hispanic and non 
 #' hispanic patients?
-#+ surv_death,cache=TRUE
+#+ surv_death,cache=TRUE,fig.cap='No strong difference in mortality risk observed with vital status and surgery variables as currently prepared.'
 (.survfit_plot2 <- update(.survfit_plot1,eventvars='n_vtstat'
-                          ,default.censrvars = 'n_lc'
-                          # ,subs = patient_num %in% 
-                          #   Reduce(intersect,list(kcpatients.naaccr
-                          #                         ,kcpatients.surg
-                          #                         ,pat_samples$train)) &
-                          #   a_tsurg != 1e6
-                          ,censrfun=pmin
                           ,main='Time from surgery to death'
                           ,ylab='Fraction alive'))$plot;
-
-subset(dat1,patient_num %in% pat_samples$train & eval(subs_criteria$surg_death)) %>% 
-  summarise(age=age_at_visit_days[a_tsurg==0]
-            ,a_tsurg=last(a_tsurg),a_cdeath=last(a_cdeath)
-            ,hisp=!all(na.omit(n_hisp)%in%c('Non_Hispanic','Unknown'))) %>%
-  (function(xx){.GlobalEnv$.dat1hisp<-subset(xx,hisp)$patient_num; 
-  .GlobalEnv$.dat1pats<-xx$patient_num;return(xx)}) %>%
-  survfit(Surv(a_tsurg,a_cdeath)~hisp,.) %>% 
-  autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving'
-           ,xlim=c(0,2000),conf.int.alpha=0.1,surv.size=2,ylim=c(.55,1)
-           ,main='Survival After Surgery') + 
-  guides(colour=guide_legend('Hispanic'),fill=guide_legend('Hispanic'));
-.survfit_plot2<-update(.survfit_plot1,eventvars='a_tdeath'
-                       ,main='Survival After Surgery dat2a',ylab='% Surviving');
-.survfit_plot2$plot;
-#' 
-#' Does survival after surgery (insofar that it is reliably represented in the
-#' records) differ between hispanic and non-hispanic patients?
-#' 
-# subset(dat1,eval(subs_criteria$surg_death)) %>% 
-#   summarise_all(function(xx) last(na.omit(xx))) %>%
-#   survfit(Surv(a_tsurg,a_cdeath)~1,.) %>% 
-#   autoplot(mark.time=T,xlab='Days Since Surgery',ylab='% Surviving');
+#+ surv_death_EMR,cache=TRUE,fig.cap='When additional vital status, ethnicity, and last-visit information from EMR is included, there are markedly more events but still no discernible difference.'
+(.survfit_plot2a <- update(
+  .survfit_plot2,eventvars='a_tdeath'
+  ,predvars='a_hsp_broad'
+  ,default.censrvars='age_at_visit_days'
+  ,main='Time from surgery to death supplemented with EMR data'))$plot
 #' ***
 # A1 stage/grade ---------------------------------------------------------------
 #' ## Appendix I: Example of stage/grade data
