@@ -1067,6 +1067,11 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars='1'
                             ,subs=patient_num %in% kcpatients.naaccr 
                             ,thrunique=5,thrsmsize=20,drop_pred=NA
                             ,eventfun=pmin,censrfun=pmin,startfun=pmin
+                            # function that takes the (internally created) 
+                            # 'event' and 'censr' variables and returns a T/F 
+                            # vector to use as the censoring variable 'cc' in 
+                            # the actual survfit formula
+                            ,eventcensrfun=`<=`
                             ,followup=Inf,scale=1,unit=NA
                             ,plotfun=autoplot
                             ,plotargs=list(mark.time=T,conf.int.alpha=0.1
@@ -1108,7 +1113,7 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars='1'
     ,followup,na.rm=T);
   # create tt as pmin() of eventvar and censrvar and then scale
   # create cc as tt <= censor
-  dat$cc <- event < censr;
+  dat$cc <- eventcensrfun(event,censr);
   # NOTE: does it break anything for this to be pmin(event,followup)/scale?
   #       because it does seem to break stuff to have the whole competing risk
   #       (i.e. censr) be part of the pmin statment...  no, we need event to 
