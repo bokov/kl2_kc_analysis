@@ -722,7 +722,7 @@ abline(h=0,col='blue');
 .xch_vtstat_lc<-subset(dat2a
                        ,n_vtstat==n_lc&n_lc!=age_at_visit_days+1)$patient_num;
 .xch_vtstat_lc_death = intersect(kcpatients.naaccr_death,.xch_vtstat_lc);
-if(length(.xch_vtstat_lc_death)!=length(.xch_vstat_lc)){
+if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
   stop('.xch_vtstat_lc check failed')};
 #' Here are some crosschecks on the NAACCR-only death indicator `r fs('n_vtstat')`.
 #' Overall there are `r length(kcpatients.naaccr_death)` patients that according
