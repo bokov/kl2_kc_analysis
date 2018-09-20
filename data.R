@@ -382,7 +382,7 @@ kcpatients_rectype <- split(dat2,dat2$a_n_recur) %>%
 #' Patients with a surgery record in NAACCR
 kcpatients.surg <- unique(subset(dat1,a_tsurg==0)$patient_num);
 #' Patients with a death recorded in NAACCR
-kcpatients.naaccr_death <- unique(subset(dat1,n_vtstat==0));
+kcpatients.naaccr_death <- unique(subset(dat1,n_vtstat==0)$patient_num);
 #' ### Make several subsets of dat1 all at once
 #
 #' for later use to make multiple versions of the same table and 
