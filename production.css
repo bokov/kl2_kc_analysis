@@ -139,3 +139,19 @@ p.abstract:after {
     visibility: visible;
     content: 'Latest Developments';
 }
+
+.figure .caption {
+    color: #777;
+    padding-bottom: 16px;
+    padding-top: 0;
+}
+
+.table caption {
+    color: #777;
+    padding-bottom: 0;
+}
+
+.table caption .table_title {
+    color: #000;
+    font-weight: 800;
+}
