@@ -318,7 +318,13 @@ pat_samples <- unique(dat1$patient_num) %>%
 dat2a <- mutate_at(dat1,v(c_istte)
                    ,.funs=funs(ifelse(any((.)==0,na.rm=T)
                                       ,(age_at_visit_days)[(.)==0]
-                                      , max(age_at_visit_days)))) %>%
+                                      # That +1 is important! We need events to
+                                      # be distinguishable from censored events
+                                      # by their temporal relationship with last
+                                      # observations. By setting censored events
+                                      # to one _more_ than final observation,
+                                      # then time <= lastobs will select events.
+                                      , max(age_at_visit_days)+1))) %>%
   summarise_all(function(xx){
     if(is.logical(xx)) any(xx) else (last(na.omit(xx)))});
 #' This is the original dat2 that, after testing, will be replaced by the above
