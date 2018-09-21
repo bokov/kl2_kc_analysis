@@ -103,7 +103,7 @@ dat1 <- mutate(dat1
                # cancer diagnosis regardless of whether it is in NAACCR or in 
                # the EMR
                ,a_naive_tdiag=tte(age_at_visit_days
-                                  ,e_kc_i10_i|e_kc_i9_i|
+                                  ,a_e_kc|e_kc_i10_i|e_kc_i9_i|
                                     (patient_num %in% kcpatients.naaccr & 
                                        n_ddiag))
                # THE RECURRENCE EVENT (PURE NAACCR)
