@@ -14,9 +14,18 @@
 #' linkReferences: true
 #' nameInLink: true
 #' tblLabels: "roman"
-#' tblPrefix: [
-#'   "table","tables"
-#' ]
+#' tblPrefix: ["table","tables"]
+#' output:
+#'  html_document:
+#'   keep_md: true
+#'   pandoc_args: ["--filter", "pandoc-crossref"]
+#'  word_document:
+#'   reference_docx: 'nt_styletemplate.docx'
+#'   keep_md: true
+#'   pandoc_args: ["--filter", "pandoc-crossref"]
+#'  pdf_document:
+#'   keep_md: true
+#'   pandoc_args: ["--filter", "pandoc-crossref"]
 #' ---
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
