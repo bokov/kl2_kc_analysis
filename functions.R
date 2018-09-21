@@ -547,7 +547,7 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
                # easy to spot in the output hopefully
                #,template="<a href='%2$s' class='%3$s' title='%4$s'>%1$s</a>"
                ,dct=dct0,col_tooltip='colname_long',col_class='',col_url=''
-               ,col_text='',match_col='varname',fs_reg=NULL
+               ,col_text='',match_col=c('varname','colname'),fs_reg=NULL
                ,retfun=cat
                #,fs_reg='fs_reg'
                ,...){
