@@ -4,28 +4,34 @@
 #' date: "09/13/2018"
 #' css: production.css
 #' toc: true
+#' linkReferences: true
+#' nameInLink: true
+#' tblLabels: "roman"
+#' tblPrefix: [
+#'   "table","tables"
+#' ]
 #' output:
 #'  html_document:
 #'   keep_md: true
+#'   pandoc_args: [
+#'     "--filter", "pandoc-crossref"
+#'   ]
 #'  word_document:
+#'   reference_docx: 'nt_styletemplate.docx'
 #'   keep_md: true
+#'   pandoc_args: [
+#'     "--filter", "pandoc-crossref"
+#'   ]
 #'  pdf_document:
 #'   keep_md: true
 #' ---
 #' 
-#+ echo=FALSE
-# output:
-#  html_document:
-#    keep_md: yes
-#' Note: in the YAML header, the `reference_docx` argument seems to get ignored
-#' if it's at the top level.
-#' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
-# init -------------------------------------------------------------------------
+# initialize -------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
 options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
-.depends <- 'data.R';
+.depends <- 'dictionary.R';
 .depdata <- paste0(.depends,'.rdata');
 .currentscript <- parent.frame(2)$ofile;
 if(is.null(.currentscript)) .currentscript <- knitr::current_input();
@@ -36,9 +42,10 @@ if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 .loadedobjects <- tload(.depdata);
 # a hack pending until we can separate the light and heavy parts of data.R 
 # somehow
-source('functions.R');
 knitr::opts_chunk$set(echo = F,warning = F,message=F);
-rmarkdown::pandoc_toc_args(TRUE,toc_depth=3);
+knitr::opts_template$set(
+  fig_opts=alist(fig.cap=get0(knitr::opts_current$get("label"))));
+#rmarkdown::pandoc_toc_args(TRUE,toc_depth=3);
 # Set default arguments for some functions
 panderOptions('table.split.table',Inf);
 panderOptions('missing','-');
@@ -54,6 +61,43 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' This is a script for testing how how various RMarkdown features work without 
 #' the overhead of running one of the main scripts.
 #' 
+# header_notes -----------------------------------------------------------------
+#' Stuff that does not work at the top level of the YAML header (i.e. outside 
+#' individual formats):
+#' 
+#' * `pandoc_args`
+#' * `keep_md`
+#' * `reference_docx`
+#' 
+# crossref ---------------------------------------------------------------------
+#' 
+#' # Referencing tables.
+#' 
+#' Trying to cite [@Tbl:footab] . Did it work? Yes! Also see the top-level YAML 
+#' headers. How about multiple tables, such as [@tbl:bananas;@tbl:footab]. Can
+#' also reference one of the tables without a prefix (i.e. just [-@tbl:footab])
+#' or with a one-off custom prefix like [TABLE @tbl:footab].
+#' 
+#' Note: http://lierdakil.github.io/pandoc-crossref/ was very helpful in sorting
+#' all this out.
+#' 
+#' Now referencing [@fig:mtcars].
+#' 
+#' # Referencing figures
+#' 
+#' Writing the caption which should be invisible...
+.iris_plot <- "This is a plot of 
+iris data. {#fig:iris}"
+#' Now the figure...
+#+ .iris_plot, opts.label='fig_opts'
+plot(iris);
+#' Does not work! Reference not created.
+.mtcars_plot <- "This is a plot of mtcars, no fancy stuff in the caption"
+#' How about this?
+#+ .mtcars_plot, opts.label='fig_opts', results='asis'
+plot(mtcars[,3:5]);
+cat('{#fig:mtcars}\n');
+
 # list_tables ------------------------------------------------------------------
 #' # Lists in tables
 #' 
@@ -71,7 +115,8 @@ cat('
 | Oranges       | $2.10         | - cures scurvy     |
 |               |               | - tasty            |
 +---------------+---------------+--------------------+
-    ');
+
+: Bananas and oranges caption. {#tbl:bananas}');
 #' Now let's try the actual table I want to do...
 #+ tablewlist1, results='asis'
 cat('
@@ -189,6 +234,7 @@ ________- [Footnotes](#footnotes)
   gsub('_',' ',.);
 cat('\n\n***\n\nThe Real Table\n\n')
 cat(.temp1);
+cat("\n: Foo bar baz {#tbl:footab}");
 #'
 # headers ----------------------------------------------------------------------
 #' # Headers 
