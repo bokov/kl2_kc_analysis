@@ -532,6 +532,9 @@ clearenv <- function(env=.GlobalEnv) rm(list=setdiff(ls(all=T,envir=env),'cleare
 #' 
 fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
                ,tooltip='',class='fl'
+               # %1 = text, %2 = url, %3 = class, %4 = tooltip
+               # TODO: %5 = which position 'str' occupies in fs_reg if 
+               #       applicable and if not found, append 'str'
                ,template='[%1$s]: %2$s "%4$s"\n'
                # Turns out that the below template will generate links, but they
                # only render properly for HTML output because pandoc doesn't 
