@@ -531,7 +531,7 @@ clearenv <- function(env=.GlobalEnv) rm(list=setdiff(ls(all=T,envir=env),'cleare
 #' Fancy Span (or any other special formatting of strings)
 #' 
 fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
-               ,tooltip='',class='fl'
+               ,tooltip='',class='fl',seq=''
                # %1 = text, %2 = url, %3 = class, %4 = tooltip
                # TODO: %5 = which position 'str' occupies in fs_reg if 
                #       applicable and if not found, append 'str'
@@ -556,8 +556,10 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
   # is no data dictionary or if the data dictionary doesn't have those columns,
   # fall back on the default values)
   if(is.data.frame(dct) && 
-     match_col %in% names(dct) &&
-     !all(is.na(dctinfo <- dct[which(dct[[match_col]]==str)[1],]))){
+     length(mc<- intersect(match_col,names(dct)))>0 &&
+     !is.na(mr<- match(str,do.call(coalesce,dct[,mc])))) {
+    #!all(is.na(dctinfo <- dct[which(dct[[match_col]]==str)[1],]))){
+    dctinfo <- dct[mr,];
     if(missing(tooltip) && 
        length(dct_tooltip<-na.omit(dctinfo[[col_tooltip]]))==1) {
       tooltip <- dct_tooltip;}
@@ -571,14 +573,14 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
        length(dct_class<-na.omit(dctinfo[[col_class]]))==1) {
       class <- dct_class;}
   }
-  out <- sprintf(template,text,url,class,tooltip,...);
   # register each unique str called by fs in a global option specified by 
   # fs_register
-  if(!is.null(fs_reg)) {
-    dbg<-try(do.call(options,setNames(list(union(getOption(fs_reg),str))
-                                      ,fs_reg)));
-    if(is(dbg,'try-error')) browser();
-    }
+  if(missing(seq) && !is.null(fs_reg)) {
+    if(is.na(seq <- match(str,refs<-getOption(fs_reg)))) {
+      seq <- length(refs<-c(refs,str))}}
+  out <- sprintf(template,text,url,class,tooltip,seq,...);
+  dbg<-try(do.call(options,setNames(list(refs),str)));
+  if(is(dbg,'try-error')) browser();
   retfun(out);
 }
 #' Plots in the style we've been doing (continuous y, discrete x and optionally z)
