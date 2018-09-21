@@ -41,7 +41,8 @@ knitr::opts_chunk$set(echo = F,warning = F,message=F,fig.scap=NA,fig.lp='');
 # then specifying opts.label='fig_opts' in the options for that chunk will use
 # that string as the caption
 knitr::opts_template$set(
-  fig_opts=alist(fig.cap=get0(knitr::opts_current$get("label"))));
+  fig_opts=alist(fig.cap=get0(knitr::opts_current$get("label"))
+                 ,results='asis'));
 # Set default arguments for some functions
 panderOptions('table.split.table',Inf);
 panderOptions('missing','-');
@@ -412,13 +413,18 @@ primary kidney cancer from the EMR and dashed red lines indicating ICD9 codes.
 The dashed horizontal blue lines indicate +- 3 months from ",fs('n_ddiag'),'.');
 #+ .diag_plot, opts.label='fig_opts'
 par(xaxt='n');
-.eplot_diag <- mutate(dat3,icd=pmin(e_kc_i10,e_kc_i9,na.rm=T)) %>% 
-  event_plot('icd',tunit='months',type='s'
-             ,ylab='Months since NAACCR Date of Diagnosis'
-             ,xlab='Patients, sorted by time to first ICD10 code'
-             ,main='Time from Diagnosis to First ICD9/10 Code');
+#.eplot_diag <- mutate(dat3,icd=pmin(e_kc_i10,e_kc_i9,na.rm=T)) %>%
+.ev_diag_plot <- event_plot(dat3,'e_kc_i10',tunit='months',type='s'
+                          ,ylab='Months since NAACCR Date of Diagnosis'
+                          ,xlab='Patients, sorted by time to first ICD10 code\n\n\n'
+                          ,main='Time from Diagnosis to First ICD9/10 Code');
 abline(h=c(-3,0,3),lty=c(2,1,2),col='blue');
-.eplot_diag_summ <- summary(cut(.eplot_diag$icd,c(-Inf,-3,-.001,.001,3,Inf)));
+points(.ev_diag_plot$e_kc_i9,col='#ff000050',pch='-');
+cat('{#fig:diag_plot}');
+#+ .diag_plot_summ
+.eplot_diag_summ <- summary(with(.ev_diag_plot
+                                 ,cut(pmin(e_kc_i10,e_kc_i9,na.rm=T)
+                                      ,c(-Inf,-3,-.001,.001,3,Inf))));
 #' 
 #' From this we can conclude that for most patients 
 #' (`r sum(.eplot_diag_summ[2:4])`), the first EMR code is recorded 
@@ -471,7 +477,10 @@ dat3_surg_summary <- summary(dat3_surg) %>%
   # convert to data.frame without 'fixing' the column names.
   data.frame(check.names = F);
 # list of variables that can first occur before 'n_ddiag'
-t_priorcond <- paste(rownames(subset(dat3_surg_summary,Min.<0)),collapse=', ');
+#t_priorcond <- paste(rownames(subset(dat3_surg_summary,Min.<0)),collapse=', ');
+t_priorcond <- subset(dat3_surg_summary,Min.<0) %>% rownames %>% 
+  sapply(fs,template=fstmplts$link_varname,retfun=return) %>% 
+  knitr::combine_words();
 #' As can be seen in the table below, the variables `r t_priorcond` _sometimes_ 
 #' precede `r fs('n_ddiag')` by many weeks. However, they _usually_ follow 
 #' `r fs('n_ddiag')` by more weeks than the two NAACCR variables 
