@@ -884,9 +884,12 @@ stratatable <- function(xx,vars=NULL,...){
   nmx <- names(xx);
   xx <- transform(xx,...);
   mystrata <- setdiff(names(xx),nmx);
-  res <- tableone::CreateTableOne(data=xx, vars= vars, strata=mystrata) %>% print;
-  res[,'p'] %>%  gsub("<","", x=.) %>% trimws() %>%
-    as.numeric() %>% p.adjust() %>% cbind(res[,1:2],padj=.) -> res;
+  res <- tableone::CreateTableOne(data=xx, vars= vars, strata=mystrata) %>% 
+    print;
+  # removed trimws() from below pipeline prior to as.numeric, seems not to be 
+  # needed
+  res[,'p'] %>%  gsub("<","", x=.) %>% as.numeric %>% p.adjust %>% 
+    cbind(res[,1:2],padj=.) -> res;
   return(res);
 }
 
