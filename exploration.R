@@ -31,6 +31,11 @@ for(ii in seq_along(.depends)) {
   .loadedobjects <- union(.loadedobjects,tload(.depdata[ii]));
 }
 knitr::opts_chunk$set(echo = F,warning = F,message=F,fig.scap=NA,fig.lp='');
+# if a text string named FOO is created prior to a named chunk also named FOO
+# then specifying opts.label='fig_opts' in the options for that chunk will use
+# that string as the caption
+knitr::opts_template$set(
+  fig_opts=alist(fig.cap=get0(knitr::opts_current$get("label"))));
 # Set default arguments for some functions
 panderOptions('table.split.table',Inf);
 panderOptions('missing','-');
@@ -393,10 +398,12 @@ dat3[,v(c_kcdiag)] %>%
     table(ICD9=ff(e_kc_i9),ICD10=ff(e_kc_i10),useNA = 'if')}) %>% addmargins() %>% 
   # format for viewing
   pander();
-#' Here is a plot centered on `r fs('n_ddiag')` (blue horizontal line at 
-#' 0) with black lines indicating ICD10 codes for primary kidney cancer from the
-#' EMR and dashed red lines indicating ICD9 codes. The dashed horizontal blue 
-#' lines indicate +- 3 months from `r fs('n_ddiag')`.
+#+ diag_plot_cp
+.diag_plot <- paste0('Here is a plot centered on ',fs('n_ddiag')
+,"(blue horizontal line at 0) with black lines indicating ICD10 codes for 
+primary kidney cancer from the EMR and dashed red lines indicating ICD9 codes. 
+The dashed horizontal blue lines indicate +- 3 months from ",fs('n_ddiag'),'.');
+#+ .diag_plot, opts.label='fig_opts'
 par(xaxt='n');
 .eplot_diag <- mutate(dat3,icd=pmin(e_kc_i10,e_kc_i9,na.rm=T)) %>% 
   event_plot('icd',tunit='months',type='s'
