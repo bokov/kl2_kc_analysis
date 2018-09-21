@@ -11,6 +11,12 @@
 #'   supplementing some of them with additional data from EMR if available.
 #' css: production.css
 #' fig_caption: yes
+#' linkReferences: true
+#' nameInLink: true
+#' tblLabels: "roman"
+#' tblPrefix: [
+#'   "table","tables"
+#' ]
 #' ---
 #' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
@@ -317,7 +323,8 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
   print(printToggle=F) %>% 
   set_rownames(gsub('^([A-Za-z].*)$','**\\1**'
                     ,gsub('   ','&nbsp;&nbsp;',rownames(.)))) %>%
-  gsub('0 \\( 0.0\\)','0',.) %>% 
+  set_rownames(gsub('[ ]?=[ ]?|[ ]?TRUE[ ]?',' ',rownames(.))) %>%
+  gsub('0[ ]?\\([ ]+0\\.0\\)','0',.) %>% 
   pander(emphasize.rownames=F);
 
 # event indicators -------------------------------------------------------------
@@ -708,9 +715,10 @@ points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
 #' 
 #' Below are plotted times of death (for patients that have them) relative to 
 #' date of diagnosis `r fs('n_ddiag')` (horizontal blue line). The four data sources are
-#' `r fs('e_death')` the EMR death date (![](resources/pinktriangle.png){width=10}), `r fs('s_death')` the social security
-#' death date ($\color{blue}\triangledown$), `r fs('e_dscdeath')` the EMR hospital discharge death date
-#' ($\color{green}+$), and `n_vtstat` the NAACCR death date ($\tiny\color{brown}\bigcirc$).
+#' `r fs('e_death')` the EMR death date (![](resources/pinktriangle.png){width=10})
+#' , `r fs('s_death')` the social security death date (![](resources/blueinvtriangle.png){width=10})
+#' , `r fs('e_dscdeath')` the EMR hospital discharge death date (![](resources/greencross.png){width=10})
+#' , and `n_vtstat` the NAACCR death date (![](resources/browncircle.png){width=10}).
 #' 
 #' When more than one source has a death date, they are in agreement. To be 
 #' fair, the agreement between `r fs('e_death')`, `r fs('e_dscdeath')`, and `r fs('s_death')` is 
