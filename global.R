@@ -13,23 +13,44 @@
 #+ warning=FALSE, message=FALSE
 source('./functions.R');
 source('./trailR.R');
-instrequire(c('compiler'                                   # just-in-time compilation
-             #,'MatchIt','DHARMa'                          # propensity scores and glm residuals
-             #,'pscl'                                      # zero-inflated poisson, sigh
-             ,'survival','MASS','Hmisc','zoo','coin'      # various analysis methods
-             #,'survAUC','survivalROC','pROC'              # evaluating predictive power
-             #,'Matrix'                                    # for pd matrices needed by faker()
-             ,'readr','dplyr','stringr','magrittr'        # data manipulation & piping
-             ,'tools'
-             #,'lubridate'
-             #,'ggplot2','grid','GGally'                  # plotting
-             ,'ggfortify','heatmap3'
-             ,'stringi'                                   # string manipulation
-             #,'survminer','gridExtra','scales'
-             #,'stargazer','broom','janitor'              # table formatting
-             ,'pander','tableone'
-             #,'knitr','htmltab'
-             ));
+
+#' load and if necessary install needed libraries
+#+ warning=FALSE, message=FALSE
+instrequire(
+  c(# just-in-time compilation
+    # 'compiler'
+    
+    # propensity scores and glm residuals
+    #,'MatchIt','DHARMa'
+    
+    # zero-inflated poisson, sigh
+    #,'pscl'
+    
+    # various analysis methods
+    'survival','MASS','Hmisc','zoo','coin'
+    
+    # evaluating predictive power
+    #,'survAUC','survivalROC','pROC'
+    
+    # for pd matrices needed by faker()
+    #,'Matrix'
+    
+    # data manipulation & piping
+    ,'readr','dplyr','stringr','magrittr','tools'
+    #,'lubridate'
+    
+    # plotting
+    ,'ggfortify'
+    #,'ggplot2','grid','GGally','heatmap3','survminer','gridExtra','scales'
+    
+    # string manipulation
+    ,'stringi'
+    
+    # table formatting
+    ,'pander','tableone'
+    #,'knitr','htmltab','stargazer','broom','janitor'
+));
+
 #' Turn JIT to max: pre-compile all closures, `for`, `while`, and `repeat` loops
 #enableJIT(3);
 #' ## Load local config file
@@ -73,4 +94,15 @@ fstmplts <- list(
   ,plain_colnamelong="%4$s"
 );
 
+urls <- list(
+   exploration_rpubs='https://rpubs.com/bokov/kidneycancer'
+  ,dict_naaccr='http://datadictionary.naaccr.org/?c=10'
+  );
+#' RPubs keeps the actual content in an iframe, and this cool little 3-liner 
+#' gets the address of that iframe's target so in principle I can now construct
+#' links with targets to other documents I published previously, starting with
+#' the most recent version of this document.
+urls$exploration_raw <- getURL(urls$exploration_rpubs) %>% 
+  htmlParse %>% xpathApply('//iframe') %>% `[[`(1) %>% xmlAttrs() %>% 
+  paste0('https:',.);
 c()
