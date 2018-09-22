@@ -666,7 +666,7 @@ lapply(v(c_nephx,dat3)[6:9],function(ii)
 #' below that almost all `r fs('n_cstatus')` `Tumor_Free` patients also have a 
 #' `Disease-free` in their `r fs('n_rectype')` column, the `Tumor` ones have a 
 #' variety of values, and the `Unknown` ones are also mostly `Unknown if recurred or was ever gone`.
-subset(dat2,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
+subset(dat2a,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
      with(table(n_rectype,n_cstatus)) %>% pander;
 #' This suggest the following rules for binning them:
 #' 
