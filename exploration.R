@@ -216,7 +216,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' record completeness. Counts in bold are ones that agree between the two 
 #' sources.
 #+ marital_status
-with(dat2,table(e_marital,n_marital,useNA='if')) %>% addmargins %>%
+with(dat2a,table(e_marital,n_marital,useNA='if')) %>% addmargins %>%
   set_rownames(.,gsub('@','',rownames(.))) %>% 
   pander(emphasize.strong.cells=cbind(c(2:4,6:9),1:8)
          ,caption='[Table 1]{#tab01 .table_title} This is a test table caption');
@@ -251,21 +251,21 @@ dat0[!is.na(dat0[[cstatic_n_dob]]) &
 #' 
 #' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
 #' record completeness.
-with(dat2,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
+with(dat2a,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
   pander(emphasize.strong.cells=cbind(1:2,1:2));
 
 #' ### How well does race match up between the EMRs and NAACCR?
 #' 
 #' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
 #' record completeness. Bolded values are those which agree between sources.
-with(dat2,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
+with(dat2a,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
   pander(emphasize.strong.cells=cbind(1:6,1:6));
 
 #' ### How well does Hispanic ethnicity match up between the EMRs and NAACCR?
 #' 
 #' This time columns represent EMR and rows represent NAACCR. Whole dataset, not 
 #' filtered for record completeness.
-with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
+with(dat2a,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                               ,'Unknown'='Non_Hispanic'
                               ,.default='Hispanic')
                 ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
@@ -275,7 +275,7 @@ with(dat2,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
 #' 
 #' Again columns represent EMR and rows represent NAACCR. Whole dataset, not 
 #' filtered for record completeness.
-with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
+with(dat2a,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
   `[`(,c('Non_Hispanic','Hispanic')) %>%
   addmargins() %>% pander(emphasize.strong.cells=cbind(1:7,c(1,2,2,2,2,2,2)));
 
@@ -293,7 +293,8 @@ with(dat2,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
 #' 
 #+ TableOne, cache=TRUE
 dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
-        ,'a_n_race','a_n_dm','a_e_dm','a_e_kc','n_kcancer','a_n_recur'))] %>% 
+        ,'a_n_race','a_n_dm','a_e_dm','a_e_kc','n_kcancer','a_n_recur'
+        ,'a_hsp_naaccr'))] %>% 
   mutate(
     a_n_recur=ifelse(!patient_num %in% kcpatients.naaccr | a_n_recur==''
                      ,'NONE',as.character(a_n_recur)) %>% 
@@ -307,9 +308,13 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
     ,n_vtstat=n_vtstat!=-1
     ,s_death=s_death!=-1
     ,e_death=e_death!=-1
+    ,a_tdeath=a_tdeath!=-1
+    ,a_tdiag=a_tdiag!=-1
+    ,a_trecur=a_trecur!=-1
+    ,a_tsurg=a_tsurg!=-1
     #,n_kcancer=n_kcancer>=0
-    ) %>%
-  rename(`Age at Last Contact`=age_at_visit_days
+    ) %>% assign('.t1input',.,envir=.GlobalEnv) %>%
+  rename(`Age at Last Contact, combined`=age_at_visit_days
          ,`Sex, i2b2`=sex_cd
          ,`Sex, Registry`=n_sex
          ,`Language, i2b2`=language_cd
@@ -336,6 +341,18 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
   set_rownames(gsub('[ ]?=[ ]?|[ ]?TRUE[ ]?',' ',rownames(.))) %>%
   gsub('0[ ]?\\([ ]+0\\.0\\)','0',.) %>% 
   pander(emphasize.rownames=F);
+# With above just a matter of finding a place to put the code below and then
+# cleaning it up a little (including restricting it only to predictor vars that
+# come from NAACCR)
+# .t1input %>% CreateTableOne(vars=setdiff(names(.)
+#                                          ,c('a_hsp_naaccr','patient_num'))
+#                             ,strata='a_hsp_naaccr',data=.,includeNA = T ) %>%
+#   print(printToggle=F,missing=T) %>% `[`(-5) %>% 
+#   set_rownames(gsub('^([A-Za-z].*)$','**\\1**'
+#                     ,gsub('   ','&nbsp;&nbsp;',rownames(.)))) %>%
+#   set_rownames(gsub('[ ]?=[ ]?|[ ]?TRUE[ ]?',' ',rownames(.))) %>%
+#   gsub('0[ ]?\\([ ]+0\\.0\\)','0',.) %>% 
+#   pander(emphasize.rownames=F);
 
 # event indicators -------------------------------------------------------------
 #' ## Which EMR and NAACCR variables are reliable event indicators?
@@ -945,7 +962,7 @@ formals(fs)$retfun <- as.name('return');
 #'         * Write motivation and summary.
 #'     * [Testing/Interpreting Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)
 #'         * Write motivation, intro, summary. Incorporate edits.
-#'         * [Diagnosis], [Surgery], [Re-occurence], [Death]
+#'         * [Initial diagnosis], [Surgery], [Re-occurrence], [Death]
 #'             * Move plots to the top of each
 #'             * Shorten text and move to captions.
 #'             * For each plot state what the conclusions are.
@@ -970,9 +987,12 @@ formals(fs)$retfun <- as.name('return');
 #' * TODO: Organize the inclusion/exclusion criteria into a single named list
 #' * TODO: Overhaul the existing TableOne in [Cohort Characterization] -- use 
 #'         data dictionary for renaming instead of _ad-hoc_ .
+#' * TODO: Migrate everything that uses `dat2` and `dat3` to using `dat2a`.
 #' * TODO: Create a TableOne for `r fs('a_hsp_naaccr')` (that specific one 
 #'         because then the conclusions can be directly applied to TCR data) to 
 #'         find possible confounding variables. Age, perhaps? Income? 
+#' * TODO: Fill in more of the variable descriptions in 
+#'         [Appendix IV: Variable descriptions]
 #' * TODO: Prior to doing the above `tte()` put in a safeguard to make
 #'         sure all the `c_tte` variables are `TRUE/FALSE` only. They
 #'         are right now as it happens, but nothing enforces that.
@@ -1007,6 +1027,10 @@ formals(fs)$retfun <- as.name('return');
 #' * TODO: In a future re-run of query...
 #'     * Follow up re additional patient linkages, more recent NAACCR data
 #'     * education (Census, not ready, ETL needs fixing)
+#' * TODO: Separate script-level calls to `instrequire()` to reduce the number 
+#'         of libraries that get loaded unnecessarily.
+#' * TODO: Create a light version of `data.R.rdata` that has only the minimal 
+#'         necessary stuff for, e.g. `exploration.R`
 #' * DONE: ~~Create combined (if applicable) variables for each of the following:~~
 #'     * ~~Initial diagnosis~~ `r fs('a_tdiag')`, `r fs('a_cdiag')`
 #'     * ~~Surgery~~ `r fs('a_tsurg')`, `r fs('a_csurg')`
