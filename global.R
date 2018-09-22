@@ -31,7 +31,7 @@ instrequire(
     #,'pscl'
     
     # various analysis methods
-    'survival','MASS','Hmisc','zoo','coin'
+    'survival' #,'MASS','Hmisc','zoo','coin'
     
     # evaluating predictive power
     #,'survAUC','survivalROC','pROC'
