@@ -630,8 +630,8 @@ lines(.eplot_surg1$n_rx1270,col='#00FF0060',type='s');
 lines(.eplot_surg1$n_rx1260,col='#00FFFF60',type='s');
 #' Here is a table of every NAACCR surgery event variable versus the 
 #' `r fs('n_surgreason')` variable:
-lapply(v(c_nephx,dat3)[6:9],function(ii) 
-  table(dat2$n_surgreason,dat2[[ii]]>=0) %>% 
+lapply(v(c_nephx,dat2a)[6:9],function(ii) 
+  table(dat2a$n_surgreason,dat2a[[ii]]<=dat2a$age_at_visit_days) %>% 
     set_colnames(.,paste0(ii,' = ',colnames(.)))) %>% do.call(cbind,.) %>% pander;
 
 #' ##### Surgery Conclusion
@@ -676,8 +676,10 @@ subset(dat2a,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
 #' * `r fs('n_rectype')` is `Unknown if recurred or was ever gone` (unknown)
 #' * Otherwise, (recurred)
 #
-t_recur_drecur <- with(dat2,table(a_n_recur
-                                  ,`Has recurrence date`=n_drecur>=0,useNA='if'));
+t_recur_drecur <- with(dat2a
+                       ,table(a_n_recur
+                              ,`Has recurrence date`=n_drecur<=age_at_visit_days
+                              ,useNA='if'));
 #' Here is the condensed version after having followed the above rules. Looks 
 #' like the only ones who have a `r fs('n_drecur')` (recurrence date) are the ones which
 #' also have a `Recurred` status for `r fs('a_n_recur')` (with `r t_recur_drecur['Recurred','FALSE']`
@@ -1078,7 +1080,7 @@ formals(fs)$retfun <- as.name('return');
 #' #### Sex
 #' 
 #+ dat2_bad_dob, cache=TRUE
-dat2_bad_dob <- subset(dat2,patient_num %in% kcpatients.bad_dob);
+dat2_bad_dob <- subset(dat2a,patient_num %in% kcpatients.bad_dob);
 
 #' Columns represent NAACCR, rows represent EMR. Only DOB mismatched patients.
 with(dat2_bad_dob,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
