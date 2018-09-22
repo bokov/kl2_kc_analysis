@@ -31,7 +31,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-options(gitstamp_prod=F);
+#options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- c('dictionary.R','data.R');
 .depdata <- paste0(.depends,'.rdata');
@@ -981,7 +981,9 @@ formals(fs)$retfun <- as.name('return');
 #'     * Summary of results
 #'     * Summary of next steps
 #'     * Move questions to after the [Descriptive Plots (Preliminary)] but 
-#'       before the [Consistency-Checks]
+#'       before the [Consistency-Checks], and place the answered questions at
+#'       the bottom. [Domain expert questions](#questions-for-mentors-and-other-domain-experts) 
+#'       still go ahead of [empirical questions](#questions-to-answer-empirically).
 #' * TODO: Remove the crossed-off stuff in [Appendix III: Supplementary tables] '
 #'         but note someplace what was removed and why.
 #' * TODO: Organize the inclusion/exclusion criteria into a single named list
