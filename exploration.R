@@ -934,10 +934,45 @@ subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %
 #' ***
 
 #  A2 next steps ---------------------------------------------------------------
+formals(fs)$template <- fstmplts$link_colnamelong;
+formals(fs)$retfun <- as.name('return');
 #' ## Appendix II: Next steps
 #' 
-#' * TODO: Update and clean up the plots, including labels.
+#' * TODO: Update and clean up the plots and tables, including labels.
+#'     * [Consistency-Checks]
+#'         * **Marital status, sex, race, hispanic(2):** shorten text and move to 
+#'           captions.
+#'         * Write motivation and summary.
+#'     * [Testing/Interpreting Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)
+#'         * Write motivation, intro, summary. Incorporate edits.
+#'         * [Diagnosis], [Surgery], [Re-occurence], [Death]
+#'             * Move plots to the top of each
+#'             * Shorten text and move to captions.
+#'             * For each plot state what the conclusions are.
+#'             * [Surgery]: turn the outline at the beginning into a more 
+#'               concise paragraph.
+#'     * [Hispanic variable recoding](#whether-or-not-the-patient-is-hispanic):
+#'       turn into paragraphs, think about moving to variable glossary.
+#'     * [Descriptive Plots (Preliminary)]
+#'         * Move them to right after the overview.
+#'         * Write intro mentioning that these are the relationships of interest
+#'           among the four main variables.
+#'         * Expand why there are two versions of the survival plot
 #' * TODO: Update and streamline the narrative.
+#'     * Intro
+#'     * Motivation
+#'     * Summary of results
+#'     * Summary of next steps
+#'     * Move questions to after the [Descriptive Plots (Preliminary)] but 
+#'       before the [Consistency-Checks]
+#' * TODO: Remove the crossed-off stuff in [Appendix III: Supplementary tables] '
+#'         but note someplace what was removed and why.
+#' * TODO: Organize the inclusion/exclusion criteria into a single named list
+#' * TODO: Overhaul the existing TableOne in [Cohort Characterization] -- use 
+#'         data dictionary for renaming instead of _ad-hoc_ .
+#' * TODO: Create a TableOne for `r fs('a_hsp_naaccr')` (that specific one 
+#'         because then the conclusions can be directly applied to TCR data) to 
+#'         find possible confounding variables. Age, perhaps? Income? 
 #' * TODO: Prior to doing the above `tte()` put in a safeguard to make
 #'         sure all the `c_tte` variables are `TRUE/FALSE` only. They
 #'         are right now as it happens, but nothing enforces that.
