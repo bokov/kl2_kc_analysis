@@ -9,11 +9,15 @@
 #' variables that will be needed by many different scripts.
 #' Keep this script minimalistic and *no number crunching here*
 #' 
-#' ## Load libraries
+# local_fns --------------------------------------------------------------------
+#' ## Local functions
 #+ warning=FALSE, message=FALSE
 source('./functions.R');
 source('./trailR.R');
 
+# libs -------------------------------------------------------------------------
+#' Libraries
+#' 
 #' load and if necessary install needed libraries
 #+ warning=FALSE, message=FALSE
 instrequire(
@@ -49,14 +53,19 @@ instrequire(
     # table formatting
     ,'pander','tableone'
     #,'knitr','htmltab','stargazer','broom','janitor'
+    
+    # Web
+    ,'RCurl','XML'
 ));
 
 #' Turn JIT to max: pre-compile all closures, `for`, `while`, and `repeat` loops
 #enableJIT(3);
+# config -----------------------------------------------------------------------
 #' ## Load local config file
 #' 
 source('./config.R');
 
+# vars -------------------------------------------------------------------------
 #' ## Set generic variables
 #' 
 #' That is to say, variables which can be set without reference to the data and
@@ -79,6 +88,7 @@ dct_stage <- Inf;
 #' This is the file that lists levels of discrete variables and what each listed
 #' level should be renamed to.
 levels_map_file <- 'levels_map.csv';
+# fs_templates -----------------------------------------------------------------
 #' templates for `fs()` ... note that the actual values inserted depend on 
 #' the other arguments of `fs()` and the columns of the data dictionary
 fstmplts <- list(
@@ -93,7 +103,7 @@ fstmplts <- list(
   # 0390 Date of Diagnosis
   ,plain_colnamelong="%4$s"
 );
-
+# urls -------------------------------------------------------------------------
 urls <- list(
    exploration_rpubs='https://rpubs.com/bokov/kidneycancer'
   ,dict_naaccr='http://datadictionary.naaccr.org/?c=10'
