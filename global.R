@@ -31,7 +31,8 @@ instrequire(
     #,'pscl'
     
     # various analysis methods
-    'survival' #,'MASS','Hmisc','zoo','coin'
+    'survival' # this one can be moved to exploration.R
+    #,'MASS','Hmisc','zoo','coin'
     
     # evaluating predictive power
     #,'survAUC','survivalROC','pROC'
@@ -39,7 +40,8 @@ instrequire(
     # for pd matrices needed by faker()
     #,'Matrix'
     
-    # data manipulation & piping
+    # data manipulation & piping. 
+    # 'tools' is used by trailR.R. Not sure what uses 'stringr'.
     ,'readr','dplyr','stringr','magrittr','tools'
     #,'lubridate'
     
