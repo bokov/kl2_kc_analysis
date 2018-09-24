@@ -599,7 +599,7 @@ par(xaxt='n');
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
              ,main='Time from Diagnosis to Surgery'
              ,ylab='Months Since Diagnosis'
-             ,xlab='Patients, sorted by time to surgery'
+             ,xlab='Patients, sorted by time to surgery\n\n\n'
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=0,col='blue');
@@ -627,7 +627,7 @@ par(xaxt='n');
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
              ,main='Time from Diagnosis to Surgery'
              ,ylab='Months Since Diagnosis'
-             ,xlab='Patients, sorted by time to surgery'
+             ,xlab='Patients, sorted by time to surgery\n\n\n'
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=0,col='blue');
@@ -654,7 +654,7 @@ par(xaxt='n');
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
              ,main='Time from Diagnosis to Surgery'
              ,ylab='Months Since Diagnosis'
-             ,xlab='Patients, sorted by time to surgery'
+             ,xlab='Patients, sorted by time to surgery\n\n\n'
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=0,col='blue');
@@ -745,7 +745,7 @@ par(xaxt='n');
   event_plot('rec',start_event = 'n_dsurg',type='s',ltys=c(1,1)
              ,main='Time from Surgery to Recurrence'
              ,ylab='Months Since Surgery'
-             ,xlab='Patients, sorted by time to first mets according to EMR'
+             ,xlab='Patients, sorted by time to first mets according to EMR\n\n\n'
              ,tunit = 'month');
 abline(h=c(-3,0,3),lty=c(3,1,3),col='blue');
 # Highlight patients with recurrence
@@ -812,7 +812,7 @@ par(xaxt='n');
 .eplot_death <- event_plot(dat3,'n_lc',start_event = 'n_ddiag'
                            ,main='Time from Diagnosis to Death (if any)'
                            ,ylab='Months Since Diagnosis'
-                           ,xlab='Patients, sorted by last contact date'
+                           ,xlab='Patients, sorted by last contact date\n\n\n'
                            ,tunit = 'mon',ltys = 0,type='s');
 points(.eplot_death$e_death,pch=2,col='#FF00FF70',lwd=2); # \triangle
 points(.eplot_death$s_death,pch=6,col='#00999970',lwd=3); # \nabla (not making this up!)
