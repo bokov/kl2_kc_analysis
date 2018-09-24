@@ -42,7 +42,8 @@ tself(scriptname=.currentscript);
 project_seed <- 20180803;
 .loadedobjects <- c();
 for(ii in seq_along(.depends)) {
-  if(!file.exists(.depdata[ii])) system(sprintf('R -e "source(\'%s\')"',.depends[ii]));
+  if(!file.exists(.depdata[ii])) system(sprintf('R -e "source(\'%s\')"'
+                                                ,.depends[ii]));
   .loadedobjects <- union(.loadedobjects,tload(.depdata[ii]));
 }
 knitr::opts_chunk$set(echo = F,warning = F,message=F,fig.scap=NA,fig.lp='');
@@ -209,6 +210,22 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 # crosschecks ------------------------------------------------------------------
 #' ## Consistency-Checks
 #' 
+
+#' This project uses data in an i2b2 data warehouse that draws from the EMRs of
+#' two health systems (UT Health and its main hospital teaching partner) as well
+#' as the NAACCR class-A reports that UT Health has submitted to the Texas
+#' Cancer Registry. All three data sources have already been linked to each
+#' other and then stripped of identifying information by the Clinical
+#' Informatics Research Division. Since this is the first at our site that makes
+#' use of combined EMRs systems and NAACCR it is important to confirm that the
+#' patient records have been linked correctly.
+#'
+#' The following data elements exist in both NAACCR and the EMR: date of birth
+#' (`r fs('n_dob')` and `r fs('birth_date')`), marital status 
+#' (`r fs('n_marital')` and `r fs('e_marital')`), sex (`r fs('sex_cd')` and 
+#' `r fs('n_sex')`), race (`r fs('a_n_race')` and `r fs('race_cd')`), and
+#' Hispanic ethnicity (`r fs('n_hisp')` and `r fs('e_hisp')`)
+
 #' 
 #' ### How well do marital statuses match between NAACCR and the EMR?
 #' 
