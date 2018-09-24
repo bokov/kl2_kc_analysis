@@ -173,4 +173,4 @@
 ,"Recurrence",,"a_trecur","Recurrence",,"TRUE","FALSE","FALSE","FALSE","FALSE",,"TRUE",,,,,,,,,,,,
 ,"Surgery",,"a_tsurg","Surgery",,"TRUE","FALSE","FALSE","FALSE","FALSE",,"TRUE",,,,,,,,,,,,
 ,"Death",,"a_tdeath","Death",,"TRUE","FALSE","FALSE","FALSE","FALSE",,"TRUE",,,,,,,,,,,,
-,,"To obtain a combined NAACCR race code for analysis, it is necessary to combine NAACCR variables `0160 Race` - `0164 Race` into one and then recode it to the closest match among `White`, `Black` `Asian`, `Pac Islander`, `Other`, and `Unknown`","a_n_race","Race, registry",,,,,,,,,,,,,,,,,,,,
+,"Race (NAACCR 0160-0164)","To obtain a combined NAACCR race code for analysis, it is necessary to combine NAACCR variables `0160 Race` - `0164 Race` into one and then recode it to the closest match among `White`, `Black` `Asian`, `Pac Islander`, `Other`, and `Unknown`","a_n_race","Race, registry",,,,,,,,,,,,,,,,,,,,
