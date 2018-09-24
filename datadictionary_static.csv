@@ -99,7 +99,7 @@
 "_dt_cs_cmpltd","2090 Date Case Completed",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#2090","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,,,,,,"TRUE",
 "_sr_smr_stg","0759 SEER Summary Stage 2000",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#759","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,"TRUE",,,,,"TRUE",
 "_tnm_pth_t","0880 TNM Path T",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#880","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,"TRUE",
-"_acqrd_absnc","V45.73 Acquired absence of kidney",,"e_i9neph",,,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,"TRUE","TRUE",,,,,,,,"TRUE",
+"_acqrd_absnc","V45.73 Acquired absence of kidney","V45.73 Acquired absence of kidney","e_i9neph",,,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,"TRUE","TRUE",,,,,,,,"TRUE",
 "_acqrd_absnc_inactive","V45.73 Acquired absence of kidney",,,,,,"TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,"TRUE","TRUE",,,,,,,,"TRUE",
 "_dcsd_pr_ss","Deceased per SSA",,"s_death","Death, SSN",,"TRUE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,"TRUE",,"FALSE","TRUE","FALSE","FALSE","TRUE",
 "_dstlc_prsr_num","Diastolic Blood Pressure (UTMed Only)",,,,,,,"FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,"TRUE",
