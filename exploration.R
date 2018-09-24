@@ -940,7 +940,7 @@ if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
 #' 
 #' (proof of feasibility)
 #'
-subset(dat2[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %>% 
+subset(dat2a[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %>% 
   na.omit() %>% 
   setNames(c('patient_num'
              ,submulti(v(c_tnm,NA)
