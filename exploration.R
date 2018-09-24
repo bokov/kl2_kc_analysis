@@ -31,7 +31,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 .depends <- c('dictionary.R','data.R');
 .depdata <- paste0(.depends,'.rdata');
@@ -291,8 +291,8 @@ with(dat2a,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>
 #' Note: the below variables are subject to change as the validity criteria and
 #' creation of analytic variables from multiple columns of raw data evolve.
 #' 
-#+ TableOne, cache=TRUE
-dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
+#+ TableOne, cache=FALSE
+dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
         ,'a_n_race','a_n_dm','a_e_dm','a_e_kc','n_kcancer','a_n_recur'
         ,'a_hsp_naaccr'))] %>% 
   mutate(
@@ -304,14 +304,14 @@ dat2[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
     # n_cstatus=ifelse(!patient_num%in%kcpatients.naaccr
     #                  ,'No KC in NAACCR',as.character(n_cstatus)) %>%
     #   factor(levels=c(levels(n_cstatus),'No KC in NAACCR')),
+    ,n_vtstat=n_vtstat<=age_at_visit_days
+    ,s_death=s_death<=age_at_visit_days
+    ,e_death=e_death<=age_at_visit_days
+    ,a_tdeath=a_tdeath<=age_at_visit_days
+    ,a_tdiag=a_tdiag<=age_at_visit_days
+    ,a_trecur=a_trecur<=age_at_visit_days
+    ,a_tsurg=a_tsurg<=age_at_visit_days
     ,age_at_visit_days=age_at_visit_days/365.25
-    ,n_vtstat=n_vtstat!=-1
-    ,s_death=s_death!=-1
-    ,e_death=e_death!=-1
-    ,a_tdeath=a_tdeath!=-1
-    ,a_tdiag=a_tdiag!=-1
-    ,a_trecur=a_trecur!=-1
-    ,a_tsurg=a_tsurg!=-1
     #,n_kcancer=n_kcancer>=0
     ) %>% assign('.t1input',.,envir=.GlobalEnv) %>%
   rename(`Age at Last Contact, combined`=age_at_visit_days
