@@ -538,8 +538,8 @@ t_priorcond <- subset(dat3_surg_summary,Min.<0) %>% rownames %>%
 #' As can be seen in the table below, the variables `r t_priorcond` _sometimes_ 
 #' precede `r fs('n_ddiag')` by many weeks. However, they _usually_ follow 
 #' `r fs('n_ddiag')` by more weeks than the two NAACCR variables 
-#' `r fs('n_dsdisc')` and `r fs('n_dsurg')`. Those two NAACCR variables never occur 
-#' before `r fs('n_ddiag')` and usually occur within 2-8 weeks after it.
+#' `r fs('n_dsdisc')` and `r fs('n_dsurg')`. Those two NAACCR variables never
+#' occur before `r fs('n_ddiag')` and usually occur within 2-8 weeks after it.
 #' 
 #' As can be seen from the `NA's` column, the inactive ICD9/10 V/Z codes for
 #' acquired absence of kidney are disqualified because they are very rare in 
