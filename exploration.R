@@ -256,22 +256,31 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' There are many covariates of interest, but these five values are the 
 #' scaffolding on which the rest of the analysis will be built.
 #' 
-#' **I found that the following NAACCR fields are sufficient for deriving
-#' all the above variables:** `r fs('n_ddiag')`, `r fs('n_dsurg')`
+#' **I found that the following NAACCR fields sufficient for deriving
+#' all the above analytic variables:** `r fs('n_ddiag')`, `r fs('n_dsurg')`
 #' , `r fs('n_rx3170')`, `r fs('n_drecur')`, `r fs('n_rectype')`
 #' , `r fs('n_cstatus')`, `r fs('n_lc')`, `r fs('n_vtstat')`
-#' , `r fs('n_kcancer')`, `r fs('n_seer_kcancer')`. In addition the following 
-#' will almost certainly be needed for the covariates: `r fs('n_sex')`
-#' ,`r fs('n_dob')`, `r fs('n_marital')`, `r fs('n_brthplc')` and any field 
-#' whose name contains `Race`, `Comorbid/Complication`, `Derived AJCC`, or 
-#' `TNM`. For crosschecking purposes it may also be useful to have 
-#' `r fs('n_mets')`, `r fs('n_fc')`, and `r fs('n_mult')`. Additional items are
-#' likely to be needed as this project evolves, but **I believe the elements
-#' listed so far are sufficient to test the hypotheses for Aim 2a and part of 
-#' Aim 2b in a de-identified State or National NAACCR data-set which is 
-#' completely independent of UT Health**.
+#' , `r fs('n_kcancer')`, `r fs('n_seer_kcancer')`. More details about how these
+#' were selected can be found in the 
+#' ["Which EMR and NAACCR variables are reliable event indicators?"]
+#' section. In addition the following will almost certainly be needed for the
+#' covariates: `r fs('n_sex')`, `r fs('n_dob')`, `r fs('n_marital')`
+#' , `r fs('n_brthplc')` and any field whose name contains `Race`
+#' , `Comorbid/Complication`, `Derived AJCC`, or `TNM`. For crosschecking
+#' purposes it may also be useful to have `r fs('n_mets')`, `r fs('n_fc')`
+#' , and `r fs('n_mult')`. Additional items are likely to be needed as this
+#' project evolves, but **I believe the elements listed so far are sufficient to
+#' test the hypotheses for Aim 2a and part of  Aim 2b in a de-identified State 
+#' or National NAACCR data-set which is completely independent of UT Health**.
 #' 
-#' It will 
+#' I had hoped that the linkage to EMR records would not only provide additional
+#' variables that are not available in NAACCR alone, but also that I would be 
+#' able to use the EMR to fill in missing `r fs('n_rx3170')`/`r fs('n_dsurg')`
+#' , `r fs('n_drecur')`, and `r fs('n_lc')` values-- perhaps even reconstruct
+#' the primary variables for some of the 
+#' `r nrow(dat2a)-length(kcpatients.naaccr)` kidney cancer patients I found in
+#' the EMR who do not have records in NAACCR. I found that this can be done with
+#' date of death, but not the other three outcome variables [ref]. 
 #' 
 #' 
 #' ### How well do marital statuses match between NAACCR and the EMR? {#check_marital}
@@ -416,7 +425,7 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #   pander(emphasize.rownames=F);
 
 # event indicators -------------------------------------------------------------
-#' ## Which EMR and NAACCR variables are reliable event indicators?
+#' ## Which EMR and NAACCR variables are reliable event indicators? {#vartrans}
 #' 
 #' We need the following variables for starters. For most or all of these 
 #' events, both data sources have multiple variables some or all of which could 
