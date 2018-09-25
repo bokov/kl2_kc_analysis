@@ -4,15 +4,10 @@
 #' date: "09/13/2018"
 #' css: production.css
 #' toc: true
-#' linkReferences: true
-#' nameInLink: true
-#' tblLabels: "roman"
-#' tblPrefix: [
-#'   "table","tables"
-#' ]
 #' output:
 #'  html_document:
 #'   keep_md: true
+#'   css: production.css
 #'   pandoc_args: [
 #'     "--filter", "pandoc-crossref"
 #'   ]
@@ -60,8 +55,8 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' 
 #' This is a script for testing how how various RMarkdown features work without 
 #' the overhead of running one of the main scripts.
-#' 
 # header_notes -----------------------------------------------------------------
+#' # Header notes
 #' Stuff that does not work at the top level of the YAML header (i.e. outside 
 #' individual formats):
 #' 
@@ -69,9 +64,62 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' * `keep_md`
 #' * `reference_docx`
 #' 
+#' 
+# fenced_divs ------------------------------------------------------------------
+#' # Fenced divs
+#' 
+#' ::::: {.sidebar #fig:fenced custom-style="Image Caption"}
+#' Here is a paragraph.
+#' 
+#' Lorem ipsum dolor sit amet, tincidunt sem lorem eleifend enim. Luctus tellus
+#' est in ante et. Magna habitant non. So, the last paragraph gets treated as a 
+#' caption?
+#' 
+#' And another.
+#' 
+#' The last paragraph is the caption? But it isn't wrapped in figcaption or
+#' caption tags. And starting with a leading `:` does casues the text above it 
+#' to be bold but does not turn it into a caption.
+#' 
+#' :::::
+#' 
+#' Can I wrap a code chunk in it?
+#' 
+#' ::::: {.sidebar #fig:codeplot0 custom-style="Image Caption"}
+#+ codeplot0,results='asis'
+#,fig.cap='This is going to be the figure caption.'
+cat('Hi, this is yet another caption attempt.');
+plot(rnorm(10),rnorm(10),type='b',main='Random Plot 0a');
+
+#' :::::
+#' 
+#' ~~No, that doesn't work.~~ Works, just needed to skip a space before the 
+#' opening fence. Maybe the fences need to be in the code?
+#' 
+#+ codeplot1,id='#fig:codeplot1a',results='asis',caption='This is going to be another figure caption.'
+cat("\n\n::::: {.sidebar #fig:codeplot1 fig.caption='asdfasd sadfafds' caption='No I am the caption' custom-style='Image Caption'}\n\n")
+plot(rnorm(10),rnorm(10),type='b',main='Random Plot 1');
+#cat("\n\n: The real caption. \n{#fig:codeplot1}\n\n");
+cat("\n Third caption attempt")
+cat("\n\n:::::\n\n");
+#'
+#' 
+#' ::::: {#fig:codeplot2 custom-style="Image Caption"}
+#+ codeplot2,results='asis'
+plot(rnorm(10),rnorm(10),type='b',main='Random Plot 2b');
+cat('\n\nOverall caption');
+#' :::::
+#' 
+#' Can I just use a plain old H7?
+#' 
+#' ####### codeplot3 {#fig:codeplot3 custom-style="Image Caption"}
+#+ codeplot3,results='asis'
+plot(rnorm(10),rnorm(10),type='b',main='Random Plot 3');
+cat('\n\nCaption for random plot 3');
+#' 
 # crossref ---------------------------------------------------------------------
 #' 
-#' # Referencing tables.
+#' # Referencing tables and figures.
 #' 
 #' Trying to cite [@Tbl:footab] . Did it work? Yes! Also see the top-level YAML 
 #' headers. How about multiple tables, such as [@tbl:bananas;@tbl:footab]. Can
@@ -81,7 +129,19 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' Note: http://lierdakil.github.io/pandoc-crossref/ was very helpful in sorting
 #' all this out.
 #' 
-#' Now referencing [@fig:mtcars].
+#' Now referencing [@fig:mtcars]. Link doesn't work in Word. How about if we 
+#' pretend that a div is a figure, such as [@fig:fenced]?
+#' 
+#' Well, the link works, but in that one the target doesn't get proper caption
+#' styling. But what about [@fig:codeplot0]? Or [@fig:codeplot1].
+#' 
+#' Referencing the one that seems to be linking to a div rather than a figure
+#' [@fig:codeplot2]. On the other hand the one that is an H7 is here 
+#' [@fig:codeplot3]. There is a target created for it, but its link is broken.
+#' 
+#' **...and the winner for docx compatibility is [@fig:codeplot2]**. Though all 
+#' of these [@fig:codeplot0;@fig:codeplot1;@fig:fenced] do work, the captions 
+#' are jacked in various ways.
 #' 
 #' # Referencing figures
 #' 
@@ -258,6 +318,10 @@ cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
 #+ results='asis' 
 cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
 #' ###### H6
+#' 
+#+ results='asis' 
+cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
+#' ####### H7
 #' 
 #+ results='asis' 
 cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
