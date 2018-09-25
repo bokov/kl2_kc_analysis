@@ -125,11 +125,13 @@ tbody {
   display: none;
 }
 
+/*
 p.abstract {
     color: red;
     line-height: 0;
     text-indent: -99999px;
 }
+*/
 
 p.abstract:after {
     line-height: initial;
@@ -140,7 +142,7 @@ p.abstract:after {
     content: 'Latest Developments';
 }
 
-.figure .caption {
+.figure .caption, .subfigures > p:last-of-type, figcaption {
     color: #777;
     padding-bottom: 16px;
     padding-top: 0;
