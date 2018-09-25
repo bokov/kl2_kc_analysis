@@ -210,7 +210,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 # A list of valid patients can be found in the 'kcpatients.naaccr'
 # crosschecks ------------------------------------------------------------------
 #' 
-#' ## Consistency-Checks
+#' ## Consistency-checks
 #' 
 #' This study uses data in an i2b2 data warehouse that draws from the EMRs of
 #' two health systems (UT Health and its main hospital teaching partner) as well
@@ -237,10 +237,42 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' [marital status](#check_marital), [sex](#check_sex), [race](#check_race), and
 #' [Hispanic ancestry](#check_hisp). Furthermore, there are 
 #' `r nrow(subset(dat3,is.na(n_dob)))` patients with complete NAACCR records by 
-#' current criteria but no `r fs('n_dob')` and only 
+#' current criteria lacking a `r fs('n_dob')` and only 
 #' `r length(kcpatients.naaccr_bad_dob)` of the patients with complete records
-#' have a mismatch between `r fs('n_dob')` and `r fs('birth_date')`. Yet another
-#' source of evidence for correct linkage is that 
+#' have a mismatch between `r fs('n_dob')` and `r fs('birth_date')`. Independent
+#' evidence for correct linkage is that EMR ICD9/10 codes for primary kidney
+#' cancer rarely precede `r fs('n_ddiag')` ([@fig:diag_plot]), EMR surgical 
+#' history of nephrectomy and ICD9/10 codes for acquired absence of a kidney 
+#' rarely precede `r fs('n_dsurg')` and `r fs('n_rx3170')` ([@fig:surg0_plot0]),
+#' and death dates from non-NAACCR sources (`r fs('e_death')`
+#' , `r fs('s_death')`, and `r fs('e_dscdeath')` rarely precede 
+#' `r fs('n_vtstat')` ([@fig:death_plot]).
+#' 
+#' ## Selection and transformation of variables
+#' 
+#' The primary outcome variables I need are date of initial diagnosis, date of 
+#' surgery (if any), date of recurrence (if any), and date of death (if any). 
+#' The primary predictor variable is whether or not a patient is  Hispanic. 
+#' There are many covariates of interest, but these five values are the 
+#' scaffolding on which the rest of the analysis will be built.
+#' 
+#' **I found that the following NAACCR fields are sufficient for deriving
+#' all the above variables:** `r fs('n_ddiag')`, `r fs('n_dsurg')`
+#' , `r fs('n_rx3170')`, `r fs('n_drecur')`, `r fs('n_rectype')`
+#' , `r fs('n_cstatus')`, `r fs('n_lc')`, `r fs('n_vtstat')`
+#' , `r fs('n_kcancer')`, `r fs('n_seer_kcancer')`. In addition the following 
+#' will almost certainly be needed for the covariates: `r fs('n_sex')`
+#' ,`r fs('n_dob')`, `r fs('n_marital')`, `r fs('n_brthplc')` and any field 
+#' whose name contains `Race`, `Comorbid/Complication`, `Derived AJCC`, or 
+#' `TNM`. For crosschecking purposes it may also be useful to have 
+#' `r fs('n_mets')`, `r fs('n_fc')`, and `r fs('n_mult')`. Additional items are
+#' likely to be needed as this project evolves, but **I believe the elements
+#' listed so far are sufficient to test the hypotheses for Aim 2a and part of 
+#' Aim 2b in a de-identified State or National NAACCR data-set which is 
+#' completely independent of UT Health**.
+#' 
+#' It will 
+#' 
 #' 
 #' ### How well do marital statuses match between NAACCR and the EMR? {#check_marital}
 #' 
@@ -461,20 +493,27 @@ dat3[,v(c_kcdiag)] %>%
     table(ICD9=ff(e_kc_i9),ICD10=ff(e_kc_i10),useNA = 'if')}) %>% addmargins() %>% 
   # format for viewing
   pander();
-#+ diag_plot_cp
-.diag_plot <- paste0('Here is a plot centered on ',fs('n_ddiag')
-,"(blue horizontal line at 0) with black lines indicating ICD10 codes for 
-primary kidney cancer from the EMR and dashed red lines indicating ICD9 codes. 
-The dashed horizontal blue lines indicate +- 3 months from ",fs('n_ddiag'),'.');
-#+ .diag_plot, opts.label='fig_opts'
+#' 
+#' 
+#' ::::: {#fig:diag_plot custom-style="Image Caption"}
+#+ diag_plot,results='asis'
+# .diag_plot, opts.label='fig_opts'
 par(xaxt='n');
-.ev_diag_plot <- event_plot(dat3,'e_kc_i10',tunit='months',type='s'
-                          ,ylab='Months since NAACCR Date of Diagnosis'
-                          ,xlab='Patients, sorted by time to first ICD10 code\n\n\n'
-                          ,main='Time from Diagnosis to First ICD9/10 Code');
+.ev_diag_plot <- event_plot(
+  dat3,'e_kc_i10',tunit='months',type='s'
+  ,ylab='Months since NAACCR Date of Diagnosis'
+  ,xlab='Patients, sorted by time to first ICD10 code\n\n\n'
+  ,main='Time from Diagnosis to First ICD9/10 Code');
 abline(h=c(-3,0,3),lty=c(2,1,2),col='blue');
 points(.ev_diag_plot$e_kc_i9,col='#ff000050',pch='-');
-cat('{#fig:diag_plot}');
+#cat('{#fig:diag_plot}');
+cat('\n\nHere is a plot centered on ',fs('n_ddiag')
+,"(blue horizontal line at 0) with black lines indicating ICD10 codes for 
+primary kidney cancer from the EMR and dashed red lines indicating ICD9 codes. 
+The dashed horizontal blue lines indicate +- 3 months from ",fs('n_ddiag'));
+#' :::::
+#'
+#'
 #+ .diag_plot_summ
 .eplot_diag_summ <- summary(with(.ev_diag_plot
                                  ,cut(pmin(e_kc_i10,e_kc_i9,na.rm=T)
@@ -584,14 +623,10 @@ mutate_all(dat3[,v(c_nephx)]
 # both relative to date of diagnosis, `n_dsdisc` either coincides with `r fs('n_dsurg')`
 # or lags by multiple weeks, as might be expected of a discharge date (what is 
 # the plausible threshold on time from surgery to discharge?).
-# 
-.surg0_plot0 <- paste0("Above is a plot of all patients sorted by "
-,fs('n_dsurg')," (black line).  On the same axis is ",fs('n_rx3170')," (red 
-line) which is almost  identical to ",fs('n_dsurg')," except for a small number 
-of cases where it occurs later than ",fs('n_dsurg'),". It never occurs earlier. 
-The purple lines indicate for each patient the earliest EMR code implying that a surgery had taken place (acquired absence of kidney ICD V/Z codes or surgical 
-history of nephrectomy).");
-#+ .surg0_plot0,opts.label='fig_opts'
+#' 
+#' 
+#' ::::: {#fig:surg0_plot0 custom-style="Image Caption"}
+#+ surg0_plot0,results='asis'
 par(xaxt='n');
 .eplot_surg0 <- subset(dat3,patient_num %in% 
                         kcpatients_surgreason$`Surgery Performed`) %>% 
@@ -608,18 +643,23 @@ abline(h=0,col='blue');
 .eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
 lines(.eplot_surg0$icd,type='s',col='#FF00FF50');
 with(.eplot_surg0,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
-cat('{#fig:surg0_plot0}');
+
+cat("\n\nAbove is a plot of all patients sorted by "
+,fs('n_dsurg')," (black line).  On the same axis is ",fs('n_rx3170')
+," (red line) which is almost  identical to ",fs('n_dsurg')," except for a small
+number of cases where it occurs later than ",fs('n_dsurg'),". It never occurs
+earlier. The purple lines indicate for each patient the earliest EMR code
+implying that a surgery had taken place (acquired absence of kidney ICD V/Z 
+codes or surgical history of nephrectomy)");
+#' :::::
+#' 
 #' 
 #' In [@fig:surg0_plot0] the `r sum(with(.eplot_surg0,icd<n_dsurg),na.rm=T)` 
 #' patients for which one or more EMR codes are recorded prior to 
 #' `r fs('n_dsurg')` are highlighted in yellow.
 #' 
-.surg0_plot1 <- paste0("In the above plot the ",fs('n_rx1270')," (green) and "
-,fs('n_rx1260')," (cyan) events are superimposed on time till ",fs('n_dsurg')
-," like in [@fig:surg0_plot0] (but purple lines for nephrectomy EMR codes are 
-omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
-," variables trend earlier than ",fs('n_dsurg'),".");
-#+ .surg0_plot1,opts.label='fig_opts'
+#' ::::: {#fig:surg0_plot1 custom-style="Image Caption"}
+#+ .surg0_plot1,results='asis'
 par(xaxt='n');
 .eplot_surg0 <- subset(dat3,patient_num %in% 
                          kcpatients_surgreason$`Surgery Performed`) %>% 
@@ -633,20 +673,17 @@ par(xaxt='n');
 abline(h=0,col='blue');
 lines(.eplot_surg0$n_rx1270,col='#00FF0060',type='s');
 lines(.eplot_surg0$n_rx1260,col='#00FFFF60',type='s');
-cat('{#fig:surg0_plot1}');
+
+cat("\n\nIn the above plot the ",fs('n_rx1270')," (green) and "
+,fs('n_rx1260')," (cyan) events are superimposed on time till ",fs('n_dsurg')
+," like in [@fig:surg0_plot0] (but purple lines for nephrectomy EMR codes are 
+omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
+," variables trend earlier than ",fs('n_dsurg'));
+#' :::::
 #' 
-.surg1_plot <- paste0("Above is a plot equivalent to [@fig:surg0_plot1] but for 
-patients who do _not_ have a ",fs('n_surgreason')," code equal to 
-`Surgery Performed`. There are many ",fs('n_rx1270')," and ",fs('n_rx1260')
-," events but only a small number of ",fs('n_dsurg')," (black) and "
-,fs('n_rx3170')," (red). The ",fs('n_dsurg')," and ",fs('n_rx3170')," that do 
-occur track each other perfectly. Together with NAACCR data dictionary's 
-description this suggests that ",fs('n_rx3170')," is the correct principal 
-surgery date in close agreement with ",fs('n_dsurg'),", so perhaps missing "
-,fs('n_rx3170')," values can be filled in from ",fs('n_dsurg'),". However "
-,fs('n_rx1270')," and ",fs('n_rx1260')," seem like non-primary surgeries or 
-other events."); 
-#+ .surg1_plot,opts.label='fig_opts'
+#' 
+#' ::::: {#fig:surg1_plot custom-style="Image Caption"}
+#+ .surg1_plot,results='asis'
 par(xaxt='n');
 .eplot_surg1 <- subset(dat3,!patient_num %in% 
                          kcpatients_surgreason$`Surgery Performed`) %>% 
@@ -664,7 +701,21 @@ lines(.eplot_surg1$icd,type='s',col='#FF00FF50');
 with(.eplot_surg1,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
 lines(.eplot_surg1$n_rx1270,col='#00FF0060',type='s');
 lines(.eplot_surg1$n_rx1260,col='#00FFFF60',type='s');
-cat('{#fig:surg1_plot}');
+cat("
+
+Above is a plot equivalent to [@fig:surg0_plot1] but for patients who do _not_
+have a ",fs('n_surgreason')," code equal to `Surgery Performed`. There are many "
+,fs('n_rx1270')," and ",fs('n_rx1260')," events but only a small number of "
+,fs('n_dsurg')," (black) and ",fs('n_rx3170')," (red). The ",fs('n_dsurg')
+," and ",fs('n_rx3170')," that do occur track each other perfectly. Together 
+with NAACCR data dictionary's description this suggests that ",fs('n_rx3170')
+," is the correct principal surgery date in close agreement with "
+,fs('n_dsurg'),", so perhaps missing ",fs('n_rx3170')," values can be filled in
+from ",fs('n_dsurg'),". However ",fs('n_rx1270')," and ",fs('n_rx1260')
+," seem like non-primary surgeries or other events"); 
+#' :::::
+#' 
+#' 
 #' Here is a table of every NAACCR surgery event variable versus the 
 #' `r fs('n_surgreason')` variable:
 lapply(v(c_nephx,dat2a)[6:9],function(ii) 
@@ -727,16 +778,12 @@ t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>%
 #' This explains why  `r fs('n_drecur')` values are relatively rare in the data-- they 
 #' are specific to actual recurrences which are not a majority of the cases. 
 #' This is a good from the standpoint of data consistency. Now we need to see to 
-#' what extent the EMR codes agree with this. In the below plot, the black line
-#' represents months elapsed between surgery and the first occurence of an EMR 
-#' code for secondary tumors, if any. The horizontal red line segments indicate 
-#' individual NAACCR dates of recurrence, `r fs('n_drecur')`. The blue horizontal line 
-#' is the date of surgery. Patients whose status (`r fs('n_rectype')`) is `Disease-free`
-#' are highlighted in green, `Never disease-free` in yellow, and `Recurred` in 
-#' red.
+#' what extent the EMR codes agree with this. 
+#' 
 #' 
 .recur_plot <- ' ';
-#+ .recur_plot,opts.label='fig_opts'
+#' ::::: {#fig:recur_plot custom-style="Image Caption"}
+#+ recur_plot,results='asis'
 par(xaxt='n');
 .eplot_recur0 <-subset(dat3,patient_num %in% 
                          setdiff(kcpatients_surgreason$`Surgery Performed`
@@ -760,15 +807,25 @@ with(.eplot_recur0,abline(v=which(patient_num %in%
                                     kcpatients_rectype$`Disease-free`)
                           ,col='#00FF0020',lwd=2));
 points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
-cat('{#fig:recur_plot}');
+cat("
+
+In the above plot, the black line represents months elapsed between surgery and
+the first occurence of an EMR code for secondary tumors, if any. The horizontal
+red line segments indicate individual ",fs('n_drecur'),". The blue horizontal
+line is the date of surgery. Patients whose status ",fs('n_rectype')," is 
+`Disease-free` are highlighted in green, `Never disease-free` in yellow, and
+`Recurred` in red");
+#' :::::
+#' 
+#' 
 #' The green highlights are _mostly_ where one would expect, but why are there
 #' `r nrow(subset(.eplot_recur0,patient_num %in% kcpatients_rectype[['Disease-free']] & !is.na(rec)))`
 #' patients on the left side of the plot that have EMR codes for secondary 
 #' tumors? Also, there are `r nrow(subset(.eplot_recur0,rec<0))` patients with 
 #' metastatic tumor codes earlier than `r fs('n_dsurg')` and of those 
 #' `r nrow(subset(.eplot_recur0,rec< -3))` occur more than 3 months prior to 
-#' `r fs('n_dsurg')`. Did they present with secondary tumors to begin with but remained 
-#' disease free after surgery? Removing the `_inactive` versions of the 
+#' `r fs('n_dsurg')`. Did they present with secondary tumors to begin with but
+#' remained disease free after surgery? Removing the `_inactive` versions of the 
 #' secondary tumor codes does not make the left-side green patients go away.
 #' 
 #' 
@@ -790,13 +847,6 @@ cat('{#fig:recur_plot}');
 # death ========================================================================
 #' ### Death
 #' 
-#' Below are plotted times of death (for patients that have them) relative to 
-#' date of diagnosis `r fs('n_ddiag')` (horizontal blue line). The four data sources are
-#' `r fs('e_death')` the EMR death date (![](resources/pinktriangle.png){width=10})
-#' , `r fs('s_death')` the social security death date (![](resources/blueinvtriangle.png){width=10})
-#' , `r fs('e_dscdeath')` the EMR hospital discharge death date (![](resources/greencross.png){width=10})
-#' , and `n_vtstat` the NAACCR death date (![](resources/browncircle.png){width=10}).
-#' 
 #' When more than one source has a death date, they are in agreement. To be 
 #' fair, the agreement between `r fs('e_death')`, `r fs('e_dscdeath')`, and `r fs('s_death')` is 
 #' probably due to our i2b2 ETL already merging `r fs('e_dscdeath')` and `r fs('s_death')` into 
@@ -806,8 +856,10 @@ cat('{#fig:recur_plot}');
 #' data for patients that NAACCR is not aware are deceased. It also means that 
 #' the ETL's coverage of vital status can be further improved by using the 
 #' NAACCR vital status and last contact variables in combination.
-.death_plot <- ' ';
-#+ .death_plot,opts.label='fig_opts'
+#'
+#'
+#' ::::: {#fig:death_plot custom-style="Image Caption"}
+#+ .death_plot,results='asis'
 par(xaxt='n');
 .eplot_death <- event_plot(dat3,'n_lc',start_event = 'n_ddiag'
                            ,main='Time from Diagnosis to Death (if any)'
@@ -820,12 +872,22 @@ points(.eplot_death$e_dscdeath,pch=3,col='#00FF0090',lwd=2); # +
 points(.eplot_death$e_disdeath,pch=3,col='#00FF0090',lwd=2);
 points(.eplot_death$n_vtstat,col='brown',cex=1.5,lwd=0.5); # \bigcirc
 abline(h=0,col='blue');
-cat('{#fig:death_plot}');
 .xch_vtstat_lc<-subset(dat2a
                        ,n_vtstat==n_lc&n_lc!=age_at_visit_days+1)$patient_num;
 .xch_vtstat_lc_death = intersect(kcpatients.naaccr_death,.xch_vtstat_lc);
 if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
   stop('.xch_vtstat_lc check failed')};
+cat("
+
+Above are plotted times of death (for patients that have them) relative to "
+    ,fs('n_ddiag')," (horizontal blue line). The four data sources are "
+    ,fs('e_death')," (![](resources/pinktriangle.png){width=10}), ",fs('s_death')
+    ," (![](resources/blueinvtriangle.png){width=10}), ",fs('e_dscdeath')
+    ," (![](resources/greencross.png){width=10}), and ",fs('n_vtstat')
+    ," (![](resources/browncircle.png){width=10})");
+#' :::::
+#' 
+#' 
 #' Here are some crosschecks on the NAACCR-only death indicator `r fs('n_vtstat')`.
 #' Overall there are `r length(kcpatients.naaccr_death)` patients that according
 #' to `r fs('n_vtstat')` are deceased. For all `r length(.xch_vtstat_lc)` of these
@@ -907,7 +969,10 @@ if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
 #' selected subset of the records (N=`r length(intersect(pat_samples$train,kcpatients.naaccr))`).
 #' The below results are still preliminary because, among other things, they 
 #' have not been normalized for covariates including age and stage at diagnosis.
-#+ surv_surg,fig.cap='No great short-term difference between Hispanic and non-Hispanic patients. In the longer term a greater fraction of Hispanic patients eventually undergo surgery.'
+#' 
+#' 
+#' ::::: {#fig:surg_survfit custom-style="Image Caption"}
+#+ surv_surg,results='asis'
 (.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
                                   ,startvars = 'a_tdiag'
                                   ,predvars = 'a_hsp_naaccr'
@@ -925,6 +990,13 @@ if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
                                     guides(colour=guide_legend('Hispanic')
                                            ,fill=guide_legend('Hispanic'))))
  )$plot;
+cat('
+
+No great short-term difference between Hispanic and non-Hispanic patients. In 
+the longer term a greater fraction of Hispanic patients eventually undergo surgery.');
+#' :::::
+#' 
+#' 
 # Now plot two different scenarios on the same axes, the original and enhanced 
 # by EMR variables. Strict
 # plot(.survfit_plot0$fit,col=c('red','blue'),mark.time = T,xlim=c(-1,150)
@@ -939,7 +1011,9 @@ if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
 #' 
 #' What is the risk of relapse for patients after nephrectomy?
 #' 
-#+ surv_recur,cache=TRUE,fig.cap='No difference in recurrence risk observed with recurrence and surgery variables as currently prepared.'
+#' 
+#' ::::: {#fig:recur_survfit custom-style="Image Caption"}
+#+ surv_recur,results='asis'
 (.survfit_plot1 <- update(.survfit_plot0,eventvars='a_trecur'
                           ,startvars='a_tsurg'
                           # turns out there needs to be a requirement that
@@ -953,6 +1027,13 @@ if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
                           ,main='Time from surgery to recurrence'
                           ,ylab='Fraction recurrence-free'
                           ,xlab='Weeks since surgery'))$plot;
+cat('
+
+No great difference in recurrence risk observed with recurrence and surgery
+variables as currently prepared.');
+#' :::::
+#' 
+#' 
 # plot(.survfit_plot1$fit,col=c('red','blue'),mark.time = T,xlim=c(-1,150)
 #      ,lwd=2,main='Time from surgery to recurrence',ylab='Fraction recurrence-free'
 #      ,xlab='Weeks since surgery',ylim=c(.7,1));
@@ -965,19 +1046,36 @@ if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
 #' 
 #' What is the mortality risk for patients after nephrectomy?
 #' 
-#+ surv_death,cache=TRUE,fig.cap='No strong difference in mortality risk observed with vital status and surgery variables as currently prepared.'
+#' 
+#' ::::: {#fig:naaccrdeath_survfit custom-style="Image Caption"}
+#+ naaccrdeath_survfit,results='asis'
 (.survfit_plot2 <- update(.survfit_plot1,eventvars='n_vtstat'
                           ,main='Time from surgery to death'
                           ,ylab='Fraction alive'))$plot;
+cat('
+
+No strong difference in mortality risk observed with vital status and surgery
+variables as currently prepared.');
+#' :::::
+#' 
 #' 
 #' How much difference does it make to supplement this with EMR data?
 #' 
-#+ surv_death_EMR,cache=TRUE,fig.cap='When additional vital status, ethnicity, and last-visit information from EMR is included, there are markedly more events but still no discernible difference.'
+#' ::::: {#fig:alldeath_survfit custom-style="Image Caption"}
+#+ alldeath_survfit,results='asis'
 (.survfit_plot2a <- update(
   .survfit_plot2,eventvars='a_tdeath'
   ,predvars='a_hsp_broad'
   ,default.censrvars='age_at_visit_days'
   ,main='Time from surgery to death supplemented with EMR data'))$plot
+cat('
+
+Like [@fig:naaccrdeath_survfit] but with additional ethnicity and last-visit 
+information from EMR included, resulting in fewer censored events which may 
+improve sensitivity.');
+#' :::::
+#' 
+#' 
 #' ***
 # A1 stage/grade ---------------------------------------------------------------
 #' ## Appendix I: Example of stage/grade data
@@ -1185,12 +1283,10 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
 #' by this table_ .
 #' 
 #' ### What is going on with the first contact variable?
-#' Wierd observation-- the date of first contact `r fs('n_fc')` (red) is 
-#' almost always between last contact `r fs('n_lc')` (black) and diagnosis `r fs('n_ddiag')` 
-#' (blue), though diagnosis is usually on a biopsy sample and that's why it's 
-#' dated as during or after surgery we thought. If first contact is some kind of 
-#' event after first diagnosis, what is it?
-#+ event_plot_diag2lc,cache=TRUE
+#' 
+#' 
+#' ::::: {#fig:diag2lc_eventplot custom-style="Image Caption"}
+#+ diag2lc_eventplot,results='asis'
 .eplot_fc <-event_plot(subset(dat3,!patient_num %in% kcpatients.naaccr_dupe)
                        ,'n_lc','n_fc',start_event = 'n_ddiag'
                        ,main='Time from Diagnosis to Last Contact'
@@ -1199,6 +1295,13 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
                        ,tunit = 'mon'
                        ,ltys = c(1,1));
 abline(h=0,col='blue');
+cat("
+
+Wierd observation-- ",fs('n_fc')," (red) is almost always between ",fs('n_lc')
+,"(black) and ",fs('n_ddiag')," (blue) though diagnosis is usually on a biopsy
+sample and that's why it's dated as during or after surgery we thought. If first contact is some kind of event after first diagnosis, what is it?");
+#' :::::
+#' 
 #' 
 #' Surgery `r fs('n_dsurg')` seems to happen in significant amounts both before 
 #' and after first contact `r fs('n_fc')`.
