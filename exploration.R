@@ -292,7 +292,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 with(dat2a,table(e_marital,n_marital,useNA='if')) %>% addmargins %>%
   set_rownames(.,gsub('@','',rownames(.))) %>% 
   pander(emphasize.strong.cells=cbind(c(2:4,6:9),1:8)
-         ,caption='[Table 1]{#tab01 .table_title} This is a test table caption');
+         ,caption='Marital status from NAACCR (columns) and EMR (rows). {#tab:xc_marital}');
 
 #' 
 #' ### How well do birthdates match between NAACCR and the EMR?
