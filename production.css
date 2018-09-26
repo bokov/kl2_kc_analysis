@@ -131,7 +131,6 @@ p.abstract {
     line-height: 0;
     text-indent: -99999px;
 }
-*/
 
 p.abstract:after {
     line-height: initial;
@@ -141,6 +140,7 @@ p.abstract:after {
     visibility: visible;
     content: 'Latest Developments';
 }
+*/
 
 .figure .caption, .subfigures > p:last-of-type, figcaption {
     color: #777;
