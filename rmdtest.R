@@ -26,6 +26,8 @@
 # if running in test-mode, uncomment the line below
 options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
+# set the font
+default_font <- 'Times New Roman';
 .depends <- 'dictionary.R';
 .depdata <- paste0(.depends,'.rdata');
 .currentscript <- parent.frame(2)$ofile;
@@ -37,7 +39,8 @@ if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 .loadedobjects <- tload(.depdata);
 # a hack pending until we can separate the light and heavy parts of data.R 
 # somehow
-knitr::opts_chunk$set(echo = F,warning = F,message=F);
+knitr::opts_chunk$set(echo = F,warning = F,message=F
+                      ,dev.args=list(family=default_font));
 knitr::opts_template$set(
   fig_opts=alist(fig.cap=get0(knitr::opts_current$get("label"))));
 #rmarkdown::pandoc_toc_args(TRUE,toc_depth=3);
@@ -65,6 +68,30 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' * `reference_docx`
 #' 
 #' 
+# params ----------------------------------------------------------------------
+#' # Params & Metadata
+#' 
+#' Trying to print out the current YAML `r thisenv<-environment(); save.image('foo.rdata'); 'params'`...
+cat('Here goes...\n\n');
+if(exists('params')) pander(params) else cat('No params\n');
+if(exists('input')) pander(input) else cat('No input\n');
+if(exists('thisenv')) pander(ls(thisenv)) else cat('No thisenv\n');
+#' ## knitr options
+#' 
+#' `opts_template`
+#+ opts_template
+pander(knitr::opts_template$get());
+#' `opts_current`
+pander(knitr::opts_current$get());
+#' `opts_knit`
+pander(knitr::opts_knit$get());
+#' `opts_hook`
+#+ opts_hook
+baz<-try(pander(knitr::opts_hooks$get()));
+#' `opts_chunk`
+#+ opts_chunk
+pander(knitr::opts_chunk$get());
+
 # fenced_divs ------------------------------------------------------------------
 #' # Fenced divs
 #' 
