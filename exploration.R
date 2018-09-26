@@ -4,7 +4,8 @@
 #' author: 
 #' - "Alex F. Bokov^[UT Health San Antonio]"
 #' date: '`r format(Sys.Date(), "%B %d, %Y")`'
-#' tags: [data characterization, preliminary, NAACCR, urology, cancer]
+#' tags: ["data characterization", "preliminary", "NAACCR", "urology", "cancer"]
+#' thanks: ["Dr. Shawn Murphy", "Dr. Ronald Rodriguez", "Dr. Amelie Ramirez", "Dr. Joel Michalek"]
 #' abstract: |
 #'   Minimal necessary NAACCR variables chosen and 
 #'   process documented for preparing them for analysis, as well as 
@@ -31,8 +32,11 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-options(gitstamp_prod=F);
+#options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
+
+default_font <- 'Times New Roman';
+
 .depends <- c('dictionary.R','data.R');
 .depdata <- paste0(.depends,'.rdata');
 .currentscript <- parent.frame(2)$ofile;
@@ -46,7 +50,8 @@ for(ii in seq_along(.depends)) {
                                                 ,.depends[ii]));
   .loadedobjects <- union(.loadedobjects,tload(.depdata[ii]));
 }
-knitr::opts_chunk$set(echo = F,warning = F,message=F,fig.scap=NA,fig.lp='');
+knitr::opts_chunk$set(echo = F,warning = F,message=F,fig.scap=NA,fig.lp=''
+                      ,dev.args=list(family=default_font));
 # if a text string named FOO is created prior to a named chunk also named FOO
 # then specifying opts.label='fig_opts' in the options for that chunk will use
 # that string as the caption
@@ -67,7 +72,8 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 .args_default_fs <- formals(fs);
 formals(fs)[c('url','fs_reg','retfun')] <- alist(str,'fs_reg',return);
 formals(fs)$template <- fstmplts$link_colnamelong;
-
+.par_eventplot <- .par_default <- par(no.readonly = T);
+.par_eventplot$family = 'Times New Roman';
 # We don't yet explicitly reference patient_num outside the news block, so I'm 
 # priming the fs_reg option with it here manually
 options(fs_reg='patient_num');
