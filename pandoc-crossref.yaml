@@ -2,3 +2,5 @@ linkReferences: true
 nameInLink: true
 tblLabels: "roman"
 tblPrefix: ["table","tables"]
+numberSections: true
+sectionsDepth: 3
