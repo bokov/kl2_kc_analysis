@@ -87,19 +87,19 @@ h1,h2,h3,h4 {
 
 /* otherwise the title h1 doesn't inherit the fontsize correctly */
 h1,h1.title {
-  font-size: 2em;
-}
-
-h2 {
   font-size: 1.8em;
 }
 
-h3 {
+h2 {
   font-size: 1.4em;
 }
 
-h4 {
+h3 {
   font-size: 1.2em;
+}
+
+h4 {
+  font-size: 1.1em;
 }
 
 h5 {
