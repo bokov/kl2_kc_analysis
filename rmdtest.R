@@ -52,7 +52,7 @@ panderOptions('table.alignment.rownames','left');
 .args_default_v <- formals(v);
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 # overview ---------------------------------------------------------------------
-#' # Overview
+#' # Overview {#sec:overview}
 #' 
 #' 
 #' 
@@ -69,9 +69,9 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 #' 
 #' 
 # params ----------------------------------------------------------------------
-#' # Params & Metadata
+#' # Params & Metadata {#sec:meta label="Meta Section"}
 #' 
-#' Trying to print out the current YAML `r thisenv<-environment(); save.image('foo.rdata'); 'params'`...
+#' Trying to print out the current YAML `r thisenv<-environment(); 'params'`...
 cat('Here goes...\n\n');
 if(exists('params')) pander(params) else cat('No params\n');
 if(exists('input')) pander(input) else cat('No input\n');
@@ -93,7 +93,7 @@ baz<-try(pander(knitr::opts_hooks$get()));
 pander(knitr::opts_chunk$get());
 
 # fenced_divs ------------------------------------------------------------------
-#' # Fenced divs
+#' # Fenced divs {#sec:divs}
 #' 
 #' ::::: {.sidebar #fig:fenced custom-style="Image Caption"}
 #' Here is a paragraph.
@@ -146,7 +146,13 @@ cat('\n\nCaption for random plot 3');
 #' 
 # crossref ---------------------------------------------------------------------
 #' 
-#' # Referencing tables and figures.
+#' # Referencing tables and figures. {#sec:xref}
+#' 
+#' Here I will cite [@sec:meta] and [@sec:divs]. Now how about [@sec:h7]? Now 
+#' I will cite [&nbsp; @sec:meta] again. `&nbsp` works as a custom one-off 
+#' prefix but whitespace does not. Quotes are made visible. Now I will cite 
+#' [-@sec:meta] and [-@sec:xref] with prefix-suppression. And now I will link
+#' to [the section on metadata](#sec:meta) completely bypassing pandoc-crossref.
 #' 
 #' Trying to cite [@Tbl:footab] . Did it work? Yes! Also see the top-level YAML 
 #' headers. How about multiple tables, such as [@tbl:bananas;@tbl:footab]. Can
@@ -348,7 +354,7 @@ cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
 #' 
 #+ results='asis' 
 cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
-#' ####### H7
+#' ####### H7 {#sec:h7}
 #' 
 #+ results='asis' 
 cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
