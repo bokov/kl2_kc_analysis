@@ -1,3 +1,5 @@
+# small utils ------------------------------------------------------------------
+
 #' This function takes a list of package named, loads them if they are
 #' available, otherwise attempts to install each one and then again 
 #' attempts to load it.
@@ -15,52 +17,92 @@ instrequire <- function(pkglist
   };
 }
 
-survAUC<-function(Surv.rsp,Surv.rsp.new,lp,lpnew,times,time,lp0=0
-                  ,nonstdSurv=c('OXS','Nagelk','XO')
-                  ,...,FUNS){
-  if(is.null(info<-getOption('survAUCinfo'))){
-    # create a lookup table for these functions if one doesn't exist
-    info<-sapply(ls(package:survAUC),get) %>% lapply(formals) %>%
-      lapply(sapply,class) %>% lapply(bind_rows) %>% bind_rows(.id='fun');
-    options(survAUCinfo=info);
-  }
-  if(!missing(FUNS)) info <- subset(info,fun %in% FUNS);
-  args <- list();
-  for(ii in names(match.call())[-1]) args[[ii]] <- get(ii);
-  # create a value for 'time' if it's missing but there are 'times'
-  if(!'time' %in% names(args) && 'times' %in% names(args)) args$time <- max(eval(args$times));
-  # make sure lp0 is the right length (seriously people? You're going to make me
-  # do this in R of all languages?). BTW, Surv.rsp.new not an error-- for all
-  # functions requiring lp0, there is also that departure from standard names
-  # and for those three Surv.rsp.new becomes Surv.rsp
-  if(missing(lp0)&&!missing(Surv.rsp.new)) args$lp0 <- rep_len(0,nrow(args$Surv.rsp.new));
-  # which arguments are we missing on our current invokation?
-  if(!'lp'%in%names(args)) browser();
-  # find the arguments that each function can accept
-  allowedargs<-setNames(apply(info[,-1],1,function(xx) names(info)[-1][!is.na(xx)])
-                        ,unlist(info[,1]));
-  # find the names of the non-optional arguments for each function
-  nonoptargs<- sapply(info$fun,function(ii) subset(info,fun==ii),simplify=F) %>% 
-    lapply(function(jj) na.omit(names(jj)[jj=='name']));
-  # based on the above, here are the functions we can run with the data we have
-  # for the ones that are FALSE we will return NAs
-  canrun <- lapply(nonoptargs,setdiff,names(args)) %>% sapply(length) == 0;
-  # and filter it down to just the ones that are valid arguments for functions 
-  # that can be run
-  args2use <- sapply(names(canrun)
-                     ,function(xx) if(canrun[xx])
-                       args[intersect(allowedargs[[xx]],names(args))] else NA
-                     ,simplify=F);
-  # correct the inconsistent argument names in the functions names by the 
-  # nonstdSurv variable
-  for(ii in intersect(nonstdSurv,names(canrun[canrun]))) {
-    args2use[[ii]][c('Surv.rsp','lp')] <- args[c('Surv.rsp.new','lpnew')];
-  }
-  # return output!
-  invisible(sapply(names(args2use),function(xx) if(is.na(args2use[[xx]])) NA else {
-    try(do.call(xx,args2use[[xx]]))}));
+
+#' takes input and returns it with attributes set
+with_attrs<-function(xx,rep.attrs=list(),app.attrs=list()){
+  attrs <- attributes(xx); if(is.null(attrs)) attrs<-list();
+  for(ii in names(rep.attrs)) attrs[[ii]] <- rep.attrs[[ii]];
+  for(ii in names(app.attrs)) attrs[[ii]] <- c(attrs[[ii]],app.attrs[[ii]]);
+  attributes(xx) <- attrs;
+  xx;
 }
 
+#' takes input and returns it with a comment attribute
+cm <- with_cm <- function(xx,comment=NULL,append=T
+                          ,transf=stringr::str_squish){
+  if(!is.null(transf)) comment <- transf(comment);
+  if(append) with_attrs(xx,app.attrs=list(comment=comment)) else {
+    with_attrs(xx,rep.attrs=list(comment=comment));
+  }
+}
+
+#' Take an object name \code{obj}, check to see if it  exists in environment \code{env}
+#' and if it does not, run \code{expression} \code{EXPR} and assign its result to \code{obj}
+#'
+#' @param obj   A \code{character} string (required) naming the variable in env
+#'   to which the results of running \code{EXPR} will be assigned.
+#' @param EXPR  An \code{expression} to execute and assign to the object named
+#'   by \code{obj} if it doesn't already exist.
+#' @param env   An \code{environment} to check for the existence of \code{obj}
+#'   and where to create it if it doesn't exist.
+#'
+#' @return Does not return anything.
+#'
+#' @examples `checkrun('dat3',{group_by(dat1,idn_mrn) %>% summarise_all(first)});`
+checkrun <- function(obj,EXPR,env=as.environment(-1)){
+  env<-env;
+  if(length(ls(env,all=T,pattern=obj))==0){
+    browser();
+  }
+}
+
+getCall.list <- getCall.data.frame <- getCall.gg <- function(xx) {attr(xx,'call')};
+
+# why not update calls?
+update.call <- function(xx,...){
+  dots <- list(...);
+  for(ii in names(dots)) xx[[ii]] <- dots[[ii]];
+  xx;
+}
+
+#' Delete all the junk in your environment, for testing
+clearenv <- function(env=.GlobalEnv) {rm(list=setdiff(ls(all=T,envir=env),'clearenv'),envir=env);}
+
+#' Stack a vector to form a matrix with repeating rows, with optional 
+#' column names and transformation
+#'
+#' @param  vv    A vector which will become the row of a matrix
+#' @param  nr    Number of (identical) rows this matrix will contain
+#' @param  trans An optional function that can take a matrix as its 
+#'              sole argument. Useful functions include `as.data.frame()`
+#'              `as_tibble()` and `as.table()`
+#' @return A matrix, unless the function specified in the `trans` argument
+#'         causes the output to be something else.
+#' @export 
+#'
+#' @examples 
+#' vec2m(1:10,5);
+#' vec2m(1:10,5,tr=data.frame);
+#' vec2m(setNames(1:12,month.name),3);
+vec2m <- function(vv,nr=1,trans=identity) {
+  return(trans(matrix(as.matrix(c(vv)),nrow=nr,ncol=length(vv),byrow=T
+                      ,dimnames=list(NULL,names(vv)))));
+}
+
+#' returns call with ALL arguments specified, both the defaults and those
+#' explicitly provided by the user
+fullargs <- function(syspar=sys.parent(),env=parent.frame(2L),expand.dots=TRUE){
+  fn <- sys.function(syspar);
+  frm <- formals(fn);
+  cll <- match.call(fn,sys.call(syspar),expand.dots = expand.dots,envir = env);
+  defaults <- setdiff(names(frm),c(names(cll),'...'));
+  for(ii in defaults) cll[[ii]] <- frm[[ii]];
+  return(cll);
+}
+
+
+
+# renaming and remapping  ------------------------------------------------------
 #' A function to re-order and/or rename the levels of a factor or 
 #' vector with optional cleanup.
 #'
@@ -228,6 +270,43 @@ submulti <- function(xx,searchrep
   oo;
 }
 
+#' Take a data.frame or character vector and a vector of grep targets and return
+#' the values that match (for data.frame, column names that match). If no 
+#' patterns given just returns the names
+#' @param xx A \code{data.frame} or character vector (required)
+#' @param patterns A character vector of regexp targets to be OR-ed
+grepor <- function(xx,patterns='.') {
+  if(is.list(xx)) xx <-names(xx);
+  grep(paste0(patterns,collapse='|'),xx,val=T);
+}
+
+#' Usage: `xx<-mapnames(xx,lookup)` where lookup is a named character vector
+#' the names of the elements in the character vector are what you are renaming
+#' things TO and the values are what needs to be matched, i.e. what renaming things
+#' FROM. If you set namesonly=T then it just returns the names, not the original
+#' object.
+mapnames<-function(xx,lookup,namesonly=F,...){
+  xnames <- names(xx);
+  idxmatch <- na.omit(match(xnames,lookup));
+  newnames <- names(lookup)[idxmatch];
+  if(namesonly) return(newnames);
+  names(xx)[xnames %in% lookup] <- newnames;
+  xx;
+}
+
+#' Example of using R methods dispatch
+#' 
+#' The actual usage is: `truthy(foo)` and `truthy()` itself figures
+#' out which method to actually dispatch.
+truthy <- function(xx,...) UseMethod('truthy');
+truthy.logical <- function(xx,...) xx;
+truthy.factor <- function(xx,...) truthy.default(as.character(xx),...);
+truthy.numeric <- function(xx,...) xx>0;
+truthy.default <- function(xx,truewords=c('TRUE','true','Yes','T','Y','yes','y')
+                           ,...) xx %in% truewords;
+truthy.data.frame <- function(xx,...) as.data.frame(lapply(xx,truthy,...));
+
+# table utilities --------------------------------------------------------------
 #' Take a data.frame and create a PL/SQL table definition for it, ready to paste into DBVis and such
 #' @param xx A \code{data.frame} (required)
 sql_create_table <- function(xx,tname,sqltemplate='CREATE TABLE %s (%s);'){
@@ -248,16 +327,6 @@ sql_create_table <- function(xx,tname,sqltemplate='CREATE TABLE %s (%s);'){
   # TODO: collect the column names and classes as we did in console
   # TODO: use the above and submulti() to convert R classes to SQL data types
   # TODO: paste() and/or sprintf() to create the string that will be the output
-}
-
-#' Take a data.frame or character vector and a vector of grep targets and return
-#' the values that match (for data.frame, column names that match). If no 
-#' patterns given just returns the names
-#' @param xx A \code{data.frame} or character vector (required)
-#' @param patterns A character vector of regexp targets to be OR-ed
-grepor <- function(xx,patterns='.') {
-  if(is.list(xx)) xx <-names(xx);
-  grep(paste0(patterns,collapse='|'),xx,val=T);
 }
 
 #' Perform `mutate()` on a subset of rows without breaking the pipeline but with
@@ -374,11 +443,201 @@ mutate_rows <- function(.data,.condition=FALSE,...,.namevals=list(),UNIQUE=TRUE
   return(out);
 }
 
+
+
+#' Take a vector of times, and an expression to evaluate in the calling context
+#' and return a vector of times until the first occurence of the expression
+#' @param time 
+#' @param expr 
+#' @param ... 
+tte <- function(time,expr,...){
+  event <- min(which(expr));
+  # The +1 needed so that a series of followups where an 
+  # event never happens is always negative while a series
+  # of followups when an event is observed has a 0 in it
+  if(is.infinite(event)) etime <- max(time)+1 else {
+    etime <- time[event];}
+  out <- time - etime;
+}
+
+
+#' Code the output of `tte()` such that before an event observations get `0`
+#' during the (first) event observations get `1` and subsequent get `2`
+#' 
+#' By default it shifts the result by 1, producing a vector that can directly be
+#' used as the `event` in a `Surv(time,event)` type expression assuming you trim
+#' out the >1 values. To change the amount of shift, use the optional `shift`
+#' argument. To do something other than shifting by that amount, use the 
+#' optional `fn` variable which takes as its argument a function that can 
+#' operate on exactly two arguments.
+#' 
+cte <- function(...,shift=1,fn=`+`) {fn(sign(pmax(...,na.rm=T)),shift)};
+
+
+#' Take two vectors of names `ii` and `jj`, perform an aggregating 
+#' function on each vector respectively and then perform a comparison function 
+#' `fcmp` on the two aggregation results.
+#' 
+#' If the optional `env` is provided, returns a result vector 
+#' evaluated in the environment of env, otherwise return an unevaluated call.
+#'
+#' @param ii    A vector of object or variable names (required)
+#' @param jj    A vector of object or variable names (required)
+#' @param env   An optional list-like object containing above-named
+#'              objects.
+#' @param fii   The name (character) of a function that can take all the objects
+#'              represented in `ii` as its argument-list... 'pmax' by default.
+#' @param fjj   The name (character) of a function that can take all the objects
+#'              represented in `jj` as its argument-list. Set to `fii` by
+#'              default.
+#' @param fcmp  The name (character) of a function that will take the outputs of
+#'              functions named in `fii` and `fjj` as its two arguments. By 
+#'              default it's '<'.
+#' @param optii A named list of optional arguments to pass to `fii`. By default
+#'              it only name-value pair is `na.rm=T`
+#' @param optjj A named list of optional arguments to pass to `fii`. By default
+#'              it's set to `optjj`
+#'
+#' @return A call generated using the above arguments, unless `env`  is
+#'         given in which case the result of evaluating that call in the context
+#'         of `env`
+#' @export
+#'
+#' @examples comp_iijj(v(c_natf,dat1,retcol=c('colname','varname'))
+#'                    ,v(c_kcdiag,dat1,retcol=c('colname','varname')),dat1);
+#' 
+comp_iijj <- function(ii,jj,env,fii='pmax',fjj=fii,fcmp='>'
+                      ,optii=list(na.rm=T),optjj=optii){
+  ii <- lapply(ii,as.name); jj <- lapply(jj,as.name);
+  callii <- do.call(call,c(fii,ii,optii),quote=T);
+  calljj <- do.call(call,c(fjj,jj,optjj),quote=T);
+  out <- do.call(call,c(fcmp,callii,calljj),quote=T);
+  if(!missing(env)) out <- eval(out,envir = env);
+  return(out);
+}
+
+#' Returns a vector of column names that contain data elements of a particular type
+#' as specified by the user: "integer","POSIXct" "POSIXt", "numeric", "character", 
+#' "factor" and "logical". 
+vartype <- function(dat, ctype) {
+  xx <- unlist(sapply(dat, class));
+  idx <- which(xx %in% ctype);
+  res <- names(xx)[idx];
+  return(res)
+}
+
+#' This function can be called from `stat_summary()` as the
+#' `fun.data=` argument. It will cause group counts to be 
+#' over-printed on a `geom_boxplot()` (probably other similar
+#' plots too) if `stat_summary()` is added to it.
+n_fun <- function(xx) data.frame(y=mean(quantile(xx,c(.5,.75))),label=as.character(length(xx)));
+
+#' take a list of subset criteria and return a list of data.frames
+ssply<-function(dat,...) sapply(sys.call()[-(1:2)],function(ii) subset(dat,eval(ii)),simplify=F);
+
+#' save a named list of tables, including names
+savetablelist <- function(lst,fileprefix,filesuffix=paste0(format(Sys.Date(),'%m-%d-%Y-%H_%M_%S'),'.tsv')
+                          ,filepath='./',outfile=paste0(filepath,fileprefix,filesuffix)
+                          ,sep='\t',row.names=F
+                          ,singletabname=as.character(substitute(lst))
+                          ,replaceifexists=T,...) {
+  if(is.data.frame(lst)) lst<-setNames(list(lst),singletabname);
+  if(replaceifexists&&file.exists(outfile)) file.remove(outfile);
+  for(ii in names(lst)){
+    write(ii,file=outfile,append=T);
+    write.table(lst[[ii]],outfile,sep=sep,row.names=row.names,append=T);
+  }
+}
+
+# string hacking ---------------------------------------------------------------
+#' Fancy Span (or any other special formatting of strings)
+#' 
+fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
+               ,tooltip='',class='fl'
+               # %1 = text, %2 = url, %3 = class, %4 = tooltip
+               # TODO: %5 = which position 'str' occupies in fs_reg if 
+               #       applicable and if not found, append 'str'
+               ,template='[%1$s]: %2$s "%4$s"\n'
+               # Turns out that the below template will generate links, but they
+               # only render properly for HTML output because pandoc doesn't 
+               # interpret them. However, if we use the markdown implicit link
+               # format (https://pandoc.org/MANUAL.html#reference-links) we 
+               # don't have to wrap links in anything, but we _can_ use fs()
+               # with the new template default above to generate a block of 
+               # link info all at once in the end. No longer a point in using
+               # the fs_reg feature for this case, the missing links will be
+               # easy to spot in the output hopefully
+               #,template="<a href='%2$s' class='%3$s' title='%4$s'>%1$s</a>"
+               ,dct=dct0,col_tooltip='colname_long',col_class='',col_url=''
+               ,col_text='',match_col='varname',fs_reg=NULL
+               ,retfun=cat
+               #,fs_reg='fs_reg'
+               ,...){
+  # if a data dictionary is specified use that instead of the default values 
+  # for arguments where the user has not explicitly provided values (if there
+  # is no data dictionary or if the data dictionary doesn't have those columns,
+  # fall back on the default values)
+  if(is.data.frame(dct) && 
+     match_col %in% names(dct) &&
+     !all(is.na(dctinfo <- dct[which(dct[[match_col]]==str)[1],]))){
+    if(missing(tooltip) && 
+       length(dct_tooltip<-na.omit(dctinfo[[col_tooltip]]))==1) {
+      tooltip <- dct_tooltip;}
+    if(missing(text) && 
+       length(dct_text<-na.omit(dctinfo[[col_text]]))==1) {
+      text <- dct_text;}
+    if(missing(url) && 
+       length(dct_url<-na.omit(dctinfo[[col_url]]))==1) {
+      url <- dct_url;}
+    if(missing(class) && 
+       length(dct_class<-na.omit(dctinfo[[col_class]]))==1) {
+      class <- dct_class;}
+  }
+  out <- sprintf(template,text,url,class,tooltip,...);
+  # register each unique str called by fs in a global option specified by 
+  # fs_register
+  if(!is.null(fs_reg)) {
+    dbg<-try(do.call(options,setNames(list(union(getOption(fs_reg),str))
+                                      ,fs_reg)));
+    if(is(dbg,'try-error')) browser();
+    }
+  retfun(out);
+}
+
+
+#' ## Functions for RMarkdown and ggplot2
+#' 
+#' Return a commit hash (for inclusion in reports for example) after first making
+#' sure all changes are committed and pushed
+#' TODO: instead of auto-committing, error if uncommited changes, needs to be 
+#' a deliberate process, otherwise we have tons of meaningless auto-commit
+#' messages that will make future maintenance harder
+#gitstamp <- function(production=getOption('gitstamp.production',T),branch=F
+#                     ,whichfile='') {
+#  br<- if(branch) system("git rev-parse --abbrev-ref HEAD",intern=T) else NULL;
+#  if(production){
+#    if(length(gitdiff<-system("git update-index --refresh && git diff-index HEAD --",intern = T))!=0){
+#      stop(sprintf(
+#      "\ngit message: %s\n\nYou have uncommitted changes. Please do 'git commit' and then try again."
+#      ,gitdiff));};
+#    hash<-system(sprintf("git push && git log --pretty=format:'%%h' -n 1 -- %s"
+#                         ,whichfile),intern=T);
+#    if(length(hash)==0) stop('
+#The specified file is not part of a git repository. You need to do (for example):
+#
+#git add NAMEOFTHISSCRIPT.R && git commit -a -m "New script"
+#
+#...and then try again.');
+#    return(c(br,hash));
+#  } else return(c(br,'TEST_OUTPUT_DO_NOT_USE'));
+#}
+
+# data dictionary --------------------------------------------------------------
 #' Thin wrapper for dct_mod, see below
 dct_append <- function(varname_,c_lists=c(),...,NONEWCOLS=TRUE,NOCOERCE=TRUE
-                    ,file=dctfile_tpl
-                    ,readfun=function(xx) tread(xx,read_csv,na='')
-                    ,writefun=function(xx) write_csv(xx,file,na='')){
+                       ,file=dctfile_tpl
+                       ,readfun=function(xx) tread(xx,read_csv,na='')
+                       ,writefun=function(xx) write_csv(xx,file,na='')){
   condition<-substitute(varname==varname_);
   #namevals <- list(varname=varname_,...);
   return(dct_mod(varname_=varname_,c_lists=c_lists,varname=varname_,...
@@ -435,474 +694,6 @@ dct_mod <- function(colsuffix_,colname_long_,varname_,condition=TRUE,c_lists=c()
 #' TODO: ...so that I can have a tidy and understandable set of plots 
 #'       demonstrating the behavior of the various tte variables.
 
-#' Take an object name \code{obj}, check to see if it  exists in environment \code{env}
-#' and if it does not, run \code{expression} \code{EXPR} and assign its result to \code{obj}
-#'
-#' @param obj   A \code{character} string (required) naming the variable in env
-#'   to which the results of running \code{EXPR} will be assigned.
-#' @param EXPR  An \code{expression} to execute and assign to the object named
-#'   by \code{obj} if it doesn't already exist.
-#' @param env   An \code{environment} to check for the existence of \code{obj}
-#'   and where to create it if it doesn't exist.
-#'
-#' @return Does not return anything.
-#'
-#' @examples `checkrun('dat3',{group_by(dat1,idn_mrn) %>% summarise_all(first)});`
-checkrun <- function(obj,EXPR,env=as.environment(-1)){
-  env<-env;
-  if(length(ls(env,all=T,pattern=obj))==0){
-    browser();
-  }
-}
-
-#' Take a vector of times, and an expression to evaluate in the calling context
-#' and return a vector of times until the first occurence of the expression
-#' @param time 
-#' @param expr 
-#' @param ... 
-tte <- function(time,expr,...){
-  event <- min(which(expr));
-  # The +1 needed so that a series of followups where an 
-  # event never happens is always negative while a series
-  # of followups when an event is observed has a 0 in it
-  if(is.infinite(event)) etime <- max(time)+1 else {
-    etime <- time[event];}
-  out <- time - etime;
-}
-
-
-#' Take two vectors of names `ii` and `jj`, perform an aggregating 
-#' function on each vector respectively and then perform a comparison function 
-#' `fcmp` on the two aggregation results.
-#' 
-#' If the optional `env` is provided, returns a result vector 
-#' evaluated in the environment of env, otherwise return an unevaluated call.
-#'
-#' @param ii    A vector of object or variable names (required)
-#' @param jj    A vector of object or variable names (required)
-#' @param env   An optional list-like object containing above-named
-#'              objects.
-#' @param fii   The name (character) of a function that can take all the objects
-#'              represented in `ii` as its argument-list... 'pmax' by default.
-#' @param fjj   The name (character) of a function that can take all the objects
-#'              represented in `jj` as its argument-list. Set to `fii` by
-#'              default.
-#' @param fcmp  The name (character) of a function that will take the outputs of
-#'              functions named in `fii` and `fjj` as its two arguments. By 
-#'              default it's '<'.
-#' @param optii A named list of optional arguments to pass to `fii`. By default
-#'              it only name-value pair is `na.rm=T`
-#' @param optjj A named list of optional arguments to pass to `fii`. By default
-#'              it's set to `optjj`
-#'
-#' @return A call generated using the above arguments, unless `env`  is
-#'         given in which case the result of evaluating that call in the context
-#'         of `env`
-#' @export
-#'
-#' @examples comp_iijj(v(c_natf,dat1,retcol=c('colname','varname'))
-#'                    ,v(c_kcdiag,dat1,retcol=c('colname','varname')),dat1);
-#' 
-comp_iijj <- function(ii,jj,env,fii='pmax',fjj=fii,fcmp='>'
-                      ,optii=list(na.rm=T),optjj=optii){
-  ii <- lapply(ii,as.name); jj <- lapply(jj,as.name);
-  callii <- do.call(call,c(fii,ii,optii),quote=T);
-  calljj <- do.call(call,c(fjj,jj,optjj),quote=T);
-  out <- do.call(call,c(fcmp,callii,calljj),quote=T);
-  if(!missing(env)) out <- eval(out,envir = env);
-  return(out);
-}
-
-#' Code the output of `tte()` such that before an event observations get `0`
-#' during the (first) event observations get `1` and subsequent get `2`
-#' 
-#' By default it shifts the result by 1, producing a vector that can directly be
-#' used as the `event` in a `Surv(time,event)` type expression assuming you trim
-#' out the >1 values. To change the amount of shift, use the optional `shift`
-#' argument. To do something other than shifting by that amount, use the 
-#' optional `fn` variable which takes as its argument a function that can 
-#' operate on exactly two arguments.
-#' 
-cte <- function(...,shift=1,fn=`+`) fn(sign(pmax(...,na.rm=T)),shift);
-
-#' Delete all the junk in your environment, for testing
-clearenv <- function(env=.GlobalEnv) rm(list=setdiff(ls(all=T,envir=env),'clearenv'),envir=env);
-
-#' Fancy Span (or any other special formatting of strings)
-#' 
-fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
-               ,tooltip='',class='fl'
-               # %1 = text, %2 = url, %3 = class, %4 = tooltip
-               # TODO: %5 = which position 'str' occupies in fs_reg if 
-               #       applicable and if not found, append 'str'
-               ,template='[%1$s]: %2$s "%4$s"\n'
-               # Turns out that the below template will generate links, but they
-               # only render properly for HTML output because pandoc doesn't 
-               # interpret them. However, if we use the markdown implicit link
-               # format (https://pandoc.org/MANUAL.html#reference-links) we 
-               # don't have to wrap links in anything, but we _can_ use fs()
-               # with the new template default above to generate a block of 
-               # link info all at once in the end. No longer a point in using
-               # the fs_reg feature for this case, the missing links will be
-               # easy to spot in the output hopefully
-               #,template="<a href='%2$s' class='%3$s' title='%4$s'>%1$s</a>"
-               ,dct=dct0,col_tooltip='colname_long',col_class='',col_url=''
-               ,col_text='',match_col='varname',fs_reg=NULL
-               ,retfun=cat
-               #,fs_reg='fs_reg'
-               ,...){
-  # if a data dictionary is specified use that instead of the default values 
-  # for arguments where the user has not explicitly provided values (if there
-  # is no data dictionary or if the data dictionary doesn't have those columns,
-  # fall back on the default values)
-  if(is.data.frame(dct) && 
-     match_col %in% names(dct) &&
-     !all(is.na(dctinfo <- dct[which(dct[[match_col]]==str)[1],]))){
-    if(missing(tooltip) && 
-       length(dct_tooltip<-na.omit(dctinfo[[col_tooltip]]))==1) {
-      tooltip <- dct_tooltip;}
-    if(missing(text) && 
-       length(dct_text<-na.omit(dctinfo[[col_text]]))==1) {
-      text <- dct_text;}
-    if(missing(url) && 
-       length(dct_url<-na.omit(dctinfo[[col_url]]))==1) {
-      url <- dct_url;}
-    if(missing(class) && 
-       length(dct_class<-na.omit(dctinfo[[col_class]]))==1) {
-      class <- dct_class;}
-  }
-  out <- sprintf(template,text,url,class,tooltip,...);
-  # register each unique str called by fs in a global option specified by 
-  # fs_register
-  if(!is.null(fs_reg)) {
-    dbg<-try(do.call(options,setNames(list(union(getOption(fs_reg),str))
-                                      ,fs_reg)));
-    if(is(dbg,'try-error')) browser();
-    }
-  retfun(out);
-}
-#' Plots in the style we've been doing (continuous y, discrete x and optionally z)
-#' 
-#' Instead of creating new tables for 'All', just set xx=T
-#' 
-#' To suppress plotting of a legend (but still use fill) set fill.name=NA
-#' Likewise, to suppress printing y-axis labels make yy.name=NA
-#' To merely omit printing a name, set the name in question to ''
-autoboxplot <- function(pdata, xx, yy, zz, subset=T
-                        , type=c('box','violin')
-                        , title=sprintf('%s vs %s\n by %s',xx,yy,zz)
-                        , xx.name=if(xx==TRUE) 'All' else xx, xx.breaks=if(xx==TRUE) xx else unique(pdata[[xx]])
-                        , xx.labels=if(xx==TRUE) '' else xx.breaks
-                        , yy.name=yy, yy.labels
-                        , fill.name, fill.breaks, fill.labels
-                        , counts=T
-                        ,...){
-  subset <- substitute(subset);
-  plot_type <- switch(match.arg(type)
-                      ,box=geom_boxplot(coef=100)
-                      ,violin=geom_violin());
-  pdata <- subset(pdata,subset=eval(subset));
-  if(!missing(zz)){
-    if(missing(fill.name)) fill.name <- zz;
-    if(missing(fill.breaks)) fill.breaks <- unique(pdata[[zz]]);
-    if(missing(fill.labels)) fill.labels <- fill.breaks;
-    fill <- if(is.atomic(fill.name)&&is.na(fill.name)) scale_fill_discrete(guide=F) else {
-      scale_fill_discrete(name=fill.name,breaks=fill.breaks,labels=fill.labels);
-    }
-  }
-  if(missing(yy.labels)){
-    yy.labels <- if(is.na(yy.name)) scale_y_continuous(name='',labels=NULL) else {
-      scale_y_continuous(name=yy.name,labels = comma);
-      };
-    };
-  out <- ggplot(data = pdata, aes_string(x = xx, y = yy)) + plot_type + yy.labels +
-    scale_x_discrete(name=xx.name,breaks=xx.breaks,labels=xx.labels) +
-    labs(title=title)
-  if(!missing(zz)) out <- out + aes_string(fill=zz) + fill;
-  if(counts){
-    ccrds<-ggplot_build(out)$layout$panel_ranges[[1]];
-    ann.label <- if(xx==TRUE && missing(zz)) nrow(pdata) else if(xx==TRUE){
-      paste0(table(pdata[,zz]),collapse=' \t ') } else if(missing(zz)){
-        paste0(table(pdata[,xx]),collapse=' \t ') } else {
-          apply(table(pdata[,c(xx,zz)]),1,function(ii) paste0(ii[!ii%in%list(0,'')],collapse=' \t '));
-        }
-    #ann.label <- gsub('\\b0\\b','',ann.label);
-    out <- out + annotate('text',x=ccrds$x.major_source,y=ccrds$y.range[1]
-                          ,label=ann.label[ccrds$x.major_source]);
-  }
-  attr(out,'call') <- match.call();
-  out;
-}
-
-getCall.list <- getCall.data.frame <- getCall.gg <- function(xx) attr(xx,'call');
-
-# why not update calls?
-update.call <- function(xx,...){
-  dots <- list(...);
-  for(ii in names(dots)) xx[[ii]] <- dots[[ii]];
-  xx;
-}
-
-#' From ... https://menugget.blogspot.com/2011/11/define-color-steps-for-colorramppalette.html#more
-#' Manually shape the intervals of a color gradient
-color.palette <- function(steps, n.steps.between=NULL, ...){
-  if(is.null(n.steps.between)) n.steps.between <- rep(0, (length(steps)-1))
-  if(length(n.steps.between) != length(steps)-1) stop("Must have one less n.steps.between value than steps")
-  
-  fill.steps <- cumsum(rep(1, length(steps))+c(0,n.steps.between))
-  RGB <- matrix(NA, nrow=3, ncol=fill.steps[length(fill.steps)])
-  RGB[,fill.steps] <- col2rgb(steps)
-  
-  for(i in which(n.steps.between>0)){
-    col.start=RGB[,fill.steps[i]]
-    col.end=RGB[,fill.steps[i+1]]
-    for(j in seq(3)){
-      vals <- seq(col.start[j], col.end[j], length.out=n.steps.between[i]+2)[2:(2+n.steps.between[i]-1)]  
-      RGB[j,(fill.steps[i]+1):(fill.steps[i+1]-1)] <- vals
-    }
-  }
-  
-  new.steps <- rgb(RGB[1,], RGB[2,], RGB[3,], maxColorValue = 255)
-  pal <- colorRampPalette(new.steps, ...)
-  return(pal)
-}
-
-
-#' From ... http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
-# Multiple plot function
-#
-# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
-# - cols:   Number of columns in layout
-# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
-#
-# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
-# then plot 1 will go in the upper left, 2 will go in the upper right, and
-# 3 will go all the way across the bottom.
-#
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-  numPlots = length(plots)
-  # If layout is NULL, then use 'cols' to determine layout
-  # Make the panel
-  # ncol: Number of columns of plots
-  # nrow: Number of rows needed, calculated from # of cols
-  if (is.null(layout)) {
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                     ncol = cols, nrow = ceiling(numPlots/cols))}
-  if (numPlots==1) print(plots[[1]]) else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
-} 
-
-mktabsie <- function(data,subsets=list(Full=T),pw
-                     ,vars
-                     ,filepath='.'
-                     ,filename='survSave.rdata'
-                     ,serverTitle='TABSIE'
-                     ,serverStatement=bquote(h4("Welcome to TABSIE"))){
-  serverData <- sapply(subsets,function(ii) subset(data[,vars],eval(ii)),simplify=F);
-  serverDataDic <- names(serverData);
-  serverHash <- digest::digest(pw,algo='sha512',ascii=TRUE);
-  save(serverStatement,serverData,serverDataDic,serverTitle,serverHash
-       ,file=paste0(filepath,'/',filename));
-}
-
-#' Returns a vector of column names that contain data elements of a particular type
-#' as specified by the user: "integer","POSIXct" "POSIXt", "numeric", "character", 
-#' "factor" and "logical". 
-vartype <- function(dat, ctype) {
-  xx <- unlist(sapply(dat, class));
-  idx <- which(xx %in% ctype);
-  res <- names(xx)[idx];
-  return(res)
-}
-
-#' ## Functions for RMarkdown and ggplot2
-#' 
-#' Return a commit hash (for inclusion in reports for example) after first making
-#' sure all changes are committed and pushed
-#' TODO: instead of auto-committing, error if uncommited changes, needs to be 
-#' a deliberate process, otherwise we have tons of meaningless auto-commit
-#' messages that will make future maintenance harder
-#gitstamp <- function(production=getOption('gitstamp.production',T),branch=F
-#                     ,whichfile='') {
-#  br<- if(branch) system("git rev-parse --abbrev-ref HEAD",intern=T) else NULL;
-#  if(production){
-#    if(length(gitdiff<-system("git update-index --refresh && git diff-index HEAD --",intern = T))!=0){
-#      stop(sprintf(
-#      "\ngit message: %s\n\nYou have uncommitted changes. Please do 'git commit' and then try again."
-#      ,gitdiff));};
-#    hash<-system(sprintf("git push && git log --pretty=format:'%%h' -n 1 -- %s"
-#                         ,whichfile),intern=T);
-#    if(length(hash)==0) stop('
-#The specified file is not part of a git repository. You need to do (for example):
-#
-#git add NAMEOFTHISSCRIPT.R && git commit -a -m "New script"
-#
-#...and then try again.');
-#    return(c(br,hash));
-#  } else return(c(br,'TEST_OUTPUT_DO_NOT_USE'));
-#}
-
-#' This function can be called from `stat_summary()` as the
-#' `fun.data=` argument. It will cause group counts to be 
-#' over-printed on a `geom_boxplot()` (probably other similar
-#' plots too) if `stat_summary()` is added to it.
-n_fun <- function(xx) data.frame(y=mean(quantile(xx,c(.5,.75))),label=as.character(length(xx)));
-
-#' take a list of subset criteria and return a list of data.frames
-ssply<-function(dat,...) sapply(sys.call()[-(1:2)],function(ii) subset(dat,eval(ii)),simplify=F);
-
-#' save a named list of tables, including names
-savetablelist <- function(lst,fileprefix,filesuffix=paste0(format(Sys.Date(),'%m-%d-%Y-%H_%M_%S'),'.tsv')
-                            ,filepath='./',outfile=paste0(filepath,fileprefix,filesuffix)
-                          ,sep='\t',row.names=F
-                          ,singletabname=as.character(substitute(lst))
-                          ,replaceifexists=T,...) {
-  if(is.data.frame(lst)) lst<-setNames(list(lst),singletabname);
-  if(replaceifexists&&file.exists(outfile)) file.remove(outfile);
-  for(ii in names(lst)){
-  write(ii,file=outfile,append=T);
-  write.table(lst[[ii]],outfile,sep=sep,row.names=row.names,append=T);
-  }
-}
-
-#' Usage: `xx<-mapnames(xx,lookup)` where lookup is a named character vector
-#' the names of the elements in the character vector are what you are renaming
-#' things TO and the values are what needs to be matched, i.e. what renaming things
-#' FROM. If you set namesonly=T then it just returns the names, not the original
-#' object.
-mapnames<-function(xx,lookup,namesonly=F,...){
-  xnames <- names(xx);
-  idxmatch <- na.omit(match(xnames,lookup));
-  newnames <- names(lookup)[idxmatch];
-  if(namesonly) return(newnames);
-  names(xx)[xnames %in% lookup] <- newnames;
-  xx;
-}
-
-#' Example of using R methods dispatch
-#' 
-#' The actual usage is: `truthy(foo)` and `truthy()` itself figures
-#' out which method to actually dispatch.
-truthy <- function(xx,...) UseMethod('truthy');
-truthy.logical <- function(xx,...) xx;
-truthy.factor <- function(xx,...) truthy.default(as.character(xx),...);
-truthy.numeric <- function(xx,...) xx>0;
-truthy.default <- function(xx,truewords=c('TRUE','true','Yes','T','Y','yes','y')
-                           ,...) xx %in% truewords;
-truthy.data.frame <- function(xx,...) as.data.frame(lapply(xx,truthy,...));
-
-#' Possibly obsolete?
-countfrac <- function(xx,outcomes
-                      # set to TOTAL in order to do _only_ the total
-                      ,groupcols='rai_range',sortby=groupcols
-                      # set to 'none' if don't want to sort
-                      ,dir=c('desc','asc','none')
-                      ,summfns=c(n=sum,frac=mean)
-                      # set to '' to disable
-                      ,totalrow='Total'){
-  # callback, so this function can call itself even if it's renamed
-  # or nameless, for purposes of rerunning to get the totals row
-  if(totalrow!='') thisfn <- sys.function();
-  oo <- xx;
-  # is the function being invoked for the purpose of calculating a total row?
-  if(doingtotalrow <- tolower(trimws(groupcols[1]))=='total'){
-    oo[[groupcols]] <- totalrow;
-  };
-  oo <- group_by_(oo,groupcols);
-  # we coerce everything to logical, whatever it might have been
-  # but leave alone columns other than those specified in the 'outcomes' variable
-  oo[,outcomes] <- mutate_all(oo[,outcomes],truthy);
-  # Two different summary tables, the second one applies the same set of
-  # functions to everything, and the first one is just a count that doesn't 
-  # rely on any one specific column. So we do them separately and then cbind()
-  oo <- cbind(summarise(oo,bin_n=n()),summarise_all(oo[,c(groupcols,outcomes)],summfns)[,-1]) %>%
-    # creating cumul_count, as in the current code
-    mutate(cumul_count=rev(cumsum(rev(bin_n))));
-  # sort, if desired, just as in the current code
-  if(!doingtotalrow) oo <- switch(match.arg(dir)
-                                  ,none=oo
-                                  ,desc=arrange_(oo,sprintf('desc(%s)',groupcols))
-                                  ,asc=arrange_(oo,groupcols));
-  # now we insure that the column order is the same as the order of the groupcols
-  # argument-- first the grouping column name, then the 'bin_n' (used to be called
-  # rai_n, but this isn't specific to RAI, could group by anithing, so renamed)
-  # cumul_count...
-  oo <- oo[,c(groupcols,'bin_n','cumul_count'
-              # ...and then this: it pastes the suffixes as obtained from the names 
-              # of the summfns argument but orders them in the same way as they were
-              # given, rather than first the first summary function and then the second
-              ,c(t(outer(outcomes,names(summfns),paste,sep='_'))))];
-  if(!doingtotalrow&&totalrow!='') { 
-    tot <- thisfn(xx,outcomes,groupcols=totalrow,summfns=summfns,totalrow='');
-    names(tot)<-names(oo);
-    tot[[groupcols]] <- totalrow;
-    oo <- rbind(oo,tot);
-  }
-  attr(oo,'call') <- match.call();
-  oo;
-}
-
-#' Stack a vector to form a matrix with repeating rows, with optional 
-#' column names and transformation
-#'
-#' @param  vv    A vector which will become the row of a matrix
-#' @param  nr    Number of (identical) rows this matrix will contain
-#' @param  trans An optional function that can take a matrix as its 
-#'              sole argument. Useful functions include `as.data.frame()`
-#'              `as_tibble()` and `as.table()`
-#' @return A matrix, unless the function specified in the `trans` argument
-#'         causes the output to be something else.
-#' @export 
-#'
-#' @examples 
-#' vec2m(1:10,5);
-#' vec2m(1:10,5,tr=data.frame);
-#' vec2m(setNames(1:12,month.name),3);
-vec2m <- function(vv,nr=1,trans=identity) {
-  return(trans(matrix(as.matrix(c(vv)),nrow=nr,ncol=length(vv),byrow=T
-                ,dimnames=list(NULL,names(vv)))));
-}
-
-#' Return a tableone object formatted just the way we like it
-#' @param xx     A \code{data.frame} (required).
-#' @param vars   Vector of variable names to pass to \code{CreatTableOne} (optional)
-#' @param ...    Named expressions from which to create the strata variable
-#'               for \code{CreatTableOne} (only tested for one variable)
-stratatable <- function(xx,vars=NULL,...){
-  nmx <- names(xx);
-  xx <- transform(xx,...);
-  mystrata <- setdiff(names(xx),nmx);
-  res <- tableone::CreateTableOne(data=xx, vars= vars, strata=mystrata) %>% 
-    print;
-  # removed trimws() from below pipeline prior to as.numeric, seems not to be 
-  # needed
-  res[,'p'] %>%  gsub("<","", x=.) %>% as.numeric %>% p.adjust %>% 
-    cbind(res[,1:2],padj=.) -> res;
-  return(res);
-}
-
-#' returns call with ALL arguments specified, both the defaults and those
-#' explicitly provided by the user
-fullargs <- function(syspar=sys.parent(),env=parent.frame(2L),expand.dots=TRUE){
-  fn <- sys.function(syspar);
-  frm <- formals(fn);
-  cll <- match.call(fn,sys.call(syspar),expand.dots = expand.dots,envir = env);
-  defaults <- setdiff(names(frm),c(names(cll),'...'));
-  for(ii in defaults) cll[[ii]] <- frm[[ii]];
-  return(cll);
-}
 #' Returns a list of column names from the data dictionary for which the column
 #' named in the first argument is true. The first arg can be either a string or 
 #' a name. The second must be a data.frame
@@ -957,28 +748,6 @@ v <- function(var,dat
   return(out);
   }
 
-#'.This function will create a variable summary table that will provide 
-#' the name of the variable, tells whether the variable is discrete or
-#' continuous, Tukey's 5 number summary for continuousvariables, and
-#' the number of observations for each category for discrete variables.
-#' All the user need for this function is the data frame (df) and the
-#' function will do the rest.
-#' 
-#' However, this is commented out because it's here just as a reminder 
-#' for when this functionality is again needed and this function gets 
-#' rewritten properly.
-# variable_summary <- function(df){
-#   #collecting the column names from the data frame:
-#   all_names <- names(df)
-#   #passing the column names to an 'sapply' function:
-#   theresult <- sapply(all_names, summary_vector, df)
-#   #reformatting the table:
-#   theresult <- as.data.frame(t(theresult))
-#   colnames(theresult) <-c('VariableName', 'VariableType', 'TotalCounts', 'NumberOfNAs', 'VariableDescription')
-#   return(theresult)
-# }
-
-#' ## Functions specifically for Kidney Cancer project
 #' 
 rebuild_dct <- function(dat=dat0,rawdct=dctfile_raw,tpldct=dctfile_tpl,debuglev=0
                         ,tread_fun=read_csv,na=''){
@@ -1012,6 +781,9 @@ rebuild_dct <- function(dat=dat0,rawdct=dctfile_raw,tpldct=dctfile_tpl,debuglev=
   out$c_all <- TRUE;
   return(out);
 }
+
+# project specific -------------------------------------------------------------
+#' ## Functions specifically for Kidney Cancer project
 #' 
 #' TODO: write a roxygen skel for this one
 event_plot <- function(data,reference_event,secondary_event=NA
@@ -1176,3 +948,270 @@ survfit_wrapper <- function(dat,eventvars,censrvars,startvars,predvars='1'
   attr(out,'fullcall') <- fullargs();
   invisible(out);
 }
+
+# complex task specific --------------------------------------------------------
+
+#' Return a tableone object formatted just the way we like it
+#' @param xx     A \code{data.frame} (required).
+#' @param vars   Vector of variable names to pass to \code{CreatTableOne} (optional)
+#' @param ...    Named expressions from which to create the strata variable
+#'               for \code{CreatTableOne} (only tested for one variable)
+stratatable <- function(xx,vars=NULL,...){
+  nmx <- names(xx);
+  xx <- transform(xx,...);
+  mystrata <- setdiff(names(xx),nmx);
+  res <- tableone::CreateTableOne(data=xx, vars= vars, strata=mystrata) %>% 
+    print;
+  # removed trimws() from below pipeline prior to as.numeric, seems not to be 
+  # needed
+  res[,'p'] %>%  gsub("<","", x=.) %>% as.numeric %>% p.adjust %>% 
+    cbind(res[,1:2],padj=.) -> res;
+  return(res);
+}
+
+survAUC<-function(Surv.rsp,Surv.rsp.new,lp,lpnew,times,time,lp0=0
+                  ,nonstdSurv=c('OXS','Nagelk','XO')
+                  ,...,FUNS){
+  if(is.null(info<-getOption('survAUCinfo'))){
+    # create a lookup table for these functions if one doesn't exist
+    info<-sapply(ls(package:survAUC),get) %>% lapply(formals) %>%
+      lapply(sapply,class) %>% lapply(bind_rows) %>% bind_rows(.id='fun');
+    options(survAUCinfo=info);
+  }
+  if(!missing(FUNS)) info <- subset(info,fun %in% FUNS);
+  args <- list();
+  for(ii in names(match.call())[-1]) args[[ii]] <- get(ii);
+  # create a value for 'time' if it's missing but there are 'times'
+  if(!'time' %in% names(args) && 'times' %in% names(args)) args$time <- max(eval(args$times));
+  # make sure lp0 is the right length (seriously people? You're going to make me
+  # do this in R of all languages?). BTW, Surv.rsp.new not an error-- for all
+  # functions requiring lp0, there is also that departure from standard names
+  # and for those three Surv.rsp.new becomes Surv.rsp
+  if(missing(lp0)&&!missing(Surv.rsp.new)) args$lp0 <- rep_len(0,nrow(args$Surv.rsp.new));
+  # which arguments are we missing on our current invokation?
+  if(!'lp'%in%names(args)) browser();
+  # find the arguments that each function can accept
+  allowedargs<-setNames(apply(info[,-1],1,function(xx) names(info)[-1][!is.na(xx)])
+                        ,unlist(info[,1]));
+  # find the names of the non-optional arguments for each function
+  nonoptargs<- sapply(info$fun,function(ii) subset(info,fun==ii),simplify=F) %>% 
+    lapply(function(jj) na.omit(names(jj)[jj=='name']));
+  # based on the above, here are the functions we can run with the data we have
+  # for the ones that are FALSE we will return NAs
+  canrun <- lapply(nonoptargs,setdiff,names(args)) %>% sapply(length) == 0;
+  # and filter it down to just the ones that are valid arguments for functions 
+  # that can be run
+  args2use <- sapply(names(canrun)
+                     ,function(xx) if(canrun[xx])
+                       args[intersect(allowedargs[[xx]],names(args))] else NA
+                     ,simplify=F);
+  # correct the inconsistent argument names in the functions names by the 
+  # nonstdSurv variable
+  for(ii in intersect(nonstdSurv,names(canrun[canrun]))) {
+    args2use[[ii]][c('Surv.rsp','lp')] <- args[c('Surv.rsp.new','lpnew')];
+  }
+  # return output!
+  invisible(sapply(names(args2use),function(xx) if(is.na(args2use[[xx]])) NA else {
+    try(do.call(xx,args2use[[xx]]))}));
+}
+
+# prepare data for TABSIE Shiny app
+mktabsie <- function(data,subsets=list(Full=T),pw
+                     ,vars
+                     ,filepath='.'
+                     ,filename='survSave.rdata'
+                     ,serverTitle='TABSIE'
+                     ,serverStatement=bquote(h4("Welcome to TABSIE"))){
+  serverData <- sapply(subsets,function(ii) subset(data[,vars],eval(ii)),simplify=F);
+  serverDataDic <- names(serverData);
+  serverHash <- digest::digest(pw,algo='sha512',ascii=TRUE);
+  save(serverStatement,serverData,serverDataDic,serverTitle,serverHash
+       ,file=paste0(filepath,'/',filename));
+}
+
+#' Plots in the style we've been doing (continuous y, discrete x and optionally z)
+#' 
+#' Instead of creating new tables for 'All', just set xx=T
+#' 
+#' To suppress plotting of a legend (but still use fill) set fill.name=NA
+#' Likewise, to suppress printing y-axis labels make yy.name=NA
+#' To merely omit printing a name, set the name in question to ''
+autoboxplot <- function(pdata, xx, yy, zz, subset=T
+                        , type=c('box','violin')
+                        , title=sprintf('%s vs %s\n by %s',xx,yy,zz)
+                        , xx.name=if(xx==TRUE) 'All' else xx, xx.breaks=if(xx==TRUE) xx else unique(pdata[[xx]])
+                        , xx.labels=if(xx==TRUE) '' else xx.breaks
+                        , yy.name=yy, yy.labels
+                        , fill.name, fill.breaks, fill.labels
+                        , counts=T
+                        ,...){
+  subset <- substitute(subset);
+  plot_type <- switch(match.arg(type)
+                      ,box=geom_boxplot(coef=100)
+                      ,violin=geom_violin());
+  pdata <- subset(pdata,subset=eval(subset));
+  if(!missing(zz)){
+    if(missing(fill.name)) fill.name <- zz;
+    if(missing(fill.breaks)) fill.breaks <- unique(pdata[[zz]]);
+    if(missing(fill.labels)) fill.labels <- fill.breaks;
+    fill <- if(is.atomic(fill.name)&&is.na(fill.name)) scale_fill_discrete(guide=F) else {
+      scale_fill_discrete(name=fill.name,breaks=fill.breaks,labels=fill.labels);
+    }
+  }
+  if(missing(yy.labels)){
+    yy.labels <- if(is.na(yy.name)) scale_y_continuous(name='',labels=NULL) else {
+      scale_y_continuous(name=yy.name,labels = comma);
+    };
+  };
+  out <- ggplot(data = pdata, aes_string(x = xx, y = yy)) + plot_type + yy.labels +
+    scale_x_discrete(name=xx.name,breaks=xx.breaks,labels=xx.labels) +
+    labs(title=title)
+  if(!missing(zz)) out <- out + aes_string(fill=zz) + fill;
+  if(counts){
+    ccrds<-ggplot_build(out)$layout$panel_ranges[[1]];
+    ann.label <- if(xx==TRUE && missing(zz)) nrow(pdata) else if(xx==TRUE){
+      paste0(table(pdata[,zz]),collapse=' \t ') } else if(missing(zz)){
+        paste0(table(pdata[,xx]),collapse=' \t ') } else {
+          apply(table(pdata[,c(xx,zz)]),1,function(ii) paste0(ii[!ii%in%list(0,'')],collapse=' \t '));
+        }
+    #ann.label <- gsub('\\b0\\b','',ann.label);
+    out <- out + annotate('text',x=ccrds$x.major_source,y=ccrds$y.range[1]
+                          ,label=ann.label[ccrds$x.major_source]);
+  }
+  attr(out,'call') <- match.call();
+  out;
+}
+
+#' From ... https://menugget.blogspot.com/2011/11/define-color-steps-for-colorramppalette.html#more
+#' Manually shape the intervals of a color gradient
+color.palette <- function(steps, n.steps.between=NULL, ...){
+  if(is.null(n.steps.between)) n.steps.between <- rep(0, (length(steps)-1))
+  if(length(n.steps.between) != length(steps)-1) stop("Must have one less n.steps.between value than steps")
+  
+  fill.steps <- cumsum(rep(1, length(steps))+c(0,n.steps.between))
+  RGB <- matrix(NA, nrow=3, ncol=fill.steps[length(fill.steps)])
+  RGB[,fill.steps] <- col2rgb(steps)
+  
+  for(i in which(n.steps.between>0)){
+    col.start=RGB[,fill.steps[i]]
+    col.end=RGB[,fill.steps[i+1]]
+    for(j in seq(3)){
+      vals <- seq(col.start[j], col.end[j], length.out=n.steps.between[i]+2)[2:(2+n.steps.between[i]-1)]  
+      RGB[j,(fill.steps[i]+1):(fill.steps[i+1]-1)] <- vals
+    }
+  }
+  
+  new.steps <- rgb(RGB[1,], RGB[2,], RGB[3,], maxColorValue = 255)
+  pal <- colorRampPalette(new.steps, ...)
+  return(pal)
+}
+
+
+#' From ... http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
+# Multiple plot function
+#
+# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
+# - cols:   Number of columns in layout
+# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
+#
+# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
+# then plot 1 will go in the upper left, 2 will go in the upper right, and
+# 3 will go all the way across the bottom.
+#
+multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
+  # Make a list from the ... arguments and plotlist
+  plots <- c(list(...), plotlist)
+  numPlots = length(plots)
+  # If layout is NULL, then use 'cols' to determine layout
+  # Make the panel
+  # ncol: Number of columns of plots
+  # nrow: Number of rows needed, calculated from # of cols
+  if (is.null(layout)) {
+    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
+                     ncol = cols, nrow = ceiling(numPlots/cols))}
+  if (numPlots==1) print(plots[[1]]) else {
+    # Set up the page
+    grid.newpage()
+    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
+    # Make each plot, in the correct location
+    for (i in 1:numPlots) {
+      # Get the i,j matrix positions of the regions that contain this subplot
+      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
+      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
+                                      layout.pos.col = matchidx$col))
+    }
+  }
+} 
+
+# deprecated -------------------------------------------------------------------
+#' Possibly obsolete?
+countfrac <- function(xx,outcomes
+                      # set to TOTAL in order to do _only_ the total
+                      ,groupcols='rai_range',sortby=groupcols
+                      # set to 'none' if don't want to sort
+                      ,dir=c('desc','asc','none')
+                      ,summfns=c(n=sum,frac=mean)
+                      # set to '' to disable
+                      ,totalrow='Total'){
+  # callback, so this function can call itself even if it's renamed
+  # or nameless, for purposes of rerunning to get the totals row
+  if(totalrow!='') thisfn <- sys.function();
+  oo <- xx;
+  # is the function being invoked for the purpose of calculating a total row?
+  if(doingtotalrow <- tolower(trimws(groupcols[1]))=='total'){
+    oo[[groupcols]] <- totalrow;
+  };
+  oo <- group_by_(oo,groupcols);
+  # we coerce everything to logical, whatever it might have been
+  # but leave alone columns other than those specified in the 'outcomes' variable
+  oo[,outcomes] <- mutate_all(oo[,outcomes],truthy);
+  # Two different summary tables, the second one applies the same set of
+  # functions to everything, and the first one is just a count that doesn't 
+  # rely on any one specific column. So we do them separately and then cbind()
+  oo <- cbind(summarise(oo,bin_n=n()),summarise_all(oo[,c(groupcols,outcomes)],summfns)[,-1]) %>%
+    # creating cumul_count, as in the current code
+    mutate(cumul_count=rev(cumsum(rev(bin_n))));
+  # sort, if desired, just as in the current code
+  if(!doingtotalrow) oo <- switch(match.arg(dir)
+                                  ,none=oo
+                                  ,desc=arrange_(oo,sprintf('desc(%s)',groupcols))
+                                  ,asc=arrange_(oo,groupcols));
+  # now we insure that the column order is the same as the order of the groupcols
+  # argument-- first the grouping column name, then the 'bin_n' (used to be called
+  # rai_n, but this isn't specific to RAI, could group by anithing, so renamed)
+  # cumul_count...
+  oo <- oo[,c(groupcols,'bin_n','cumul_count'
+              # ...and then this: it pastes the suffixes as obtained from the names 
+              # of the summfns argument but orders them in the same way as they were
+              # given, rather than first the first summary function and then the second
+              ,c(t(outer(outcomes,names(summfns),paste,sep='_'))))];
+  if(!doingtotalrow&&totalrow!='') { 
+    tot <- thisfn(xx,outcomes,groupcols=totalrow,summfns=summfns,totalrow='');
+    names(tot)<-names(oo);
+    tot[[groupcols]] <- totalrow;
+    oo <- rbind(oo,tot);
+  }
+  attr(oo,'call') <- match.call();
+  oo;
+}
+
+#'.This function will create a variable summary table that will provide 
+#' the name of the variable, tells whether the variable is discrete or
+#' continuous, Tukey's 5 number summary for continuousvariables, and
+#' the number of observations for each category for discrete variables.
+#' All the user need for this function is the data frame (df) and the
+#' function will do the rest.
+#' 
+#' However, this is commented out because it's here just as a reminder 
+#' for when this functionality is again needed and this function gets 
+#' rewritten properly.
+# variable_summary <- function(df){
+#   #collecting the column names from the data frame:
+#   all_names <- names(df)
+#   #passing the column names to an 'sapply' function:
+#   theresult <- sapply(all_names, summary_vector, df)
+#   #reformatting the table:
+#   theresult <- as.data.frame(t(theresult))
+#   colnames(theresult) <-c('VariableName', 'VariableType', 'TotalCounts', 'NumberOfNAs', 'VariableDescription')
+#   return(theresult)
+# }
