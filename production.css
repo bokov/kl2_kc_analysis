@@ -107,8 +107,7 @@ h5 {
   font-style: italic;
 }
 
-h6 {
-  font-size: 0.9em; 
+h6,.pbreak {
   font-style: italic;
   display: none;
 }
