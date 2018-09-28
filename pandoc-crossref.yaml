@@ -4,3 +4,4 @@ tblLabels: "roman"
 tblPrefix: ["table","tables"]
 numberSections: true
 sectionsDepth: 3
+# subfigGrid: true
