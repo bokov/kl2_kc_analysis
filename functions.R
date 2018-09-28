@@ -807,15 +807,15 @@ event_plot <- function(data,reference_event,secondary_event=NA
   # subtract start_event and convert to time unit
   for(ii in vars) data[[ii]] <- (data[[ii]] - data[[start_event]])/conv;
   # sort by indicated column, if any
-  if(!is.na(sort_by)) data <- arrange_(data,sort_by);
+  if(!is.na(sort_by)) data <- arrange_(data,.dots=sort_by);
   # set ylab if unspecified
   if(is.na(ylab)) ylab <- sprintf('Time since %s, %s',start_event,tunit);
   # set ylim if unspecified
   if(is.na(ylim)) ylim <- range(data[,na.omit(c(reference_event
                                                 ,secondary_event))],na.rm=T);
   if(is.na(xlim)) xlim <- c(0,nrow(data));
-  plot(data[[reference_event]],type=type,ylim=ylim,main=main,xlab=xlab,ylab=ylab
-       ,frame.plot=frame.plot,col=cols[1],lty=ltys[1]);
+  plot(data[[reference_event]],type=type,ylim=ylim,main=main,xlab=xlab
+       ,ylab=ylab,frame.plot=frame.plot,col=cols[1],lty=ltys[1]);
   if(!is.na(secondary_event)) lines(data[[secondary_event]],col=cols[2]
                                     ,type=type,lty=ltys[2]);
   return(data);
