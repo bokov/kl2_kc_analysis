@@ -74,6 +74,16 @@ formals(fs)[c('url','fs_reg','retfun')] <- alist(str,'fs_reg',return);
 formals(fs)$template <- fstmplts$link_colnamelong;
 .par_eventplot <- .par_default <- par(no.readonly = T);
 .par_eventplot$family = 'Times New Roman';
+
+# markdown snippets of boilerplate
+md <- list(
+  pbreak=cm('\n\n\n::::: {.pbreak custom-style="pbreak"}\n&nbsp;\n:::::\n\n\n','
+
+Creates a page break, depends on custom styling at output end to either create a
+page break and/or hide this code
+
+'));
+
 # We don't yet explicitly reference patient_num outside the news block, so I'm 
 # priming the fs_reg option with it here manually
 options(fs_reg='patient_num');
@@ -88,16 +98,16 @@ loop on my work and/or because you are also working on NAACCR, i2b2, Epic, or
 Sunrise because I value your perspective and perhaps my results might be useful 
 to your own work.\\
 \\
-So far, only de-identified data has been used to generate these results any 
-dates or [`patient_num`](#patient%5Fnum) values you see here are also de-identified (with size
-of time intervals preserved).\\
+Only de-identified data has been used to generate these results any dates or 
+[`patient_num`](#patient%5Fnum) values you see here are also de-identified (with 
+size of time intervals preserved).\\
 \\
 This portion of the study is under Dr. Michalek's exempt project IRB number 
 HSC20170563N. If you are a UT Health researcher who would like a copy of the 
 data, please email me and I will get back to you with further instructions and 
 any additional information I might need from you for our records.\\
 \\
-In this document, verbatim names of files, variables, or values are displayed in
+Verbatim names of files, variables, or values are displayed in
 a special style, `like this`. Variable names are in addition linked to a 
 glossary at the end of this document. Table, figure, sections are also linked 
 from text that references them. To follow a link in Word, please hold down the 
@@ -111,11 +121,11 @@ from text that references them. To follow a link in Word, please hold down the
 * [Testing/Interpreting Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)
 * [Descriptive Plots (Preliminary)](#descriptive-plots-preliminary)
 * Appendices
-____1. [Example of stage/grade data](#appendix-i-example-of-stagegrade-data)
-____2. [Next steps](#appendix-ii-next-steps)
-____3. [Supplementary tables](#appendix-iii-supplementary-tables)
-____4. [Variable descriptions](#appendix-iv-variable-descriptions)
-____5. [Audit trail](#appendix-v-audit-trail)
+____* [Stage/grade data export](#sec:stage)
+____* [Next steps](#sec:todo)
+____* [Supplementary results](#sec:supp)
+____* [Variable descriptions](#sec:vars)
+____* [Audit trail](#sec:audit)
 ";
 .temp0 <- cbind(.news,.toc) %>% unname;
 pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
@@ -125,12 +135,15 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' 
 #' # Overview
 #' 
+#' * Goals of analysis
+#' * Selection criteria
+#'     * i2b2
+#'     * post-i2b2
+#'         * TODO: n_hisp should separate non-Hispanic into NHW and Other
 #' 
-# questions, domain experts ----------------------------------------------------
+# expert Qs --------------------------------------------------------------------
 #' ### Questions for mentors and other domain experts:
 #' 
-#' * Question: What are the main problems with the NAACCR stage and grade 
-#'   information that I will need to clean up?
 #' * Question: What is the typical time that elapses between diagnosis and 
 #'   surgery?
 #'     * Answer (RR): 2-4 weeks, try to avoid more than 4
@@ -146,46 +159,9 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #'     * Answer (RR): No, there are a few local cases that took over a decade to 
 #'       get to surgery for various reasons (e.g. indolent tumor, or contact 
 #'       lost with patient).
-#' * Question: What fraction of KC patients undergo surgery?
+#' * Question: What fraction of KC patients do not undergo surgery?
 #'     * Answer (RR): Around 15%
-#' * How would one distinguish the chart of a patient who is was diagnosed for 
-#'   the first time with a kidney tumor from that of a patient experiencing a 
-#'   relapse... (_need to reach out to Grace_)
-#'     * ...in Epic?
-#'     * ...in Sunrise?
-#' * Where in the chart would one positively establish the date of the patient's 
-#'   first nephrectomy...
-#'     * ...in Epic?
-#'     * ...in Sunrise?
-#' * Is there some additional data source that the UTHealth NAACCR registrar
-#'   consults?
 #'   
-# questions, empirical ---------------------------------------------------------
-#' ### Questions to answer empirically:
-#' 
-#' * Question: Are NAACCR-EMR linkages now correct?
-#'     * Motivation: For Sub-Aim 2a, I will be looking for possible mediators 
-#'       of disparity, many of which will come from data outside NAACCR, linked
-#'       via i2b2. For this reason I need to establish that NAACCR patients are
-#'       linked to the correct records in the rest of i2b2.
-#'     * Answer: Furthermore, the mismatches do not seem to correlate with
-#'       each other.
-#' * Question: Which elements in the raw data to use as our highest priority 
-#'   analytic variables (dates of diagnosis, surgery, recurrence, and death as 
-#'   well as ethnicity)
-#'     * Answer: Cannot back-fill missing NAACCR values from EMR without chart
-#'       review and interviewing registrar. [Make sure to discuss the following
-#'       EMR-NAACCR variable]{.note2self custom-style="note2self"}:
-#'         1. Death = `r fs('a_tdeath')`
-#' * Question: Which records to exclude due to likely errors in the source data? 
-#'   E.g. surgery precedes diagnosis, recurrence precedes surgery (for some 
-#'   analysis) death precedes diagnosis or surgery
-#'       * Answer: Currently excluding as incomplete any record lacking either 
-#'         an `r fs('n_ddiag')` event or both of `r fs('n_kcancer')` and 
-#'         `r fs('n_seer_kcancer')` events. May soon start excluding the few 
-#'         patients with V/Z or surgical history codes indicating missing kidney 
-#'         prior to first NAACCR diagnosis.
-#'         
 # A list of valid patients can be found in the 'kcpatients.naaccr'
 # crosschecks ------------------------------------------------------------------
 #' 
@@ -225,7 +201,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' history of nephrectomy and ICD9/10 codes for acquired absence of a kidney 
 #' rarely precede `r fs('n_dsurg')` or `r fs('n_rx3170')` ([@fig:surg0_plot0]), 
 #' and death dates from non-NAACCR sources (`r fs('e_death')`, `r fs('s_death')`
-#' , and `r fs('e_dscdeath')` rarely precede `r fs('n_vtstat')` 
+#' , and `r fs('e_dscdeath')`) rarely precede `r fs('n_vtstat')` 
 #' ([@fig:death_plot]).
 #' 
 #' ## Required NAACCR data elements.
@@ -269,11 +245,12 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' far I cannot rely on the EMR to back-fill diagnosis, surgery, or recurrence.
 #' 
 #' * Hispanic ethnicity
-#' * Death
+#' * Death. 
 #' * Diagnosis.
 #' * Surgery
 #' * Recurrence
 #' 
+# descriptive plots ------------------------------------------------------------
 #' # Plots of test data
 #' 
 #' * Small test-sample
@@ -437,13 +414,40 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #   set_rownames(gsub('[ ]?=[ ]?|[ ]?TRUE[ ]?',' ',rownames(.))) %>%
 #   gsub('0[ ]?\\([ ]+0\\.0\\)','0',.) %>% 
 #   pander(emphasize.rownames=F);
+#
+# remaining Qs ---------------------------------------------------------
 #' # Conclusion and next steps
 #' 
-
+#' * Question: What is the correlation structure of EMR/NAACCR mismatches and
+#'   other problems in the data?
+#' * Question: Which records to exclude due to likely errors in the source data? 
+#'   E.g. surgery precedes diagnosis, recurrence precedes surgery (for some 
+#'   analysis) death precedes diagnosis or surgery
+#'       * Answer: Currently excluding as incomplete any record lacking either 
+#'         an `r fs('n_ddiag')` event or both of `r fs('n_kcancer')` and 
+#'         `r fs('n_seer_kcancer')` events. May soon start excluding the few 
+#'         patients with V/Z or surgical history codes indicating missing kidney 
+#'         prior to first NAACCR diagnosis.
+#' * Question: What are the main problems with the NAACCR stage and grade 
+#'   information that I will need to clean up?
+#' * Question: How would one distinguish the chart of a patient who is was 
+#'   diagnosed for the first time with a kidney tumor from that of a patient 
+#'   experiencing a relapse... (_need to reach out to Grace_)
+#'     * ...in Epic?
+#'     * ...in Sunrise?
+#' * Question: Where in the chart would one positively establish the date of the 
+#'   patient's first nephrectomy...
+#'     * ...in Epic?
+#'     * ...in Sunrise?
+#' * Question: Is there some additional data source that the UTHealth NAACCR 
+#'   registrar consults?
+#'
+#'
+#'
 # event indicators -------------------------------------------------------------
 #' ## Which EMR and NAACCR variables are reliable event indicators? {#vartrans}
 #' 
-#' We need the following variables for starters. For most or all of these 
+#' 
 #' events, both data sources have multiple variables some or all of which could 
 #' be indicators. We will likely need to merge groups of synonymous variables 
 #' into one analytic variable each for NAACCR and for the EMR. This is to
@@ -979,7 +983,6 @@ Above are plotted times of death (for patients that have them) relative to "
 #'   `r fs('e_hisp')`, and `r fs('e_eth')` are unanimous for `Unknown` 
 #' * non-Hispanic if any other result
 #' 
-# descriptive plots ------------------------------------------------------------
 #' 
 #' 
 # Now plot two different scenarios on the same axes, the original and enhanced 
@@ -1007,10 +1010,8 @@ Above are plotted times of death (for patients that have them) relative to "
 #              ,predvars='a_hsp_broad')$fit
 #       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
 #' 
-#' What is the mortality risk for patients after nephrectomy?
+#' What is the mortality risk for patients after nephrectomy?`r md$pbreak`
 #' 
-#' 
-#' ***
 # A1 stage/grade ---------------------------------------------------------------
 #' # : Example of stage/grade data {#sec:stage label="Appendix 1"}
 #' 
@@ -1026,11 +1027,11 @@ subset(dat2a[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) 
   # the extra quotation marks
   `[`(1:15,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
   pander();
-#' ***
-
+#' 
 #  A2 next steps ---------------------------------------------------------------
 formals(fs)$template <- fstmplts$link_colnamelong;
 formals(fs)$retfun <- as.name('return');
+#' `r md$pbreak`
 #' # : Next steps {#sec:todo label="Appendix 2"}
 #' 
 #' * TODO: Update and clean up the plots and tables, including labels.
@@ -1146,7 +1147,11 @@ formals(fs)$retfun <- as.name('return');
 #'     * ~~HbA1c~~
 #'     * ~~Family history of diabetes and cancer~~
 #' 
-#' ***
+#' 
+#' ::::: {.pbreak custom-style="pbreak"}
+#' &nbsp;
+#' :::::
+#' 
 #' 
 # A3 supplementary results ------------------------------------------------------
 #' # Supplementary results {#sec:supp label="Appendix 3"}
@@ -1373,7 +1378,6 @@ heatmap(dat3.gteq[.dat3.keep,.dat3.keep],symm = T,na.rm = T,margins=c(10,10)
         ,col=colorRampPalette(c('pink','red','darkred'))(2000));
 # ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
 #                      ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
-
 #' 
 #' A lot to unpack here! We can already see that some variables are in close
 #' agreement. Another early conclusion from this is that it isn't looking good 
@@ -1398,7 +1402,11 @@ heatmap(dat3.gteq[.dat3.keep,.dat3.keep],symm = T,na.rm = T,margins=c(10,10)
 #' [surgery](#surgery-conclusion) sections in the main document above. This is
 #' just for historic reference.
 #' 
-#' ***
+#' 
+#' ::::: {.pbreak custom-style="pbreak"}
+#' &nbsp;
+#' :::::
+#' 
 #' 
 # A4 variables -----------------------------------------------------------------
 #'
@@ -1425,6 +1433,12 @@ cat('***\n');
     ,ifelse(length(na.omit(xx[2:4]))>0
             ,iconv(paste(na.omit(xx[2:4]),collapse='; '),to='UTF-8',sub=''),'')
     ,ifelse(is.na(xx[5]),'',paste('\n\n  ~ Link:',xx[5])),'\n\n***\n'));
+#' 
+#' 
+#' ::::: {.pbreak custom-style="pbreak"}
+#' &nbsp;
+#' :::::
+#' 
 # A5 audit ---------------------------------------------------------------------
 #' # Audit trail {#sec:audit label="Appendix 5"}
 walktrail()[,-5] %>% pander(split.tables=600,,justify='left');
