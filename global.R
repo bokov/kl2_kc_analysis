@@ -42,7 +42,7 @@ instrequire(
     
     # data manipulation & piping. 
     # 'tools' is used by trailR.R. Not sure what uses 'stringr'.
-    ,'readr','dplyr','stringr','magrittr','tools'
+    ,'readr','dplyr','magrittr','tools'
     #,'lubridate'
     
     # plotting
@@ -50,7 +50,7 @@ instrequire(
     #,'ggplot2','grid','GGally','heatmap3','survminer','gridExtra','scales'
     
     # string manipulation
-    ,'stringi'
+    ,'stringi','stringr'
     
     # table formatting
     ,'pander','tableone'
