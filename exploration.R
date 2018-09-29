@@ -387,16 +387,20 @@ in the actual analysis.');
 # tableone ---------------------------------------------------------------------
 #' # Cohort Characterization {#sec:cohorchar}
 #'
-#' Summary of all the variables in the combined i2b2/NAACCR set. `Tumor_Free`
-#' means no recurrence, `Tumor` means recurrence, and `Unknown` means unknown.
-#' `No KC in NAACCR` means there is an EMR diagnosis of kidney cancer and there
-#' may in some cases also be a _record_ for that patient in NAACCR but that 
-#' record does not show the patient's site of occurence being kidney.
-#' 
 #' Note: the below variables are subject to change as the validity criteria and
 #' creation of analytic variables from multiple columns of raw data evolve.
 #' 
 #+ TableOne, cache=FALSE
+.tc <- paste0('
+Summary of all the variables in the combined i2b2/NAACCR set broken up by '
+,fs('a_n_recur'),'. `Disease-free` and `Never disease-free` have the same 
+meanings as codes 00 and 70 in the [NAACCR definition]('
+,paste0(urls$dict_naaccr,'#1880'),') for ',fs('n_rectype'),". `Recurred` is any 
+code other than (00, 70, or 99), and `Unknown if recurred or was ever gone` is 
+99. `Not in NAACCR` means there is an EMR diagnosis of kidney cancer and there 
+may in some cases also be a _record_ for that patient in NAACCR but it does not 
+indicate kidney as the site {#tbl:cohortrectype}");
+
 dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
         ,'a_n_race','a_n_dm','a_e_dm','a_e_kc','n_kcancer','a_n_recur'
         ,'a_hsp_naaccr'))] %>% 
@@ -404,7 +408,7 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
     a_n_recur=ifelse(!patient_num %in% kcpatients.naaccr | a_n_recur==''
                      ,'NONE',as.character(a_n_recur)) %>% 
       # changing the order of the levels so the NONE ends up on the right side
-      factor(.,levels=c(setdiff(unique(.),'NONE'),'NONE')) %>% 
+      factor(.,levels=c(setdiff(sort(unique(.)),'NONE'),'NONE')) %>% 
       recode(NONE='Not in NAACCR')
     # n_cstatus=ifelse(!patient_num%in%kcpatients.naaccr
     #                  ,'No KC in NAACCR',as.character(n_cstatus)) %>%
@@ -445,7 +449,7 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
                     ,gsub('   ','&nbsp;&nbsp;',rownames(.)))) %>%
   set_rownames(gsub('[ ]?=[ ]?|[ ]?TRUE[ ]?',' ',rownames(.))) %>%
   gsub('0[ ]?\\([ ]+0\\.0\\)','0',.) %>% 
-  pander(emphasize.rownames=F);
+  pander(emphasize.rownames=F,caption=.tc);
 # With above just a matter of finding a place to put the code below and then
 # cleaning it up a little (including restricting it only to predictor vars that
 # come from NAACCR)
