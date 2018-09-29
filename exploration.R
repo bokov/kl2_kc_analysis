@@ -116,16 +116,17 @@ from text that references them. To follow a link in Word, please hold down the
 
 .toc <- rep_len(NA,length(.news));
 .toc[1] <- "
-* [Consistency-Checks](#consistency-checks)
-* [Cohort Characterization](#cohort-characterization)
-* [Testing/Interpreting Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)
-* [Descriptive Plots (Preliminary)](#descriptive-plots-preliminary)
+* [-@sec:overview Overview]
+* [-@sec:dataprep Data preparation]
+* [-@sec:descplots Plots of test data]
+* [4 Cohort characterization](#sec:cohorchar)
+* [5 Conclusion & next steps](#sec:nextsteps)
 * Appendices
-____* [Stage/grade data export](#sec:stage)
-____* [Next steps](#sec:todo)
-____* [Supplementary results](#sec:supp)
-____* [Variable descriptions](#sec:vars)
-____* [Audit trail](#sec:audit)
+____* [A1. Stage/grade export sample](#sec:stage)
+____* [A2. TODO list](#sec:todo)
+____* [A3. Supplementary results](#sec:supp)
+____* [A4. Variable descriptions](#sec:vars)
+____* [A5. Audit trail](#sec:audit)
 ";
 .temp0 <- cbind(.news,.toc) %>% unname;
 pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
@@ -133,7 +134,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
   gsub('_',' ',.) %>% cat;
 # overview ---------------------------------------------------------------------
 #' 
-#' # Overview
+#' # Overview {#sec:overview}
 #' 
 #' * Goals of analysis
 #' * Selection criteria
@@ -165,7 +166,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 # A list of valid patients can be found in the 'kcpatients.naaccr'
 # crosschecks ------------------------------------------------------------------
 #' 
-#' # Data preparation
+#' # Data preparation {#sec:dataprep}
 #' 
 #' ## Verifying correct patient linkage
 #' 
@@ -241,31 +242,63 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' on how much the EMR and NAACCR versions of a variable agree when neither is 
 #' missing.
 #' 
-#' **Date of death and Hispanic ethnicity exhibit sufficient agreement** but so 
-#' far I cannot rely on the EMR to back-fill diagnosis, surgery, or recurrence.
+# merging EMR and NAACCR -------------------------------------------------------
+#' **Data elements representing date of death and Hispanic ethnicity are in 
+#' sufficient agreement ( [@sec:xchisp] and [@sec:death] ) to justify merging
+#' information from the EMR and NAACCR.** The process for combining them is
+#' described in the `r fs('a_tdeath')`, `r fs('a_hsp_strict')`, and 
+#' `r fs('a_hsp_broad')` sections of [-@sec:vars] respectively. At this time I 
+#' cannot merge diagnosis, surgery, or recurrence-- where data from both sources 
+#' is available I found that EMR dates lag considerably behind NAACCR dates 
+#' ( [@sec:diag; @sec:surg; @sec:recur] ) and their variability is probably
+#' larger than the effect size. The surgery and recurrence lags might be 
+#' because those actual visits are not yet available in the data 
+#' warehouse and I am only seeing them as reflected in the patient history 
+#' at visits long after the fact. The diagnosis lag may be due to [@RR] the
+#' decision to proceed with surgery often being made based on imaging data,
+#' with definitive pathology results not being available until after surgery 
+#' ([@sec:surg]). Attempting to merge these elements would bias the data and
+#' obscure the actual differences. However there are several ways forward that I
+#' will discuss in [@sec:nextsteps] below.
 #' 
-#' * Hispanic ethnicity
-#' * Death. 
-#' * Diagnosis.
-#' * Surgery
-#' * Recurrence
+#' For now I am analyzing the data as if I only have access to NAACCR with the
+#' exception of death where I do it with ( [@fig:naaccrdeath_survfit] ) and 
+#' without ( [@fig:alldeath_survfit] ) the EMR.
 #' 
 # descriptive plots ------------------------------------------------------------
-#' # Plots of test data
+#' # Plots of test data {#sec:descplots}
 #' 
-#' * Small test-sample
-#' * No covariates that likely differ by ethnicity
-#' * Goal is testing for script errors, nothing more
+.testsamp<-table(subset(dat2a,patient_num %in% 
+                          intersect(pat_samples$train
+                                    ,kcpatients.naaccr))$a_hsp_naaccr);
+#' The goal of this section is **solely** to confirm that my scripts succeeded in 
+#' turning the data into a time-to-event (TTE) format to which Kaplan-Meier 
+#' curves can be fit without numeric errors or grossly implausible results.
+#' All the results below are from a small random subset of the data-- 
+#' N=`r sum(.testsamp[1:2])`, `r .testsamp['Hispanic']` Hispanic and 
+#' `r .testsamp['non-Hispanic']` non-Hispanic. There were 
+#' `r .testsamp['Unknown']` excluded. This is further reduced in some
+#' cases as described in the figure captions. These sample sizes doe not have
+#' sufficient power to detect clinically significant differences and **this is 
+#' not the goal yet**. Again, the goal is to insure that my software performs
+#' correctly without any decisions being influenced by the hold-out data on 
+#' which the hypothesis testing will ultimately be done.
 #' 
-#' To avoid bias/overfitting all descriptive data and visualizations below that 
-#' relate the predictor variable to the outcome are done using a randomly 
-#' selected subset of the records (N=`r length(intersect(pat_samples$train,kcpatients.naaccr))`).
-#' The below results are still preliminary because, among other things, they 
-#' have not been normalized for covariates including age and stage at diagnosis.
+#' Furthermore, these survival curves are not yet adjusted for covariates such 
+#' as age and stage at diagnosis. Finally, there are upcoming refinements 
+#' to `r fs('a_hsp_naaccr')` and the exclusion criteria which I discuss below in 
+#' [@sec:nextsteps].
 #' 
+#' In all the plots below, the time is expressed in weeks and `+` signs denote
+#' censored events (the last follow-up of patients for whom the respective 
+#' outcomes were never observed). The lightly-shaded regions around each line 
+#' are 95% confidence intervals. In all cases a 3-year follow-up period is 
+#' represented on the x-axis meaning patients for whom the outcomes 
+#' occurred beyond that are censored at 3 years. The vertical
+#' scales for the plots vary and are automatically determined by the data.
 #' 
 #' ::::: {#fig:surg_survfit custom-style="Image Caption"}
-#+ surv_surg,results='asis',fig.dim=c(5,4)
+#+ surv_surg,results='asis',fig.dim=c(3,4)
 #,fig.align='right',fig.dim=c(5,3)
 (.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
                                    ,startvars = 'a_tdiag'
@@ -277,21 +310,24 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
                                      Reduce(intersect,list(kcpatients.naaccr
                                                            ,pat_samples$train))
                                    ,followup = 365.25*3,scale=7,unit='Weeks'
-                                   ,main='Time from diagnosis to surgery'
+                                   ,main='Time from diagnosis to surgery\n'
                                    ,ylab='Fraction not undergone surgery'
                                    ,xlab='Weeks since diagnosis'
                                    ,plotadd = list(
-                                     guides(colour=guide_legend('Hispanic')
-                                            ,fill=guide_legend('Hispanic'))))
+                                     guides(colour=guide_legend('')
+                                            ,fill=guide_legend(''))
+                                     ,theme_light()
+                                     ,theme(legend.position = 'top')))
 )$plot;
 cat('
 
-No great short-term difference between Hispanic and non-Hispanic patients. In 
-the longer term a greater fraction of Hispanic patients eventually undergo surgery.');
+Number of weeks elapsed from ',fs('a_tdiag'),' (time 0) to ',fs('a_tsurg')
+,' for ',.survfit_plot0$fit$n[1],' Hispanic and ',.survfit_plot0$fit$n[2]
+,' non-Hispanic patients');
 #' :::::
 #' 
 #' ::::: {#fig:recur_survfit custom-style="Image Caption"}
-#+ surv_recur,results='asis',fig.dim=c(5,4)
+#+ surv_recur,results='asis',fig.dim=c(3,4)
 (.survfit_plot1 <- update(.survfit_plot0,eventvars='a_trecur'
                           ,startvars='a_tsurg'
                           # turns out there needs to be a requirement that
@@ -302,46 +338,52 @@ the longer term a greater fraction of Hispanic patients eventually undergo surge
                             Reduce(intersect,list(kcpatients.naaccr
                                                   ,kcpatients.surg
                                                   ,pat_samples$train))
-                          ,main='Time from surgery to recurrence'
+                          ,main='Time from surgery to recurrence\n'
                           ,ylab='Fraction recurrence-free'
                           ,xlab='Weeks since surgery'))$plot;
 cat('
 
-No great difference in recurrence risk observed with recurrence and surgery
-variables as currently prepared.');
+Number of weeks elapsed from ',fs('a_tsurg'),' (time 0) to ',fs('a_trecur')
+,' for ',.survfit_plot1$fit$n[1],' Hispanic  and ',.survfit_plot1$fit$n[2]
+,' non-Hispanic patients. The numbers are lower than for [@fig:surg_survfit] 
+because patients not undergoing surgery are excluded');
 #' :::::
 #' 
 #' 
 #' ::::: {#fig:naaccrdeath_survfit custom-style="Image Caption"}
-#+ naaccrdeath_survfit,results='asis',fig.dim=c(5,4)
+#+ naaccrdeath_survfit,results='asis',fig.dim=c(3,4)
 (.survfit_plot2 <- update(.survfit_plot1,eventvars='n_vtstat'
-                          ,main='Time from surgery to death'
+                          ,main='Time from surgery to death\n'
                           ,ylab='Fraction alive'))$plot;
 cat('
 
-No strong difference in mortality risk observed with vital status and surgery
-variables as currently prepared.');
+Like [@fig:recur_survfit] except now the outcome is ',fs('n_vtstat')
+,' for ',.survfit_plot2$fit$n[1],' Hispanic  and ',.survfit_plot2$fit$n[2]
+,' non-Hispanic patients');
 #' :::::
 #' 
 #' 
-#' How much difference does it make to supplement this with EMR data?
-#' 
 #' ::::: {#fig:alldeath_survfit custom-style="Image Caption"}
-#+ alldeath_survfit,results='asis',fig.dim=c(5,4)
+#+ alldeath_survfit,results='asis',fig.dim=c(3,4)
 (.survfit_plot2a <- update(
   .survfit_plot2,eventvars='a_tdeath'
   ,predvars='a_hsp_broad'
   ,default.censrvars='age_at_visit_days'
-  ,main='Time from surgery to death supplemented with EMR data'))$plot
+  ,main='Time from surgery to death\nsupplemented with EMR data'))$plot
 cat('
 
-Like [@fig:naaccrdeath_survfit] but with additional ethnicity and last-visit 
-information from EMR included, resulting in fewer censored events which may 
-improve sensitivity.');
+Like [@fig:naaccrdeath_survfit] but now supplemented EMR information to see how
+much of a difference it makes. For the predictor ',fs('a_hsp_broad'),' is used 
+instead of ',fs('a_hsp_naaccr'),' and for the outcome ',fs('a_tdeath'),' is used
+instead of ',fs('n_vtstat'),'. There were ',.survfit_plot2a$fit$n[1]
+,' Hispanic  and ',.survfit_plot2a$fit$n[2],' non-Hispanic patients. There were '
+,sum(.survfit_plot2$fit$n.censor)-sum(.survfit_plot2a$fit$n.censor),' fewer 
+censored events than in [@fig:naaccrdeath_survfit] which may improve sensitivity 
+in the actual analysis.');
 #' :::::
 #' 
 # tableone ---------------------------------------------------------------------
-#' # Cohort Characterization
+#' # Cohort Characterization {#sec:cohorchar}
 #'
 #' Summary of all the variables in the combined i2b2/NAACCR set. `Tumor_Free`
 #' means no recurrence, `Tumor` means recurrence, and `Unknown` means unknown.
@@ -416,7 +458,7 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #   pander(emphasize.rownames=F);
 #
 # remaining Qs ---------------------------------------------------------
-#' # Conclusion and next steps
+#' # Conclusion and next steps {#sec:nextsteps}
 #' 
 #' * Question: What is the correlation structure of EMR/NAACCR mismatches and
 #'   other problems in the data?
@@ -428,6 +470,8 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #'         `r fs('n_seer_kcancer')` events. May soon start excluding the few 
 #'         patients with V/Z or surgical history codes indicating missing kidney 
 #'         prior to first NAACCR diagnosis.
+#'       * May need to exclude all but the first occurence for patients with 
+#'         multiple NAACCR entries.
 #' * Question: What are the main problems with the NAACCR stage and grade 
 #'   information that I will need to clean up?
 #' * Question: How would one distinguish the chart of a patient who is was 
@@ -442,11 +486,35 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' * Question: Is there some additional data source that the UTHealth NAACCR 
 #'   registrar consults?
 #'
+#' NEED:
+#' 
+#' May need to break the `non-Hispanic` bins of `r fs('a_hsp_strict')`,
+#' `r fs('a_hsp_broad')`, and `r fs('a_hsp_naacr')` into `non-Hispanic white` 
+#' versus `Other`.
+#' 
+#' * More data
+#'     * Renal mass, non-visit surgery info, non-visit NAACCR records
+#'     * First NAACCR occurrences
+#' 
+#' On the other hand, EMR data can still be used to flag records for exclusion 
+#' or verification via chart review if, despite the lag, EMR codes for kidney 
+#' cancer or secondary tumors precede `r fs('a_tdiag')` or `r fs('a_trecur')` 
+#' respectively. This can also apply to nephrectomy EMR codes and 
+#' `r fs('a_tsurg')` but I will need to distinguish between the prior 
+#' nephrectomy being due cancer versus other reasons.
+#' 
+#' * Independent data
+#'     * NAACCR
+#' * More covariates
+#' * Moving some of the processing up to DataFinisher 
 #'
 #'
 # event indicators -------------------------------------------------------------
-#' ## Which EMR and NAACCR variables are reliable event indicators? {#vartrans}
+#' ## Which EMR and NAACCR variables are reliable event indicators? {#sec:vartrn}
 #' 
+#' When multiple elements in the raw data refer to the same observation, a decisions
+#'  and they may need to be merged
+#' into a single variable for analysis... assuming that they  Whey the observation is an event like 
 #' 
 #' events, both data sources have multiple variables some or all of which could 
 #' be indicators. We will likely need to merge groups of synonymous variables 
@@ -471,7 +539,7 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' called `dat3`. 
 #' 
 # diagnosis ====================================================================
-#' ### Initial diagnosis 
+#' ### Initial diagnosis {#sec:diag}
 #' 
 #' The `c_kcdiag` group of columns in `dct0`.
 #' 
@@ -563,7 +631,7 @@ The dashed horizontal blue lines indicate +- 3 months from ",fs('n_ddiag'));
 #' the EMR records are currently biased toward later dates.
 #' 
 # surgery ======================================================================
-#' ### Surgery
+#' ### Surgery {#sec:surg}
 #' 
 # The `c_nephx` group of columns
 #' 
@@ -765,7 +833,7 @@ lapply(v(c_nephx,dat2a)[6:9],function(ii)
 #' cases where the `r fs('n_surgreason')` is `Surgery Performed` be included.
 #' 
 # re-occurrence ================================================================
-#' ### Re-occurrence
+#' ### Re-occurrence {#sec:recur}
 #' 
 #' The current available variables are: `r fs('n_cstatus')`, `r fs('n_rectype')`
 #' and `r fs('n_drecur')`. Our site is on NAACCR v16, not v18, and we do not 
@@ -791,8 +859,8 @@ t_recur_drecur <- with(dat2a
                               ,`Has recurrence date`=n_drecur<=age_at_visit_days
                               ,useNA='if'));
 #' Here is the condensed version after having followed the above rules. Looks 
-#' like the only ones who have a `r fs('n_drecur')` (recurrence date) are the ones which
-#' also have a `Recurred` status for `r fs('a_n_recur')` (with `r t_recur_drecur['Recurred','FALSE']`
+#' like the only ones who have a `r fs('n_drecur')` (recurrence date) are the
+#' ones which also have a `Recurred` status for `r fs('a_n_recur')` (with `r t_recur_drecur['Recurred','FALSE']`
 #' missing an `r fs('n_drecur')`). The only exception is `r t_recur_drecur['Never disease-free','TRUE']`
 #' `Never diease-free` patient that had an `r fs('n_drecur')`.
 t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>% 
@@ -803,7 +871,6 @@ t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>%
 #' what extent the EMR codes agree with this. 
 #' 
 #' 
-.recur_plot <- ' ';
 #' ::::: {#fig:recur_plot custom-style="Image Caption"}
 #+ recur_plot,results='asis'
 par(xaxt='n');
@@ -867,7 +934,7 @@ line is the date of surgery. Patients whose status ",fs('n_rectype')," is
 # for(ii in v(c_death,baz)) lines(baz[[ii]],col='orange',lwd=2)
 #'  
 # death ========================================================================
-#' ### Death
+#' ### Death {#sec:death}
 #' 
 #' When more than one source has a death date, they are in agreement. To be 
 #' fair, the agreement between `r fs('e_death')`, `r fs('e_dscdeath')`, and `r fs('s_death')` is 
@@ -1224,7 +1291,7 @@ dat0[!is.na(dat0[[cstatic_n_dob]]) &
 #' The `r length(kcpatients.naaccr_bad_dob)` patients with otherwise complete 
 #' records but mismatched birth dates vary by huge amounts from the EMR versions
 #' of their respective birth dates. However, as can be seen below in 
-#' [#sec:xcdobdem] the `r length(kcpatients.bad_dob)` total patients with DOB 
+#' [@sec:xcdobdem] the `r length(kcpatients.bad_dob)` total patients with DOB 
 #' mismatches are not particularly enriched for other mismatches tested so far 
 #' which is consistent with isolated errors in those respective variables rather 
 #' than some subset of patients continuing to be incorrectly linked.
