@@ -282,6 +282,21 @@ dat1[,c('a_hsp_broad','a_hsp_strict')] <- apply(
     ,strict=if(all(xx[1:3]=='Hispanic',na.rm=T)&&!any(xx[4:5]=='non-Hispanic',na.rm=T)) {
       'Hispanic' } else if(all(xx[c(1,3)]=='non-Hispanic',na.rm=T)&&!any(xx[4:5]=='Hispanic',na.rm=T)){
         'non-Hispanic'} else 'Unknown')) %>% t %>% data.frame;
+
+# Finalizing the three Hispanic variables to distinguish between NHW and other
+dat1 <- mutate(dat1,
+               a_hsp_broad=ifelse(a_hsp_broad=='non-Hispanic'
+                                  ,ifelse(a_n_race=='White'|race_cd=='White'
+                                          ,'non-Hispanic white','Other')
+                                  ,as.character(a_hsp_broad))
+               ,a_hsp_strict=ifelse(a_hsp_strict=='non-Hispanic'
+                                    ,ifelse(a_n_race=='White'&race_cd=='White'
+                                            ,'non-Hispanic white','Other')
+                                    ,as.character(a_hsp_strict))
+               ,a_hsp_naaccr=ifelse(a_hsp_naaccr=='non-Hispanic'
+                                    ,ifelse(a_n_race=='White'
+                                            ,'non-Hispanic white','Other')
+                                    ,a_hsp_naaccr));
 dat1$a_hsp_naaccr <- .tmp_hspvar$temp_n_hisp;
 
 kcpatients.pre_existing <- subset(dat1,a_naive_tdiag>=0&a_tdiag<0)$patient_num %>% unique;
