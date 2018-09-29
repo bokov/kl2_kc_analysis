@@ -298,7 +298,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' scales for the plots vary and are automatically determined by the data.
 #' 
 #' ::::: {#fig:surg_survfit custom-style="Image Caption"}
-#+ surv_surg,results='asis',fig.dim=c(3,4)
+#+ surv_surg,results='asis',fig.dim=c(3,4),fig.align='center'
 #,fig.align='right',fig.dim=c(5,3)
 (.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
                                    ,startvars = 'a_tdiag'
@@ -313,6 +313,8 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
                                    ,main='Time from diagnosis to surgery\n'
                                    ,ylab='Fraction not undergone surgery'
                                    ,xlab='Weeks since diagnosis'
+                                   ,plotargs=list(mark.time=T,conf.int.alpha=0.1
+                                                  ,surv.size=1.5)
                                    ,plotadd = list(
                                      guides(colour=guide_legend('')
                                             ,fill=guide_legend(''))
