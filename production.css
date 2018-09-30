@@ -147,6 +147,10 @@ p.abstract:after {
     padding-top: 0;
 }
 
+.note2self {
+  background-color: #FF0;
+}
+
 .table caption {
     color: #777;
     padding-bottom: 0;
