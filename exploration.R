@@ -52,26 +52,36 @@ for(ii in seq_along(.depends)) {
 }
 knitr::opts_chunk$set(echo = F,warning = F,message=F,fig.scap=NA,fig.lp=''
                       ,dev.args=list(family=default_font));
+
 # if a text string named FOO is created prior to a named chunk also named FOO
 # then specifying opts.label='fig_opts' in the options for that chunk will use
 # that string as the caption
 knitr::opts_template$set(
   fig_opts=alist(fig.cap=get0(knitr::opts_current$get("label"))
                  ,results='asis'));
+
 # Set default arguments for some functions
 panderOptions('table.split.table',Inf);
 panderOptions('missing','-');
 panderOptions('table.alignment.default','right');
 panderOptions('table.alignment.rownames','left');
 .args_default_v <- formals(v);
+
 # default arguments for getting lists of column names
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
+
 # defaults for 'fancy span' string transformation of variable names 
 # IN THE MAIN SECTION ONLY!! The retfun should be return for inline use and cat
 # for use generating asis chunks.
 .args_default_fs <- formals(fs);
 formals(fs)[c('url','fs_reg','retfun')] <- alist(str,'fs_reg',return);
 formals(fs)$template <- fstmplts$link_colnamelong;
+
+# We don't yet explicitly reference patient_num outside the news block, so I'm 
+# priming the fs_reg option with it here manually
+options(fs_reg='patient_num');
+
+# defaults for graphical parameters as used by the eventplot() function
 .par_eventplot <- .par_default <- par(no.readonly = T);
 .par_eventplot$family = 'Times New Roman';
 
@@ -82,11 +92,11 @@ md <- list(
 Creates a page break, depends on custom styling at output end to either create a
 page break and/or hide this code
 
-'));
+')
+  ,mainvars <- v(c_main_naaccr_vars) %>% sapply(fs,retfun) %>% 
+    knitr::combine_words
+  );
 
-# We don't yet explicitly reference patient_num outside the news block, so I'm 
-# priming the fs_reg option with it here manually
-options(fs_reg='patient_num');
 # note_toc ---------------------------------------------------------------------
 #' ###### TOC {-}
 #+ news_toc,results='asis'
