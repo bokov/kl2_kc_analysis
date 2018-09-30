@@ -140,7 +140,15 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' * Selection criteria
 #'     * i2b2
 #'     * post-i2b2
-#'         * TODO: n_hisp should separate non-Hispanic into NHW and Other
+#'     
+#' * Question: Which records to exclude due to likely errors in the source data? 
+#'   E.g. surgery precedes diagnosis, recurrence precedes surgery (for some 
+#'   analysis) death precedes diagnosis or surgery
+#'       * Answer: Currently excluding as incomplete any record lacking either 
+#'         an `r fs('n_ddiag')` event or both of `r fs('n_kcancer')` and 
+#'         `r fs('n_seer_kcancer')` events. May soon start excluding the few 
+#'         patients with V/Z or surgical history codes indicating missing kidney 
+#'         prior to first NAACCR diagnosis.
 #' 
 # expert Qs --------------------------------------------------------------------
 #' ### Questions for mentors and other domain experts:
@@ -466,16 +474,22 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 # remaining Qs ---------------------------------------------------------
 #' # Conclusion and next steps {#sec:nextsteps}
 #' 
-#' * Question: What is the correlation structure of EMR/NAACCR mismatches and
-#'   other problems in the data?
-#' * Question: Which records to exclude due to likely errors in the source data? 
-#'   E.g. surgery precedes diagnosis, recurrence precedes surgery (for some 
-#'   analysis) death precedes diagnosis or surgery
-#'       * Answer: Currently excluding as incomplete any record lacking either 
-#'         an `r fs('n_ddiag')` event or both of `r fs('n_kcancer')` and 
-#'         `r fs('n_seer_kcancer')` events. May soon start excluding the few 
-#'         patients with V/Z or surgical history codes indicating missing kidney 
-#'         prior to first NAACCR diagnosis.
+#' This detailed investigation of the available data elements and  development 
+#' of scripts for analyzing them open four future directions: more data, 
+#' _external_ data, more covariates, and improved pre-processing at the i2b2 
+#' end (Aim 1).
+#' 
+#' More data can be acquired by reclaiming values that are currently
+#' inconsistent or missing. There are various ad-hoc consistency checks 
+#' described in [sections]. I need to gather these checks in one place and 
+#' systematically run them on every patient to get a total count of records that
+#' need manual chart review [under protocol xxx] and for each record a list of 
+#' issues that needs to be resolved. 
+#' 
+#' To reclaim missing values I will need to meet with the NAACCR registrar
+#' and learn where exactly in the EMR and other sources she looks in order to
+#' abstract `r fs('n_ddiag')`, `r fs('n_dsurg')`, `r fs('n_drecur')`, and 
+#' 
 #'       * May need to exclude all but the first occurence for patients with 
 #'         multiple NAACCR entries.
 #' * Question: What are the main problems with the NAACCR stage and grade 
