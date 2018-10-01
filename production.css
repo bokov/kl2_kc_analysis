@@ -145,6 +145,8 @@ p.abstract:after {
     color: #777;
     padding-bottom: 16px;
     padding-top: 0;
+    text-align: justify;
+    text-justify: inter-character;
 }
 
 .note2self {
@@ -154,6 +156,8 @@ p.abstract:after {
 .table caption {
     color: #777;
     padding-bottom: 0;
+    text-align: justify;
+    text-justify: inter-character;
 }
 
 .table caption .table_title {
