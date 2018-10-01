@@ -10,7 +10,14 @@
 #'   Minimal necessary NAACCR variables chosen and 
 #'   process documented for preparing them for analysis, as well as 
 #'   supplementing some of them with additional data from EMR if available.
+#'   Ready to proceed to chart review of existing data, acquisition of 
+#'   independent NAACCR data, development of additional variables, and working
+#'   on Aim 1.
+#' link-citations: true
 #' css: production.css
+#' bibliography: kidneycancer.bib
+#' csl: nature.csl
+#' reference-section-title: Bibliography
 #' fig_caption: yes
 #' linkReferences: true
 #' nameInLink: true
@@ -32,7 +39,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-options(gitstamp_prod=F);
+#options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 
 default_font <- 'Times New Roman';
@@ -113,15 +120,17 @@ Only de-identified data has been used to generate these results any dates or
 size of time intervals preserved).\\
 \\
 This portion of the study is under Dr. Michalek's exempt project IRB number 
-HSC20170563N. If you are a UT Health researcher who would like a copy of the 
-data, please email me and I will get back to you with further instructions and 
-any additional information I might need from you for our records.\\
+HSC20170563N. If you are a researcher who would like a copy of the data, please 
+email me and I will get back to you with further instructions and any additional
+information needed for our records.\\
 \\
 Verbatim names of files, variables, or values are displayed in
 a special style, `like this`. Variable names are in addition linked to a 
-glossary at the end of this document. Table, figure, sections are also linked 
-from text that references them. To follow a link in Word, please hold down the 
-'control' key and click on that link."
+glossary at the end of this document. This is where any relevant cleaning or 
+tranformation steps will in the future be described for the respective variables. 
+Tables, figures, and sections are also linked from text that references them. To 
+follow a link in Word, please hold down the 'control' key and click on that 
+link."
 );
 
 .toc <- rep_len(NA,length(.news));
@@ -146,34 +155,63 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' 
 #' # Overview {#sec:overview}
 #' 
-#' * Goals of analysis
-#' * Selection criteria
-#'     * i2b2
-#'     * post-i2b2
-#'     
-#' * Question: Which records to exclude due to likely errors in the source data? 
-#'   E.g. surgery precedes diagnosis, recurrence precedes surgery (for some 
-#'   analysis) death precedes diagnosis or surgery
-#'       * Answer: Currently excluding as incomplete any record lacking either 
-#'         an `r fs('n_ddiag')` event or both of `r fs('n_kcancer')` and 
-#'         `r fs('n_seer_kcancer')` events. May soon start excluding the few 
-#'         patients with V/Z or surgical history codes indicating missing kidney 
-#'         prior to first NAACCR diagnosis.
+#' A recent study of state death records [@PinheiroHighcancermortality2017]
+#' reports that among US-born Texans of Hispanic ancestry (7.3 million, 27% of
+#' the State's population), annual age-adjusted mortality rates for kidney
+#' cancer  are 1.5-fold and 1.4-fold those of non-Hispanic whites for males and
+#' females respectively. My goal is to determine whether these findings can be
+#' replicated at UT Health (Aim 2) and Massachusetts General Hospital (Aim 3).
+#' If there is evidence for an ethnic disparity, I will look for possible
+#' _mediators_ of this disparity among socioeconomic, lifestyle, and family
+#' history variables (Aim 2a). Otherwise the focus will shift to determining
+#' which of these same variables are the best _predictors_ of mortality and
+#' recurrence.
 #' 
-# A list of valid patients can be found in the 'kcpatients.naaccr'
+#' At the Clinical Informatics Research Division (CIRD) we operate an i2b2
+#' [@MurphyInstrumentinghealthcare2009] data warehouse containing deidentified
+#' data for over 1.3 million patients from the electronic medical record (EMR)
+#' systems of the UT Health faculty practice and the University Health System
+#' (UHS) county hospital. We use the HERON [@AdagarlaSEINEMethodsElectronic2015]
+#' extract transform load (ETL) process to link data from multiple sources
+#' including copies of monthly reports that the Mays Cancer Center sends to the
+#' Texas Cancer Registry with detailed information on cancer cases including
+#' dates of diagnosis, surgery, and recurrence along with stage and grade at
+#' presentation. My first-pass eligibility query returned `r nrow(dat2a)`
+#' patients having one or more of the following in their records: an ICD9 code
+#' of 189.0 or any ICD10 code starting with C64; the NAACCR item 
+#' [`0400 Primary Site`](`r paste0(urls$dict_naaccr,'#400')`) having a value 
+#' starting with C64 (`r fs('n_kcancer')`); or the SEER Primary Site having a 
+#' value of `r fs('n_seer_kcancer')`.
+#' 
+#' My second pass criteria aimed at finding among these patients those for which
+#' NAACCR records also exist, defined as having a non-missing `r fs('n_ddiag')`
+#' and at least one of `r fs('n_kcancer')` or `r fs('n_seer_kcancer')`. As can
+#' be seen from [@tbl:cohortrectype] only `r length(kcpatients.naaccr)` of the
+#' patient-set met these criteria and `r nrow(dat2a) - length(kcpatients.naaccr)` 
+#' did not. In [-@sec:diag; -@sec:surg; -@sec:recur] I identified additional 
+#' exclusion criteria which I will implement in the next major revision of 
+#' this document.
+#' 
+#' In [@sec:linkagever] I summarize the evidence that NAACCR and EMR records are
+#' correctly matched with each other. In [@sec:reqelmnts] I summarize the 
+#' minimum set of NAACCR data elements that is sufficient to replicate my 
+#' analysis in an independent NAACCR data set. In [@sec:merging] I report the
+#' extent to which the completeness of NAACCR records can be improved by using
+#' EMR records of the same patients. In [@sec:descplots] is a technical 
+#' demonstration of the data analysis scripts (on a small random sample). In 
+#' [@sec:cohorchar] there is a characterization of the full (N=`r nrow(dat2a)`)
+#' patient cohort. Finally, in [@sec:nextsteps] I present my plans for 
+#' overcoming the data issues I found, replicating the analysis on independent 
+#' data, preparing additional variables, and starting work on Aim 1.
+#' 
 # dataprep ---------------------------------------------------------------------
 #' # Data preparation {#sec:dataprep}
 #' 
-#' ## Verifying correct patient linkage
+#' ## Verifying correct patient linkage {#sec:linkagever}
 #' 
-#' This study uses data in an i2b2 data warehouse that draws from the EMRs of
-#' two health systems (UT Health and its main hospital teaching partner) as well
-#' as the NAACCR class-A reports that UT Health has submitted to the Texas
-#' Cancer Registry. All three data sources have already been linked to each
-#' other and then stripped of identifying information by the Clinical
-#' Informatics Research Division. Since this is the first study at our site to 
-#' make extensive use of combined EMRs and NAACCR data, it is important to 
-#' confirm that this linkage is correct.
+#' Since this is the first study at our site to make such extensive use of 
+#' combined EMR and NAACCR data, it is important to first validate the data 
+#' linkage done by our ETL.
 #'
 #' The following data elements exist in both NAACCR and the EMR, respectively:
 #' date of birth (`r fs('n_dob')` and `r fs('birth_date')`), marital status 
@@ -188,8 +226,8 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' variable, then _most_ of the values should agree.
 #' 
 #' I have confirmed that this _is_ the case for marital status
-#' ([-@sec:xcmarital]), sex ([-@sec:xcsex]), race ([-@sec:xcrace]), and
-#' Hispanic ancestry ([-@sec:xchisp]). Furthermore, there are 
+#' ([@tbl:xc_marital]), sex ([@tbl:xc_sex]), race ([@tbl:xc_race]), and
+#' Hispanic ancestry ([@tbl:xc_hisp0]). Furthermore, there are 
 #' `r nrow(subset(dat3,is.na(n_dob)))` eligible patients lacking a 
 #' `r fs('n_dob')` and only `r length(kcpatients.naaccr_bad_dob)` with a 
 #' mismatch between `r fs('n_dob')` and `r fs('birth_date')`. Independent 
@@ -221,38 +259,38 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' , and `r fs('n_mult')`. Additional items are likely to be needed as this
 #' project evolves, but **I believe the elements listed so far will be 
 #' sufficient to replicate my analysis de-identified State or National NAACCR 
-#' data independent of UT Health**.
+#' data**.
 #' 
 #' ## Merging NAACCR and EMR variables {#sec:merging}
 #' 
-#' I had hoped that the linkage to EMR records would not only enrich the data
-#' with additional elements not available in NAACCR alone, but that I would also 
-#' be able to use the EMR to fill in missing `r fs('n_ddiag')`, 
-#' `r fs('n_rx3170')` / `r fs('n_dsurg')`, `r fs('n_drecur')`, and `r fs('n_lc')` 
-#' values or even reconstruct entire records for the 
-#' `r nrow(dat2a)-length(kcpatients.naaccr)` kidney cancer patients in the EMR 
-#' lacking records in NAACCR. Whether or not this can be done depends 
-#' on how much the EMR and NAACCR versions of a variable agree when neither is 
+#' EMR records can not only enrich the data with additional elements not 
+#' available in NAACCR alone, but might also make it possible to fill in missing 
+#' `r fs('n_ddiag')`,  `r fs('n_rx3170')` / `r fs('n_dsurg')`, 
+#' `r fs('n_drecur')`, and `r fs('n_lc')`  values. It may even be possible to 
+#' reconstruct entire records for the `r nrow(dat2a)-length(kcpatients.naaccr)` 
+#' kidney cancer patients in the EMR lacking NAACCR records. This depends on how 
+#' much the EMR and NAACCR versions of a variable agree when neither is 
 #' missing.
 #' 
 # merging EMR and NAACCR -------------------------------------------------------
+#' 
 #' **Data elements representing date of death and Hispanic ethnicity are in 
-#' sufficient agreement ( [@sec:xchisp] and [@sec:death] ) to justify merging
+#' sufficient agreement ( [@tbl:xc_hisp0] and [-@sec:death] ) to justify merging
 #' information from the EMR and NAACCR.** The process for combining them is
 #' described in the `r fs('a_tdeath')`, `r fs('a_hsp_strict')`, and 
 #' `r fs('a_hsp_broad')` sections of [-@sec:vars] respectively. At this time I 
 #' cannot merge diagnosis, surgery, or recurrence-- where data from both sources 
 #' is available I found that EMR dates lag considerably behind NAACCR dates 
-#' ( [@sec:diag; @sec:surg; @sec:recur] ) and their variability is probably
+#' ( [-@sec:diag; -@sec:surg; -@sec:recur] ) and their variability is probably
 #' larger than the effect size. The surgery and recurrence lags might be 
 #' because those actual visits are not yet available in the data 
 #' warehouse and I am only seeing them as reflected in the patient history 
-#' at visits long after the fact. The diagnosis lag may be due to [@RR] the
+#' at visits long after the fact. The diagnosis lag may be due to the
 #' decision to proceed with surgery often being made based on imaging data,
-#' with definitive pathology results not being available until after surgery 
-#' ([@sec:surg]). Attempting to merge these elements would bias the data and
-#' obscure the actual differences. However there are several ways forward that I
-#' will discuss in [@sec:nextsteps] below.
+#' [@pcRodriguez2018] with definitive pathology results only available after 
+#' surgery ([-@sec:surg]). Attempting to merge these elements would bias the data 
+#' and obscure the actual differences. However there are several ways forward 
+#' that I will discuss in [@sec:nextsteps] below.
 #' 
 #' EMR data can still be used to flag records for exclusion or verification via 
 #' chart review if, despite the lag, EMR codes for kidney cancer or secondary 
@@ -271,7 +309,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 .testsamp<-table(subset(dat2a,patient_num %in% 
                           intersect(pat_samples$train
                                     ,kcpatients.naaccr))$a_hsp_naaccr);
-#' The goal of this section is **solely** to confirm that my scripts succeeded in 
+#' The point of this section is **solely** to confirm that my scripts succeeded in 
 #' turning the data into a time-to-event (TTE) format to which Kaplan-Meier 
 #' curves can be fit without numeric errors or grossly implausible results.
 #' All the results below are from a small random subset of the data-- 
@@ -280,9 +318,9 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' `r .testsamp['Unknown']` excluded. This is further reduced in some
 #' cases as described in the figure captions. These sample sizes doe not have
 #' sufficient power to detect clinically significant differences and **this is 
-#' not the goal yet**. Again, the goal is to insure that my software performs
-#' correctly without any decisions being influenced by the hold-out data on 
-#' which the hypothesis testing will ultimately be done.
+#' not the goal yet**. Again, the intent is only to insure that my software 
+#' performs correctly without viewing the hold-out data on which the hypothesis 
+#' testing will ultimately be done.
 #' 
 #' Furthermore, these survival curves are not yet adjusted for covariates such 
 #' as age and stage at diagnosis. Finally, there are upcoming refinements 
@@ -297,8 +335,10 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' occurred beyond that are censored at 3 years. The vertical
 #' scales for the plots vary and are automatically determined by the data.
 #' 
+#' ###### blank
+#' 
 #' ::::: {#fig:surg_survfit custom-style="Image Caption"}
-#+ surv_surg,results='asis',fig.dim=c(3,4),fig.align='center'
+#+ surv_surg,results='asis',fig.dim=c(3.1,3),fig.align='center'
 #,fig.align='right',fig.dim=c(5,3)
 (.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
                                    ,startvars = 'a_tdiag'
@@ -325,11 +365,13 @@ cat('
 
 Number of weeks elapsed from ',fs('a_tdiag'),' (time 0) to ',fs('a_tsurg')
 ,' for ',.survfit_plot0$fit$n[1],' Hispanic and ',.survfit_plot0$fit$n[2]
-,' non-Hispanic patients');
+,' non-Hispanic white patients');
 #' :::::
 #' 
+#' ###### blank
+#' 
 #' ::::: {#fig:recur_survfit custom-style="Image Caption"}
-#+ surv_recur,results='asis',fig.dim=c(3,4),fig.align='center'
+#+ surv_recur,results='asis',fig.dim=c(3.1,3),fig.align='center'
 (.survfit_plot1 <- update(.survfit_plot0,eventvars='a_trecur'
                           ,startvars='a_tsurg'
                           # turns out there needs to be a requirement that
@@ -347,13 +389,15 @@ cat('
 
 Number of weeks elapsed from ',fs('a_tsurg'),' (time 0) to ',fs('a_trecur')
 ,' for ',.survfit_plot1$fit$n[1],' Hispanic  and ',.survfit_plot1$fit$n[2]
-,' non-Hispanic patients. The numbers are lower than for [@fig:surg_survfit] 
-because patients not undergoing surgery are excluded');
+,' non-Hispanic white patients. The numbers are lower than for 
+[@fig:surg_survfit]  because patients not undergoing surgery are excluded');
 #' :::::
 #' 
 #' 
+#' ###### blank
+#' 
 #' ::::: {#fig:naaccrdeath_survfit custom-style="Image Caption"}
-#+ naaccrdeath_survfit,results='asis',fig.dim=c(3,4),fig.align='center'
+#+ naaccrdeath_survfit,results='asis',fig.dim=c(3.1,3),fig.align='center'
 (.survfit_plot2 <- update(.survfit_plot1,eventvars='n_vtstat'
                           ,main='Time from surgery to death\n'
                           ,ylab='Fraction alive'))$plot;
@@ -361,12 +405,14 @@ cat('
 
 Like [@fig:recur_survfit] except now the outcome is ',fs('n_vtstat')
 ,' for ',.survfit_plot2$fit$n[1],' Hispanic  and ',.survfit_plot2$fit$n[2]
-,' non-Hispanic patients');
+,' non-Hispanic white patients');
 #' :::::
 #' 
 #' 
+#' ###### blank
+#' 
 #' ::::: {#fig:alldeath_survfit custom-style="Image Caption"}
-#+ alldeath_survfit,results='asis',fig.dim=c(3,4),fig.align='center'
+#+ alldeath_survfit,results='asis',fig.dim=c(3.1,3),fig.align='center'
 (.survfit_plot2a <- update(
   .survfit_plot2,eventvars='a_tdeath'
   ,predvars='a_hsp_broad'
@@ -378,17 +424,20 @@ Like [@fig:naaccrdeath_survfit] but now supplemented EMR information to see how
 much of a difference it makes. For the predictor ',fs('a_hsp_broad'),' is used 
 instead of ',fs('a_hsp_naaccr'),' and for the outcome ',fs('a_tdeath'),' is used
 instead of ',fs('n_vtstat'),'. There were ',.survfit_plot2a$fit$n[1]
-,' Hispanic  and ',.survfit_plot2a$fit$n[2],' non-Hispanic patients. There were '
-,sum(.survfit_plot2$fit$n.censor)-sum(.survfit_plot2a$fit$n.censor),' fewer 
-censored events than in [@fig:naaccrdeath_survfit] which may improve sensitivity 
-in the actual analysis.');
+,' Hispanic  and ',.survfit_plot2a$fit$n[2],' non-Hispanic white patients. There 
+were ',sum(.survfit_plot2$fit$n.censor)-sum(.survfit_plot2a$fit$n.censor)
+,' fewer censored events than in [@fig:naaccrdeath_survfit] which may improve 
+sensitivity in the actual analysis');
 #' :::::
+#' 
+#' 
+#' ###### blank
 #' 
 # tableone ---------------------------------------------------------------------
 #' # Cohort Characterization {#sec:cohorchar}
 #'
-#' Note: the below variables are subject to change as the validity criteria and
-#' creation of analytic variables from multiple columns of raw data evolve.
+#' The below variables are subject to change as the data validation and 
+#' preparation processes evolve.
 #' 
 #+ TableOne, cache=FALSE
 .tc <- paste0('
@@ -466,14 +515,14 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 # conclusions ---------------------------------------------------------
 #' # Conclusion and next steps {#sec:nextsteps}
 #' 
-#' This detailed investigation of the available data elements and  development 
-#' of scripts for analyzing them open four future directions: more data, 
+#' This detailed investigation of the available data elements and development 
+#' of analysis scripts opens the following directions: more data, 
 #' _external_ data, more covariates, and improved pre-processing at the i2b2 
 #' end (Aim 1).
 #' 
 #' More data can be acquired by reclaiming values that are currently
 #' inconsistent or missing. There are various ad-hoc consistency checks 
-#' described in [sections]{.note2self custom-style="note2self"}. 
+#' described in [@sec:xchecks; @sec:diag; @sec:surg]{.note2self custom-style="note2self"}. 
 #' I need to gather these checks in one place and 
 #' systematically run them on every patient to get a total count of records that
 #' need manual chart review (Dr. Rodriguez's protocol) and for each record a 
@@ -486,8 +535,8 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' experienced in Urology chart review to learn their methods. This may lead to 
 #' revisions of the CIRD process for loading UHS, UT Health, and NAACCR data 
 #' into i2b2 (IRB protocol HSC20150212HR). As per Dr. Rodriguez I already plan 
-#' on adding all ICD codes for 'renal mass' to my i2b2 DataFinisher query 
-#' ([@sec:diag]). Meanwhile, in response to researcher questions including mine, 
+#' on adding all ICD codes for 'renal mass' to my i2b2 query ([@sec:diag]). 
+#' Meanwhile, in response to researcher questions including my own, 
 #' CIRD has identified thousands of NAACCR entries and surgery billing records 
 #' that got excluded from i2b2 because they are not associated with visits to UT 
 #' Health clinics. This problem has been corrected. After the next i2b2 refresh 
@@ -505,12 +554,11 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' frequency and duration of visits, and participation in adjuvant trials;
 #' (both) birthplace, language, and diabetes; and (census data in i2b2) income
 #' and education. Each of these will require a workup similar to that reported
-#' in [@sec:dataprep] and [refs]{.note2self custom-style="note2self"}. 
-#' I can work independently on many of these but
-#' I will need guidance from experts in Urology on interpreting the stage and
-#' grade data. If genomic data from the Urology biorepository becomes available
-#' for these patients in the course of this study it also will become an
-#' important variable for Aim 2.
+#' in [@sec:dataprep] and [-@sec:supp]. I can work independently on many of these 
+#' but I will need guidance from experts in Urology on interpreting the stage 
+#' and grade data. If genomic data from the Urology biorepository becomes 
+#' available for these patients in the course of this study it also will become 
+#' an important variable for Aim 2.
 #' 
 #' The use of TCR or NCDB data is *not* a substitute for UT Health and MGH i2b2
 #' data. The registries allow me to test the replicability of high-level
@@ -518,8 +566,9 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' detailed additional variables I will need to investigate the causes of
 #' disparate patient outcomes.
 #' 
-#' Nor are the R scripts I wrote for this project a substitute for DataFinisher 
-#' and i2b2. On the contrary, the reason I was able to make this much progress
+#' Nor are the R scripts I wrote for this project a substitute for DataFinisher
+#' [@bokov_denormalize_2016] and i2b2. On the contrary, the reason I was able to 
+#' make this much progress
 #' in one month is that the data linkage and de-identification was done by the 
 #' CIRD i2b2 ETL, the data selection was simplified by the i2b2 web client, and
 #' an enormous amount of post-processing was done by my DataFinisher app which
@@ -533,11 +582,22 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' reorganize and document the code so I can present it to Dr. Murphy and his 
 #' informatics team for review and input.
 #'
+#' # References
+#' 
+#' ::::: {#refs}
+#' &nbsp;
+#' :::::
+#'
 # A1 stage/grade ---------------------------------------------------------------
+#' `r md$pbreak`
 #' # : Example of stage/grade data {#sec:stage label="Appendix 1"}
 #' 
-#' (proof of feasibility)
-#'
+.tc <- paste0('
+This is proof of feasibility for extracting stage and grade at diagnosis for 
+each NAACCR patient for import into the EMR system (e.g. Epic/Beacon). Clinical
+and pathology stage descriptors are also available in NAACCR. Here the '
+,fs('patient_num'),' are de-identified but with proper authorization they can 
+be mapped to MRNs or internal database index keys. {#tbl:stage}');
 subset(dat2a[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %>% 
   na.omit() %>% 
   setNames(c('patient_num'
@@ -547,7 +607,7 @@ subset(dat2a[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) 
   # show a sampling of rows and columns that fits on the page and remove the
   # the extra quotation marks
   `[`(1:15,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
-  pander();
+  pander(caption=.tc);
 #' 
 # A2 next steps ---------------------------------------------------------------
 formals(fs)$template <- fstmplts$link_colnamelong;
@@ -556,12 +616,12 @@ formals(fs)$retfun <- as.name('return');
 #' # : Next steps {#sec:todo label="Appendix 2"}
 #' 
 #' * TODO: Update and clean up the plots and tables, including labels.
-#'     * [Consistency-Checks]
-#'         * **Marital status, sex, race, hispanic(2):** shorten text and move to 
-#'           captions.
-#'         * Write motivation and summary.
-#'     * [Testing/Interpreting Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)
-#'         * Write motivation, intro, summary. Incorporate edits.
+#'     * ~~[Consistency-Checks]~~
+#'         * ~~Marital status, sex, race, hispanic(2):** shorten text and move to 
+#'           captions.~~
+#'         * ~~Write motivation and summary.~~
+#'     * ~~[Testing/Interpreting Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)~~
+#'         * ~~Write motivation, intro, summary. Incorporate edits.~~
 #'         * [Initial diagnosis], [Surgery], [Re-occurrence], [Death]
 #'             * Move plots to the top of each
 #'             * Shorten text and move to captions.
@@ -571,25 +631,25 @@ formals(fs)$retfun <- as.name('return');
 #'     * [Hispanic variable recoding](#whether-or-not-the-patient-is-hispanic):
 #'       turn into paragraphs, think about moving to variable glossary.
 #'     * [Descriptive Plots (Preliminary)]
-#'         * Move them to right after the overview.
-#'         * Write intro mentioning that these are the relationships of interest
-#'           among the four main variables.
-#'         * Expand why there are two versions of the survival plot
-#' * TODO: Update and streamline the narrative.
-#'     * Intro
-#'     * Motivation
-#'     * Summary of results
-#'     * Summary of next steps
-#'     * Move questions to after the [Descriptive Plots (Preliminary)] but 
+#'         * ~~Move them to right after the overview.~~
+#'         * ~~Write intro mentioning that these are the relationships of interest
+#'           among the four main variables.~~
+#'         * ~~Expand why there are two versions of the survival plot~~
+#' * DONE: ~~Update and streamline the narrative.~~
+#'     * ~~Intro~~
+#'     * ~~Motivation~~
+#'     * ~~Summary of results~~
+#'     * ~~Summary of next steps~~
+#'     * ~~Move questions to after the [Descriptive Plots (Preliminary)] but 
 #'       before the [Consistency-Checks], and place the answered questions at
-#'       the bottom. [Domain expert questions](#questions-for-mentors-and-other-domain-experts) 
+#'       the bottom. [Domain expert questions](#questions-for-mentors-and-other-domain-experts)~~ 
 #'       still go ahead of [empirical questions](#questions-to-answer-empirically).
 #' * TODO: Remove the crossed-off stuff in [Appendix III: Supplementary tables] '
 #'         but note someplace what was removed and why.
 #' * TODO: Organize the inclusion/exclusion criteria into a single named list
 #' * TODO: Overhaul the existing TableOne in [Cohort Characterization] -- use 
 #'         data dictionary for renaming instead of _ad-hoc_ .
-#' * TODO: Migrate everything that uses `dat2` and `dat3` to using `dat2a`.
+#' * TODO: Migrate everything that uses ~~`dat2`~~ and `dat3` to using `dat2a`.
 #' * TODO: Create a TableOne for `r fs('a_hsp_naaccr')` (that specific one 
 #'         because then the conclusions can be directly applied to TCR data) to 
 #'         find possible confounding variables. Age, perhaps? Income? 
@@ -668,74 +728,59 @@ formals(fs)$retfun <- as.name('return');
 #'     * ~~HbA1c~~
 #'     * ~~Family history of diabetes and cancer~~
 #' 
-#' 
-#' ::::: {.pbreak custom-style="pbreak"}
-#' &nbsp;
-#' :::::
-#' 
-#' 
 # A3 supplementary results ------------------------------------------------------
+#' `r md$pbreak`
 #' # Supplementary results {#sec:supp label="Appendix 3"}
 #' 
-#  crosschecks ------------------------------------------------------------------
-#' ## Cross Check Details {#sec:xchecks}
+#' ## Consistency checks {#sec:xchecks}
 #' 
-#' ### Marital Status {#sec:xcmarital}
+#' In this section are patient counts for all `r nrow(dat2a)` patients in the 
+#' overall set, broken down by various NAACCR variables (rows) and equivalent 
+#' EMR variables (columns). The **bold** values are counts of patients for
+#' whom NAACCR and EMR are in agreement. Patients in the `NA` are the ones with
+#' only EMR and no NAACCR records, so there is no information about whether 
+#' NAACCR and the EMR would have been in agreement for those patients. 
 #' 
-#' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
-#' record completeness. Counts in bold are ones that agree between the two 
-#' sources.
 #+ marital_status
-with(dat2a,table(e_marital,n_marital,useNA='if')) %>% addmargins %>%
-  set_rownames(.,gsub('@','',rownames(.))) %>% 
-  pander(emphasize.strong.cells=cbind(c(2:4,6:9),1:8)
-         ,caption='Marital status from NAACCR (columns) and EMR (rows). {#tbl:xc_marital}');
+with(dat2a,table(n_marital,e_marital,useNA='if')) %>% addmargins %>%
+  set_colnames(.,gsub('@','',colnames(.))) %>% (function(xx){
+    assign('.tbtmp',xx,envir=.GlobalEnv);xx}) %>%
+  pander(emphasize.strong.cells=cbind(1:7,c(2:4,6:9))
+         ,caption='Marital status has good agreement between NAACCR and EMR. {#tbl:xc_marital}');
 #' 
-#' ### How well does sex match up between the EMRs and NAACCR? {#sec:xcsex}
-#' 
-#' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
-#' record completeness.
-with(dat2a,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=cbind(1:2,1:2));
+#+ xc_sex
+with(dat2a,table(n_sex,sex_cd,useNA = 'ifany')) %>% addmargins() %>% 
+  pander(emphasize.strong.cells=cbind(1:2,1:2)
+         ,caption='Sex has good agreement between NAACCR and EMR. {#tbl:xc_sex}');
+#+ xc_race
+with(dat2a,table(a_n_race,race_cd,useNA = 'ifany')) %>% addmargins() %>% 
+  pander(emphasize.strong.cells=cbind(1:6,1:6)
+         ,caption='Race has good agreement between NAACCR and EMR. {#tbl:xc_race}');
 
-#' ### How well does race match up between the EMRs and NAACCR? {#sec:xcrace}
-#' 
-#' Columns represent NAACCR, rows represent EMR. Whole dataset, not filtered for
-#' record completeness. Bolded values are those which agree between sources.
-with(dat2a,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=cbind(1:6,1:6));
-
-#' ### How well does Hispanic ethnicity match up between the EMRs and NAACCR? {#sec:xchisp}
-#' 
-#' This time columns represent EMR and rows represent NAACCR. Whole dataset, not 
-#' filtered for record completeness.
+#+ xc_hisp0
+.tc <- paste0('Hispanic designation has good agreement between NAACCR and EMR.
+Here the ',fs('n_hisp'),' variable was simplified by binning into `Hispanic` and
+`non-Hispanic`. {#tbl:xc_hisp0}');
 with(dat2a,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
-                               ,'Unknown'='Non_Hispanic'
-                               ,.default='Hispanic')
+                                ,'Unknown'='Non_Hispanic'
+                                ,.default='Hispanic')
                  ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
   `[`(,c('Non_Hispanic','Hispanic')) %>%
-  addmargins() %>% pander(emphasize.strong.cells=cbind(1:2,1:2));
-#' More detailed ethnicity breakdown...
-#' 
-#' Again columns represent EMR and rows represent NAACCR. Whole dataset, not 
-#' filtered for record completeness.
+  addmargins() %>% pander(emphasize.strong.cells=cbind(1:2,1:2),caption=.tc);
+#+ xc_hisp1
+.tc <- paste0('As [@tbl:xc_hisp0] but with all the different levels of '
+,fs('n_hisp'),' shown. {#tbl:xc_hisp1}');
 with(dat2a,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>%
   `[`(,c('Non_Hispanic','Hispanic')) %>%
-  addmargins() %>% pander(emphasize.strong.cells=cbind(1:7,c(1,2,2,2,2,2,2)));
-#' ### Birth Date {#sec:xcdob}
-#' 
-#' If we look at all patients with NAACCR records rather than just the ones 
-#' meeting inclusion criteria, the number of birth date mismatches is still low:
-#' `r length(kcpatients.bad_dob)`. There are also a few `r fs('n_dob')` 
-#' birthdates for patients who do _not_ have an `r fs('n_ddiag')`.
-#' 
-#' A total of `r length(kcpatients.bad_dob)` patients have a mismatch 
-#' between  their NAACCR and EMR birthdates and 
-#' `r length(kcpatients.naaccr_bad_dob)` are part of the 
+  addmargins() %>% pander(emphasize.strong.cells=cbind(1:7,c(1,2,2,2,2,2,2))
+                          ,caption=.tc);
+#+ xc_dob
 .tcap <- paste0(
-  "Below is a summary of ",fs('birth_date')," minus ",fs('n_dob')
-  ," for the ",length(kcpatients.naaccr_bad_dob)," patients with non-matching 
-  dates of birth.");
+  "Below is a summary of ",fs('birth_date')," - ",fs('n_dob')
+," (in years) for the patients with non-matching dates of birth mentioned in 
+[@sec:linkagever]. Though there are only ",length(kcpatients.naaccr_bad_dob)
+," of them those few deviate by multiple years from the EMR 
+records. {#tbl:xc_dob}");
 
 dat0[!is.na(dat0[[cstatic_n_dob]]) & 
        dat0$patient_num%in%kcpatients.naaccr_bad_dob
@@ -743,147 +788,91 @@ dat0[!is.na(dat0[[cstatic_n_dob]]) &
   apply(2,as.Date) %>% apply(1,diff) %>% `/`(365.25) %>% summary %>% 
   pander(caption=.tcap);
 #' 
-#' The `r length(kcpatients.naaccr_bad_dob)` patients with otherwise complete 
-#' records but mismatched birth dates vary by huge amounts from the EMR versions
-#' of their respective birth dates. However, as can be seen below in 
-#' [@sec:xcdobdem] the `r length(kcpatients.bad_dob)` total patients with DOB 
-#' mismatches are not particularly enriched for other mismatches tested so far 
-#' which is consistent with isolated errors in those respective variables rather 
-#' than some subset of patients continuing to be incorrectly linked.
-#' 
-#' #### How well do demographic variables match up for just the patients with mismatched birthdates? {#sec:xcdobdem}
-#' 
-#' ##### Sex
+#' **Divergent birth dates may become an exclusion criterion for analyses where 
+#' age is a covariate**. However there is no evidence for increased disagreement 
+#' between NAACCR and EMR for other variables among the patients from 
+#' [@tbl:xc_dob] according to  
+#' [@tbl:xc_dob_marital; @tbl:xc_dob_sex; @tbl:xc_dob_race; @tbl:xc_dob_hisp] 
+#' which are like 
+#' [@tbl:xc_marital; @tbl:xc_sex; @tbl:xc_race; @tbl:xc_hisp0] but tallied up 
+#' for only those 
+#' `r length(kcpatients.naaccr_bad_dob)` patients.
 #' 
 #+ dat2_bad_dob, cache=TRUE
 dat2_bad_dob <- subset(dat2a,patient_num %in% kcpatients.bad_dob);
-
-#' Columns represent NAACCR, rows represent EMR. Only DOB mismatched patients.
-with(dat2_bad_dob,table(sex_cd,n_sex,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
-
-#' ##### Race
-#' 
-#' Columns represent NAACCR, rows represent EMR. Only DOB mismatched patients.
-with(dat2_bad_dob,table(race_cd,a_n_race,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4)));
-
-#' ##### Hispanic ethnicity
-#' 
-#' This time columns represent EMR and rows represent NAACCR. Only DOB 
-#' mismatched patients.
+#+ xc_dob_marital
+with(dat2_bad_dob,table(n_marital,e_marital,useNA = 'ifany')) %>%
+  set_colnames(.,gsub('@','',colnames(.))) %>%
+  pander(emphasize.strong.cells=cbind(1:7,c(2:4,6:9))
+         ,caption='Marital status, for DOB-mismatched patients. {#tbl:xc_dob_marital}');
+#+ xc_dob_sex
+with(dat2_bad_dob,table(n_sex,sex_cd,useNA = 'ifany')) %>% addmargins() %>% 
+  pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2))
+         ,caption='Sex, for DOB-mismatched patients {#tbl:xc_dob_sex}');
+#+ xc_dob_race
+with(dat2_bad_dob,table(a_n_race,race_cd,useNA = 'ifany')) %>% addmargins() %>% 
+  pander(emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4))
+         ,caption='Race, for DOB-mismatched patients {#tbl:xc_dob_race}');
+#+ xc_dob_hisp
 with(dat2_bad_dob,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                                       ,'Unknown'='Non_Hispanic'
                                       ,.default='Hispanic')
                         ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
   `[`(,c('Non_Hispanic','Hispanic')) %>%
-  addmargins() %>% pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2)));
-#'
-#' ##### Nephrectomy according to EMR preceding diagnosis according to NAACCR
-#' 
-#' Only complete NAACCR records with mismatched DOBs.
-#' 
-#' Looks like the `r length(kcpatients.naaccr_bad_dob)` DOB-mismatched patients 
-#' otherwise meeting completeness criteria for kidney cancer records do not 
-#' coincide with the set of patients seeming to have nephrectomies prior to 
-#' their NAACCR diagnoses.
+  addmargins() %>% pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2))
+                          ,caption='Hispanic ethnicity, for DOB-mismatched patients {#tbl:xc_dob_hisp}');
+#+ xc_dob_surg
 dat3_bad_dob <- subset(dat3,patient_num %in% kcpatients.bad_dob);
 mutate_all(dat3_bad_dob[,v(c_nephx)]
            # break each column 
            ,function(xx) cut(xx-dat3_bad_dob$n_ddiag
                              ,breaks=c(-Inf,-.00001,.00001,Inf)
                              ,lab=c('before','same-day','after'),include=T)) %>%
-  sapply(table,useNA='always') %>% t %>% pander();
+  sapply(table,useNA='always') %>% t %>% 
+  pander(caption='There is also no increase in EMR nephrectomy dates preceding 
+diagnosis among the DOB-mismatched patients (see [@tbl:neph_b4_diag]). This 
+suggests that other dates associated with these patients are not systematically
+wrong. {#tbl:xc_dob_surg}');
 #'
 #  event indicators -------------------------------------------------------------
 #' ## Which EMR and NAACCR variables are reliable event indicators? {#sec:vartrn}
 #' 
-#' When multiple elements in the raw data refer to the same observation, a decisions
-#'  and they may need to be merged
-#' into a single variable for analysis... assuming that they  Whey the observation is an event like 
-#' 
-#' events, both data sources have multiple variables some or all of which could 
-#' be indicators. We will likely need to merge groups of synonymous variables 
-#' into one analytic variable each for NAACCR and for the EMR. This is to
-#' mitigate for missing data. We can then do the same analysis on the same 
-#' patients using NAACCR-only variables and EMR-only variables confirm that
-#' they agree. If we can either show agreement or find and resolve the causes
-#' of discrepancy this will permit other sites, which have not necessarily 
-#' merged NAACCR and EMR data, to replicate our analysis. It will also allow us
-#' to compare our results to national or Texas NAACCR data-sets which of course
-#' are not linked to EMR data.
-#' 
-#' However, there will be even fewer missing observations and a richer choice of 
-#' predictor variables if we work on a combined NAACCR and EMR dataset. 
-#' Therefore for each of the below we will also need a third analytic variable 
-#' combining NAACCR and EMR information. 
-#' 
-#' Our standard way of indexing time in this study is `r fs('age_at_visit_days')`. 
-#' The main table `dat1` will be collapsed into one row per patient, and the 
-#' value for each of the above columns will be replaced with the age in days 
-#' when that event was recorded (if any, otherwise `NA`). This table will be 
-#' called `dat3`. 
+#' For each of the main analytic variables `r fs('a_tdiag')`, `r fs('a_tsurg')`,
+#' `r fs('a_trecur')`, and `r fs('a_tdeath')` / `r fs('n_vtstat')` there were 
+#' multiple candidate data elements in the raw EMR and NAACCR data. If such a 
+#' family of temporal values is in good agreement with each other overall, 
+#' then individual missing dates can be filled in by taking the earliest 
+#' non-missing dates from equivalent data elements (except for mortality where 
+#' the latest non-missing date would be the logical choice). In addition
+#' to the qualitative agreement I needed to establish for demographic variables 
+#' in [@sec:linkagever] and [@sec:xchecks] here I needed to determine how often 
+#' they lag or lead each other and by how much. The plots in this section use 
+#' the y-axis to represent time for patient records arranged along the x-axis. 
+#' They are arranged in an order that varies from one plot to another, chosen 
+#' for visual interpretability. Each vertical slice of a plot represents one 
+#' patient's history, with different colors representing events as documented by
+#' different data elements. The goal is to see the frequency, magnitude, and 
+#' direction of divergence for several related variables at the same time.
 #' 
 #  diagnosis ====================================================================
 #' ### Initial diagnosis {#sec:diag}
 #' 
-#' The `c_kcdiag` group of columns in `dct0`.
-#' 
-#' * NAACCR: `r fs('n_ddiag')`. The other two-- the date accompanying the SEER 
-#'   site and the date accompanying the NAACCR primary site-- are not date 
-#'   fields in NAACCR, so whatever `r fs('start_date')` they are getting 
-#'   assigned must be from our ETL process, not NAACCR and that is the code I 
-#'   will need to review. There is data element 443, [Date Conclusive
-#'   DX](http://datadictionary.naaccr.org/default.aspx?c=10#443) but that is never
-#'   recorded in our NAACCR. All other NAACCR data elements containing the word
-#'   'date' seem to be retired or related to later events, not initial diagnosis.
-#'   Whatever the case, there are only `r nrow(subset(dat3,is.na(n_ddiag)))`
-#'   patients with a missing date of diagnosis but non-missing dates for the 
-#'   SEER site variable, so within the range of reasonable error at the NAACCR 
-#'   end. __Therefore `r fs('n_ddiag')` is the only NAACCR variable on which we 
-#'   can rely for onset.__
-#' * EMR: First occurence of any ICD9/10 code for kidney cancer. Naively, I had
-#'   hoped that the first ICD9/10 code for kidney cancer would closely track the
-#'   date for the `r fs('n_ddiag')`. Unfortunately, as can be seen from the 
-#'   below table, for the `r sum(!is.na(dat3$n_ddiag))` patients who have 
-#'   non-missing `r fs('n_ddiag')` values, the first ICD9 and first ICD10 code most 
-#'   often occurs after initial diagnosis, sometimes before the date of 
-#'   diagnosis, and coinciding with the date of diagnosis rarest of all. By 
-#'   inspection I found that several of the ICD9/10 first observed dates lead or 
-#'   trail the `r fs('n_ddiag')` by multiple years! **Therefore, one or both of 
-#'   the following steps are needed before EMR data can be relied on at all for 
-#'   establishing date of onset** :
-#'     * Meeting with CTRC NAACCR registrar to see how she obtains her dates of 
-#'       onset
-#'     * Chart review of a sample of NAACCR patients to understand what 
-#'       information visible in Epic sets them apart from non kidney cancer 
-#'       patients.
-#'     * Chart review of the 60-100 patients with ICD9/10 codes for kidney 
-#'       cancer that seemingly pre-date their `r fs('n_ddiag')`.
-#' * May need to exclude all but the first occurence for patients with 
-#'         multiple NAACCR entries.
-#' * Question: How would one distinguish the chart of a patient who is was 
-#'   diagnosed for the first time with a kidney tumor from that of a patient 
-#'   experiencing a relapse... (_need to reach out to Grace_)
-#'     * ...in Epic?
-#'     * ...in Sunrise?
-#+ dat3_icdtimes,cache=TRUE
-# select the diagnosis-related variables
-dat3[,v(c_kcdiag)] %>% 
-  # subtract from each column the 'n_ddiag' value if present
-  # divide by one year and remove patients with missing 'n_ddiag'
-  `-`(.,with(.,n_ddiag)) %>% `/`(365.25) %>% subset(!is.na(n_ddiag)) %>% 
-  with({
-    # in the scope of the resulting data frame create a throwaway function to 
-    # break up each variable into before, roughly coincident with, or after 
-    # 'n_ddiag'
-    ff<-function(xx) cut(xx,breaks=c(-Inf,-7/365.25,7/365.25,Inf)
-                         ,labels=c('before','+/- 2 weeks','after'),include = T); 
-    # use this function to make our table
-    table(ICD9=ff(e_kc_i9),ICD10=ff(e_kc_i10),useNA = 'if')}) %>% addmargins() %>% 
-  # format for viewing
-  pander();
-#' 
+#' At this time only `r fs('n_ddiag')` is usable for calculating 
+#' `r fs('a_tdiag')`. Initially `r fs('n_fc')` was considered as an additional
+#' NAACCR source along with the earliest EMR records of `r fs('e_kc_i9')` and 
+#' `r fs('e_kc_i10')`. 
+#' [`0443 Date Conclusive DX`](http://datadictionary.naaccr.org/default.aspx?c=10#443) 
+#' is never used by our NAACCR. All other NAACCR data elements containing the 
+#' word 'date' seem to be retired or related to events after initial diagnosis.
+#' `r fs('n_fc')` was disqualified because it never precedes `r fs('n_ddiag')` 
+#' but often trails behind `r fs('n_dsurg')`, see [@fig:diag2lc_eventplot]. 
+#' [I will need to consult with a NAACCR registrar about what `r fs('n_fc')` actually means]{.note2self custom-style="note2self"} 
+#' but it does not appear to be a first visit nor first diagnosis. As can be 
+#' seen in [@fig:diag_plot] and [@tbl:diag_lag], the first ICD9 or ICD10 code 
+#' most often occurs after initial diagnosis, sometimes before the date of 
+#' diagnosis, and coinciding with the date of diagnosis rarest of all. Several 
+#' of the ICD9/10 first observed dates lead or trail the `r fs('n_ddiag')` by 
+#' multiple years.
 #' 
 #' ::::: {#fig:diag_plot custom-style="Image Caption"}
 #+ diag_plot,results='asis'
@@ -908,21 +897,55 @@ cat('\n\nHere is a plot centered on ',fs('n_ddiag')
 .eplot_diag_summ <- summary(with(.ev_diag_plot
                                  ,cut(pmin(e_kc_i10,e_kc_i9,na.rm=T)
                                       ,c(-Inf,-3,-.001,.001,3,Inf))));
+#'
+#+ dat3_icdtimes,cache=TRUE
+.tc <- paste0('
+For patients with NAACCR records, how often do ICD9 or ICD10 codes for kidney 
+cancer in the EMR lead or trail ',fs('n_ddiag'),' and by how 
+much? {#tbl:diag_lag}');
+
+# select the diagnosis-related variables
+dat3[,v(c_kcdiag)] %>% 
+  # subtract from each column the 'n_ddiag' value if present
+  # divide by one year and remove patients with missing 'n_ddiag'
+  `-`(.,with(.,n_ddiag)) %>% `/`(365.25) %>% subset(!is.na(n_ddiag)) %>% 
+  with({
+    # in the scope of the resulting data frame create a throwaway function to 
+    # break up each variable into before, roughly coincident with, or after 
+    # 'n_ddiag'
+    ff<-function(xx) cut(xx,breaks=c(-Inf,-7/365.25,7/365.25,Inf)
+                         ,labels=c('before','+/- 2 weeks','after'),include = T); 
+    # use this function to make our table
+    table(ICD9=ff(e_kc_i9),ICD10=ff(e_kc_i10),useNA = 'if')}) %>% addmargins() %>% 
+  # format for viewing
+  pander(caption=.tc);
 #' 
-#' From this we can conclude that for most patients 
-#' (`r sum(.eplot_diag_summ[2:4])`), the first EMR code is recorded 
-#' within 3 months of first diagnosis as recorded by NAACCR. Of those with a 
-#' larger time difference, the majority (`r .eplot_diag_summ[5]`) have their 
-#' first EMR code occur _after_ first NAACCR diagnosis. Only 
+#' 
+#' For most patients (`r sum(.eplot_diag_summ[2:4])`), the first EMR code is 
+#' recorded within 3 months of first diagnosis as recorded by NAACCR. Of those 
+#' with a larger time difference, the majority (`r .eplot_diag_summ[5]`) have 
+#' their first EMR code _after_ first `r fs('n_ddiag')`. Only 
 #' `r .eplot_diag_summ[1]` patients have ICD9/10 diagnoses that precede their
-#' NAACCR diagnoses by more than 3 months. And additional `r .eplot_diag_summ[2]`
-#' patients have first EMR diagnoses that precede NAACCR diagnosis by less than
-#' three months. These might need to be eliminated from the sample on the 
-#' grounds of not being first occurrences of kidney cancer. However, we cannot 
+#' `r fs('n_ddiag')` by more than 3 months. And additional `r .eplot_diag_summ[2]`
+#' patients have first EMR diagnoses that precede `r fs('n_ddiag')` by less than
+#' three months. **These might need to be eliminated from the sample on the 
+#' grounds of not being first occurrences of kidney cancer.** However, we cannot 
 #' back-fill missing NAACCR records or NAACCR records lacking a diagnosis date 
-#' because there is too frequently a difference between the the two sources, and 
+#' because there is too frequently disagreement between the the two sources, and 
 #' the EMR records are currently biased toward later dates.
 #' 
+#' [I will need to meet with the MCC NAACCR registrar to see how she obtains 
+#' her dates of initial diagnosis and I will need to do a chart review of a 
+#' sample of NAACCR patients to understand what information visible in Epic sets 
+#' them apart from kidney cancer patients without NAACCR records. I will also 
+#' need to do a chart review of the patients with ICD9/10 codes for kidney 
+#' cancer that seemingly pre-date their `r fs('n_ddiag')`. There are 
+#' `r length(kcpatients.naaccr_dupe)` patients with multiple NAACCR records. I 
+#' will need to learn how NAACCR distinguishes their first occurrences and see 
+#' if **restricting the NAACCR data to just first occurrences will diminish the
+#' number of EMR diagnoses preceding those in NAACCR.** It will also be helpful
+#' to learn whether there is anything in the EMR other than lack of previous
+#' which distinguishes first kidney cancer occurrences]{.note2self custom-style='note2self'}
 #  surgery ======================================================================
 #' ### Surgery {#sec:surg}
 #' 
@@ -1001,12 +1024,17 @@ pander(dat3_surg_summary);
 #' Sunrise EMR). But for the V or Z or surgical history codes that precede 
 #' `r fs('n_ddiag')`, it could mean that those NAACCR cases are not first-time 
 #' occurrences. How big of a problem is this?
+#' 
 #+ before_sameday_after_00,cache=TRUE
 mutate_all(dat3[,v(c_nephx)]
            # break each column 
            ,function(xx) cut(xx-dat3$n_ddiag,breaks=c(-Inf,-.00001,.00001,Inf)
                              ,lab=c('before','same-day','after'),include=T)) %>%
-  sapply(table,useNA='always') %>% t %>% pander();
+  sapply(table,useNA='always') %>% t %>% 
+  pander(caption='
+How often do ICD9/10 or surgical history codes for nephrectomy precede diagnosis
+and by how much? {#tbl:neph_b4_diag}');
+
 #' Not too bad. Though we cannot trust the ICD9/10 codes as replacements for
 #' missing surgery dates, there are few enough of them preceding diagnosis that
 #' we can remove them as source data errors without ruining the sample size.
@@ -1055,12 +1083,12 @@ lines(.eplot_surg0$icd,type='s',col='#FF00FF50');
 with(.eplot_surg0,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
 
 cat("\n\nAbove is a plot of all patients sorted by "
-    ,fs('n_dsurg')," (black line).  On the same axis is ",fs('n_rx3170')
-    ," (red line) which is almost  identical to ",fs('n_dsurg')," except for a small
-    number of cases where it occurs later than ",fs('n_dsurg'),". It never occurs
-    earlier. The purple lines indicate for each patient the earliest EMR code
-    implying that a surgery had taken place (acquired absence of kidney ICD V/Z 
-    codes or surgical history of nephrectomy)");
+,fs('n_dsurg')," (black line).  On the same axis is ",fs('n_rx3170')
+," (red line) which is almost  identical to ",fs('n_dsurg')," except for a small
+number of cases where it occurs later than ",fs('n_dsurg'),". It never occurs
+earlier. The purple lines indicate for each patient the earliest EMR code
+implying that a surgery had taken place (acquired absence of kidney ICD V/Z 
+codes or surgical history of nephrectomy)");
 #' :::::
 #' 
 #' 
@@ -1085,10 +1113,10 @@ lines(.eplot_surg0$n_rx1270,col='#00FF0060',type='s');
 lines(.eplot_surg0$n_rx1260,col='#00FFFF60',type='s');
 
 cat("\n\nIn the above plot the ",fs('n_rx1270')," (green) and "
-    ,fs('n_rx1260')," (cyan) events are superimposed on time till ",fs('n_dsurg')
-    ," like in [@fig:surg0_plot0] (but purple lines for nephrectomy EMR codes are 
-    omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
-    ," variables trend earlier than ",fs('n_dsurg'));
+,fs('n_rx1260')," (cyan) events are superimposed on time till ",fs('n_dsurg')
+," like in [@fig:surg0_plot0] (but purple lines for nephrectomy EMR codes are 
+omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
+," variables trend earlier than ",fs('n_dsurg'));
 #' :::::
 #' 
 #' 
@@ -1112,17 +1140,17 @@ with(.eplot_surg1,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
 lines(.eplot_surg1$n_rx1270,col='#00FF0060',type='s');
 lines(.eplot_surg1$n_rx1260,col='#00FFFF60',type='s');
 cat("
-    
-    Above is a plot equivalent to [@fig:surg0_plot1] but for patients who do _not_
-    have a ",fs('n_surgreason')," code equal to `Surgery Performed`. There are many "
-    ,fs('n_rx1270')," and ",fs('n_rx1260')," events but only a small number of "
-    ,fs('n_dsurg')," (black) and ",fs('n_rx3170')," (red). The ",fs('n_dsurg')
-    ," and ",fs('n_rx3170')," that do occur track each other perfectly. Together 
-    with NAACCR data dictionary's description this suggests that ",fs('n_rx3170')
-    ," is the correct principal surgery date in close agreement with "
-    ,fs('n_dsurg'),", so perhaps missing ",fs('n_rx3170')," values can be filled in
-    from ",fs('n_dsurg'),". However ",fs('n_rx1270')," and ",fs('n_rx1260')
-    ," seem like non-primary surgeries or other events"); 
+
+Above is a plot equivalent to [@fig:surg0_plot1] but for patients who do _not_
+have a ",fs('n_surgreason')," code equal to `Surgery Performed`. There are many "
+,fs('n_rx1270')," and ",fs('n_rx1260')," events but only a small number of "
+,fs('n_dsurg')," (black) and ",fs('n_rx3170')," (red). The ",fs('n_dsurg')
+," and ",fs('n_rx3170')," that do occur track each other perfectly. Together 
+with NAACCR data dictionary's description this suggests that ",fs('n_rx3170')
+," is the correct principal surgery date in close agreement with "
+,fs('n_dsurg'),", so perhaps missing ",fs('n_rx3170')," values can be filled in
+from ",fs('n_dsurg'),". However ",fs('n_rx1270')," and ",fs('n_rx1260')
+," seem like non-primary surgeries or other events"); 
 #' :::::
 #' 
 #' 
@@ -1210,13 +1238,13 @@ with(.eplot_recur0,abline(v=which(patient_num %in%
                           ,col='#00FF0020',lwd=2));
 points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
 cat("
-    
-    In the above plot, the black line represents months elapsed between surgery and
-    the first occurence of an EMR code for secondary tumors, if any. The horizontal
-    red line segments indicate individual ",fs('n_drecur'),". The blue horizontal
-    line is the date of surgery. Patients whose status ",fs('n_rectype')," is 
-    `Disease-free` are highlighted in green, `Never disease-free` in yellow, and
-    `Recurred` in red");
+
+In the above plot, the black line represents months elapsed between surgery and
+the first occurence of an EMR code for secondary tumors, if any. The horizontal
+red line segments indicate individual ",fs('n_drecur'),". The blue horizontal
+line is the date of surgery. Patients whose status ",fs('n_rectype')," is 
+`Disease-free` are highlighted in green, `Never disease-free` in yellow, and
+`Recurred` in red");
 #' :::::
 #' 
 #' 
@@ -1280,17 +1308,16 @@ abline(h=0,col='blue');
 if(length(.xch_vtstat_lc_death)!=length(.xch_vtstat_lc)){
   stop('.xch_vtstat_lc check failed')};
 cat("
-    
-    Above are plotted times of death (for patients that have them) relative to "
-    ,fs('n_ddiag')," (horizontal blue line). The four data sources are "
-    ,fs('e_death')," (![](resources/pinktriangle.png){width=10}), ",fs('s_death')
-    ," (![](resources/blueinvtriangle.png){width=10}), ",fs('e_dscdeath')
-    ," (![](resources/greencross.png){width=10}), and ",fs('n_vtstat')
-    ," (![](resources/browncircle.png){width=10})");
+
+Above are plotted times of death (for patients that have them) relative to "
+,fs('n_ddiag')," (horizontal blue line). The four data sources are "
+,fs('e_death')," (![](resources/pinktriangle.png){width=10}), ",fs('s_death')
+," (![](resources/blueinvtriangle.png){width=10}), ",fs('e_dscdeath')
+," (![](resources/greencross.png){width=10}), and ",fs('n_vtstat')
+," (![](resources/browncircle.png){width=10})");
 #' :::::
 #' 
 #' 
-#' Here are some crosschecks on the NAACCR-only death indicator `r fs('n_vtstat')`.
 #' Overall there are `r length(kcpatients.naaccr_death)` patients that according
 #' to `r fs('n_vtstat')` are deceased. For all `r length(.xch_vtstat_lc)` of these
 #' patients, _and only for them_, the condition also holds that `r fs('n_vtstat')` 
