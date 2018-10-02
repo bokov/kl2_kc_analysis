@@ -522,7 +522,7 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' 
 #' More data can be acquired by reclaiming values that are currently
 #' inconsistent or missing. There are various ad-hoc consistency checks 
-#' described in [@sec:xchecks; @sec:diag; @sec:surg]{.note2self custom-style="note2self"}. 
+#' described in [-@sec:xchecks; -@sec:diag; -@sec:surg]
 #' I need to gather these checks in one place and 
 #' systematically run them on every patient to get a total count of records that
 #' need manual chart review (Dr. Rodriguez's protocol) and for each record a 
@@ -1184,6 +1184,9 @@ lapply(v(c_nephx,dat2a)[6:9],function(ii)
 #' have [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772).
 #' According to the v16 standard, instead `r fs('n_lc')` should be used.
 #' Now we can reconcile `r fs('n_cstatus')` and `r fs('n_rectype')`. 
+#' 
+#' ###### blank
+#' 
 #+ rectype_cstatus
 .tc <- paste0('Almost all ',fs('n_cstatus'),' `Tumor_Free` patients also have a 
 `Disease-free` in their ',fs('n_rectype'),' column, the `Tumor` ones have a 
