@@ -1453,11 +1453,12 @@ consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>%
 #' 
 #' ::::: {#fig:diag2lc_eventplot custom-style="Image Caption"}
 #+ diag2lc_eventplot,results='asis'
+par(xaxt='n');
 .eplot_fc <-event_plot(subset(dat3,!patient_num %in% kcpatients.naaccr_dupe)
                        ,'n_lc','n_fc',start_event = 'n_ddiag'
                        ,main='Time from Diagnosis to Last Contact'
                        ,ylab='Months Since Diagnosis'
-                       ,xlab='Patients, sorted by Last Contact'
+                       ,xlab='Patients, sorted by Last Contact\n'
                        ,tunit = 'mon'
                        ,ltys = c(1,1));
 abline(h=0,col='blue');
