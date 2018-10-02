@@ -39,7 +39,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 
 default_font <- 'Times New Roman';
@@ -775,6 +775,7 @@ with(dat2a,table(n_hisp,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>
   `[`(,c('Non_Hispanic','Hispanic')) %>%
   addmargins() %>% pander(emphasize.strong.cells=cbind(1:7,c(1,2,2,2,2,2,2))
                           ,caption=.tc);
+# xc_dob -----------------------------------------------------------------------
 #+ xc_dob
 .tcap <- paste0(
   "Below is a summary of ",fs('birth_date')," - ",fs('n_dob')
@@ -800,7 +801,8 @@ dat0[!is.na(dat0[[cstatic_n_dob]]) &
 #' `r length(kcpatients.naaccr_bad_dob)` patients.
 #' 
 #+ dat2_bad_dob, cache=TRUE
-dat2_bad_dob <- subset(dat2a,patient_num %in% kcpatients.bad_dob);
+dat2_bad_dob <- subset(dat2a,patient_num %in% 
+                         intersect(kcpatients.bad_dob,kcpatients.naaccr));
 #+ xc_dob_marital
 with(dat2_bad_dob,table(n_marital,e_marital,useNA = 'ifany')) %>%
   set_colnames(.,gsub('@','',colnames(.))) %>%
@@ -951,12 +953,117 @@ dat3[,v(c_kcdiag)] %>%
 #  surgery ======================================================================
 #' ### Surgery {#sec:surg}
 #' 
-#' * NAACCR: 
-#'      * In addition to `r fs('n_dsurg')`) the following possibly relevant 
-#'        fields are available in our local NAACCR:
-#'          * `r fs('n_rx1260')`
-#'          * `r fs('n_rx1270')`
-#'          * `r fs('n_rx3170')`
+#' To construct `r fs('a_tsurg')` I considered `r fs('n_dsurg')`, 
+#' `r fs('n_rx1260')`, `r fs('n_rx1270')`, and `r fs('n_rx3170')` from NAACCR 
+#' and earliest occurrences of `r fs('e_i9neph')`, `r fs('e_i10neph')`, or 
+#' `r fs('e_hstneph')` from the EMR. In the plots and tables below I show
+#' why I decided to use `r fs('n_rx3170')` as the surgery date and then that is
+#' unavailable, falling back on `r fs('n_dsurg')`. The other data elements are
+#' not used **except to flag potentially incorrect records if they occur earlier
+#' than the date of diagnosis**.
+#' 
+#' ::::: {#fig:surg0_plot0 custom-style="Image Caption"}
+#+ surg0_plot0,results='asis'
+par(xaxt='n');
+.eplot_surg0 <- mutate(dat3,nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
+  event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
+             ,main='Time from Diagnosis to Surgery'
+             ,ylab='Months Since Diagnosis'
+             ,xlab='Patients, sorted by time to surgery\n\n\n'
+             ,subset=bquote(patient_num %in% intersect(
+               kcpatients_surgreason$`Surgery Performed`
+               ,kcpatients.naaccr))
+             ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
+             ,ylim=c(-10,60));
+abline(h=0,col='blue');
+.eplot_surg0$icd <- apply(.eplot_surg0[,c('e_i9neph','e_i10neph','e_hstneph')]
+                          ,1,min,na.rm=T);
+.eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
+lines(.eplot_surg0$icd,type='s',col='#FF00FF50');
+with(.eplot_surg0,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
+
+cat("\n\nAbove is a plot of all patients sorted by "
+    ,fs('n_dsurg')," (black line).  On the same axis is ",fs('n_rx3170')
+    ," (red line) which is almost  identical to ",fs('n_dsurg')," except for a small
+number of cases where it occurs later than ",fs('n_dsurg'),". It never occurs
+earlier. The purple lines indicate for each patient the earliest EMR code
+implying that a surgery had taken place (acquired absence of kidney ICD V/Z 
+codes or surgical history of nephrectomy)");
+#' :::::
+#' 
+#' In [@fig:surg0_plot0] the `r sum(with(.eplot_surg0,icd<n_dsurg),na.rm=T)` 
+#' patients for which one or more EMR codes are recorded prior to 
+#' `r fs('n_dsurg')` are highlighted in yellow. Of the 
+#' `r sum(!is.na(.eplot_surg0$icd))` patients who have an EMR code for 
+# nephrectomy, `r sum(!is.na(.eplot_surg0$icd)&.eplot_surg0$icd
+#' 
+#' ::::: {#fig:surg0_plot1 custom-style="Image Caption"}
+#+ .surg0_plot1,results='asis'
+par(xaxt='n');
+.eplot_surg0 <- mutate(dat3,nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
+  event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
+             ,main='Time from Diagnosis to Surgery'
+             ,ylab='Months Since Diagnosis'
+             ,xlab='Patients, sorted by time to surgery\n\n\n'
+             ,subset=bquote(patient_num %in% intersect(
+               kcpatients_surgreason$`Surgery Performed`
+               ,kcpatients.naaccr))
+             ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
+             ,ylim=c(-10,60));
+abline(h=0,col='blue');
+lines(.eplot_surg0$n_rx1270,col='#00FF0060',type='s');
+lines(.eplot_surg0$n_rx1260,col='#00FFFF60',type='s');
+
+cat("\n\nIn the above plot the ",fs('n_rx1270')," (green) and "
+    ,fs('n_rx1260')," (cyan) events are superimposed on time till ",fs('n_dsurg')
+    ," like in [@fig:surg0_plot0] (but purple lines for nephrectomy EMR codes are 
+omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
+    ," variables trend earlier than ",fs('n_dsurg'));
+#' :::::
+#' 
+#' ###### blank
+#' 
+#' ::::: {#fig:surg1_plot custom-style="Image Caption"}
+#+ .surg1_plot,results='asis'
+par(xaxt='n');
+.eplot_surg1 <- mutate(dat3,nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
+  event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
+             ,main='Time from Diagnosis to Surgery'
+             ,ylab='Months Since Diagnosis'
+             ,xlab='Patients, sorted by time to surgery\n\n\n'
+             ,subset=bquote(patient_num %in% intersect(
+               kcpatients_surgreason$`Surgery Performed`
+               ,kcpatients.naaccr))
+             ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
+             ,ylim=c(-10,60));
+abline(h=0,col='blue');
+.eplot_surg1$icd <- apply(.eplot_surg1[,v(c_nephx,dat3)[1:5]],1,min,na.rm=T);
+.eplot_surg1$icd[is.infinite(.eplot_surg1$icd)]<-NA;
+lines(.eplot_surg1$icd,type='s',col='#FF00FF50');
+with(.eplot_surg1,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
+lines(.eplot_surg1$n_rx1270,col='#00FF0060',type='s');
+lines(.eplot_surg1$n_rx1260,col='#00FFFF60',type='s');
+cat("
+
+Above is a plot equivalent to [@fig:surg0_plot1] but for patients who do _not_
+have a ",fs('n_surgreason')," code equal to `Surgery Performed`. There are many"
+    ,fs('n_rx1270')," and ",fs('n_rx1260')," events but only a small number of "
+    ,fs('n_dsurg')," (black) and ",fs('n_rx3170')," (red). The ",fs('n_dsurg')
+    ," and ",fs('n_rx3170')," that do occur track each other perfectly. Together 
+with NAACCR data dictionary's description this suggests that ",fs('n_rx3170')
+    ," is the correct principal surgery date in close agreement with "
+    ,fs('n_dsurg'),", so perhaps missing ",fs('n_rx3170')," values can be filled in
+from ",fs('n_dsurg'),". However ",fs('n_rx1270')," and ",fs('n_rx1260')
+    ," seem like non-primary surgeries or other events"); 
+#' :::::
+#' 
+#' ###### blank
+#' 
+#' Typically 2-4 weeks elapse between diagnosis and surgery. Providers try to 
+#' not exceed 4 weeks. Nevertheless years may sometimes elapse due to factors 
+#' such as an indolent tumors or loss of contact with the patient. About 15% of 
+#' patients never undergo surgery [@pcRodriguez2018].
+#' 
 #'      * Here are the questions raised:
 #'          * Do they agree with `r fs('n_dsurg')` sufficiently that missing 
 #'            `r fs('n_dsurg')` can be backfilled from some or all of them?
@@ -964,30 +1071,17 @@ dat3[,v(c_kcdiag)] %>%
 #'            rather dates for something else?
 #'          * How accurate is `r fs('n_surgreason')` in distinguishing surgical 
 #'            cases from non-surgical cases as per EMR records?
-#' * EMR: First occurrence of any ICD9/10 code for acquired absence of 
-#'   kidney; or first occurence of surgical history of nephrectomy. How much do 
-#'   they agree with NAACCR?
 #' * Question: Where in the chart would one positively establish the date of the 
 #'   patient's first nephrectomy...
+#'   
 #'     * ...in Epic?
 #'     * ...in Sunrise?
-#' * Question: What is the typical time that elapses between diagnosis and 
-#'   surgery?
-#'     * Answer (RR): 2-4 weeks, try to avoid more than 4
 #' * Question: Is it possible for surgery to happen on the same day as the 
 #'   diagnosis? How common is that?
 #'     * Answer (RR): Fairly common, if NAACCR diagnosis based on pathology 
 #'       rather than clinical examination, which is usually technically a renal 
 #'       mass, not a cancer. Might want to use imaging result date as the date 
 #'       of diagnosis if it isn't already being used as such.
-#' * Question: What would be the threshold on the lag to surgery until we must 
-#'   conclude that there is an error in that record? E.g. is four years too 
-#'   long?
-#'     * Answer (RR): No, there are a few local cases that took over a decade to 
-#'       get to surgery for various reasons (e.g. indolent tumor, or contact 
-#'       lost with patient).
-#' * Question: What fraction of KC patients do not undergo surgery?
-#'     * Answer (RR): Around 15%
 #'     
 #+ dat3_surg, cache=TRUE
 # make each date of surgery proxy relative to date of diagnosis
@@ -1063,100 +1157,6 @@ and by how much? {#tbl:neph_b4_diag}');
 # both relative to date of diagnosis, `n_dsdisc` either coincides with `r fs('n_dsurg')`
 # or lags by multiple weeks, as might be expected of a discharge date (what is 
 # the plausible threshold on time from surgery to discharge?).
-#' 
-#' 
-#' ::::: {#fig:surg0_plot0 custom-style="Image Caption"}
-#+ surg0_plot0,results='asis'
-par(xaxt='n');
-.eplot_surg0 <- subset(dat3,patient_num %in% 
-                         kcpatients_surgreason$`Surgery Performed`) %>% 
-  mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
-  event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
-             ,main='Time from Diagnosis to Surgery'
-             ,ylab='Months Since Diagnosis'
-             ,xlab='Patients, sorted by time to surgery\n\n\n'
-             ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
-             ,ylim=c(-10,60));
-abline(h=0,col='blue');
-.eplot_surg0$icd <- apply(.eplot_surg0[,c('e_i9neph','e_i10neph','e_hstneph')]
-                          ,1,min,na.rm=T);
-.eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
-lines(.eplot_surg0$icd,type='s',col='#FF00FF50');
-with(.eplot_surg0,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
-
-cat("\n\nAbove is a plot of all patients sorted by "
-,fs('n_dsurg')," (black line).  On the same axis is ",fs('n_rx3170')
-," (red line) which is almost  identical to ",fs('n_dsurg')," except for a small
-number of cases where it occurs later than ",fs('n_dsurg'),". It never occurs
-earlier. The purple lines indicate for each patient the earliest EMR code
-implying that a surgery had taken place (acquired absence of kidney ICD V/Z 
-codes or surgical history of nephrectomy)");
-#' :::::
-#' 
-#' 
-#' In [@fig:surg0_plot0] the `r sum(with(.eplot_surg0,icd<n_dsurg),na.rm=T)` 
-#' patients for which one or more EMR codes are recorded prior to 
-#' `r fs('n_dsurg')` are highlighted in yellow.
-#' 
-#' ::::: {#fig:surg0_plot1 custom-style="Image Caption"}
-#+ .surg0_plot1,results='asis'
-par(xaxt='n');
-.eplot_surg0 <- subset(dat3,patient_num %in% 
-                         kcpatients_surgreason$`Surgery Performed`) %>% 
-  mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
-  event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
-             ,main='Time from Diagnosis to Surgery'
-             ,ylab='Months Since Diagnosis'
-             ,xlab='Patients, sorted by time to surgery\n\n\n'
-             ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
-             ,ylim=c(-10,60));
-abline(h=0,col='blue');
-lines(.eplot_surg0$n_rx1270,col='#00FF0060',type='s');
-lines(.eplot_surg0$n_rx1260,col='#00FFFF60',type='s');
-
-cat("\n\nIn the above plot the ",fs('n_rx1270')," (green) and "
-,fs('n_rx1260')," (cyan) events are superimposed on time till ",fs('n_dsurg')
-," like in [@fig:surg0_plot0] (but purple lines for nephrectomy EMR codes are 
-omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
-," variables trend earlier than ",fs('n_dsurg'));
-#' :::::
-#' 
-#' ###### blank
-#' 
-#' ::::: {#fig:surg1_plot custom-style="Image Caption"}
-#+ .surg1_plot,results='asis'
-par(xaxt='n');
-.eplot_surg1 <- subset(dat3,!patient_num %in% 
-                         kcpatients_surgreason$`Surgery Performed`) %>% 
-  mutate(nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
-  event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
-             ,main='Time from Diagnosis to Surgery'
-             ,ylab='Months Since Diagnosis'
-             ,xlab='Patients, sorted by time to surgery\n\n\n'
-             ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
-             ,ylim=c(-10,60));
-abline(h=0,col='blue');
-.eplot_surg1$icd <- apply(.eplot_surg1[,v(c_nephx,dat3)[1:5]],1,min,na.rm=T);
-.eplot_surg1$icd[is.infinite(.eplot_surg1$icd)]<-NA;
-lines(.eplot_surg1$icd,type='s',col='#FF00FF50');
-with(.eplot_surg1,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
-lines(.eplot_surg1$n_rx1270,col='#00FF0060',type='s');
-lines(.eplot_surg1$n_rx1260,col='#00FFFF60',type='s');
-cat("
-
-Above is a plot equivalent to [@fig:surg0_plot1] but for patients who do _not_
-have a ",fs('n_surgreason')," code equal to `Surgery Performed`. There are many "
-,fs('n_rx1270')," and ",fs('n_rx1260')," events but only a small number of "
-,fs('n_dsurg')," (black) and ",fs('n_rx3170')," (red). The ",fs('n_dsurg')
-," and ",fs('n_rx3170')," that do occur track each other perfectly. Together 
-with NAACCR data dictionary's description this suggests that ",fs('n_rx3170')
-," is the correct principal surgery date in close agreement with "
-,fs('n_dsurg'),", so perhaps missing ",fs('n_rx3170')," values can be filled in
-from ",fs('n_dsurg'),". However ",fs('n_rx1270')," and ",fs('n_rx1260')
-," seem like non-primary surgeries or other events"); 
-#' :::::
-#' 
-#' ###### blank
 #' 
 .tc <- paste0("Table of every NAACCR surgery event variable versus "
               ,fs('n_surgreason')," {#tbl:srgvars}");
