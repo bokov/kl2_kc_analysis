@@ -130,7 +130,8 @@ glossary at the end of this document. This is where any relevant cleaning or
 tranformation steps will in the future be described for the respective variables. 
 Tables, figures, and sections are also linked from text that references them. To 
 follow a link in Word, please hold down the 'control' key and click on that 
-link."
+link. [Yellow highlights]{.note2self custom-style='note2self'} are items which I
+know I need to deal with soon."
 );
 
 .toc <- rep_len(NA,length(.news));
@@ -314,7 +315,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' curves can be fit without numeric errors or grossly implausible results.
 #' All the results below are from a small random subset of the data-- 
 #' N=`r sum(.testsamp[1:2])`, `r .testsamp['Hispanic']` Hispanic and 
-#' `r .testsamp['non-Hispanic']` non-Hispanic. There were 
+#' `r .testsamp['non-Hispanic white']` non-Hispanic white. There were 
 #' `r .testsamp['Unknown']` excluded. This is further reduced in some
 #' cases as described in the figure captions. These sample sizes doe not have
 #' sufficient power to detect clinically significant differences and **this is 
@@ -523,29 +524,29 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' More data can be acquired by reclaiming values that are currently
 #' inconsistent or missing. There are various ad-hoc consistency checks 
 #' described in [-@sec:xchecks; -@sec:diag; -@sec:surg]
-#' I need to gather these checks in one place and 
+#' [I need to gather these checks in one place and 
 #' systematically run them on every patient to get a total count of records that
 #' need manual chart review (Dr. Rodriguez's protocol) and for each record a 
-#' list of issues to resolve. 
+#' list of issues to resolve]{.note2self custom-style='note2self'}. 
 #' 
 #' To reclaim missing values I will need to solve the problem of lag and 
-#' disagreement between the EMR and NAACCR ([@sec:merging]). I will meet with 
+#' disagreement between the EMR and NAACCR ([@sec:merging]). [I will meet with 
 #' the MCC NAACCR registrar and learn where exactly in the EMR and other sources 
 #' she looks to abstract `r md$mainvars`. I will also meet with personnel 
-#' experienced in Urology chart review to learn their methods. This may lead to 
-#' revisions of the CIRD process for loading UHS, UT Health, and NAACCR data 
-#' into i2b2 (IRB protocol HSC20150212HR). As per Dr. Rodriguez I already plan 
-#' on adding all ICD codes for 'renal mass' to my i2b2 query ([@sec:diag]). 
-#' Meanwhile, in response to researcher questions including my own, 
-#' CIRD has identified thousands of NAACCR entries and surgery billing records 
-#' that got excluded from i2b2 because they are not associated with visits to UT 
-#' Health clinics. This problem has been corrected. After the next i2b2 refresh 
-#' I expect an increased number of patients and better agreement of surgery 
-#' dates between EMR and NAACCR.
+#' experienced in Urology chart review to learn their methods.]{.note2self custom-style='note2self'} 
+#' This may lead to  improvements in the CIRD ETL process. As per Dr. Rodriguez 
+#' I also plan on adding all ICD codes for 'renal mass' to my i2b2 query 
+#' ([-@sec:diag]). Meanwhile, in response to researcher questions including my 
+#' own, CIRD staff have identified thousands of NAACCR entries and surgery 
+#' billing records that got excluded from i2b2 because they are not associated 
+#' with visits to UT Health clinics and corrected the problem. After the next 
+#' i2b2 refresh we expect an increased number of patients and better agreement 
+#' of surgery dates between EMR and NAACCR.
 #' 
-#' For external data I will request non-aggregated limited/deidentified records 
+#' [For external data I will request non-aggregated limited/deidentified records 
 #' from the Texas Cancer Registry. I will also look at the NCDB dataset obtained 
-#' by Urology to see if it has the elements listed in [@sec:reqelmnts].
+#' by Urology]{.note2self custom-style='note2self'} to see if it has the 
+#' elements listed in [@sec:reqelmnts].
 #' 
 #' In the remainder of Aim 2 and Aim 3 I will need the following additional
 #' variables: (NAACCR only) stage and grade; (EMR only) analgesics, smoking and
@@ -553,12 +554,12 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' Miperamine (as per Dr. Michalek), frequency of lab and image orders,
 #' frequency and duration of visits, and participation in adjuvant trials;
 #' (both) birthplace, language, and diabetes; and (census data in i2b2) income
-#' and education. Each of these will require a workup similar to that reported
+#' and education. [Each of these will require a workup similar to that reported
 #' in [@sec:dataprep] and [-@sec:supp]. I can work independently on many of these 
 #' but I will need guidance from experts in Urology on interpreting the stage 
-#' and grade data. If genomic data from the Urology biorepository becomes 
-#' available for these patients in the course of this study it also will become 
-#' an important variable for Aim 2.
+#' and grade data.]{.note2self custom-style='note2self'} If genomic data from 
+#' the Urology biorepository becomes available for these patients in the course 
+#' of this study it also will become an important variable for Aim 2.
 #' 
 #' The use of TCR or NCDB data is *not* a substitute for UT Health and MGH i2b2
 #' data. The registries allow me to test the replicability of high-level
@@ -574,13 +575,13 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' an enormous amount of post-processing was done by my DataFinisher app which
 #' is integrated into our local i2b2. In writing my scripts I have identified a
 #' number of additional post-processing steps that generalize to other studies
-#' and I will integrate those into DataFinisher so that the data it outputs is
-#' even more analysis-ready. This, in turn, will make DataFinisher more 
-#' valuable for other sites to adopt and simplify logistics of Aim 3. 
+#' and [I will integrate those into DataFinisher so that the data it outputs is
+#' even more analysis-ready.]{.note2self custom-style='note2self'} This will, in 
+#' turn, will simplify the logistics of Aim 3. 
 #' 
-#' While I am incorporating the new methods into DataFinisher, I will also 
+#' [While I am incorporating the new methods into DataFinisher, I will also 
 #' reorganize and document the code so I can present it to Dr. Murphy and his 
-#' informatics team for review and input.
+#' informatics team for review and input.]{.note2self custom-style='note2self'}
 #'
 #' # References
 #' 
