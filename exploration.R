@@ -891,7 +891,8 @@ cat('\n\nHere is a plot centered on ',fs('n_ddiag')
     primary kidney cancer from the EMR and dashed red lines indicating ICD9 codes. 
     The dashed horizontal blue lines indicate +- 3 months from ",fs('n_ddiag'));
 #' :::::
-#'
+#' 
+#' ###### blank
 #'
 #+ .diag_plot_summ
 .eplot_diag_summ <- summary(with(.ev_diag_plot
@@ -1119,6 +1120,7 @@ omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
 ," variables trend earlier than ",fs('n_dsurg'));
 #' :::::
 #' 
+#' ###### blank
 #' 
 #' ::::: {#fig:surg1_plot custom-style="Image Caption"}
 #+ .surg1_plot,results='asis'
@@ -1153,6 +1155,7 @@ from ",fs('n_dsurg'),". However ",fs('n_rx1270')," and ",fs('n_rx1260')
 ," seem like non-primary surgeries or other events"); 
 #' :::::
 #' 
+#' ###### blank
 #' 
 .tc <- paste0("Table of every NAACCR surgery event variable versus "
               ,fs('n_surgreason')," {#tbl:srgvars}");
@@ -1180,20 +1183,27 @@ lapply(v(c_nephx,dat2a)[6:9],function(ii)
 #' and `r fs('n_drecur')`. Our site is on NAACCR v16, not v18, and we do not 
 #' have [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772).
 #' According to the v16 standard, instead `r fs('n_lc')` should be used.
-#' 
-#' Now we can reconcile `r fs('n_cstatus')` and `r fs('n_rectype')`. We can see 
-#' below that almost all `r fs('n_cstatus')` `Tumor_Free` patients also have a 
-#' `Disease-free` in their `r fs('n_rectype')` column, the `Tumor` ones have a 
-#' variety of values, and the `Unknown` ones are also mostly `Unknown if recurred or was ever gone`.
+#' Now we can reconcile `r fs('n_cstatus')` and `r fs('n_rectype')`. 
+#+ rectype_cstatus
+.tc <- paste0('Almost all ',fs('n_cstatus'),' `Tumor_Free` patients also have a 
+`Disease-free` in their ',fs('n_rectype'),' column, the `Tumor` ones have a 
+variety of values, and the `Unknown` ones are mostly `Unknown if recurred or was 
+ever gone`. {#tbl:rectype_cstatus}');
+
 subset(dat2a,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
-  with(table(n_rectype,n_cstatus)) %>% pander;
-#' This suggest the following rules for binning them:
+  with(table(n_rectype,n_cstatus)) %>% pander(caption=.tc);
+#' 
+#' ###### blank
+#' 
+#' This suggests the following rules for binning them:
 #' 
 #' * `r fs('n_rectype')` is `Disease-free` (disease free)
 #' * `r fs('n_rectype')` is `Never disease-free` (never disease free)
 #' * `r fs('n_rectype')` raw code includes 70 then assume never diease free
 #' * `r fs('n_rectype')` is `Unknown if recurred or was ever gone` (unknown)
 #' * Otherwise, (recurred)
+#' 
+#' ###### blank
 #
 t_recur_drecur <- with(dat2a
                        ,table(a_n_recur
