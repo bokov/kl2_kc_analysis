@@ -378,6 +378,15 @@ Number of weeks elapsed from ',fs('a_tdiag'),' (time 0) to ',fs('a_tsurg')
 #' agreement with this as is the occurence of a few surgeries far beyond the 
 #' 3-year window covered by the plot (not shown).
 #' 
+#' It can also be seen in [@fig:surg_survfit] that 
+#' `r sum(with(.survfit_plot0$fit,n.event[time==0]))` surgeries seem to happen 
+#' on the day of diagnosis. This is plausible if NAACCR diagnosis based on 
+#' pathology rather than clinical examination where a positive result is usually 
+#' coded as a renal mass, not a cancer. [In my next data update I intend to 
+#' also include all ICD9/10 codes for renal mass at which point I will revisit
+#' the question of using EMR data to fill in missing diagnosis 
+#' dates]{.note2self custom-style="note2self"} (see [@sec:nextsteps]).
+#' 
 #' ::::: {#fig:recur_survfit custom-style="Image Caption"}
 #+ surv_recur,results='asis',fig.dim=c(3.1,3),fig.align='center'
 (.survfit_plot1 <- update(.survfit_plot0,eventvars='a_trecur'
@@ -960,14 +969,15 @@ dat3[,v(c_kcdiag)] %>%
 #  surgery ======================================================================
 #' ### Surgery {#sec:surg}
 #' 
-#' To construct `r fs('a_tsurg')` I considered `r fs('n_dsurg')`, 
-#' `r fs('n_rx1260')`, `r fs('n_rx1270')`, and `r fs('n_rx3170')` from NAACCR 
-#' and earliest occurrences of `r fs('e_i9neph')`, `r fs('e_i10neph')`, or 
-#' `r fs('e_hstneph')` from the EMR. In the plots and tables below I show
-#' why I decided to use `r fs('n_rx3170')` as the surgery date and then that is
-#' unavailable, falling back on `r fs('n_dsurg')`. The other data elements are
-#' not used **except to flag potentially incorrect records if they occur earlier
-#' than the date of diagnosis**.
+#' To construct the `r fs('a_tsurg')` analytic variable I considered 
+#' `r fs('n_dsurg')`, `r fs('n_rx1260')`, `r fs('n_rx1270')`, and 
+#' `r fs('n_rx3170')` from NAACCR as well as earliest occurrences of 
+#' `r fs('e_i9neph')`, `r fs('e_i10neph')`, or `r fs('e_hstneph')` from the EMR. 
+#' In the plots and tables below I show why I decided to use `r fs('n_rx3170')` 
+#' as the surgery date and then that is unavailable, to fall back on 
+#' `r fs('n_dsurg')`. The other data elements are not used **except to flag 
+#' potentially incorrect records if they occur earlier than the date of 
+#' diagnosis**.
 #' 
 #' ::::: {#fig:surg0_plot0 custom-style="Image Caption"}
 #+ surg0_plot0,results='asis'
@@ -1001,17 +1011,17 @@ directions.");
 #' :::::
 #' 
 #' In [@fig:surg0_plot0] the `r sum(with(.eplot_surg0,icd<nrx),na.rm=T)` 
-#' patients for which the earliest EMR code occurs prior to the earliest 
-#' NAACCR possible record of surgery are highlighted in yellow. Among the 
-#' remaining `r with(.eplot_surg0,sum(icd>=nrx,na.rm=T))` patients who have an 
-#' EMR code for nephrectomy, for 
-#' `r .surg0thresh<-3; with(.eplot_surg0,sum(icd>(nrx+.surg0thresh),na.rm=T))` 
-#' it happens more than `r .surg0thresh` months after `r fs('n_dsurg')` and 
-#' those lags have a median of 
-#' `r with(.eplot_surgo,median(icd[icd>(nrx+.surg0thresh)],na.rm=T))` months.
-#' This level of discrepancy with non-missing `r fs('n_dsurg')` disqualifies 
-#' `r fs('e_i9neph')`, `r fs('e_i10neph')`, and `r fs('e_hstneph')` from being
-#' used to fill in the missing ones. [This may change after the next i2b2 update
+#' patients for which the earliest EMR nephrectomy code occurs before the 
+#' earliest NAACCR possible record of surgery are highlighted in yellow. Among 
+#' the remaining `r with(.eplot_surg0,sum(icd>=nrx,na.rm=T))` patients who have 
+#' an EMR code for nephrectomy, there are  
+#' `r .surg0thresh<-3; with(.eplot_surg0,sum(icd>(n_dsurg+.surg0thresh),na.rm=T))` 
+#' for whom it happens more than `r .surg0thresh` months after `r fs('n_dsurg')` 
+#' and those lags have a median of 
+#' `r with(.eplot_surg0,median(icd[icd>(n_dsurg+.surg0thresh)],na.rm=T))` months.
+#' This level of discrepancy disqualifies `r fs('e_i9neph')`, 
+#' `r fs('e_i10neph')`, and `r fs('e_hstneph')` from being used to fill in 
+#' missing NAACCR dates. [This may change after the next i2b2 update
 #' in which the fix to the "visit-less patient" problem will be 
 #' implemented]{.note2self custom-style="note2self"}
 #' 
@@ -1064,35 +1074,19 @@ cat("
 
 Above is a plot equivalent to [@fig:surg0_plot1] but for patients who do **not**
 have a ",fs('n_surgreason')," code equal to `Surgery Performed`. There are many"
-    ,fs('n_rx1270')," and ",fs('n_rx1260')," events but only a small number of "
-    ,fs('n_dsurg')," (black) and ",fs('n_rx3170')," (red). The ",fs('n_dsurg')
-    ," and ",fs('n_rx3170')," that do occur track each other perfectly. Together 
+,fs('n_rx1270')," and ",fs('n_rx1260')," events but only a small number of "
+,fs('n_dsurg')," (black) and ",fs('n_rx3170')," (red). The ",fs('n_dsurg')
+," and ",fs('n_rx3170')," that do occur track each other perfectly. Together 
 with NAACCR data dictionary's description this suggests that ",fs('n_rx3170')
-    ," is the correct principal surgery date in close agreement with "
-    ,fs('n_dsurg'),", so perhaps missing ",fs('n_rx3170')," values can be filled in
+," is the correct principal surgery date in close agreement with "
+,fs('n_dsurg'),", so perhaps missing ",fs('n_rx3170')," values can be filled 
 from ",fs('n_dsurg'),". However ",fs('n_rx1270')," and ",fs('n_rx1260')
-    ," seem like non-primary surgeries or other events"); 
+," seem like non-primary surgeries or other events and cannot be used to fill in
+missing values"); 
 #' :::::
 #' 
 #' ###### blank
 #' 
-#' * Here are the questions raised:
-#'     * Do they agree with `r fs('n_dsurg')` sufficiently that missing 
-#'            `r fs('n_dsurg')` can be backfilled from some or all of them?
-#'     * Under what circumstances can they be interpreted as surgery dates 
-#'            rather dates for something else?
-#' * Question: Where in the chart would one positively establish the date of the 
-#'   patient's first nephrectomy...
-#'   
-#'     * ...in Epic?
-#'     * ...in Sunrise?
-#' * Question: Is it possible for surgery to happen on the same day as the 
-#'   diagnosis? How common is that?
-#'     * Answer (RR): Fairly common, if NAACCR diagnosis based on pathology 
-#'       rather than clinical examination, which is usually technically a renal 
-#'       mass, not a cancer. Might want to use imaging result date as the date 
-#'       of diagnosis if it isn't already being used as such.
-#'     
 #+ dat3_surg, cache=TRUE
 # make each date of surgery proxy relative to date of diagnosis
 dat3_surg <- (dat3[,c(v(c_nephx),'n_drecur')] - dat3$n_ddiag) %>% 
@@ -1111,25 +1105,21 @@ dat3_surg_summary <- summary(dat3_surg) %>%
 # list of variables that can first occur before 'n_ddiag'
 #t_priorcond <- paste(rownames(subset(dat3_surg_summary,Min.<0)),collapse=', ');
 t_priorcond <- subset(dat3_surg_summary,Min.<0) %>% rownames %>% 
-  sapply(fs,template=fstmplts$link_varname,retfun=return) %>% 
-  knitr::combine_words();
-#' As can be seen in the table below, the variables `r t_priorcond` _sometimes_ 
-#' precede `r fs('n_ddiag')` by many weeks. However, they _usually_ follow 
-#' `r fs('n_ddiag')` by more weeks than the two NAACCR variables 
-#' `r fs('n_dsdisc')` and `r fs('n_dsurg')`. Those two NAACCR variables never
-#' occur before `r fs('n_ddiag')` and usually occur within 2-8 weeks after it.
-#' 
-#' As can be seen from the `NA's` column, the inactive ICD9/10 V/Z codes for
-#' acquired absence of kidney are disqualified because they are very rare in 
-#' addition to being even more divergent from the `r fs('n_ddiag')` than the 
-#' non-inactive codes.
-pander(dat3_surg_summary);
-#' It's understandable if the Epic EMR lags behind NAACCR (because as an 
-#' outpatient system, it's probably recording just the visits after the original
-#' surgery, and perhaps we are not yet importing the actual surgery events from 
-#' Sunrise EMR). But for the V or Z or surgical history codes that precede 
-#' `r fs('n_ddiag')`, it could mean that those NAACCR cases are not first-time 
-#' occurrences. How big of a problem is this?
+  sapply(fs,retfun=return) %>% (knitr::combine_words);
+.tc <- paste0("As can be seen in the table below, the variables ",t_priorcond
+," _sometimes_ precede ",fs('n_ddiag')," by many weeks but they _usually_ 
+follow ",fs('n_ddiag')," by more weeks than do ",fs('n_dsdisc')," and "
+,fs('n_dsurg'),". Those two NAACCR variables never occur before "
+,fs('n_ddiag')," and usually occur within 2-8 weeks after it. This is 
+another way of summarizing how much the EMR variables lag behind NAACCR 
+variables. {#tbl:priordiag}");
+pander(dat3_surg_summary,caption=.tc);
+#' It makes sense that the Epic EMR lags behind NAACCR. As an outpatient system, 
+#' it's probably recording visits after the original surgery, and perhaps we are 
+#' not yet importing the right elements from Sunrise EMR. In [@sec:nextsteps] I
+#' outline possible remedies to that. For now, `r t_priorcond` can still be used 
+#' to exclude cases as not first-time occurrences if it precedes diagnosis. 
+#' Would I lose a lot of cases to such a criterion? 
 #' 
 #+ before_sameday_after_00,cache=TRUE
 mutate_all(dat3[,v(c_nephx)]
@@ -1138,13 +1128,9 @@ mutate_all(dat3[,v(c_nephx)]
                              ,lab=c('before','same-day','after'),include=T)) %>%
   sapply(table,useNA='always') %>% t %>% 
   pander(caption='
-How often do ICD9/10 or surgical history codes for nephrectomy precede diagnosis
-and by how much? {#tbl:neph_b4_diag}');
+How often ICD9/10 or surgical history codes for nephrectomy precede diagnosis
+and by how much {#tbl:neph_b4_diag}');
 
-#' Not too bad. Though we cannot trust the ICD9/10 codes as replacements for
-#' missing surgery dates, there are few enough of them preceding diagnosis that
-#' we can remove them as source data errors without ruining the sample size.
-#' 
 # 
 # Here is a more general table, comparing every possible recurrence event or 
 # surgery event to the NAACCR surgery variable, to clean up and uncomment later
@@ -1159,49 +1145,70 @@ and by how much? {#tbl:neph_b4_diag}');
 #     ,levels=c('before','same-day','after')))) %>% 
 #   sapply(table,useNA='always') %>% t %>% pander();
 #' 
-# Now, as far as the two NAACCR variables go, does `n_dsdisc` (date of 
-# discharge) contribute anything more than `r fs('n_dsurg')`? There are 
-# `r nrow(subset(dat3,is.na(n_dsurg)&!is.na(n_dsdisc)))` non-missing values 
-# of `n_dsdisc` when `r fs('n_dsurg')` is missing. As can be seen from the plot below
-# where `n_dsdisc` are the red dashed lines and `r fs('n_dsurg')` are the black lines,
-# both relative to date of diagnosis, `n_dsdisc` either coincides with `r fs('n_dsurg')`
-# or lags by multiple weeks, as might be expected of a discharge date (what is 
-# the plausible threshold on time from surgery to discharge?).
+# Now, as far as the two NAACCR variables go, does `n_dsdisc` (date of
+# discharge) contribute anything more than `r fs('n_dsurg')`? There are `r
+# nrow(subset(dat3,is.na(n_dsurg)&!is.na(n_dsdisc)))` non-missing values of
+# `n_dsdisc` when `r fs('n_dsurg')` is missing. As can be seen from the plot
+# below where `n_dsdisc` are the red dashed lines and `r fs('n_dsurg')` are the
+# black lines, both relative to date of diagnosis, `n_dsdisc` either coincides
+# with `r fs('n_dsurg')` or lags by multiple weeks, as might be expected of a
+# discharge date (what is the plausible threshold on time from surgery to
+# discharge?).
 #' 
-#' How accurate is `r fs('n_surgreason')` in distinguishing surgical 
-#' cases from non-surgical cases? 
-.tc <- paste0("Table of every NAACCR surgery event variable versus "
-              ,fs('n_surgreason')," {#tbl:srgvars}");
+#' Only a small number of cases would be disqualified. Another important 
+#' question is the level of agreement between `r fs('n_surgreason')` and the 
+#' NAACCR data elements that are candidates for comprising the surgery variable.
+#' 
+.tc <- paste0("Every NAACCR candidate data element (columns) tabulated against "
+,fs('n_surgreason')," (rows). The bold cells are ones consistent with their 
+respective data elements indicating the primary surgery. The second row is 
+italicized because surgery may still occur as a non-primary course of treatment.
+Nevertheless the counts in the `FALSE` columns should be greater than the counts 
+in the `TRUE` columns for every row but the first. ",fs('n_rx3170')
+," and ",fs('n_dsurg')," are in close agreement with each other and have the 
+fewest deviations from expected behavior of a primary surgery data 
+element {#tbl:srgvars}");
 lapply(v(c_nephx_naaccr),function(ii){
   table(dat2a$n_surgreason,dat2a[[ii]]<=dat2a$age_at_visit_days) %>% 
     set_colnames(.,paste0(ii,' = ',colnames(.)))
-  }) %>% do.call(cbind,.) %>% pander(caption=.tc);
+  }) %>% do.call(cbind,.) %>% 
+  pander(emphasize.strong.cells=cbind(1:6,rep(c(0,2,4,6),each=6)+c(2,rep(1,5)))
+         ,emphasize.italics.rows=2
+         ,caption=.tc);
 
-#' ##### Surgery Conclusion
 #' 
-#' As of now the sole variables on which I can rely for date of surgery are 
-#' `r fs('n_rx3170')` supplemented by `r fs('n_dsurg')`, and the small number of cases where EMR 
-#' codes imply surgery prior to diagnosis will be excluded. For the purposes of
-#' determining whether there is a difference in the time from diagnosis to 
-#' surgery I could also create an alternative 'naive' variable that is simply
-#' the earliest of all possible surgery events for each patient. For the time
-#' elapsed from surgery to death or recurrence, I will use the first (`r fs('n_rx3170')`
-#' and `r fs('n_dsurg')`) variable as above with the additional criterion that only 
-#' cases where the `r fs('n_surgreason')` is `Surgery Performed` be included.
+#' In summary, based on [@fig:surg0_plot0] and [@tbl:diag_lag] 
+#' `r t_priorcond` can only be used to disqualify patients for having erroneous
+#' records or previous history of kidney cancer but cannot fill in missing 
+#' diagnosis dates. Based on 
+#' [@fig:surg0_plot1; @fig:surg1_plot], and [@tbl:rectype_cstatus] 
+#' `r fs('n_rx1270')` and `r fs('n_rx1260')` are not necessarily always surgery 
+#' events. This leaves `r fs('n_rx3170')` with `r fs('n_ddiag')` as a fallabck. 
+#' [When I meet with  the NAACCR regisrar I will seek their feedback about this 
+#' approach and I will ask them about the most reliable way to identify the 
+#' first kidney cancer occurrence for a patient if they have several 
+#' (overlapping?) NAACCR entries. I also need to ask a chart abstraction expert 
+#' about the best way to find in Epic and in Sunrise the date of a patient's 
+#' first nephrectomy]{.note2self custom-style="note2self"}
 #' 
 #  re-occurrence ================================================================
 #' ### Re-occurrence {#sec:recur}
 #' 
-#' The current available variables are: `r fs('n_cstatus')`, `r fs('n_rectype')`
-#' and `r fs('n_drecur')`. Our site is on NAACCR v16, not v18, and we do not 
-#' have [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772).
-#' According to the v16 standard, instead `r fs('n_lc')` should be used.
-#' Now we can reconcile `r fs('n_cstatus')` and `r fs('n_rectype')`. 
+.emr_recur <- lapply(v(c_recur)[-1],fs) %>% (knitr::combine_words);
+#' Candidate  data elements for constructing the `r fs('a_trecur')` variable 
+#' were `r fs('n_cstatus')`, `r fs('n_rectype')`, and `r fs('n_drecur')` from
+#' NAACCR. Our site is on NAACCR v16, not v18, so we do not have 
+#' [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772).
+#' According to the v16 standard, `r fs('n_lc')` should be used instead. From
+#' the EMR the candidates were `r .emr_recur`.
+#' In [@tbl:rectype_cstatus] I reconcile `r fs('n_cstatus')` and 
+#' `r fs('n_rectype')`. 
 #' 
 #' ###### blank
 #' 
 #+ rectype_cstatus
-.tc <- paste0('Almost all ',fs('n_cstatus'),' `Tumor_Free` patients also have a 
+.tc <- paste0(fs('n_cstatus'),' is in good agreement with ',fs('n_rectype')
+,'. Almost all ',fs('n_cstatus'),' `Tumor_Free` patients also have
 `Disease-free` in their ',fs('n_rectype'),' column, the `Tumor` ones have a 
 variety of values, and the `Unknown` ones are mostly `Unknown if recurred or was 
 ever gone`. {#tbl:rectype_cstatus}');
@@ -1211,13 +1218,12 @@ subset(dat2a,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
 #' 
 #' ###### blank
 #' 
-#' This suggests the following rules for binning them:
-#' 
-#' * `r fs('n_rectype')` is `Disease-free` (disease free)
-#' * `r fs('n_rectype')` is `Never disease-free` (never disease free)
-#' * `r fs('n_rectype')` raw code includes 70 then assume never diease free
-#' * `r fs('n_rectype')` is `Unknown if recurred or was ever gone` (unknown)
-#' * Otherwise, (recurred)
+#' `r fs('n_rectype')` can be simplified by leaving values of `Disease-free` 
+#' (0), `Never disease-free` (70), and `Unknown if recurred or was ever gone` 
+#' (99) as they are; if there were multiple values for the same case
+#' and one of those values was 70 then defaulting to `Never disease-free`; and 
+#' recoding all other values as simply `Recurred`. I named this analytic 
+#' variable `r fs('a_n_recur')`.
 #' 
 #' ###### blank
 #
@@ -1225,17 +1231,20 @@ t_recur_drecur <- with(dat2a
                        ,table(a_n_recur
                               ,`Has recurrence date`=n_drecur<=age_at_visit_days
                               ,useNA='if'));
-#' Here is the condensed version after having followed the above rules. Looks 
-#' like the only ones who have a `r fs('n_drecur')` (recurrence date) are the
-#' ones which also have a `Recurred` status for `r fs('a_n_recur')` (with `r t_recur_drecur['Recurred','FALSE']`
-#' missing an `r fs('n_drecur')`). The only exception is `r t_recur_drecur['Never disease-free','TRUE']`
-#' `Never diease-free` patient that had an `r fs('n_drecur')`.
+.tc <- paste0('Here is the condensed version after having followed the above 
+rules. Looks like the only ones who have a ',fs('n_drecur')," are the ones which 
+also have a `Recurred` status for ",fs('a_n_recur')," (with "
+,t_recur_drecur['Recurred','FALSE']," missing an ",fs('n_drecur'),"). The only 
+exception is ",t_recur_drecur['Never disease-free','TRUE']," `Never diease-free` 
+patient with a ",fs('n_drecur')," {#tbl:rectype_drecur}");
+
 t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>% 
-  pander(emphasize.strong.cells=cbind(2:5,c(1,1,2,1)));
-#' This explains why  `r fs('n_drecur')` values are relatively rare in the data-- they 
-#' are specific to actual recurrences which are not a majority of the cases. 
-#' This is a good from the standpoint of data consistency. Now we need to see to 
-#' what extent the EMR codes agree with this. 
+  pander(emphasize.strong.cells=cbind(2:5,c(1,1,2,1)),caption=.tc);
+#' 
+#' This explains why  `r fs('n_drecur')` values are relatively rare in the 
+#' data-- they are specific to actual recurrences which are not a majority of 
+#' the cases. This is a good from the standpoint of data consistency. Now we 
+#' need to see to what extent the EMR codes agree with this. 
 #' 
 #' 
 #' ::::: {#fig:recur_plot custom-style="Image Caption"}
@@ -1263,27 +1272,42 @@ with(.eplot_recur0,abline(v=which(patient_num %in%
                                     kcpatients_rectype$`Disease-free`)
                           ,col='#00FF0020',lwd=2));
 points(.eplot_recur0$n_drecur,col='red',pch='-',cex=2);
+with(.eplot_recur0
+     ,abline(v=which(patient_num %in% kcpatients_rectype$Recurred & 
+                       is.na(n_drecur)),col='red',lty=3));
 cat("
 
 In the above plot, the black line represents months elapsed between surgery and
 the first occurence of an EMR code for secondary tumors, if any. The horizontal
-red line segments indicate individual ",fs('n_drecur'),". The blue horizontal
-line is the date of surgery. Patients whose status ",fs('n_rectype')," is 
-`Disease-free` are highlighted in green, `Never disease-free` in yellow, and
-`Recurred` in red");
+red line segments indicate individual ",fs('n_drecur'),". The dotted vertical
+red lines denote `Recurred` patients who are missing a ",fs('n_drecur')
+,". The blue horizontal line is the date of surgery and the 
+dotted horizontal lines above and below it are +- 3 months. Patients whose "
+,fs('n_rectype')," is `Disease-free` are highlighted in green, 
+`Never disease-free` in yellow, and `Recurred` in red. There are 
+`r length (kcpatients.naaccr_dupe)` patients with multiple NAACCR records, 
+and all records for these patients have been excluded from this plot");
 #' :::::
 #' 
 #' 
-#' The green highlights are _mostly_ where one would expect, but why are there
+#' The green highlights in [@fig:recur_plot] are _mostly_ where one would 
+#' expect, but why are there
 #' `r nrow(subset(.eplot_recur0,patient_num %in% kcpatients_rectype[['Disease-free']] & !is.na(rec)))`
 #' patients on the left side of the plot that have EMR codes for secondary 
 #' tumors? Also, there are `r nrow(subset(.eplot_recur0,rec<0))` patients with 
 #' metastatic tumor codes earlier than `r fs('n_dsurg')` and of those 
 #' `r nrow(subset(.eplot_recur0,rec< -3))` occur more than 3 months prior to 
 #' `r fs('n_dsurg')`. Did they present with secondary tumors to begin with but
-#' remained disease free after surgery? Removing the `_inactive` versions of the 
-#' secondary tumor codes does not make the left-side green patients go away.
-#' 
+#' remained disease free after surgery? [These are questions to ask the NAACCR
+#' registrar]{.note2self custom-style="note2self"}. `r .emr_recur` are in better
+#' agreement with `r fs('n_drecur')` than the data elements in [@sec:diag] and
+#' [@sec:surg] so it might make sense to back-fill the few `r fs('n_drecur')`
+#' that are missing but first I want to make sure I [understand how to reliably
+#' distinguish on the EMR side genuine recurrences from secondary tumors that
+#' existed at presentation.]{.note2self custom-style="note2self"}. The small 
+#' number of cases affected either way lowers the priority of this isuse.
+#' For now I will rely only on `r fs('n_drecur')` in constructing the analytical
+#' variable `r fs('a_trecur')`. 
 #' 
 # Not ready for production code to plot ranked events...
 # baz<- subset(dat3,!patient_num %in% kcpatients.naaccr_dupe)[,c('patient_num',v(c_kcdiag,dat3),v(c_nephx,dat3),v(c_recur,dat3),v(c_death,dat3),'n_lc')]
