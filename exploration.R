@@ -130,8 +130,8 @@ glossary at the end of this document. This is where any relevant cleaning or
 tranformation steps will in the future be described for the respective variables. 
 Tables, figures, and sections are also linked from text that references them. To 
 follow a link in Word, please hold down the 'control' key and click on that 
-link. [Yellow highlights]{.note2self custom-style='note2self'} are items which I
-know I need to deal with soon."
+link. [Yellow highlights]{.note2self custom-style='note2self'} are items with 
+which I know I need to deal soon."
 );
 
 .toc <- rep_len(NA,length(.news));
