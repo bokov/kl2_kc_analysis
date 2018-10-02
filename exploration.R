@@ -39,7 +39,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-options(gitstamp_prod=F);
+#options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 
 default_font <- 'Times New Roman';
@@ -1200,8 +1200,8 @@ lapply(v(c_nephx_naaccr),function(ii){
 #' NAACCR. Our site is on NAACCR v16, not v18, so we do not have 
 #' [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1772).
 #' According to the v16 standard, `r fs('n_lc')` should be used instead. From
-#' the EMR the candidates were `r .emr_recur`.
-#' In [@tbl:rectype_cstatus] I reconcile `r fs('n_cstatus')` and 
+#' the EMR the candidates were `r length(v(c_recur))-1` ICD9/10 codes for 
+#' secondary tumors. In [@tbl:rectype_cstatus] I reconcile `r fs('n_cstatus')` and 
 #' `r fs('n_rectype')`. 
 #' 
 #' ###### blank
@@ -1284,8 +1284,8 @@ red lines denote `Recurred` patients who are missing a ",fs('n_drecur')
 ,". The blue horizontal line is the date of surgery and the 
 dotted horizontal lines above and below it are +- 3 months. Patients whose "
 ,fs('n_rectype')," is `Disease-free` are highlighted in green, 
-`Never disease-free` in yellow, and `Recurred` in red. There are 
-`r length (kcpatients.naaccr_dupe)` patients with multiple NAACCR records, 
+`Never disease-free` in yellow, and `Recurred` in red. There are "
+,length(kcpatients.naaccr_dupe)," patients with multiple NAACCR records, 
 and all records for these patients have been excluded from this plot");
 #' :::::
 #' 
@@ -1299,12 +1299,12 @@ and all records for these patients have been excluded from this plot");
 #' `r nrow(subset(.eplot_recur0,rec< -3))` occur more than 3 months prior to 
 #' `r fs('n_dsurg')`. Did they present with secondary tumors to begin with but
 #' remained disease free after surgery? [These are questions to ask the NAACCR
-#' registrar]{.note2self custom-style="note2self"}. `r .emr_recur` are in better
-#' agreement with `r fs('n_drecur')` than the data elements in [@sec:diag] and
-#' [@sec:surg] so it might make sense to back-fill the few `r fs('n_drecur')`
+#' registrar]{.note2self custom-style="note2self"}. The EMR codes are in better
+#' agreement with `r fs('n_drecur')` than the data elements in [-@sec:diag] and
+#' [-@sec:surg] so it might make sense to back-fill the few `r fs('n_drecur')`
 #' that are missing but first I want to make sure I [understand how to reliably
 #' distinguish on the EMR side genuine recurrences from secondary tumors that
-#' existed at presentation.]{.note2self custom-style="note2self"}. The small 
+#' existed at presentation]{.note2self custom-style="note2self"}. The small 
 #' number of cases affected either way lowers the priority of this isuse.
 #' For now I will rely only on `r fs('n_drecur')` in constructing the analytical
 #' variable `r fs('a_trecur')`. 
