@@ -371,6 +371,13 @@ Number of weeks elapsed from ',fs('a_tdiag'),' (time 0) to ',fs('a_tsurg')
 #' 
 #' ###### blank
 #' 
+#' Typically 2-4 weeks elapse between diagnosis and surgery. Providers try to 
+#' not exceed 4 weeks. Nevertheless years may sometimes elapse due to factors 
+#' such as an indolent tumors or loss of contact with the patient. About 15% of 
+#' patients never undergo surgery [@pcRodriguez2018]. [@Fig:surg_survfit] is in
+#' agreement with this as is the occurence of a few surgeries far beyond the 
+#' 3-year window covered by the plot (not shown).
+#' 
 #' ::::: {#fig:recur_survfit custom-style="Image Caption"}
 #+ surv_recur,results='asis',fig.dim=c(3.1,3),fig.align='center'
 (.survfit_plot1 <- update(.survfit_plot0,eventvars='a_trecur'
@@ -965,7 +972,7 @@ dat3[,v(c_kcdiag)] %>%
 #' ::::: {#fig:surg0_plot0 custom-style="Image Caption"}
 #+ surg0_plot0,results='asis'
 par(xaxt='n');
-.eplot_surg0 <- mutate(dat3,nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
+.eplot_surg0 <- mutate(dat3,nrx=pmin(n_dsurg,n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
              ,main='Time from Diagnosis to Surgery'
              ,ylab='Months Since Diagnosis'
@@ -975,12 +982,12 @@ par(xaxt='n');
                ,kcpatients.naaccr))
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
-abline(h=0,col='blue');
+abline(h=c(-3,0,3),col='blue',lty=c(2,1,2));
 .eplot_surg0$icd <- apply(.eplot_surg0[,c('e_i9neph','e_i10neph','e_hstneph')]
                           ,1,min,na.rm=T);
 .eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
 lines(.eplot_surg0$icd,type='s',col='#FF00FF50');
-with(.eplot_surg0,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
+with(.eplot_surg0,abline(v=which(icd<nrx),col='#FFFF0030',lwd=4));
 
 cat("\n\nAbove is a plot of all patients sorted by "
     ,fs('n_dsurg')," (black line).  On the same axis is ",fs('n_rx3170')
@@ -988,19 +995,30 @@ cat("\n\nAbove is a plot of all patients sorted by "
 number of cases where it occurs later than ",fs('n_dsurg'),". It never occurs
 earlier. The purple lines indicate for each patient the earliest EMR code
 implying that a surgery had taken place (acquired absence of kidney ICD V/Z 
-codes or surgical history of nephrectomy)");
+codes or surgical history of nephrectomy). The blue horizontal line is "
+,fs('n_ddiag')," with the dashed lines representing a 3-month window in both
+directions.");
 #' :::::
 #' 
-#' In [@fig:surg0_plot0] the `r sum(with(.eplot_surg0,icd<n_dsurg),na.rm=T)` 
-#' patients for which one or more EMR codes are recorded prior to 
-#' `r fs('n_dsurg')` are highlighted in yellow. Of the 
-#' `r sum(!is.na(.eplot_surg0$icd))` patients who have an EMR code for 
-# nephrectomy, `r sum(!is.na(.eplot_surg0$icd)&.eplot_surg0$icd
+#' In [@fig:surg0_plot0] the `r sum(with(.eplot_surg0,icd<nrx),na.rm=T)` 
+#' patients for which the earliest EMR code occurs prior to the earliest 
+#' NAACCR possible record of surgery are highlighted in yellow. Among the 
+#' remaining `r with(.eplot_surg0,sum(icd>=nrx,na.rm=T))` patients who have an 
+#' EMR code for nephrectomy, for 
+#' `r .surg0thresh<-3; with(.eplot_surg0,sum(icd>(nrx+.surg0thresh),na.rm=T))` 
+#' it happens more than `r .surg0thresh` months after `r fs('n_dsurg')` and 
+#' those lags have a median of 
+#' `r with(.eplot_surgo,median(icd[icd>(nrx+.surg0thresh)],na.rm=T))` months.
+#' This level of discrepancy with non-missing `r fs('n_dsurg')` disqualifies 
+#' `r fs('e_i9neph')`, `r fs('e_i10neph')`, and `r fs('e_hstneph')` from being
+#' used to fill in the missing ones. [This may change after the next i2b2 update
+#' in which the fix to the "visit-less patient" problem will be 
+#' implemented]{.note2self custom-style="note2self"}
 #' 
 #' ::::: {#fig:surg0_plot1 custom-style="Image Caption"}
 #+ .surg0_plot1,results='asis'
 par(xaxt='n');
-.eplot_surg0 <- mutate(dat3,nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
+.eplot_surg0 <- mutate(dat3,nrx=pmin(n_dsurg,n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
              ,main='Time from Diagnosis to Surgery'
              ,ylab='Months Since Diagnosis'
@@ -1010,7 +1028,7 @@ par(xaxt='n');
                ,kcpatients.naaccr))
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
-abline(h=0,col='blue');
+abline(h=c(-3,0,3),col='blue',lty=c(2,1,2));
 lines(.eplot_surg0$n_rx1270,col='#00FF0060',type='s');
 lines(.eplot_surg0$n_rx1260,col='#00FFFF60',type='s');
 
@@ -1026,26 +1044,25 @@ omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
 #' ::::: {#fig:surg1_plot custom-style="Image Caption"}
 #+ .surg1_plot,results='asis'
 par(xaxt='n');
-.eplot_surg1 <- mutate(dat3,nrx=pmin(n_rx3170,n_rx1270,n_rx1260)) %>% 
+.eplot_surg1 <- mutate(dat3,nrx=pmin(n_dsurg,n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
              ,main='Time from Diagnosis to Surgery'
              ,ylab='Months Since Diagnosis'
              ,xlab='Patients, sorted by time to surgery\n\n\n'
-             ,subset=bquote(patient_num %in% intersect(
-               kcpatients_surgreason$`Surgery Performed`
-               ,kcpatients.naaccr))
+             ,subset=bquote(patient_num %in% setdiff(
+               kcpatients.naaccr,kcpatients_surgreason$`Surgery Performed`))
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=0,col='blue');
 .eplot_surg1$icd <- apply(.eplot_surg1[,v(c_nephx,dat3)[1:5]],1,min,na.rm=T);
 .eplot_surg1$icd[is.infinite(.eplot_surg1$icd)]<-NA;
 lines(.eplot_surg1$icd,type='s',col='#FF00FF50');
-with(.eplot_surg1,abline(v=which(icd<n_dsurg),col='#FFFF0030',lwd=4));
+with(.eplot_surg1,abline(v=which(icd<nrx),col='#FFFF0030',lwd=4));
 lines(.eplot_surg1$n_rx1270,col='#00FF0060',type='s');
 lines(.eplot_surg1$n_rx1260,col='#00FFFF60',type='s');
 cat("
 
-Above is a plot equivalent to [@fig:surg0_plot1] but for patients who do _not_
+Above is a plot equivalent to [@fig:surg0_plot1] but for patients who do **not**
 have a ",fs('n_surgreason')," code equal to `Surgery Performed`. There are many"
     ,fs('n_rx1270')," and ",fs('n_rx1260')," events but only a small number of "
     ,fs('n_dsurg')," (black) and ",fs('n_rx3170')," (red). The ",fs('n_dsurg')
@@ -1059,18 +1076,11 @@ from ",fs('n_dsurg'),". However ",fs('n_rx1270')," and ",fs('n_rx1260')
 #' 
 #' ###### blank
 #' 
-#' Typically 2-4 weeks elapse between diagnosis and surgery. Providers try to 
-#' not exceed 4 weeks. Nevertheless years may sometimes elapse due to factors 
-#' such as an indolent tumors or loss of contact with the patient. About 15% of 
-#' patients never undergo surgery [@pcRodriguez2018].
-#' 
-#'      * Here are the questions raised:
-#'          * Do they agree with `r fs('n_dsurg')` sufficiently that missing 
+#' * Here are the questions raised:
+#'     * Do they agree with `r fs('n_dsurg')` sufficiently that missing 
 #'            `r fs('n_dsurg')` can be backfilled from some or all of them?
-#'          * Under what circumstances can they be interpreted as surgery dates 
+#'     * Under what circumstances can they be interpreted as surgery dates 
 #'            rather dates for something else?
-#'          * How accurate is `r fs('n_surgreason')` in distinguishing surgical 
-#'            cases from non-surgical cases as per EMR records?
 #' * Question: Where in the chart would one positively establish the date of the 
 #'   patient's first nephrectomy...
 #'   
@@ -1158,12 +1168,14 @@ and by how much? {#tbl:neph_b4_diag}');
 # or lags by multiple weeks, as might be expected of a discharge date (what is 
 # the plausible threshold on time from surgery to discharge?).
 #' 
+#' How accurate is `r fs('n_surgreason')` in distinguishing surgical 
+#' cases from non-surgical cases? 
 .tc <- paste0("Table of every NAACCR surgery event variable versus "
               ,fs('n_surgreason')," {#tbl:srgvars}");
-lapply(v(c_nephx,dat2a)[6:9],function(ii) 
+lapply(v(c_nephx_naaccr),function(ii){
   table(dat2a$n_surgreason,dat2a[[ii]]<=dat2a$age_at_visit_days) %>% 
-    set_colnames(.,paste0(ii,' = ',colnames(.)))) %>% do.call(cbind,.) %>% 
-  pander(caption=.tc);
+    set_colnames(.,paste0(ii,' = ',colnames(.)))
+  }) %>% do.call(cbind,.) %>% pander(caption=.tc);
 
 #' ##### Surgery Conclusion
 #' 
