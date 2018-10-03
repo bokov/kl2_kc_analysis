@@ -102,16 +102,22 @@ fullargs <- function(syspar=sys.parent(),env=parent.frame(2L),expand.dots=TRUE){
 
 #' Take a set of objects coercible to matrices and perform sprintf on them while
 #' preserving their dimensions (obtained from the first argument of ...)
-mprintf <- function(fmt,...){
+mprintf <- function(fmt,...,flattenmethod=2){
   dots <- list(...);
   out<-dots[[1]];
+  # if factors not converted to characters, those cells will come out as NA
+  if(is.factor(out)) out <- as.character(out) else if(is.list(out)){
+    for(ii in seq_along(out)) if(is.factor(out[[ii]])) {
+      out[[ii]]<-as.character(out[[ii]])}}
   if(is.null(nrow(out))) {
     warning('Converting output to matrix. Might be errors.');
     outnames<-names(out);
     out <- t(matrix(out));
     try(colnames(out)<-outnames);
-    }
-  for(ii in seq_along(dots)) dots[[ii]] <- c(unlist(dots[[ii]]));
+  }
+  for(ii in seq_along(dots)) dots[[ii]] <- c(if(flattenmethod==1) {
+    unlist(dots[[ii]])} else if(flattenmethod==2){
+      sapply(dots[[ii]],as.character)});
   vals <- do.call(sprintf,c(fmt,dots));
   for(ii in seq_len(nrow(out))) for(jj in seq_len(ncol(out))) {
     out[ii,jj] <-matrix(vals,nrow=nrow(out))[ii,jj]};
@@ -590,26 +596,32 @@ savetablelist <- function(lst,fileprefix,filesuffix=paste0(format(Sys.Date(),'%m
 #' @param ... 
 e_table.default <- function(xx,yy,xxnames=NA,breaks=c(),autocenter=T
                             ,include.lowest=T,right=T,dig.lab=3L
+                            ,xlabel=gsub('[^a-zA-Z._]',''
+                                         ,as.character(substitute(xx)))
                             ,diffn=`-`,sapplyfn=median,...){
   # get differences, however they might be defined
   vals <- diffn(xx,yy);
+  if(length(xlabel)>1) xlabel <- gsub('^\\.','',paste(xlabel,collapse='.'));
   # set the interval for 'no difference'. Smaller than the smallest difference
   epsilon <- if(autocenter) c(-1,1)*min(abs(vals[vals!=0]),na.rm=T)/2 else c();
+  if(!is.null(epsilon)&&all(is.infinite(epsilon))) {
+    epsilon <- c(-1,1)*.Machine$double.eps;}
+  renametable <- cbind(
+     match=c('\\)|\\(|\\]|\\[','^-Inf,','([-0-9.]{1,}), Inf$',',')
+    ,replace=c('','< ','> \\1',' - '));
+  # didn't take long for the brittle thing to break
+  if(!is.null(epsilon)) renametable <- rbind(renametable
+                                             ,c(paste0('[-]?'
+                                                       ,max(epsilon)),'0'));
   # generate the breaks to use with cut(). Order doesn't matter.
   breaks <- c(-Inf,breaks,epsilon,Inf);
   # create the factor for various bins of less-than, greater-than, as well as 
   # equal-to if autocenter was specified
-  cuts <- cut(vals,breaks=breaks,include.lowest = include.lowest,right=right
-              ,dig.lab=dig.lab);
+  cuts <- try(cut(vals,breaks=breaks,include.lowest = include.lowest,right=right
+              ,dig.lab=dig.lab));
+  if(class(cuts)[1]=='try-error') browser();
   # rename the comparison factor levels to something more readable
-  # sort of brittle, especially where I replace epsilon with 0... that's brittle
-  # and opinionated. Ought to factor out the column names into an argument when
-  # time permits
-  levels(cuts) <- submulti(levels(cuts),cbind(
-    c('\\)|\\(|\\]|\\[','^-Inf,','([-0-9.]{1,}), Inf$',','
-      ,paste0('[-]?',max(epsilon)))
-    ,c('','< ','> \\1',' - ','0'))
-    );
+  levels(cuts) <- submulti(levels(cuts),renametable);
   # this is brittle right here... be prepared to encounter a case where this 
   # doesn't work and use it to develop a more general solution
   levels(cuts)[levels(cuts)=='0 - 0']<-'same';
@@ -623,10 +635,47 @@ e_table.default <- function(xx,yy,xxnames=NA,breaks=c(),autocenter=T
   # get the medians (or whatever the sapplyfn is)
   mdiff<-sapply(split(vals,cuts),sapplyfn,na.rm=T);
   mna <- sapply(split(vals,cutsna),sapplyfn,na.rm=T);
-  return(list(count=c(cdiff,cna),prop=c(pdiff,pna),stat=c(mdiff,mna)));
+  out <- sapply(list(count=c(cdiff,cna),prop=c(pdiff,pna),stat=c(mdiff,mna))
+                ,rbind,simplify=F);
+  for(ii in seq_along(out)) rownames(out[[ii]]) <- xlabel;
+  class(out) <- 'e_table';
+  out;
 }
 
+e_table.data.frame <- e_table.list <- function(xx,yy,xxnames,...){
+  # the 'out' object created here is a matrix of lists of vectors
+  if(! yy %in% names(xx)) stop(sprintf('Data does not have element "%s"',yy));
+  xxn <- intersect(xxnames,names(xx));
+  if(length(setdiff(xxnames,xxn)>0)) warning('Not all xx columns exist');
+  out <- sapply(xx[xxnames],e_table.default,yy=xx[[yy]],...);
+  # now we merge them into three tables of identical dimension named count, 
+  # prop, and stat, with one row for every xx
+  # 
+  out <- sapply(rownames(out),function(ii) {
+    oo<-do.call(rbind,out[ii,]);rownames(oo)<-colnames(out);oo},simplify=F);
+  class(out) <- 'e_table';
+  out;
+}
 
+print.e_table <- function(xx,fmt,cfn=identity,pfn=function(xx) 100*xx
+                          ,sfn=identity,usepander=exists('pander')
+                          ,nobreaks=!usepander,panderstyle='multiline'
+                          ,keep.line.breaks=!nobreaks
+                          ,...){
+  if(missing(fmt)) {
+    fmt <- paste('%3s (%4.1f %%)','%4.1f',sep=if(!nobreaks) '\n' else ' ');
+  }
+  out <- with(xx,mprintf(fmt,cfn(count),pfn(prop),sfn(stat)));
+  if(nobreaks) colnames(out) <- gsub('\\n',' ',colnames(out));
+  if(usepander) pander(out,style=panderstyle,keep.line.breaks=keep.line.breaks
+                       ,...) else {
+                         print(as.data.frame(out
+                                             ,check.names=F
+                                             ,stringsAsFactors=F));
+                         invisible(xx);}
+}
+
+e_table <- function(xx,yy,...) UseMethod('e_table');
 
 # string hacking ---------------------------------------------------------------
 #' Fancy Span (or any other special formatting of strings)
