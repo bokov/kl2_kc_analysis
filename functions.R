@@ -102,7 +102,7 @@ fullargs <- function(syspar=sys.parent(),env=parent.frame(2L),expand.dots=TRUE){
 
 #' Take a set of objects coercible to matrices and perform sprintf on them while
 #' preserving their dimensions (obtained from the first argument of ...)
-mprintf <- function(fmt,...,flattenmethod=2){
+mprintf <- function(fmt,...,flattenmethod=1){
   dots <- list(...);
   out<-dots[[1]];
   # if factors not converted to characters, those cells will come out as NA
@@ -665,7 +665,9 @@ print.e_table <- function(xx,fmt,cfn=identity,pfn=function(xx) 100*xx
   if(missing(fmt)) {
     fmt <- paste('%3s (%4.1f %%)','%4.1f',sep=if(!nobreaks) '\n' else ' ');
   }
-  out <- with(xx,mprintf(fmt,cfn(count),pfn(prop),sfn(stat)));
+  message(fmt);
+  out <- with(xx,mprintf(fmt,cfn(count),pfn(prop)
+                         ,sfn(stat)));
   if(nobreaks) colnames(out) <- gsub('\\n',' ',colnames(out));
   if(usepander) pander(out,style=panderstyle,keep.line.breaks=keep.line.breaks
                        ,...) else {
