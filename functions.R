@@ -663,7 +663,7 @@ print.e_table <- function(xx,fmt,cfn=identity,pfn=function(xx) 100*xx
                           ,keep.line.breaks=!nobreaks
                           ,...){
   if(missing(fmt)) {
-    fmt <- paste('%3s (%4.1f %%)','%4.1f',sep=if(!nobreaks) '\n' else ' ');
+    fmt <- paste('%3s (%4.1f %%)','%4.1f',sep=if(!nobreaks) '\n\n' else ' ');
   }
   message(fmt);
   out <- with(xx,mprintf(fmt,cfn(count),pfn(prop)
