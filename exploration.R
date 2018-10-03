@@ -104,6 +104,9 @@ page break and/or hide this code
     (knitr::combine_words)
   );
 
+# Place to create tables that will get used throughout script
+dat2tte <- transmute_all(dat2a[,v(c_istte)],function(xx){
+  ifelse(xx>dat2a$age_at_visit_days,NA,xx)});
 # note_toc ---------------------------------------------------------------------
 #' ###### TOC {-}
 #+ news_toc,results='asis'
@@ -1382,6 +1385,12 @@ Above are plotted times of death (for patients that have them) relative to "
 #' data is filtered to include only patients with NAACCR records (for other 
 #' patients, both `r fs('n_vtstat')` and `r fs('age_at_visit_days')` should be 
 #' interpreted as missing).
+#' 
+.tc <- paste0(fs('n_vtstat')
+              ,' compared to death data from other sources {#tbl:etabledeath}');
+.tdat <-e_table(dat2tte,'n_vtstat',setdiff(v(c_death),'n_vtstat')); 
+print(.tdat,caption=.tc);
+
 #  hispanic ethnicity ===========================================================
 #' ### Whether or not the patient is Hispanic
 #' 
