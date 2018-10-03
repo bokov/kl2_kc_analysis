@@ -100,6 +100,23 @@ fullargs <- function(syspar=sys.parent(),env=parent.frame(2L),expand.dots=TRUE){
   return(cll);
 }
 
+#' Take a set of objects coercible to matrices and perform sprintf on them while
+#' preserving their dimensions (obtained from the first argument of ...)
+mprintf <- function(fmt,...){
+  dots <- list(...);
+  out<-dots[[1]];
+  if(is.null(nrow(out))) {
+    warning('Converting output to matrix. Might be errors.');
+    outnames<-names(out);
+    out <- t(matrix(out));
+    try(colnames(out)<-outnames);
+    }
+  for(ii in seq_along(dots)) dots[[ii]] <- c(unlist(dots[[ii]]));
+  vals <- do.call(sprintf,c(fmt,dots));
+  for(ii in seq_len(nrow(out))) for(jj in seq_len(ncol(out))) {
+    out[ii,jj] <-matrix(vals,nrow=nrow(out))[ii,jj]};
+  out;
+  }
 
 
 # renaming and remapping  ------------------------------------------------------
@@ -548,6 +565,68 @@ savetablelist <- function(lst,fileprefix,filesuffix=paste0(format(Sys.Date(),'%m
     write.table(lst[[ii]],outfile,sep=sep,row.names=row.names,append=T);
   }
 }
+
+#' function for creating a table summarizing the difference between two numeric
+#' variables-- how many greater than, how many less than, by how much (median),
+#' how many of each are missing, etc.
+#' 
+#' Example: 
+# e_table.default(round(foo,2),round(bar,2)) %>% 
+# mapply(function(aa,bb) ifelse(is.na(aa),'-',bb(aa))
+# ,.,list(identity,function(xx) sprintf('(%2.1f%%)',xx*100),identity)
+# ,SIMPLIFY=F) %>% c(fmt='%s %s\n%s',.) %>% do.call(mprintf,.) %>% 
+# pander(style='multiline',keep.line.breaks=T,split.tables=600)
+#'
+#' @param xx 
+#' @param yy 
+#' @param xxnames 
+#' @param breaks 
+#' @param autocenter 
+#' @param include.lowest 
+#' @param right 
+#' @param dig.lab 
+#' @param diffn 
+#' @param sapplyfn 
+#' @param ... 
+e_table.default <- function(xx,yy,xxnames=NA,breaks=c(),autocenter=T
+                            ,include.lowest=T,right=T,dig.lab=3L
+                            ,diffn=`-`,sapplyfn=median,...){
+  # get differences, however they might be defined
+  vals <- diffn(xx,yy);
+  # set the interval for 'no difference'. Smaller than the smallest difference
+  epsilon <- if(autocenter) c(-1,1)*min(abs(vals[vals!=0]),na.rm=T)/2 else c();
+  # generate the breaks to use with cut(). Order doesn't matter.
+  breaks <- c(-Inf,breaks,epsilon,Inf);
+  # create the factor for various bins of less-than, greater-than, as well as 
+  # equal-to if autocenter was specified
+  cuts <- cut(vals,breaks=breaks,include.lowest = include.lowest,right=right
+              ,dig.lab=dig.lab);
+  # rename the comparison factor levels to something more readable
+  # sort of brittle, especially where I replace epsilon with 0... that's brittle
+  # and opinionated. Ought to factor out the column names into an argument when
+  # time permits
+  levels(cuts) <- submulti(levels(cuts),cbind(
+    c('\\)|\\(|\\]|\\[','^-Inf,','([-0-9.]{1,}), Inf$',','
+      ,paste0('[-]?',max(epsilon)))
+    ,c('','< ','> \\1',' - ','0'))
+    );
+  # this is brittle right here... be prepared to encounter a case where this 
+  # doesn't work and use it to develop a more general solution
+  levels(cuts)[levels(cuts)=='0 - 0']<-'same';
+  # the factor for comparing missingness
+  cutsna <- interaction(is.na(xx),is.na(yy));
+  # rename the levels, they should always be the same order I think
+  levels(cutsna) <- c('Neither\nmissing','Left\nmissing','Right\nmissing'
+                      ,'Both\nmissing');
+  # create the counts and proportions
+  pdiff<-prop.table(cdiff <- table(cuts)); pna<-prop.table(cna <- table(cutsna));
+  # get the medians (or whatever the sapplyfn is)
+  mdiff<-sapply(split(vals,cuts),sapplyfn,na.rm=T);
+  mna <- sapply(split(vals,cutsna),sapplyfn,na.rm=T);
+  return(list(count=c(cdiff,cna),prop=c(pdiff,pna),stat=c(mdiff,mna)));
+}
+
+
 
 # string hacking ---------------------------------------------------------------
 #' Fancy Span (or any other special formatting of strings)
