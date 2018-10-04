@@ -705,23 +705,15 @@ print.e_table <- function(xx,fmt,cfn=identity,pfn=function(xx) 100*xx
   out;
 }
 
-rownames.e_table <- function(dat,...){rownames(dat[[1]])};
-colnames.e_table <- function(dat,...){colnames(dat[[1]])};
+# Interesting! If you implement the dimnames method, it magically provies the
+# rownames and colnames methods, and dim provides nrow and ncol.
+# ...and colnames<- and rownames<- are not S3 methods, but dimnames<- 
+# apparently is
 dimnames.e_table <- function(dat,...){dimnames(dat[[1]])};
 dim.e_table <- function(dat,...){dim(dat[[1]])};
-nrow.e_table <- function(dat,...){nrow(dat[[1]])};
-ncol.e_table <- function(dat,...){ncol(dat[[1]])};
-
-`colnames<-.e_table` <- function(dat,value,...){
-  out <- lapply(dat,`colnames<-`,value);
-  attributes(out) <- attributes(dat);
-  out;
-}
-
-`rownames<-.e_table` <- function(dat,value,...){
-  out <- lapply(dat,`rownames<-`,value);
-  attributes(out) <- attributes(dat);
-  out;
+`dimnames<-.e_table` <- function(dat,value,...){
+  for(ii in seq_along(dat)) dimnames(dat[[ii]]) <- value;
+  dat;
 }
 
 e_table <- function(xx,yy,...) UseMethod('e_table');
