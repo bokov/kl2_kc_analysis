@@ -716,7 +716,7 @@ print.e_table <- function(xx,fmt,cfn=identity,pfn=function(xx) 100*xx
 format.e_table <- function(dat,fmt='%3s %s\\\n%s',searchrep=c(),missing=''
                            ,cfn=function(xx) ifelse(is.na(xx),missing,xx)
                            ,pfn=function(xx) ifelse(is.na(xx),missing
-                                                    ,sprintf('(%4.1f %%)'
+                                                    ,sprintf('(%4.1f%%)'
                                                              ,100*xx))
                            ,sfn=function(xx) ifelse(is.na(xx),missing
                                                     ,sprintf('%4.1f',xx))
@@ -727,10 +727,11 @@ format.e_table <- function(dat,fmt='%3s %s\\\n%s',searchrep=c(),missing=''
 }
 
 pander.e_table <- function(dat,keep.line.breaks=T,style='grid'
-                           ,missing=panderOptions('missing'),justify='left'
+                           ,missing=panderOptions('missing')
+                           #,justify='left'
                            ,...){
   pander(format(dat,missing=missing,...)
-         ,keep.line.breaks=keep.line.breaks,style=style,justify=justify,...);}
+         ,keep.line.breaks=keep.line.breaks,style=style,...);}
 
 # Interesting! If you implement the dimnames method, it magically provies the
 # rownames and colnames methods, and dim provides nrow and ncol.
