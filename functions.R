@@ -725,9 +725,10 @@ format.e_table <- function(dat,fmt='%3s %s\\\n%s',searchrep=c(),missing=''
 }
 
 pander.e_table <- function(dat,keep.line.breaks=T,style='grid'
-                           ,missing=panderOptions('missing'),...){
+                           ,missing=panderOptions('missing'),justify='left'
+                           ,...){
   pander(format(dat,missing=missing,...)
-         ,keep.line.breaks=keep.line.breaks,style=style,...);}
+         ,keep.line.breaks=keep.line.breaks,style=style,justify=justify,...);}
 
 # Interesting! If you implement the dimnames method, it magically provies the
 # rownames and colnames methods, and dim provides nrow and ncol.
