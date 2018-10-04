@@ -72,6 +72,6 @@ Lessons learned
      are available to RMarkDown, which means I can use fancy `\color{FOO}` type
      directives as well as symbols like `\triangledown` inline without having to
      do anything special. Might even get properly exported to Word docs...
+     * No, they do not export to Word docs, sadly. Had to switch to inline pngs.
      * By default the `\footnotesize` LaTeX font modifier is not recognized, 
      `\small` has little or no effect, but `\tiny` works.
-     

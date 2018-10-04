@@ -7,25 +7,28 @@
 #' output:
 #'  html_document:
 #'   keep_md: true
+#'   css: production.css
+#'   pandoc_args: [
+#'     "--filter", "pandoc-crossref"
+#'   ]
 #'  word_document:
+#'   reference_docx: 'nt_styletemplate.docx'
 #'   keep_md: true
+#'   pandoc_args: [
+#'     "--filter", "pandoc-crossref"
+#'   ]
 #'  pdf_document:
 #'   keep_md: true
 #' ---
 #' 
-#+ echo=FALSE
-# output:
-#  html_document:
-#    keep_md: yes
-#' Note: in the YAML header, the `reference_docx` argument seems to get ignored
-#' if it's at the top level.
-#' 
 #+ init, echo=FALSE, include=FALSE, message=FALSE
-# init -------------------------------------------------------------------------
+# initialize -------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
 options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
-.depends <- 'data.R';
+# set the font
+default_font <- 'Times New Roman';
+.depends <- 'dictionary.R';
 .depdata <- paste0(.depends,'.rdata');
 .currentscript <- parent.frame(2)$ofile;
 if(is.null(.currentscript)) .currentscript <- knitr::current_input();
@@ -36,9 +39,11 @@ if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 .loadedobjects <- tload(.depdata);
 # a hack pending until we can separate the light and heavy parts of data.R 
 # somehow
-source('functions.R');
-knitr::opts_chunk$set(echo = F,warning = F,message=F);
-rmarkdown::pandoc_toc_args(TRUE,toc_depth=3);
+knitr::opts_chunk$set(echo = F,warning = F,message=F
+                      ,dev.args=list(family=default_font));
+knitr::opts_template$set(
+  fig_opts=alist(fig.cap=get0(knitr::opts_current$get("label"))));
+#rmarkdown::pandoc_toc_args(TRUE,toc_depth=3);
 # Set default arguments for some functions
 panderOptions('table.split.table',Inf);
 panderOptions('missing','-');
@@ -47,13 +52,145 @@ panderOptions('table.alignment.rownames','left');
 .args_default_v <- formals(v);
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 # overview ---------------------------------------------------------------------
-#' # Overview
+#' # Overview {#sec:overview}
 #' 
 #' 
 #' 
 #' This is a script for testing how how various RMarkdown features work without 
 #' the overhead of running one of the main scripts.
+# header_notes -----------------------------------------------------------------
+#' # Header notes
+#' Stuff that does not work at the top level of the YAML header (i.e. outside 
+#' individual formats):
 #' 
+#' * `pandoc_args`
+#' * `keep_md`
+#' * `reference_docx`
+#' 
+#' 
+# params ----------------------------------------------------------------------
+#' # Params & Metadata {#sec:meta label="Meta Section"}
+#' 
+#' Trying to print out the current YAML `r thisenv<-environment(); 'params'`...
+cat('Here goes...\n\n');
+if(exists('params')) pander(params) else cat('No params\n');
+if(exists('input')) pander(input) else cat('No input\n');
+if(exists('thisenv')) pander(ls(thisenv)) else cat('No thisenv\n');
+#' ## knitr options
+#' 
+#' `opts_template`
+#+ opts_template
+pander(knitr::opts_template$get());
+#' `opts_current`
+pander(knitr::opts_current$get());
+#' `opts_knit`
+pander(knitr::opts_knit$get());
+#' `opts_hook`
+#+ opts_hook
+baz<-try(pander(knitr::opts_hooks$get()));
+#' `opts_chunk`
+#+ opts_chunk
+pander(knitr::opts_chunk$get());
+
+# fenced_divs ------------------------------------------------------------------
+#' # Fenced divs {#sec:divs}
+#' 
+#' ::::: {.sidebar #fig:fenced custom-style="Image Caption"}
+#' Here is a paragraph.
+#' 
+#' Lorem ipsum dolor sit amet, tincidunt sem lorem eleifend enim. Luctus tellus
+#' est in ante et. Magna habitant non. So, the last paragraph gets treated as a 
+#' caption?
+#' 
+#' And another.
+#' 
+#' The last paragraph is the caption? But it isn't wrapped in figcaption or
+#' caption tags. And starting with a leading `:` does casues the text above it 
+#' to be bold but does not turn it into a caption.
+#' 
+#' :::::
+#' 
+#' Can I wrap a code chunk in it?
+#' 
+#' ::::: {.sidebar #fig:codeplot0 custom-style="Image Caption"}
+#+ codeplot0,results='asis'
+#,fig.cap='This is going to be the figure caption.'
+cat('Hi, this is yet another caption attempt.');
+plot(rnorm(10),rnorm(10),type='b',main='Random Plot 0a');
+
+#' :::::
+#' 
+#' ~~No, that doesn't work.~~ Works, just needed to skip a space before the 
+#' opening fence. Maybe the fences need to be in the code?
+#' 
+#+ codeplot1,id='#fig:codeplot1a',results='asis',caption='This is going to be another figure caption.'
+cat("\n\n::::: {.sidebar #fig:codeplot1 fig.caption='asdfasd sadfafds' caption='No I am the caption' custom-style='Image Caption'}\n\n")
+plot(rnorm(10),rnorm(10),type='b',main='Random Plot 1');
+#cat("\n\n: The real caption. \n{#fig:codeplot1}\n\n");
+cat("\n Third caption attempt")
+cat("\n\n:::::\n\n");
+#'
+#' 
+#' ::::: {#fig:codeplot2 custom-style="Image Caption"}
+#+ codeplot2,results='asis'
+plot(rnorm(10),rnorm(10),type='b',main='Random Plot 2b');
+cat('\n\nOverall caption');
+#' :::::
+#' 
+#' Can I just use a plain old H7?
+#' 
+#' ####### codeplot3 {#fig:codeplot3 custom-style="Image Caption"}
+#+ codeplot3,results='asis'
+plot(rnorm(10),rnorm(10),type='b',main='Random Plot 3');
+cat('\n\nCaption for random plot 3');
+#' 
+# crossref ---------------------------------------------------------------------
+#' 
+#' # Referencing tables and figures. {#sec:xref}
+#' 
+#' Here I will cite [@sec:meta] and [@sec:divs]. Now how about [@sec:h7]? Now 
+#' I will cite [&nbsp; @sec:meta] again. `&nbsp` works as a custom one-off 
+#' prefix but whitespace does not. Quotes are made visible. Now I will cite 
+#' [-@sec:meta] and [-@sec:xref] with prefix-suppression. And now I will link
+#' to [the section on metadata](#sec:meta) completely bypassing pandoc-crossref.
+#' 
+#' Trying to cite [@Tbl:footab] . Did it work? Yes! Also see the top-level YAML 
+#' headers. How about multiple tables, such as [@tbl:bananas;@tbl:footab]. Can
+#' also reference one of the tables without a prefix (i.e. just [-@tbl:footab])
+#' or with a one-off custom prefix like [TABLE @tbl:footab].
+#' 
+#' Note: http://lierdakil.github.io/pandoc-crossref/ was very helpful in sorting
+#' all this out.
+#' 
+#' Now referencing [@fig:mtcars]. Link doesn't work in Word. How about if we 
+#' pretend that a div is a figure, such as [@fig:fenced]?
+#' 
+#' Well, the link works, but in that one the target doesn't get proper caption
+#' styling. But what about [@fig:codeplot0]? Or [@fig:codeplot1].
+#' 
+#' Referencing the one that seems to be linking to a div rather than a figure
+#' [@fig:codeplot2]. On the other hand the one that is an H7 is here 
+#' [@fig:codeplot3]. There is a target created for it, but its link is broken.
+#' 
+#' **...and the winner for docx compatibility is [@fig:codeplot2]**. Though all 
+#' of these [@fig:codeplot0;@fig:codeplot1;@fig:fenced] do work, the captions 
+#' are jacked in various ways.
+#' 
+#' # Referencing figures
+#' 
+#' Writing the caption which should be invisible...
+.iris_plot <- "This is a plot of 
+iris data. {#fig:iris}"
+#' Now the figure...
+#+ .iris_plot, opts.label='fig_opts'
+plot(iris);
+#' Does not work! Reference not created.
+.mtcars_plot <- "This is a plot of mtcars, no fancy stuff in the caption"
+#' How about this?
+#+ .mtcars_plot, opts.label='fig_opts', results='asis'
+plot(mtcars[,3:5]);
+cat('{#fig:mtcars}\n');
+
 # list_tables ------------------------------------------------------------------
 #' # Lists in tables
 #' 
@@ -71,7 +208,8 @@ cat('
 | Oranges       | $2.10         | - cures scurvy     |
 |               |               | - tasty            |
 +---------------+---------------+--------------------+
-    ');
+
+: Bananas and oranges caption. {#tbl:bananas}');
 #' Now let's try the actual table I want to do...
 #+ tablewlist1, results='asis'
 cat('
@@ -189,6 +327,7 @@ ________- [Footnotes](#footnotes)
   gsub('_',' ',.);
 cat('\n\n***\n\nThe Real Table\n\n')
 cat(.temp1);
+cat("\n: Foo bar baz {#tbl:footab}");
 #'
 # headers ----------------------------------------------------------------------
 #' # Headers 
@@ -212,6 +351,10 @@ cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
 #+ results='asis' 
 cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
 #' ###### H6
+#' 
+#+ results='asis' 
+cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));
+#' ####### H7 {#sec:h7}
 #' 
 #+ results='asis' 
 cat(paste0(stri_rand_lipsum(3),collapse='\n\n'));

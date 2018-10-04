@@ -241,14 +241,19 @@ tread <- function(file,readfun,...){
 #' Wrapper for save(). Pulls trail out of options as a data.frame, saves the
 #' data.frame along with whatever was originally going to be saved, and then 
 #' deletes it. Logs the save to itself before saving.
-tsave <- function(...,list=character(),envir=parent.frame(),trailobj='.trail'){
+tsave <- function(...,list=character(),envir=parent.frame(),trailobj='.trail'
+                  ,verbose=TRUE){
   # add another sessionInfo() entry to trail
   tupdate('info',name='sessionInfo',value=sessionInfo());
   val <- deparse(match.call());
   # update with the actual save entry and put the trail object in the environment
   envir[[trailobj]] <- tupdate('save',name='save',value=val);
   # save with the args as given
-  save(...,list=c(trailobj,list),envir=envir);
+  if(verbose) message('tsave is saving to file...');
+  savetime<-system.time(save(...,list=c(trailobj,list),envir=envir));
+  if(verbose) {
+    message(sprintf('...tsave is done saving. Time elapsed: %f minutes'
+            ,savetime[3]/60))};
   # remove the trailobj
   rm(list = trailobj,envir = envir);
 }

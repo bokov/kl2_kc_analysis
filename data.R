@@ -68,7 +68,8 @@ dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',x
 kcpatients.emr <- subset(dat1,e_kc_i10|e_kc_i9)$patient_num %>% unique;
 #' Patients that are recorded in NAACCR as having kidney cancer and a diagnosis 
 #' date.
-kcpatients.naaccr <- subset(dat1,(n_seer_kcancer|n_kcancer) & n_ddiag)$patient_num %>% unique;
+kcpatients.naaccr <- subset(dat1,(n_seer_kcancer|n_kcancer) & 
+                              n_ddiag)$patient_num %>% unique;
 kcpatients.naaccr_bad_dob <- intersect(kcpatients.naaccr,kcpatients.bad_dob);
 #' create the raw time-to-event (tte) and censoring (cte) variables
 #' along with making a_n_race and a_n_dm time invariant
@@ -102,7 +103,7 @@ dat1 <- mutate(dat1
                # cancer diagnosis regardless of whether it is in NAACCR or in 
                # the EMR
                ,a_naive_tdiag=tte(age_at_visit_days
-                                  ,e_kc_i10_i|e_kc_i9_i|
+                                  ,a_e_kc|e_kc_i10_i|e_kc_i9_i|
                                     (patient_num %in% kcpatients.naaccr & 
                                        n_ddiag))
                # THE RECURRENCE EVENT (PURE NAACCR)
@@ -111,7 +112,7 @@ dat1 <- mutate(dat1
                ,a_trecur=tte(age_at_visit_days,n_drecur)
                # THE SURGERY EVENT (PURE NAACCR)
                ,a_tsurg=tte(age_at_visit_days
-                            ,if(any(n_rx3170)) n_rx3170 else n_dsurg)
+                            ,if(any(n_rx3170,na.rm=T)) n_rx3170 else n_dsurg)
                # the old surgery event, for comparison purposes, will be removed 
                # eventually
                ,a_tsurg_bak=tte(age_at_visit_days,n_dsurg)
@@ -121,15 +122,22 @@ dat1 <- mutate(dat1
                # the pure NAACCR event is n_vtstat-- right now it's a factor
                # but in the time-to-event section of this script (below) it
                # gets converted to a tte just like these here.
+               # TODO: double-check these components, a_tdeath is coming out as
+               # if it is missing the contribution of =n_vtstat
+               # ...might be because isTRUE returns a scalar value... not needed
+               # anyway, let's see if with these changes 'a_tdeath' is in better
+               # agreement with n_vtstat
                ,a_tdeath=tte(age_at_visit_days
                              # EMR death
-                             ,isTRUE(age_at_death_days==age_at_visit_days)|
+                             #,isTRUE(age_at_death_days==age_at_visit_days)|
+                             ,age_at_death_days==age_at_visit_days|
                                # death on discharge
                                e_dscdeath|
                                # SSN death
                                s_death|
                                # NAACCR death
-                               isTRUE(n_vtstat=="Dead")
+                               #isTRUE(n_vtstat=="Dead")
+                               n_vtstat=='Dead'
                              )
                # THE DIAGNOSIS CENSORING VARIABLE
                ,a_cdiag=cte(a_tdiag)
@@ -276,6 +284,21 @@ dat1[,c('a_hsp_broad','a_hsp_strict')] <- apply(
         'non-Hispanic'} else 'Unknown')) %>% t %>% data.frame;
 dat1$a_hsp_naaccr <- .tmp_hspvar$temp_n_hisp;
 
+# Finalizing the three Hispanic variables to distinguish between NHW and other
+dat1 <- mutate(dat1,
+               a_hsp_broad=ifelse(a_hsp_broad=='non-Hispanic'
+                                  ,ifelse(a_n_race=='White'|race_cd=='White'
+                                          ,'non-Hispanic white','Other')
+                                  ,as.character(a_hsp_broad))
+               ,a_hsp_strict=ifelse(a_hsp_strict=='non-Hispanic'
+                                    ,ifelse(a_n_race=='White'&race_cd=='White'
+                                            ,'non-Hispanic white','Other')
+                                    ,as.character(a_hsp_strict))
+               ,a_hsp_naaccr=ifelse(a_hsp_naaccr=='non-Hispanic'
+                                    ,ifelse(a_n_race=='White'
+                                            ,'non-Hispanic white','Other')
+                                    ,a_hsp_naaccr));
+
 kcpatients.pre_existing <- subset(dat1,a_naive_tdiag>=0&a_tdiag<0)$patient_num %>% unique;
 
 cohorts <- data.frame(patient_num=unique(dat1$patient_num)) %>% 
@@ -311,7 +334,13 @@ pat_samples <- unique(dat1$patient_num) %>%
 dat2a <- mutate_at(dat1,v(c_istte)
                    ,.funs=funs(ifelse(any((.)==0,na.rm=T)
                                       ,(age_at_visit_days)[(.)==0]
-                                      , max(age_at_visit_days)))) %>%
+                                      # That +1 is important! We need events to
+                                      # be distinguishable from censored events
+                                      # by their temporal relationship with last
+                                      # observations. By setting censored events
+                                      # to one _more_ than final observation,
+                                      # then time <= lastobs will select events.
+                                      , max(age_at_visit_days)+1))) %>%
   summarise_all(function(xx){
     if(is.logical(xx)) any(xx) else (last(na.omit(xx)))});
 #' This is the original dat2 that, after testing, will be replaced by the above
@@ -365,6 +394,10 @@ kcpatients_surgreason <- split(dat2,dat2$n_surgreason) %>%
 #' Patients split by recurrence type
 kcpatients_rectype <- split(dat2,dat2$a_n_recur) %>%
   lapply(pull,'patient_num');
+#' Patients with a surgery record in NAACCR
+kcpatients.surg <- unique(subset(dat1,a_tsurg==0)$patient_num);
+#' Patients with a death recorded in NAACCR
+kcpatients.naaccr_death <- unique(subset(dat1,n_vtstat==0)$patient_num);
 #' ### Make several subsets of dat1 all at once
 #
 #' for later use to make multiple versions of the same table and 
@@ -406,4 +439,6 @@ subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
 #' ## Save all the processed data to an rdata file 
 #' 
 #' ...which includes the audit trail
-tsave(file=paste0(.currentscript,'.rdata'),list=setdiff(ls(),.origfiles));
+tsave(file=paste0(.currentscript,'.rdata')
+      ,list=setdiff(ls(),c(.origfiles,'dat2')));
+c()

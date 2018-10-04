@@ -9,35 +9,69 @@
 #' variables that will be needed by many different scripts.
 #' Keep this script minimalistic and *no number crunching here*
 #' 
-#' ## Load libraries
+# local_fns --------------------------------------------------------------------
+#' ## Local functions
 #+ warning=FALSE, message=FALSE
 source('./functions.R');
 source('./trailR.R');
-instrequire(c('compiler'                                   # just-in-time compilation
-             #,'MatchIt','DHARMa'                          # propensity scores and glm residuals
-             #,'pscl'                                      # zero-inflated poisson, sigh
-             ,'survival','MASS','Hmisc','zoo','coin'      # various analysis methods
-             #,'survAUC','survivalROC','pROC'              # evaluating predictive power
-             #,'Matrix'                                    # for pd matrices needed by faker()
-             ,'readr','dplyr','stringr','magrittr'        # data manipulation & piping
-             ,'tools'
-             #,'lubridate'
-             #,'ggplot2','grid','GGally'                  # plotting
-             ,'ggfortify','heatmap3'
-             ,'stringi'                                   # string manipulation
-             #,'survminer','gridExtra','scales'
-             #,'stargazer','broom','janitor'              # table formatting
-             ,'pander','tableone'
-             #,'knitr','htmltab'
-             ));
+
+# libs -------------------------------------------------------------------------
+#' Libraries
+#' 
+#' load and if necessary install needed libraries
+#+ warning=FALSE, message=FALSE
+instrequire(
+  c(# just-in-time compilation
+    # 'compiler'
+    
+    # propensity scores and glm residuals
+    #,'MatchIt','DHARMa'
+    
+    # zero-inflated poisson, sigh
+    #,'pscl'
+    
+    # various analysis methods
+    'survival' # this one can be moved to exploration.R
+    #,'MASS','Hmisc','zoo','coin'
+    
+    # evaluating predictive power
+    #,'survAUC','survivalROC','pROC'
+    
+    # for pd matrices needed by faker()
+    #,'Matrix'
+    
+    # data manipulation & piping. 
+    # 'tools' is used by trailR.R. Not sure what uses 'stringr'.
+    ,'readr','dplyr','magrittr','tools'
+    #,'lubridate'
+    
+    # plotting
+    ,'ggfortify'
+    #,'ggplot2','grid','GGally','heatmap3','survminer','gridExtra','scales'
+    
+    # string manipulation
+    ,'stringi','stringr'
+    
+    # table formatting
+    ,'pander','tableone'
+    #,'knitr','htmltab','stargazer','broom','janitor'
+    
+    # Web
+    ,'RCurl','XML'
+));
+
 #' Turn JIT to max: pre-compile all closures, `for`, `while`, and `repeat` loops
 #enableJIT(3);
+# config -----------------------------------------------------------------------
 #' ## Load local config file
 #' 
 source('./config.R');
 
-
+# vars -------------------------------------------------------------------------
 #' ## Set generic variables
+#' 
+#' That is to say, variables which can be set without reference to the data and
+#' do not take a lot of time to do.
 #' 
 #' data dictionary produced by datafinisher, should physically accompany inputdata
 dctfile_raw <- paste0(dirname(inputdata),'/meta_',basename(inputdata));
@@ -56,3 +90,31 @@ dct_stage <- Inf;
 #' This is the file that lists levels of discrete variables and what each listed
 #' level should be renamed to.
 levels_map_file <- 'levels_map.csv';
+# fs_templates -----------------------------------------------------------------
+#' templates for `fs()` ... note that the actual values inserted depend on 
+#' the other arguments of `fs()` and the columns of the data dictionary
+fstmplts <- list(
+  # [n_ddiag]: #n_ddiag "0390 Date of Diagnosis"
+   linkref="[%1$s]: %2$s \"%4$s\"\n"  
+  # [`n_ddiag`][#n_ddiag]
+  ,link_varname="[`%1$s`][%2$s]"
+  # [`0390 Date of Diagnosis`][#n_ddiag]
+  ,link_colnamelong="[`%4$s`][%2$s]"
+  # `0390 Date of Diagnosis`
+  ,code_colnamelong="`%4$s`"
+  # 0390 Date of Diagnosis
+  ,plain_colnamelong="%4$s"
+);
+# urls -------------------------------------------------------------------------
+urls <- list(
+   exploration_rpubs='https://rpubs.com/bokov/kidneycancer'
+  ,dict_naaccr='http://datadictionary.naaccr.org/?c=10'
+  );
+#' RPubs keeps the actual content in an iframe, and this cool little 3-liner 
+#' gets the address of that iframe's target so in principle I can now construct
+#' links with targets to other documents I published previously, starting with
+#' the most recent version of this document.
+urls$exploration_raw <- getURL(urls$exploration_rpubs) %>% 
+  htmlParse %>% xpathApply('//iframe') %>% `[[`(1) %>% xmlAttrs() %>% 
+  paste0('https:',.);
+c()
