@@ -670,6 +670,12 @@ e_table.data.frame <- e_table.list <- function(xx,yy,xxnames,...){
   out;
 }
 
+#' See http://adv-r.had.co.nz/S3.html at the end in the Best Practices section
+#' for how to someday properly factor the below into format.e_table, 
+#' print.e_table, and possible a separate pander.e_table
+#' 
+#' Actually, format.e_table and pander.e_table done, just need to figure out 
+#' print method when time permits.
 print.e_table <- function(xx,fmt,cfn=identity,pfn=function(xx) 100*xx
                           ,sfn=identity,usepander=exists('pander')
                           ,nobreaks=!usepander,panderstyle='multiline'
@@ -697,23 +703,49 @@ print.e_table <- function(xx,fmt,cfn=identity,pfn=function(xx) 100*xx
 `[.e_table` <- function(dat,...,drop=FALSE){
   dots <- as.list(match.call(expand.dots=T)[-(1:2)]);
   rows <- if(identical(as.character(dots[[1]]),'')) TRUE else {
-    eval(dots[[1]],envir=dat)};
+    eval(eval(dots[[1]],envir=dat))};
   cols <- if(identical(as.character(dots[[2]]),'')) TRUE else {
-    eval(dots[[2]],envir=dat)};
+    eval(eval(dots[[2]],envir=dat))};
   out <- lapply(dat,`[`,rows,cols,drop=drop);
   attributes(out) <- attributes(dat);
   out;
 }
+
+format.e_table <- function(dat,fmt='%3s %s\\\n%s',searchrep=c(),missing=''
+                           ,cfn=function(xx) ifelse(is.na(xx),missing,xx)
+                           ,pfn=function(xx) ifelse(is.na(xx),missing
+                                                    ,sprintf('(%4.1f)',100*xx))
+                           ,sfn=function(xx) ifelse(is.na(xx),missing
+                                                    ,sprintf('%4.1f',xx))
+                           ,...){
+  out <- with(dat,mprintf(fmt,cfn(count),pfn(prop),sfn(stat)));
+  if(!missing(searchrep)) out <- submulti(out,searchrep);
+  out;
+}
+
+pander.e_table <- function(dat,keep.line.breaks=T,style='grid'
+                           ,missing=panderOptions('missing'),...){
+  pander(format(dat,missing=missing,...)
+         ,keep.line.breaks=keep.line.breaks,style=style,...);}
 
 # Interesting! If you implement the dimnames method, it magically provies the
 # rownames and colnames methods, and dim provides nrow and ncol.
 # ...and colnames<- and rownames<- are not S3 methods, but dimnames<- 
 # apparently is
 dimnames.e_table <- function(dat,...){dimnames(dat[[1]])};
+
 dim.e_table <- function(dat,...){dim(dat[[1]])};
+
 `dimnames<-.e_table` <- function(dat,value,...){
-  for(ii in seq_along(dat)) dimnames(dat[[ii]]) <- value;
-  dat;
+  for(ii in seq_along(dat)) dimnames(dat[[ii]]) <- value;dat;}
+
+rbind.e_table <- function(...){out <- mapply(rbind,...,SIMPLIFY = F);
+  class(out) <- 'e_table';out;}
+
+arrange.e_table <- function(dat,...){
+  dots <- as.list(match.call(expand.dots=T)[-(1:2)]);
+  index <- with(dat,do.call(order,dots));
+  eval(substitute(dat[index,]));
 }
 
 e_table <- function(xx,yy,...) UseMethod('e_table');
