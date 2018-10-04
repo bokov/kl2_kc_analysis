@@ -1402,7 +1402,9 @@ columns). Where available, the median difference in days is shown below the
 count and percentage. {#tbl:etabledeath}");
 .tdat <-e_table(dat2tte,'n_lc',v(c_death),breaks=c(-30,30));
 pander(.tdat,caption=.tc,missing='&nbsp;' #,justify='right'
-       ,row.names=vmap(rownames(.tdat),searchrep=c('\\[.*\\]$',''))); 
+       #,searchrep=c(' ','&nbsp;')
+       ,fmt='%3s&nbsp;%s\\\n%s'
+       ,row.names=vmap(rownames(.tdat),searchrep=cbind('\\[.*\\]$',''))); 
 #print(.tdat,caption=.tc);
 #' 
 #'
