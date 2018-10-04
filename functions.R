@@ -714,7 +714,8 @@ print.e_table <- function(xx,fmt,cfn=identity,pfn=function(xx) 100*xx
 format.e_table <- function(dat,fmt='%3s %s\\\n%s',searchrep=c(),missing=''
                            ,cfn=function(xx) ifelse(is.na(xx),missing,xx)
                            ,pfn=function(xx) ifelse(is.na(xx),missing
-                                                    ,sprintf('(%4.1f)',100*xx))
+                                                    ,sprintf('(%4.1f %%)'
+                                                             ,100*xx))
                            ,sfn=function(xx) ifelse(is.na(xx),missing
                                                     ,sprintf('%4.1f',xx))
                            ,...){
