@@ -522,14 +522,16 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 # With above just a matter of finding a place to put the code below and then
 # cleaning it up a little (including restricting it only to predictor vars that
 # come from NAACCR)
-# .t1input %>% CreateTableOne(vars=setdiff(names(.)
-#                                          ,c('a_hsp_naaccr','patient_num'))
-#                             ,strata='a_hsp_naaccr',data=.,includeNA = T ) %>%
-#   print(printToggle=F,missing=T) %>% `[`(-5) %>% 
+# Hispanic table
+# 
+# .t1input %>% subset(patient_num %in% kcpatients.naaccr) %>% droplevels %>%
+#   CreateTableOne(vars=setdiff(names(.),c('a_hsp_naaccr','patient_num'))
+#                  ,strata='a_hsp_naaccr',data=.,includeNA = T ) %>%
+#   print(printToggle=F,missing=T) %>% `[`(,-6) %>%
 #   set_rownames(gsub('^([A-Za-z].*)$','**\\1**'
 #                     ,gsub('   ','&nbsp;&nbsp;',rownames(.)))) %>%
 #   set_rownames(gsub('[ ]?=[ ]?|[ ]?TRUE[ ]?',' ',rownames(.))) %>%
-#   gsub('0[ ]?\\([ ]+0\\.0\\)','0',.) %>% 
+#   gsub('0[ ]?\\([ ]+0\\.0\\)','0',.) %>%
 #   pander(emphasize.rownames=F);
 #
 # conclusions ---------------------------------------------------------
@@ -1386,11 +1388,24 @@ Above are plotted times of death (for patients that have them) relative to "
 #' patients, both `r fs('n_vtstat')` and `r fs('age_at_visit_days')` should be 
 #' interpreted as missing).
 #' 
-.tc <- paste0(fs('n_vtstat')
-              ,' compared to death data from other sources {#tbl:etabledeath}');
-try(.tdat <-e_table(dat2tte,'n_vtstat',setdiff(v(c_death),'n_vtstat'))); 
-try(print(.tdat,caption=.tc,style='grid'));
-
+#+ etabledeath, results='asis'
+.tc <- paste0(fs('n_lc')
+,' compared to death data from each source (rows). The first five columns 
+represent the number of patients falling into each of the time-bins (in days) 
+relative to ',fs('n_lc'),". The last four columns indicate the number of 
+patients for each of the possible combinations of missing values (`Left` means
+the variable indicated in the row name is missing and `Right` means "
+,fs('n_lc')," is missing). The parenthesized values are percentages (of the 
+total number of patients with both variables non-missing for the first five 
+columns and of the total number of patients for the last four 
+columns). Where available, the median difference in days is shown below the 
+count and percentage. {#tbl:etabledeath}");
+.tdat <-e_table(dat2tte,'n_lc',v(c_death),breaks=c(-30,30));
+pander(.tdat,caption=.tc,missing='&nbsp;' #,justify='right'
+       ,row.names=vmap(rownames(.tdat),searchrep=c('\\[.*\\]$',''))); 
+#print(.tdat,caption=.tc);
+#' 
+#'
 #  hispanic ethnicity ===========================================================
 #' ### Whether or not the patient is Hispanic
 #' 
