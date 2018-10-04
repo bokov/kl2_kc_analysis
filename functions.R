@@ -100,6 +100,29 @@ fullargs <- function(syspar=sys.parent(),env=parent.frame(2L),expand.dots=TRUE){
   return(cll);
 }
 
+#' Take a set of objects coercible to matrices and perform sprintf on them while
+#' preserving their dimensions (obtained from the first argument of ...)
+mprintf <- function(fmt,...,flattenmethod=1){
+  dots <- list(...);
+  out<-dots[[1]];
+  # if factors not converted to characters, those cells will come out as NA
+  if(is.factor(out)) out <- as.character(out) else if(is.list(out)){
+    for(ii in seq_along(out)) if(is.factor(out[[ii]])) {
+      out[[ii]]<-as.character(out[[ii]])}}
+  if(is.null(nrow(out))) {
+    warning('Converting output to matrix. Might be errors.');
+    outnames<-names(out);
+    out <- t(matrix(out));
+    try(colnames(out)<-outnames);
+  }
+  for(ii in seq_along(dots)) dots[[ii]] <- c(if(flattenmethod==1) {
+    unlist(dots[[ii]])} else if(flattenmethod==2){
+      sapply(dots[[ii]],as.character)});
+  vals <- do.call(sprintf,c(fmt,dots));
+  for(ii in seq_len(nrow(out))) for(jj in seq_len(ncol(out))) {
+    out[ii,jj] <-matrix(vals,nrow=nrow(out))[ii,jj]};
+  out;
+  }
 
 
 # renaming and remapping  ------------------------------------------------------
@@ -248,6 +271,8 @@ submulti <- function(xx,searchrep
   # method doesn't match any of the valid possibilities this gives an informativ
   # error message
   method<-match.arg(method);
+  # if passed a single vector of length 2 make it a matrix
+  if(is.null(dim(searchrep))&&length(searchrep)==2) searchrep<-rbind(searchrep);
   # rr is a sequence of integers spanning the rows of the searchrep matrix
   rr <- 1:nrow(searchrep);
   # oo will hold the result that this function will return
@@ -549,6 +574,186 @@ savetablelist <- function(lst,fileprefix,filesuffix=paste0(format(Sys.Date(),'%m
   }
 }
 
+#' function for creating a table summarizing the difference between two numeric
+#' variables-- how many greater than, how many less than, by how much (median),
+#' how many of each are missing, etc.
+#' 
+#' Example: 
+# e_table.default(round(foo,2),round(bar,2)) %>% 
+# mapply(function(aa,bb) ifelse(is.na(aa),'-',bb(aa))
+# ,.,list(identity,function(xx) sprintf('(%2.1f%%)',xx*100),identity)
+# ,SIMPLIFY=F) %>% c(fmt='%s %s\n%s',.) %>% do.call(mprintf,.) %>% 
+# pander(style='multiline',keep.line.breaks=T,split.tables=600)
+#'
+#' @param xx 
+#' @param yy 
+#' @param xxnames 
+#' @param breaks 
+#' @param autocenter 
+#' @param include.lowest 
+#' @param right 
+#' @param dig.lab 
+#' @param diffn 
+#' @param sapplyfn 
+#' @param ... 
+e_table.default <- function(xx,yy,xxnames=NA,breaks=c(),autocenter=T
+                            ,include.lowest=T,right=T,dig.lab=3L
+                            ,xlabel=gsub('[^a-zA-Z._]',''
+                                         ,as.character(substitute(xx)))
+                            ,diffn=`-`,sapplyfn=median,...){
+  # get differences, however they might be defined
+  vals <- diffn(xx,yy);
+  if(length(xlabel)>1) xlabel <- gsub('^\\.','',paste(xlabel,collapse='.'));
+  # set the interval for 'no difference'. Smaller than the smallest difference
+  epsilon <- if(autocenter) {
+    # if these are integer values just use fractions, they will never get that
+    # low
+    if(all(vals==floor(vals),na.rm=T)) c(-.5,.5) else {
+      # otherwise use half the smallest difference and if they are all 0 then
+      # use half the smallest representable value? (question: if all non 
+      # missing are equal, what does it matter what I use? why not use something
+      # non wierd, like also -0.5,0.5? ...to consider later)
+      c(-1,1)*min(c(.Machine$double.eps,abs(vals[vals!=0])/2),na.rm=T)}
+    } else c();
+  renametable <- cbind(
+     match=c('\\)|\\(|\\]|\\[','^-Inf,','([-0-9.]{1,}), Inf$',',','^0 to 0'
+             ,'\\\n0')
+    ,replace=c('','Below\\\\\n','Above\\\\\n\\1',' to ','same',''));
+  # didn't take long for the brittle thing to break
+  if(!is.null(epsilon)) {
+    renametable <- rbind(c(paste0('[-]?',format(max(epsilon),digits=dig.lab))
+                           ,'0'),renametable)};
+  # generate the breaks to use with cut(). Order doesn't matter.
+  breaks <- c(-Inf,breaks,epsilon,Inf);
+  # create the factor for various bins of less-than, greater-than, as well as 
+  # equal-to if autocenter was specified
+  cuts <- try(cut(vals,breaks=breaks,include.lowest = include.lowest,right=right
+              ,dig.lab=dig.lab));
+  if(class(cuts)[1]=='try-error') browser();
+  # rename the comparison factor levels to something more readable
+  levels(cuts) <- submulti(levels(cuts),renametable);
+  # this is brittle right here... be prepared to encounter a case where this 
+  # doesn't work and use it to develop a more general solution
+  levels(cuts)[levels(cuts)=='0 to 0']<-'same';
+  # the factor for comparing missingness
+  cutsna <- interaction(is.na(xx),is.na(yy));
+  # rename the levels, they should always be the same order I think
+  levels(cutsna) <- c('Neither\\\nmissing','Left\\\nmissing','Right\\\nmissing'
+                      ,'Both\\\nmissing');
+  # create the counts and proportions
+  pdiff<-prop.table(cdiff <- table(cuts)); pna<-prop.table(cna <- table(cutsna));
+  # get the medians (or whatever the sapplyfn is)
+  mdiff<-sapply(split(vals,cuts),sapplyfn,na.rm=T);
+  mna <- sapply(split(vals,cutsna),sapplyfn,na.rm=T);
+  out <- sapply(list(count=c(cdiff,cna),prop=c(pdiff,pna),stat=c(mdiff,mna))
+                ,rbind,simplify=F);
+  for(ii in seq_along(out)) rownames(out[[ii]]) <- xlabel;
+  class(out) <- 'e_table';
+  out;
+}
+
+#' Warning! For the data.frame method of e_table, it might be important to 
+#' put the equality bin into the breaks argument and set autocenter=F if any of
+#' the values are non-integers. Otherwise might be inconsistent break-points for
+#' different rows in the result. Not sure if and when that would be a practical
+#' problem, though. Needs more thought.
+e_table.data.frame <- e_table.list <- function(xx,yy,xxnames,...){
+  # the 'out' object created here is a matrix of lists of vectors
+  if(! yy %in% names(xx)) stop(sprintf('Data does not have element "%s"',yy));
+  xxn <- intersect(xxnames,names(xx));
+  if(length(setdiff(xxnames,xxn)>0)) warning('Not all xx columns exist');
+  out <- sapply(xx[xxnames],e_table.default,yy=xx[[yy]],...);
+  # now we merge them into three tables of identical dimension named count, 
+  # prop, and stat, with one row for every xx
+  # 
+  out <- sapply(rownames(out),function(ii) {
+    oo<-do.call(rbind,out[ii,]);rownames(oo)<-colnames(out);oo},simplify=F);
+  class(out) <- 'e_table';
+  out;
+}
+
+#' See http://adv-r.had.co.nz/S3.html at the end in the Best Practices section
+#' for how to someday properly factor the below into format.e_table, 
+#' print.e_table, and possible a separate pander.e_table
+#' 
+#' Actually, format.e_table and pander.e_table done, just need to figure out 
+#' print method when time permits.
+print.e_table <- function(xx,fmt,cfn=identity,pfn=function(xx) 100*xx
+                          ,sfn=identity,usepander=exists('pander')
+                          ,nobreaks=!usepander,panderstyle='multiline'
+                          ,keep.line.breaks=!nobreaks
+                          ,...){
+  if(missing(fmt)) {
+    fmt <- paste('%3s (%4.1f %%)','%4.1f'
+                 ,sep=if(!nobreaks) "\\\n" else ' ');}
+  #message(fmt);
+  out <- with(xx,mprintf(fmt,cfn(count),pfn(prop)
+                         ,sfn(stat)));
+  if(nobreaks) colnames(out) <- gsub('\\\n',' ',colnames(out));
+  # There is something wierd going on with pander being called within a pipeline
+  # or, like in this case, within another function. Turns out you have to cat()
+  # the first element of whatever it is pander returns (just if it's running
+  # in a knitr environment or something?). Going to try to include the cat()
+  # hack here and see if it doesn't break output for interactive sessions.
+  if(usepander) cat(pander(out,style=panderstyle
+                           ,keep.line.breaks=keep.line.breaks,...)[1]) else {
+                             print(as.data.frame(out
+                                                 ,check.names=F
+                                                 ,stringsAsFactors=F))};
+}
+
+`[.e_table` <- function(dat,...,drop=FALSE){
+  dots <- as.list(match.call(expand.dots=T)[-(1:2)]);
+  rows <- if(identical(as.character(dots[[1]]),'')) TRUE else {
+    eval(eval(dots[[1]],envir=dat))};
+  cols <- if(identical(as.character(dots[[2]]),'')) TRUE else {
+    eval(eval(dots[[2]],envir=dat))};
+  out <- lapply(dat,`[`,rows,cols,drop=drop);
+  attributes(out) <- attributes(dat);
+  out;
+}
+
+format.e_table <- function(dat,fmt='%3s %s\\\n%s',searchrep=c(),missing=''
+                           ,cfn=function(xx) ifelse(is.na(xx),missing,xx)
+                           ,pfn=function(xx) ifelse(is.na(xx),missing
+                                                    ,sprintf('(%4.1f %%)'
+                                                             ,100*xx))
+                           ,sfn=function(xx) ifelse(is.na(xx),missing
+                                                    ,sprintf('%4.1f',xx))
+                           ,...){
+  out <- with(dat,mprintf(fmt,cfn(count),pfn(prop),sfn(stat)));
+  if(!missing(searchrep)) out <- submulti(out,searchrep);
+  out;
+}
+
+pander.e_table <- function(dat,keep.line.breaks=T,style='grid'
+                           ,missing=panderOptions('missing'),justify='left'
+                           ,...){
+  pander(format(dat,missing=missing,...)
+         ,keep.line.breaks=keep.line.breaks,style=style,justify=justify,...);}
+
+# Interesting! If you implement the dimnames method, it magically provies the
+# rownames and colnames methods, and dim provides nrow and ncol.
+# ...and colnames<- and rownames<- are not S3 methods, but dimnames<- 
+# apparently is
+dimnames.e_table <- function(dat,...){dimnames(dat[[1]])};
+
+dim.e_table <- function(dat,...){dim(dat[[1]])};
+
+`dimnames<-.e_table` <- function(dat,value,...){
+  for(ii in seq_along(dat)) dimnames(dat[[ii]]) <- value;dat;}
+
+rbind.e_table <- function(...){out <- mapply(rbind,...,SIMPLIFY = F);
+  class(out) <- 'e_table';out;}
+
+arrange.e_table <- function(dat,...){
+  dots <- as.list(match.call(expand.dots=T)[-(1:2)]);
+  index <- with(dat,do.call(order,dots));
+  eval(substitute(dat[index,]));
+}
+
+e_table <- function(xx,yy,...) UseMethod('e_table');
+
 # string hacking ---------------------------------------------------------------
 #' Fancy Span (or any other special formatting of strings)
 #' 
@@ -747,6 +952,14 @@ v <- function(var,dat
   #return(unname(out));
   return(out);
   }
+
+vmap <- function(var,matchcol='varname'
+                 ,retcols=c('colname_long','colname',matchcol)
+                 ,searchrep=c(),...
+                 ,dictionary=dct0){
+  out<- do.call(dplyr::coalesce
+                ,dictionary[match(var,dictionary[[matchcol]]),retcols]);
+  if(!missing(searchrep)) return(submulti(out,searchrep)) else return(out);}
 
 #' 
 rebuild_dct <- function(dat=dat0,rawdct=dctfile_raw,tpldct=dctfile_tpl,debuglev=0
