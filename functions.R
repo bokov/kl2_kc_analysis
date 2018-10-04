@@ -603,16 +603,24 @@ e_table.default <- function(xx,yy,xxnames=NA,breaks=c(),autocenter=T
   vals <- diffn(xx,yy);
   if(length(xlabel)>1) xlabel <- gsub('^\\.','',paste(xlabel,collapse='.'));
   # set the interval for 'no difference'. Smaller than the smallest difference
-  epsilon <- if(autocenter) c(-1,1)*min(abs(vals[vals!=0]),na.rm=T)/2 else c();
-  if(!is.null(epsilon)&&all(is.infinite(epsilon))) {
-    epsilon <- c(-1,1)*.Machine$double.eps;}
+  epsilon <- if(autocenter) {
+    # if these are integer values just use fractions, they will never get that
+    # low
+    if(all(vals==floor(vals),na.rm=T)) c(-.5,.5) else {
+      # otherwise use half the smallest difference and if they are all 0 then
+      # use half the smallest representable value? (question: if all non 
+      # missing are equal, what does it matter what I use? why not use something
+      # non wierd, like also -0.5,0.5? ...to consider later)
+      c(-1,1)*min(c(.Machine$double.eps,abs(vals[vals!=0])/2),na.rm=T)}
+    } else c();
   renametable <- cbind(
-     match=c('\\)|\\(|\\]|\\[','^-Inf,','([-0-9.]{1,}), Inf$',',')
-    ,replace=c('','< ','> \\1',' - '));
+     match=c('\\)|\\(|\\]|\\[','^-Inf,','([-0-9.]{1,}), Inf$',',','0 to 0'
+             ,'\\\n0')
+    ,replace=c('','Below\\\n','Above\\\n\\1',' to ','same',''));
   # didn't take long for the brittle thing to break
-  if(!is.null(epsilon)) renametable <- rbind(renametable
-                                             ,c(paste0('[-]?'
-                                                       ,max(epsilon)),'0'));
+  if(!is.null(epsilon)) {
+    renametable <- rbind(c(paste0('[-]?',format(max(epsilon),digits=dig.lab))
+                           ,'0'),renametable)};
   # generate the breaks to use with cut(). Order doesn't matter.
   breaks <- c(-Inf,breaks,epsilon,Inf);
   # create the factor for various bins of less-than, greater-than, as well as 
@@ -624,12 +632,12 @@ e_table.default <- function(xx,yy,xxnames=NA,breaks=c(),autocenter=T
   levels(cuts) <- submulti(levels(cuts),renametable);
   # this is brittle right here... be prepared to encounter a case where this 
   # doesn't work and use it to develop a more general solution
-  levels(cuts)[levels(cuts)=='0 - 0']<-'same';
+  levels(cuts)[levels(cuts)=='0 to 0']<-'same';
   # the factor for comparing missingness
   cutsna <- interaction(is.na(xx),is.na(yy));
   # rename the levels, they should always be the same order I think
-  levels(cutsna) <- c('Neither\nmissing','Left\nmissing','Right\nmissing'
-                      ,'Both\nmissing');
+  levels(cutsna) <- c('Neither\\\nmissing','Left\\\nmissing','Right\\\nmissing'
+                      ,'Both\\\nmissing');
   # create the counts and proportions
   pdiff<-prop.table(cdiff <- table(cuts)); pna<-prop.table(cna <- table(cutsna));
   # get the medians (or whatever the sapplyfn is)
@@ -642,6 +650,11 @@ e_table.default <- function(xx,yy,xxnames=NA,breaks=c(),autocenter=T
   out;
 }
 
+#' Warning! For the data.frame method of e_table, it might be important to 
+#' put the equality bin into the breaks argument and set autocenter=F if any of
+#' the values are non-integers. Otherwise might be inconsistent break-points for
+#' different rows in the result. Not sure if and when that would be a practical
+#' problem, though. Needs more thought.
 e_table.data.frame <- e_table.list <- function(xx,yy,xxnames,...){
   # the 'out' object created here is a matrix of lists of vectors
   if(! yy %in% names(xx)) stop(sprintf('Data does not have element "%s"',yy));
@@ -664,19 +677,32 @@ print.e_table <- function(xx,fmt,cfn=identity,pfn=function(xx) 100*xx
                           ,...){
   if(missing(fmt)) {
     fmt <- paste('%3s (%4.1f %%)','%4.1f'
-                 ,sep=if(!nobreaks) "\\\\
-\\\\
-" else ' ');}
-  message(fmt);
+                 ,sep=if(!nobreaks) "\\\n" else ' ');}
+  #message(fmt);
   out <- with(xx,mprintf(fmt,cfn(count),pfn(prop)
                          ,sfn(stat)));
-  if(nobreaks) colnames(out) <- gsub('\\n',' ',colnames(out));
-  if(usepander) pander(out,style=panderstyle,keep.line.breaks=keep.line.breaks
-                       ,...) else {
-                         print(as.data.frame(out
-                                             ,check.names=F
-                                             ,stringsAsFactors=F));
-                         invisible(xx);}
+  if(nobreaks) colnames(out) <- gsub('\\\n',' ',colnames(out));
+  # There is something wierd going on with pander being called within a pipeline
+  # or, like in this case, within another function. Turns out you have to cat()
+  # the first element of whatever it is pander returns (just if it's running
+  # in a knitr environment or something?). Going to try to include the cat()
+  # hack here and see if it doesn't break output for interactive sessions.
+  if(usepander) cat(pander(out,style=panderstyle
+                           ,keep.line.breaks=keep.line.breaks,...)[1]) else {
+                             print(as.data.frame(out
+                                                 ,check.names=F
+                                                 ,stringsAsFactors=F))};
+}
+
+`[.e_table` <- function(dat,...,drop=FALSE){
+  dots <- as.list(match.call(expand.dots=T)[-(1:2)]);
+  rows <- if(identical(as.character(dots[[1]]),'')) TRUE else {
+    eval(dots[[1]],envir=dat)};
+  cols <- if(identical(as.character(dots[[2]]),'')) TRUE else {
+    eval(dots[[2]],envir=dat)};
+  out <- lapply(dat,`[`,rows,cols,drop=drop);
+  attributes(out) <- attributes(dat);
+  out;
 }
 
 e_table <- function(xx,yy,...) UseMethod('e_table');
