@@ -1388,8 +1388,8 @@ Above are plotted times of death (for patients that have them) relative to "
 #' 
 .tc <- paste0(fs('n_vtstat')
               ,' compared to death data from other sources {#tbl:etabledeath}');
-.tdat <-e_table(dat2tte,'n_vtstat',setdiff(v(c_death),'n_vtstat')); 
-print(.tdat,caption=.tc,style='grid');
+try(.tdat <-e_table(dat2tte,'n_vtstat',setdiff(v(c_death),'n_vtstat'))); 
+try(print(.tdat,caption=.tc,style='grid'));
 
 #  hispanic ethnicity ===========================================================
 #' ### Whether or not the patient is Hispanic
