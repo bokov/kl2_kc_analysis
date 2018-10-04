@@ -711,12 +711,14 @@ dimnames.e_table <- function(dat,...){dimnames(dat[[1]])};
 dim.e_table <- function(dat,...){dim(dat[[1]])};
 nrow.e_table <- function(dat,...){nrow(dat[[1]])};
 ncol.e_table <- function(dat,...){ncol(dat[[1]])};
-`colnames<-` <- function(dat,value,...){
+
+`colnames<-.e_table` <- function(dat,value,...){
   out <- lapply(dat,`colnames<-`,value);
   attributes(out) <- attributes(dat);
   out;
 }
-`rownames<-` <- function(dat,value,...){
+
+`rownames<-.e_table` <- function(dat,value,...){
   out <- lapply(dat,`rownames<-`,value);
   attributes(out) <- attributes(dat);
   out;
