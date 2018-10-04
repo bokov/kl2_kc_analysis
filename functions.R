@@ -271,6 +271,8 @@ submulti <- function(xx,searchrep
   # method doesn't match any of the valid possibilities this gives an informativ
   # error message
   method<-match.arg(method);
+  # if passed a single vector of length 2 make it a matrix
+  if(is.null(dim(searchrep))&&length(searchrep)==2) searchrep<-rbind(searchrep);
   # rr is a sequence of integers spanning the rows of the searchrep matrix
   rr <- 1:nrow(searchrep);
   # oo will hold the result that this function will return
@@ -614,9 +616,9 @@ e_table.default <- function(xx,yy,xxnames=NA,breaks=c(),autocenter=T
       c(-1,1)*min(c(.Machine$double.eps,abs(vals[vals!=0])/2),na.rm=T)}
     } else c();
   renametable <- cbind(
-     match=c('\\)|\\(|\\]|\\[','^-Inf,','([-0-9.]{1,}), Inf$',',','0 to 0'
+     match=c('\\)|\\(|\\]|\\[','^-Inf,','([-0-9.]{1,}), Inf$',',','^0 to 0'
              ,'\\\n0')
-    ,replace=c('','Below\\\n','Above\\\n\\1',' to ','same',''));
+    ,replace=c('','Below\\\\\n','Above\\\\\n\\1',' to ','same',''));
   # didn't take long for the brittle thing to break
   if(!is.null(epsilon)) {
     renametable <- rbind(c(paste0('[-]?',format(max(epsilon),digits=dig.lab))
@@ -950,6 +952,14 @@ v <- function(var,dat
   #return(unname(out));
   return(out);
   }
+
+vmap <- function(var,matchcol='varname'
+                 ,retcols=c('colname_long','colname',matchcol)
+                 ,searchrep=c(),...
+                 ,dictionary=dct0){
+  out<- do.call(dplyr::coalesce
+                ,dictionary[match(var,dictionary[[matchcol]]),retcols]);
+  if(!missing(searchrep)) return(submulti(out,searchrep)) else return(out);}
 
 #' 
 rebuild_dct <- function(dat=dat0,rawdct=dctfile_raw,tpldct=dctfile_tpl,debuglev=0
