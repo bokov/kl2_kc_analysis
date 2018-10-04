@@ -705,6 +705,23 @@ print.e_table <- function(xx,fmt,cfn=identity,pfn=function(xx) 100*xx
   out;
 }
 
+rownames.e_table <- function(dat,...){rownames(dat[[1]])};
+colnames.e_table <- function(dat,...){colnames(dat[[1]])};
+dimnames.e_table <- function(dat,...){dimnames(dat[[1]])};
+dim.e_table <- function(dat,...){dim(dat[[1]])};
+nrow.e_table <- function(dat,...){nrow(dat[[1]])};
+ncol.e_table <- function(dat,...){ncol(dat[[1]])};
+`colnames<-` <- function(dat,value,...){
+  out <- lapply(dat,`colnames<-`,value);
+  attributes(out) <- attributes(dat);
+  out;
+}
+`rownames<-` <- function(dat,value,...){
+  out <- lapply(dat,`rownames<-`,value);
+  attributes(out) <- attributes(dat);
+  out;
+}
+
 e_table <- function(xx,yy,...) UseMethod('e_table');
 
 # string hacking ---------------------------------------------------------------
