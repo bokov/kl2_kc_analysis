@@ -111,6 +111,7 @@ page break and/or hide this code
 # Place to create tables that will get used throughout script
 dat2tte <- transmute_all(dat2a[,v(c_istte)],function(xx){
   ifelse(xx>dat2a$age_at_visit_days,NA,xx)});
+dat2tte$patient_num <- dat2a$patient_num;
 dat2tte$`Earliest Death` <- do.call(pmin,c(dat2tte[,v(c_death)],na.rm=T));
 dat2tte$`Latest Death` <- do.call(pmax,c(dat2tte[,v(c_death)],na.rm=T));
 
@@ -202,7 +203,14 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' and at least one of `r fs('n_kcancer')` or `r fs('n_seer_kcancer')`. As can
 #' be seen from [@tbl:cohortrectype] only `r length(kcpatients.naaccr)` of the
 #' patient-set met these criteria and `r nrow(dat2a) - length(kcpatients.naaccr)` 
-#' did not. In [-@sec:diag; -@sec:surg; -@sec:recur] I identified additional 
+#' did not. Actually a total of `r sum(!is.na(dat2tte$n_fc))` had NAACCR records
+#' but apparently `r length(kcpatients.naaccr) - sum(!is.na(dat2tte$n_fc))` of 
+#' them had kidney cancer documented _only_ in the EMR, and neither 
+#' `r fs('n_kcancer')` or `r fs('n_seer_kcancer')` in NAACCR. [Next time I 
+#' re-run my i2b2 query I will include all site of occurrence information from
+#' NAACCR not just kidney. This will allow me to find out what types of cancer
+#' these patients do in fact have.]{.note2self custom-style="note2self"} In 
+#' [-@sec:diag; -@sec:surg; -@sec:recur] I identified additional 
 #' exclusion criteria which I will implement in the next major revision of 
 #' this document.
 #' 
@@ -1137,14 +1145,20 @@ pander(dat3_surg_summary,caption=.tc,row.names=fs(rownames(dat3_surg_summary)));
 #' Would I lose a lot of cases to such a criterion? 
 #' 
 #+ before_sameday_after_00,cache=TRUE
-mutate_all(dat3[,v(c_nephx)]
-           # break each column 
-           ,function(xx) cut(xx-dat3$n_ddiag,breaks=c(-Inf,-.00001,.00001,Inf)
-                             ,lab=c('before','same-day','after'),include=T)) %>%
-  sapply(table,useNA='always') %>% t %>% 
-  pander(caption='
+
+# This table predates the e_table() function and I need to migrate it to that
+# function when time permits.
+e_table_neph <- mutate_all(dat3[,v(c_nephx)]
+                           # break each column 
+                           ,function(xx) {
+                             cut(xx-dat3$n_ddiag
+                                 ,breaks=c(-Inf,-.00001,.00001,Inf)
+                                 ,lab=c('before','same-day','after')
+                                 ,include=T)}) %>%
+  sapply(table,useNA='always') %>% t;
+  pander(e_table_neph,caption='
 How often ICD9/10 or surgical history codes for nephrectomy precede diagnosis
-and by how much {#tbl:neph_b4_diag}');
+and by how much {#tbl:neph_b4_diag}',row.names=fs(rownames(e_table_neph)));
 
 # 
 # Here is a more general table, comparing every possible recurrence event or 
@@ -1342,29 +1356,24 @@ and all records for these patients have been excluded from this plot");
 #  death ========================================================================
 #' ### Death {#sec:death}
 #' 
-#' When more than one source has a death date, they are in agreement. To be 
-#' fair, the agreement between `r fs('e_death')`, `r fs('e_dscdeath')`, and `r fs('s_death')` is 
-#' probably due to our i2b2 ETL already merging `r fs('e_dscdeath')` and `r fs('s_death')` into 
-#' `r fs('e_death')`. But it is also encouraging that none of them seem (by visual 
-#' inspection) to occur prior to the date of last contact in NAACCR. That 
-#' suggests I can simply take the mininum of available death dates to fill in 
-#' data for patients that NAACCR is not aware are deceased. It also means that 
-#' the ETL's coverage of vital status can be further improved by using the 
-#' NAACCR vital status and last contact variables in combination.
+#' Unlike diagnosis ([-@sec:diag]), surgery ([-@sec:surg]), and recurrence 
+#' ([-@sec:recur]) death dates exhibit good agreement between various 
+#' sources and can be used to supplement the data available from NAACCR.
 #'
 #'
 #' ::::: {#fig:death_plot custom-style="Image Caption"}
 #+ .death_plot,results='asis'
 par(xaxt='n');
 .eplot_death <- event_plot(dat3,'n_lc',start_event = 'n_ddiag'
+                           ,ylim=c(0,300)
                            ,main='Time from Diagnosis to Death (if any)'
                            ,ylab='Months Since Diagnosis'
                            ,xlab='Patients, sorted by last contact date\n\n\n'
                            ,tunit = 'mon',ltys = 0,type='s');
-points(.eplot_death$e_death,pch=2,col='#FF00FF70',lwd=2); # \triangle
-points(.eplot_death$s_death,pch=6,col='#00999970',lwd=3); # \nabla (not making this up!)
-points(.eplot_death$e_dscdeath,pch=3,col='#00FF0090',lwd=2); # +
-points(.eplot_death$e_disdeath,pch=3,col='#00FF0090',lwd=2);
+points(.eplot_death$e_death,pch=2,cex=0.5,col='#FF00FF70',lwd=2); # \triangle
+points(.eplot_death$s_death,pch=6,cex=0.5,col='#00999970',lwd=3); # inv triangle
+points(.eplot_death$e_dscdeath,pch=3,cex=0.5,col='#00FF0090',lwd=2); # +
+points(.eplot_death$e_disdeath,pch=3,cex=0.5,col='#00FF0090',lwd=2);
 points(.eplot_death$n_vtstat,col='brown',cex=1.5,lwd=0.5); # \bigcirc
 abline(h=0,col='blue');
 .xch_vtstat_lc<-subset(dat2a
@@ -1382,105 +1391,122 @@ Above are plotted times of death (for patients that have them) relative to "
 ," (![](resources/browncircle.png){width=10})");
 #' :::::
 #' 
-#' 
-#' Overall there are `r length(kcpatients.naaccr_death)` patients that according
-#' to `r fs('n_vtstat')` are deceased. For all `r length(.xch_vtstat_lc)` of these
-#' patients, _and only for them_, the condition also holds that `r fs('n_vtstat')` 
-#' is equal to `r fs('n_lc')` but `r fs('n_lc')` happens before or on `r fs('age_at_visit_days')`.
-#' If something is coded as happening _after_ `r fs('age_at_visit_days')` then 
-#' because of how the data is summarized in the `dat2` section of the `data.R` 
-#' script it means that the event never happened. If `r fs('n_lc')` never 
-#' happened it means that patient has evidence of kidney cancer in the EMR data 
-#' but no accompanying NAACCR record. In short, we are filtering for existence 
-#' of NAACCR records. That, in turn, means that `r fs('n_vtstat')` `<=` `r fs('n_lc')`
-#' is a valid censoring criteria (censored if false) provided that the input
-#' data is filtered to include only patients with NAACCR records (for other 
-#' patients, both `r fs('n_vtstat')` and `r fs('age_at_visit_days')` should be 
-#' interpreted as missing).
-#' 
 #+ etabledeath, results='asis'
-.tc <- paste0(fs('n_lc')
-,' compared to death data from each source (rows). The first five columns 
+.tc <- paste0('Date associated with ',fs('n_vtstat')
+,' compared to death dates from each source (rows). The first five columns 
 represent the number of patients falling into each of the time-bins (in days) 
-relative to ',fs('n_lc'),". The last four columns indicate the number of 
-patients for each of the possible combinations of missing values (`Left` means
+relative to ',fs('n_vtstat'),". The last four columns indicate the number of 
+patients for each possible combination of missing values (`Left` means
 the variable indicated in the row name is missing and `Right` means "
-,fs('n_lc')," is missing). The parenthesized values are percentages (of the 
-total number of patients with both variables non-missing for the first five 
-columns and of the total number of patients for the last four 
+,fs('n_vtstat')," is missing). The parenthesized values below the counts are
+percentages (of the total number of patients with both variables non-missing 
+for the first five columns and of the total number of patients for the last four 
 columns). Where available, the median difference in days is shown below the 
-count and percentage. {#tbl:etabledeath}");
-.tdat <-e_table(dat2tte,'n_vtstat'
-                ,c(setdiff(v(c_death),'n_vtstat')
-                   ,'Earliest Death','Latest Death')
-                ,breaks=c(-30,30));
-pander(.tdat,caption=.tc,missing='&nbsp;' #,justify='right'
-       #,searchrep=c(' ','&nbsp;')
-       ,justify='left'
-       ,fmt='%3s\\\n%s\\\n%s'
-       ,row.names=fs(rownames(.tdat))); 
-#print(.tdat,caption=.tc);
+count and percentage. This table has only the ",length(kcpatients.naaccr)
+," patients having a kidney cancer diagnosis in NAACCR. The last two rows represent the earliest and latest documentation of death, 
+respectively, from all available sources {#tbl:etabledeath}");
+e_table_death <- subset(dat2tte,patient_num %in% kcpatients.naaccr) %>% 
+  e_table('n_vtstat',c(setdiff(v(c_death),'n_vtstat')
+                       ,'Earliest Death','Latest Death'),breaks=c(-30,30));
+pander(e_table_death,caption=.tc,missing='&nbsp;',justify='left'
+       ,fmt='%3s\\\n%s\\\n%s',row.names=fs(rownames(e_table_death))); 
 #' 
-#'
+.etd_tail <- tail(e_table_death);
+#' In [@tbl:etabledeath] the sum of the `Neither missing` and `Left missing` is
+#' always `r unique(rowSums(e_table_death$count[,6:7]))` which is the number of
+#' deceased patients according to NAACCR records alone. The `Right missing` 
+#' column is the number of patients whose deceased status is recorded in the 
+#' external source but not in NAACCR. For the last two rows that means the total 
+#' number of deceased patients not recorded in NAACCR but which can be filled in
+#' from one or more of the other sources. There are
+#' `r unique(.etd_tail$count[,'Right\\\nmissing'])` such 
+#' patients. Finally the last column, `Both missing`, is the number of 
+#' patients presumed to be alive because neither NAACCR nor any of
+#' the other sources has any evidence of them being deceased. The 
+#' `Left missing` column indicates how many patients are reported deceased in
+#' NAACCR but _not_ the other source. Though there are some missing for each
+#' individual data source, NAACCR is never the only source reporting them 
+#' deceased because the values in the bottom two rows are both
+#' `r unique(.etd_tail$count[,'Left\\\nmissing'])`. 
+#' 
+#' The left-side columns of [@tbl:etabledeath] show the prevalence and magnitude
+#' of discrepancies in death dates of the
+#' `r unique(rowSums(.etd_tail$count[,6:7]))` patients that NAACCR and at 
+#' least one other source agree are deceased. There are at most 
+#' `r sum(.etd_tail$count[,c(1:2,4:5)])` such patients and for 
+#' `r sum(.etd_tail$count[,c(2,4)])` of them the discrepancy is less than one
+#' month, with a median difference ranging from 
+#' `r paste0(range(.etd_tail$stat[,c(2,4)],na.rm=T),collapse=' to ')` days. 
+#' **The small number of discrepancies and the small magnitude of the ones that 
+#' do occur justify filling in missing NAACCR death dates from the other 
+#' sources.**
+#' 
+#' 
 #  hispanic ethnicity ===========================================================
-#' ### Whether or not the patient is Hispanic
+#' ### Whether or not the patient is Hispanic {#sec:hispanic}
 #' 
-#' A similar process needs to be done for Hispanic ethnicity, but as an ordinary 
-#' static variable rather than time-to-event. I think I'll do two variables: one 
-#' that is true if we are very sure the patient is Hispanic, and the other one 
-#' that is true if we aren't certain the patient is _not_ Hispanic. In both 
-#' cases, there will also be `Unknown` bins for where all variables are 
-#' unanimous on the patient's Hispanic status being unknown.
+#' Despite the overall agreement between `r fs('n_hisp')` and `r fs('e_hisp')`
+#' there needs to be some way to adjudicate the minority of cases where the two
+#' data elements disagree. The following additional data elements can provide 
+#' relevant information to form a final consensus variable for analysis: 
+#' `r fs(c('language_cd','e_lng','e_eth','race_cd','a_n_race'),retfun=knitr::combine_words)`
+#' First, each of these variables is re-coded to `Hispanic`, `non-Hispanic`, and
+#' `Unknown`.
 #' 
-#' Basically two variables because there are the two ends of the spectrum for
-#' resolving disagreement about a binary variable between multiple sources.
+#' `r fs('language_cd')` and `r fs('e_lng')` are interpreted as being evidence
+#' in favor of `Hispanic` ethnicity if the language includes Spanish. English,
+#' ASL, and unknown values are all treated as `Unknown` ethnicity.
+#' However, a language _other_ than the above is interpreted as evidence for
+#' being `non-Hispanic`.
 #' 
-#' Here are the variables to process:
+#' `r fs('n_hisp')` already have explicit designations of `non-Hispanic` and 
+#' `Unknown` and all other values are interpreted as `Hispanic`. 
+#' `r fs('e_hisp')` is interpreted as `Hispanic` if `TRUE` and `Unknown` if 
+#' `FALSE` (because, unlike the other elements described here, this one is 
+#' structured such that there is no way to distinguish a genuinely `FALSE` value
+#' from a missing one).
 #' 
-#' * `r fs('language_cd')` is an i2b2 PATIENT_DIMENSION variable that is simplified by 
-#'   `data.R` and `levels_map.csv`
-#'     * Hispanic : `Spanish`
-#'     * non-Hispanic: `Other`
-#'     * Unknown: `English` or `Unknown` or NA
-#' * `r fs('e_lng')` is an i2b2 OBSERVATION_FACT variable currently in the raw form that
-#'   DataFinisher uses for complex variables lacking a specific rule. Below are 
-#'   regexp patterns for a non case-sensitive match.
-#'     * Hispanic: ` ^.*spanish.*$` ELSE
-#'     * Unknown: ` ^.*(english|sign language|unknown).*$` or NA ELSE
-#'     * non-Hispanic: anything not caught by the above two filters
-#' * `r fs('n_hisp')` is the [`0190 Spanish/Hispanic Origin`](http://datadictionary.naaccr.org/default.aspx?c=10#190)
-#'   variable from NAACCR. Slightly processed by `data.R` and `levels_map.csv`
-#'     * non-Hispanic: `Non_Hispanic`
-#'     * Unknown: `Unknown`
-#'     * Hispanic: any other value
-#' * `r fs('e_hisp')` is the indicator variable for Hispanic ethnicity from i2b2 
-#'   OBSERVATION_FACT.
-#'     * Hispanic: `TRUE`
-#'     * Unknown: `FALSE`
-#' * `r fs('e_eth')` is the whole ethnicity variable from i2b2 OBSERVATION_FACT and
-#'   suprprisingly it is not in full agreement with `r fs('e_hisp')`
-#'     * Hispanic: `hispanic`
-#'     * Unknown: `other`,`unknown`,`unknown/othe`,`i choose not`,`@`
-#'     * non-Hispanic: `arab-amer`,`non-hispanic`
-#'     
-#' The strict Hispanic variable.
+#' `r fs('e_eth')` is the whole ethnicity variable from i2b2 OBSERVATION_FACT 
+#' and suprprisingly it sometimes disagrees with `r fs('e_hisp')`. A value of
+#' `hispanic` is interpreted directly. The values `other`,`unknown`,
+#' `unknown/othe`,`i choose not`, and `@` are all interpeted as `Unknown` and 
+#' any other value (at our site, `arab-amer` and `non-hispanic`) is interpreted
+#' as `non-Hispanic`.
 #' 
-#' * Hispanic if ALL non-missing values of `r fs('n_hisp')`, `r fs('e_hisp')`, and `r fs('e_eth')` are 
-#'   unanimous for `Hispanic`
-#' * non-Hispanic if ALL non-missing values of `r fs('n_hisp')` and `r fs('e_eth')` are 
-#'   unanimous for `non-Hispanic` (note that `r fs('e_hisp')` not included here) and
-#'   neither `r fs('e_lng')` nor `r fs('language_cd')` vote for `Hispanic`
-#' * Unknown if any other result.
+#' I created three versions of the Hispanic variable. `r fs('a_hsp_naaccr')` 
+#' which only uses information from NAACCR. 
 #' 
-#' The lenient Hispanic variable.
+#' `r fs('a_hsp_broad')` errs on
+#' the side of assigning `Hispanic` ethnicity if there is any evidence for it at
+#' all, then `non-Hispanic`, and `Unknown` only if there is truly no information
+#' from any source about the patient's ethnicity. In particular, `Hispanic` is 
+#' assigned if _any_ non-missing values of 
+#' `r knitr::combine_words(fs(c('language_cd','e_lng','n_hisp','e_hisp','e_eth')))` 
+#' have a value of `Hispanic`; `Unknown` if _all_ non-missing values of 
+#' `r knitr::combine_words(fs(c('language_cd','e_lng','n_hisp','e_hisp','e_eth')))` 
+#' are unanimous for `Unknown` ; and `non-Hispanic` otherwise.
 #' 
-#' * Hispanic if ANY non-missing values of `r fs('language_cd')`, `r fs('e_lng')`, `r fs('n_hisp')`,
-#'   `r fs('e_hisp')`, and `r fs('e_eth')` have value `Hispanic`
-#' * Unknown if ALL non-missing values of `r fs('language_cd')`, `r fs('e_lng')`, `r fs('n_hisp')`,
-#'   `r fs('e_hisp')`, and `r fs('e_eth')` are unanimous for `Unknown` 
-#' * non-Hispanic if any other result
+#' Finally, 
+#' `r fs('a_hsp_strict')` only assigns `Hispanic` if _all_ non-missing values of 
+#' `r fs('n_hisp')`, `r fs('e_hisp')`, and `r fs('e_eth')` are unanimous for
+#' `Hispanic`. `non-Hispanic` is assigned if _all_ non-missing values of
+#' `r fs('n_hisp')` and `r fs('e_eth')` are unanimous for `non-Hispanic` (the 
+#' `r fs('e_hisp')` element is not used for the reasons explained 
+#' above) _and_ neither `r fs('e_lng')` nor `r fs('language_cd')` vote for
+#' `Hispanic`. If neither of these conditions are met, `Unknown` is assigned.
 #' 
+#' There is an additional step for patients coded as `non-Hispanic` where they 
+#' are further classified into `non-Hispanic white` and `Other`. For 
+#' `r fs('a_hsp_naaccr')` this is determined by whether or `r fs('a_n_race')` is
+#' `White`. For `r fs('a_hsp_broad')` the criterion is whether _at least one_ of
+#' `r fs('a_n_race')` or `r fs('race_cd')` is `White`. For 
+#' `r fs('a_hsp_strict')` it's whether _both_ `r fs('a_n_race')` and 
+#' `r fs('race_cd')` are `White`.
 #' 
+#' In the end, 
+#' `r fs(c('a_hsp_naaccr','a_hsp_broad','a_hsp_strict'),retfun=knitr::combine_words)`
+#' all have the same levels, but differ in the proportion of patients assigned 
+#' to each.
 #' 
 # Now plot two different scenarios on the same axes, the original and enhanced 
 # by EMR variables. Strict
@@ -1494,9 +1520,6 @@ pander(.tdat,caption=.tc,missing='&nbsp;' #,justify='right'
 #              ,predvars='a_hsp_broad')$fit
 #       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
 #' 
-#' What is the risk of relapse for patients after nephrectomy?
-#' 
-#' 
 # plot(.survfit_plot1$fit,col=c('red','blue'),mark.time = T,xlim=c(-1,150)
 #      ,lwd=2,main='Time from surgery to recurrence',ylab='Fraction recurrence-free'
 #      ,xlab='Weeks since surgery',ylim=c(.7,1));
@@ -1507,6 +1530,43 @@ pander(.tdat,caption=.tc,missing='&nbsp;' #,justify='right'
 #              ,predvars='a_hsp_broad')$fit
 #       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
 #' 
+#' 
+#' 
+tbl_ahsp <- with(dat2a
+                 ,table(a_hsp_naaccr,a_hsp_broad,a_hsp_strict,useNA='if')) %>%
+  data.frame %>% subset(Freq>0) %>% arrange(a_hsp_naaccr,desc(Freq));
+.tc <- paste0('The agreement and disagreement between '
+,fs(colnames(tbl_ahsp)[1:3],retfun=knitr::combine_words),' The bottom '
+,sum(is.na(tbl_ahsp[,'a_hsp_naaccr'])),' rows represent the kidney cancer 
+patients currently without NAACCR records, so for them ',fs('a_hsp_naaccr')
+,' does not exist. {#tbl:hspcounts}');
+pander(tbl_ahsp,caption=.tc
+       ,col.names=c(fs(colnames(tbl_ahsp)[1:3]),'N Patients'));
+#' 
+#' Of the `r sum(subset(tbl_ahsp,!is.na(a_hsp_naaccr))$Freq)` with NAACCR 
+#' records (all, not just the `r length(kcpatients.naaccr)` meeting the 
+#' current criteria, see [@sec:overview]) only 
+#' `r sum(subset(tbl_ahsp,a_hsp_naaccr!=a_hsp_broad)$Freq)` have differences 
+#' between `r fs('a_hsp_naaccr')` and `r fs('a_hsp_broad')` but 
+#' `r sum(subset(tbl_ahsp,a_hsp_naaccr!=a_hsp_strict)$Freq)` have differences
+#' between `r fs('a_hsp_naaccr')` and `r fs('a_hsp_strict')`. 
+pct_ahsp <- sprintf('%4.1f%%'
+                    ,sapply(alist(a_hsp_naaccr,a_hsp_broad,a_hsp_strict)
+                            ,function(xx) {
+                              with(subset(tbl_ahsp,!is.na(a_hsp_naaccr))
+                                   ,sum(Freq[eval(xx)=='Hispanic'])/sum(Freq))}
+                            )*100);
+#' According to 
+#' `r knitr::combine_words(fs(c('a_hsp_naaccr','a_hsp_broad','a_hsp_strict')))`
+#' respectively, `r knitr::combine_words(pct_ahsp)` of the NAACCR patients are
+#' Hispanic. At `r pct_ahsp[2]` `r fs('a_hsp_broad')` comes the closest to the 
+#' [2016 Census estimates for San Antonio](https://www.census.gov/quickfacts/fact/table/sanantoniocitytexas/HSD410216) and anecdotal evidence suggests that 
+#' Hispanic ethnicity is under-reported so that argue for using 
+#' `r fs('a_hsp_broad')` when possible, but I will keep `r fs('a_hsp_strict')`
+#' available for sensitivity analysis.
+#' 
+# TODO: I wonder if there is reasearch on under-reporting ethnicity. I should 
+# look
 #' `r md$pbreak`
 #' 
 #  validrecords_old -------------------------------------------------------------
