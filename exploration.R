@@ -165,7 +165,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' 
 # Why the heck was it these two not forming links until I pre-initialized them
 # here? Can't find a difference from the others.
-.junk <- fs(c('e_surgonc','n_dsdisc'));
+.junk <- fs(c('e_surgonc','n_dsdisc',v(c_tnm)));
 #' A recent study of state death records [@PinheiroHighcancermortality2017]
 #' reports that among US-born Texans of Hispanic ancestry (7.3 million, 27% of
 #' the State's population), annual age-adjusted mortality rates for kidney
@@ -632,10 +632,7 @@ and pathology stage descriptors are also available in NAACCR. Here the '
 be mapped to MRNs or internal database index keys. {#tbl:stage}');
 subset(dat2a[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %>% 
   na.omit() %>% 
-  setNames(c('patient_num'
-             ,submulti(v(c_tnm,NA)
-                       ,cbind(v(c_tnm,NA),v(c_tnm,NA,retcol = 'colname_long'))))) %>% 
-  # head(5) %>% 
+  setNames(fs(c('patient_num',v(c_tnm,NA)))) %>%
   # show a sampling of rows and columns that fits on the page and remove the
   # the extra quotation marks
   `[`(1:15,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
@@ -1413,7 +1410,8 @@ count and percentage. {#tbl:etabledeath}");
 .tdat <-e_table(dat2tte,'n_lc',v(c_death),breaks=c(-30,30));
 pander(.tdat,caption=.tc,missing='&nbsp;' #,justify='right'
        #,searchrep=c(' ','&nbsp;')
-       ,fmt='%3s&nbsp;%s\\\n%s'
+       ,justify='left'
+       ,fmt='%3s\\\n%s\\\n%s'
        ,row.names=fs(rownames(.tdat))); 
 #print(.tdat,caption=.tc);
 #' 
@@ -1673,22 +1671,41 @@ if(!'e_surgonc' %in% (debug00 <- getOption('fs_reg'))){
 }
 #' Here are descriptions of the variables referenced in this document.
 #+ readablefootnotes, results='asis'
-# set new template for creating the internal link TARGETS
+# This is brittle. Really ought to make fs() flexible enough to do this itself.
+# TODO: stop using those silly H6 headers, use a fenced div
+# 
+# Here is a mockup of how it can be done (before even editing fs() to be able to
+# combine different columns for the text value)
+#
+# # This part opens the div, writes the link target, and writes the 
+# # human-readable variable name
+# {fs('foo','bar','baz','bat'
+# ,template='\n\n\n::::: {#%1$s .vardef custom-style=\"vardef\"}\n\n %4$s :\n\n  ~ ');
+# # This part constructs the body of the variable definition, can't be done in
+# # fs() yet because 'blah blah' has to be pasted together from the non-NA 
+# # values of several columns.
+# cat('blah blah','\n\n',if(is.na(3)) '' else c(' ~ Link: ','THEURL','\n\n'),':::::\n\n')}
 cat('***\n');
-.junk <- subset(dct0,varname %in% getOption('fs_reg')
-                ,select = c('varname','colname_long','chartname','comment'
-                            ,'col_url')) %>% 
+.junk <- dct0[match(getOption('fs_reg')
+                    ,do.call(coalesce,dct0[,c('varname','colname')]))
+              ,c('varname','colname_long','chartname'
+                 ,'comment','col_url','colname')] %>%
+  # subset(dct0,varname %in% getOption('fs_reg')
+  #               ,select = c('varname','colname_long','chartname','comment'
+  #                           ,'col_url')) %>% 
   apply(1,function(xx) {
-    cat('######',xx[1],'\n\n',na.omit(xx[2:1])[1],':\n\n  ~ '
+    # TODO: the hardcoded offsets make this brittle. Fina better way.
+    cat('######',na.omit(xx[c(1,6)])[1],'\n\n',na.omit(xx[2:1])[1],':\n\n  ~ '
         ,ifelse(length(na.omit(xx[2:4]))>0
                 ,iconv(paste(na.omit(xx[2:4]),collapse='; '),to='UTF-8',sub='')
                 ,'')
         ,ifelse(is.na(xx[5]),'',paste('\n\n  ~ Link:',xx[5])),'\n\n***\n')});
 #' 
+#' `r md$pbreak`
 #' 
-#' ::::: {.pbreak custom-style="pbreak"}
-#' &nbsp;
-#' :::::
+#' ##### v055_tnm_cln_dscrptr
+#' 
+#' Test section
 #' 
 # A5 audit ---------------------------------------------------------------------
 #' # Audit trail {#sec:audit label="Appendix 5"}
