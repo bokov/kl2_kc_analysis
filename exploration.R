@@ -252,13 +252,14 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' scaffolding on which the rest of the analysis will be built.
 #' 
 #' **I found the following NAACCR fields sufficient for deriving all the above 
-#' analytic variables: `r fs('n_hisp')`, `r md$mainvars`.** More details about 
-#' how these were selected can be found in the 
-#' ["Which EMR and NAACCR variables are reliable event indicators?"]
-#' section. In addition the following will almost certainly be needed for the
-#' covariates: `r fs('n_sex')`, `r fs('n_dob')`, `r fs('n_marital')`
-#' , `r fs('n_brthplc')` and any field whose name contains `Race`
-#' , `Comorbid/Complication`, `Derived AJCC`, or `TNM`. For crosschecking
+#' analytic variables: `r fs('n_hisp')`, 
+#' `r fs(v(c_main_naaccr_vars),retfun=knitr::combine_words)`.** More details 
+#' about how these were selected can be found in [-@sec:vartrn]. In addition the 
+#' following will almost certainly be needed for the
+#' covariates: 
+#' `r knitr::combine_words(fs(c('n_sex','n_dob','n_marital','n_brthplc')),and='')`,
+#' and any field whose name contains `Race`, `Comorbid/Complication`, 
+#' `Derived AJCC`, or `TNM`. For crosschecking
 #' purposes it may also be useful to have `r fs('n_mets')`, `r fs('n_fc')`
 #' , and `r fs('n_mult')`. Additional items are likely to be needed as this
 #' project evolves, but **I believe the elements listed so far will be 
@@ -553,8 +554,10 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' To reclaim missing values I will need to solve the problem of lag and 
 #' disagreement between the EMR and NAACCR ([@sec:merging]). [I will meet with 
 #' the MCC NAACCR registrar and learn where exactly in the EMR and other sources 
-#' she looks to abstract `r md$mainvars`. I will also meet with personnel 
-#' experienced in Urology chart review to learn their methods.]{.note2self custom-style='note2self'} 
+#' she looks to abstract 
+#' `r fs(v(c_main_naaccr_vars),retfun=knitr::combine_words)`. I will also meet 
+#' with personnel experienced in Urology chart review to learn their 
+#' methods.]{.note2self custom-style='note2self'} 
 #' This may lead to  improvements in the CIRD ETL process. As per Dr. Rodriguez 
 #' I also plan on adding all ICD codes for 'renal mass' to my i2b2 query 
 #' ([-@sec:diag]). Meanwhile, in response to researcher questions including my 
