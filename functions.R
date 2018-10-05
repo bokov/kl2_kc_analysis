@@ -768,7 +768,7 @@ e_table <- function(xx,yy,...) UseMethod('e_table');
 #' Fancy Span (or any other special formatting of strings)
 #' 
 fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z0-9]','-',tolower(str)))
-               ,tooltip='',class='fl'
+               ,tooltip=alist(str),class='fl'
                # %1 = text, %2 = url, %3 = class, %4 = tooltip
                # TODO: %5 = which position 'str' occupies in fs_reg if 
                #       applicable and if not found, append 'str'
