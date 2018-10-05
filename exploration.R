@@ -111,6 +111,9 @@ page break and/or hide this code
 # Place to create tables that will get used throughout script
 dat2tte <- transmute_all(dat2a[,v(c_istte)],function(xx){
   ifelse(xx>dat2a$age_at_visit_days,NA,xx)});
+dat2tte$`Earliest Death` <- do.call(pmin,c(dat2tte[,v(c_death)],na.rm=T));
+dat2tte$`Latest Death` <- do.call(pmax,c(dat2tte[,v(c_death)],na.rm=T));
+
 # note_toc ---------------------------------------------------------------------
 #' ###### TOC {-}
 #+ news_toc,results='asis'
@@ -1407,7 +1410,10 @@ total number of patients with both variables non-missing for the first five
 columns and of the total number of patients for the last four 
 columns). Where available, the median difference in days is shown below the 
 count and percentage. {#tbl:etabledeath}");
-.tdat <-e_table(dat2tte,'n_lc',v(c_death),breaks=c(-30,30));
+.tdat <-e_table(dat2tte,'n_vtstat'
+                ,c(setdiff(v(c_death),'n_vtstat')
+                   ,'Earliest Death','Latest Death')
+                ,breaks=c(-30,30));
 pander(.tdat,caption=.tc,missing='&nbsp;' #,justify='right'
        #,searchrep=c(' ','&nbsp;')
        ,justify='left'
