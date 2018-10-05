@@ -1121,7 +1121,7 @@ follow ",fs('n_ddiag')," by more weeks than do ",fs('n_dsdisc')," and "
 ,fs('n_ddiag')," and usually occur within 2-8 weeks after it. This is 
 another way of summarizing how much the EMR variables lag behind NAACCR 
 variables. {#tbl:priordiag}");
-pander(dat3_surg_summary,caption=.tc);
+pander(dat3_surg_summary,caption=.tc,row.names=fs(rownames(dat3_surg_summary)));
 #' It makes sense that the Epic EMR lags behind NAACCR. As an outpatient system, 
 #' it's probably recording visits after the original surgery, and perhaps we are 
 #' not yet importing the right elements from Sunrise EMR. In [@sec:nextsteps] I
@@ -1407,7 +1407,7 @@ count and percentage. {#tbl:etabledeath}");
 pander(.tdat,caption=.tc,missing='&nbsp;' #,justify='right'
        #,searchrep=c(' ','&nbsp;')
        ,fmt='%3s&nbsp;%s\\\n%s'
-       ,row.names=vmap(rownames(.tdat),searchrep=cbind('\\[.*\\]$',''))); 
+       ,row.names=fs(rownames(.tdat))); 
 #print(.tdat,caption=.tc);
 #' 
 #'
