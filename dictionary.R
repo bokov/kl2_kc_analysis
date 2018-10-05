@@ -29,7 +29,8 @@ colnames(dat0) <- tolower(colnames(dat0));
 
 # make data dictionary ---------------------------------------------------------
 #' Create the data dictionary
-dct0 <- rebuild_dct(dat0,dctfile_raw,dctfile_tpl,tread_fun = read_csv,na='');
+dct0 <- rebuild_dct(dat0,dctfile_raw,dctfile_tpl,tread_fun = read_csv,na=''
+                    ,searchrep=globalsearchrep);
 #' 
 # a few dat0 hacks -------------------------------------------------------------
 #' A workaround for the fact that in `dat1` columns get transformed and we need
