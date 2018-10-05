@@ -762,13 +762,22 @@ arrange.e_table <- function(dat,...){
   eval(substitute(dat[index,]));
 }
 
+tail.e_table <- function(dat,n=2L,...) {
+  rows <- tail(seq_len(nrow(dat)),n);
+  eval(substitute(dat[rows,]));}
+
+head.e_table <- function(dat,n=2L,...) {
+  rows <- 1:min(n,nrow(dat));
+  eval(substitute(dat[rows,]));}
+
+
 e_table <- function(xx,yy,...) UseMethod('e_table');
 
 # string hacking ---------------------------------------------------------------
 #' Fancy Span (or any other special formatting of strings)
 #' 
-fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
-               ,tooltip='',class='fl'
+fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z0-9]','-',tolower(str)))
+               ,tooltip=alist(str),class='fl'
                # %1 = text, %2 = url, %3 = class, %4 = tooltip
                # TODO: %5 = which position 'str' occupies in fs_reg if 
                #       applicable and if not found, append 'str'
@@ -784,7 +793,7 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
                # easy to spot in the output hopefully
                #,template="<a href='%2$s' class='%3$s' title='%4$s'>%1$s</a>"
                ,dct=dct0,col_tooltip='colname_long',col_class='',col_url=''
-               ,col_text='',match_col='varname',fs_reg=NULL
+               ,col_text='',match_col=c('varname','colname'),fs_reg=NULL
                ,retfun=cat
                #,fs_reg='fs_reg'
                ,...){
@@ -792,10 +801,8 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
   # for arguments where the user has not explicitly provided values (if there
   # is no data dictionary or if the data dictionary doesn't have those columns,
   # fall back on the default values)
-  if(is.data.frame(dct) && 
-     match_col %in% names(dct) #&&
-  ){
-    dctinfo <- dct[match(str,dct[[match_col]]),];
+  if(is.data.frame(dct) && match_col %in% names(dct) ){
+    dctinfo <- dct[match(str,do.call(coalesce,dct[,match_col])),];
      #!all(is.na(dctinfo <- dct[which(dct[[match_col]]==str)[1],]))){
     if(missing(tooltip) #&& 
       #length(dct_tooltip<-na.omit(dctinfo[[col_tooltip]]))==1) {
@@ -976,7 +983,7 @@ vmap <- function(var,matchcol='varname'
 
 #' 
 rebuild_dct <- function(dat=dat0,rawdct=dctfile_raw,tpldct=dctfile_tpl,debuglev=0
-                        ,tread_fun=read_csv,na=''){
+                        ,tread_fun=read_csv,na='',searchrep=c()){
   out <- names(dat)[1:8] %>% 
     tibble(colname=.,colname_long=.,rule='demographics') %>% 
     rbind(tread(rawdct,tread_fun,na = na));
@@ -1005,6 +1012,9 @@ rebuild_dct <- function(dat=dat0,rawdct=dctfile_raw,tpldct=dctfile_tpl,debuglev=
   out <- rbind(out,outappend[,names(out)]);
   # end debug
   out$c_all <- TRUE;
+  # replace strings if needed
+  if(!missing(searchrep)) {
+    out$colname_long <- submulti(out$colname_long,searchrep);}
   return(out);
 }
 

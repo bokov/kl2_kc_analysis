@@ -90,6 +90,11 @@ dct_stage <- Inf;
 #' This is the file that lists levels of discrete variables and what each listed
 #' level should be renamed to.
 levels_map_file <- 'levels_map.csv';
+# searchrep --------------------------------------------------------------------
+globalsearchrep <- rbind(
+  c('\\[[0-9,]+ facts; [0-9,]+ patients\\]','')
+);
+
 # fs_templates -----------------------------------------------------------------
 #' templates for `fs()` ... note that the actual values inserted depend on 
 #' the other arguments of `fs()` and the columns of the data dictionary
