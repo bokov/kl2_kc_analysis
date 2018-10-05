@@ -762,6 +762,15 @@ arrange.e_table <- function(dat,...){
   eval(substitute(dat[index,]));
 }
 
+tail.e_table <- function(dat,n=2L,...) {
+  rows <- tail(seq_len(nrow(dat)),n);
+  eval(substitute(dat[rows,]));}
+
+head.e_table <- function(dat,n=2L,...) {
+  rows <- 1:min(n,nrow(dat));
+  eval(substitute(dat[rows,]));}
+
+
 e_table <- function(xx,yy,...) UseMethod('e_table');
 
 # string hacking ---------------------------------------------------------------
