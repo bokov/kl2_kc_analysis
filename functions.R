@@ -1,5 +1,14 @@
 # small utils ------------------------------------------------------------------
 
+#' I'd rather not introduce a dependency for just one function, on the other
+#' I trust Dr. Wickam & Co.'s code more than my own inexperienced stumblings so 
+#' if coalesce is already available, I use that one.
+#'  
+if(!exists('coalesce')){
+  coalesce <- function(...){
+    Reduce(function(xx,yy) ifelse(is.na(xx),yy,xx),list(...))}
+}
+
 #' This function takes a list of package named, loads them if they are
 #' available, otherwise attempts to install each one and then again 
 #' attempts to load it.
@@ -784,11 +793,14 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
   # is no data dictionary or if the data dictionary doesn't have those columns,
   # fall back on the default values)
   if(is.data.frame(dct) && 
-     match_col %in% names(dct) &&
-     !all(is.na(dctinfo <- dct[which(dct[[match_col]]==str)[1],]))){
-    if(missing(tooltip) && 
-       length(dct_tooltip<-na.omit(dctinfo[[col_tooltip]]))==1) {
-      tooltip <- dct_tooltip;}
+     match_col %in% names(dct) #&&
+  ){
+    dctinfo <- dct[match(str,dct[[match_col]]),];
+     #!all(is.na(dctinfo <- dct[which(dct[[match_col]]==str)[1],]))){
+    if(missing(tooltip) #&& 
+      #length(dct_tooltip<-na.omit(dctinfo[[col_tooltip]]))==1) {
+      #tooltip <- dct_tooltip;}
+    ){tooltip <- do.call(coalesce,c(dctinfo[,col_tooltip],tooltip,''))};
     if(missing(text) && 
        length(dct_text<-na.omit(dctinfo[[col_text]]))==1) {
       text <- dct_text;}
@@ -799,7 +811,8 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
        length(dct_class<-na.omit(dctinfo[[col_class]]))==1) {
       class <- dct_class;}
   }
-  out <- sprintf(template,text,url,class,tooltip,...);
+  browser();
+  out <- sprintf(rep(template,nrow(dctinfo)),text,url,class,tooltip,...);
   # register each unique str called by fs in a global option specified by 
   # fs_register
   if(!is.null(fs_reg)) {
