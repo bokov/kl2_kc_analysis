@@ -655,55 +655,20 @@ formals(fs)$retfun <- as.name('return');
 #' `r md$pbreak`
 #' # : Next steps {#sec:todo label="Appendix 2"}
 #' 
-#' * TODO: Update and clean up the plots and tables, including labels.
-#'     * ~~[Consistency-Checks]~~
-#'         * ~~Marital status, sex, race, hispanic(2):** shorten text and move to 
-#'           captions.~~
-#'         * ~~Write motivation and summary.~~
-#'     * ~~[Testing/Interpreting Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)~~
-#'         * ~~Write motivation, intro, summary. Incorporate edits.~~
-#'         * [Initial diagnosis], [Surgery], [Re-occurrence], [Death]
-#'             * Move plots to the top of each
-#'             * Shorten text and move to captions.
-#'             * For each plot state what the conclusions are.
-#'             * [Surgery]: turn the outline at the beginning into a more 
-#'               concise paragraph.
-#'     * [Hispanic variable recoding](#whether-or-not-the-patient-is-hispanic):
-#'       turn into paragraphs, think about moving to variable glossary.
-#'     * [Descriptive Plots (Preliminary)]
-#'         * ~~Move them to right after the overview.~~
-#'         * ~~Write intro mentioning that these are the relationships of interest
-#'           among the four main variables.~~
-#'         * ~~Expand why there are two versions of the survival plot~~
-#' * DONE: ~~Update and streamline the narrative.~~
-#'     * ~~Intro~~
-#'     * ~~Motivation~~
-#'     * ~~Summary of results~~
-#'     * ~~Summary of next steps~~
-#'     * ~~Move questions to after the [Descriptive Plots (Preliminary)] but 
-#'       before the [Consistency-Checks], and place the answered questions at
-#'       the bottom. [Domain expert questions](#questions-for-mentors-and-other-domain-experts)~~ 
-#'       still go ahead of [empirical questions](#questions-to-answer-empirically).
-#' * TODO: Remove the crossed-off stuff in [Appendix III: Supplementary tables] '
-#'         but note someplace what was removed and why.
-#' * TODO: Organize the inclusion/exclusion criteria into a single named list
-#' * TODO: Overhaul the existing TableOne in [Cohort Characterization] -- use 
-#'         data dictionary for renaming instead of _ad-hoc_ .
-#' * TODO: Migrate everything that uses ~~`dat2`~~ and `dat3` to using `dat2a`.
-#' * TODO: Create a TableOne for `r fs('a_hsp_naaccr')` (that specific one 
-#'         because then the conclusions can be directly applied to TCR data) to 
-#'         find possible confounding variables. Age, perhaps? Income? 
-#' * TODO: Fill in more of the variable descriptions in 
-#'         [Appendix IV: Variable descriptions]
-#' * TODO: Prior to doing the above `tte()` put in a safeguard to make
-#'         sure all the `c_tte` variables are `TRUE/FALSE` only. They
-#'         are right now as it happens, but nothing enforces that.
+#' * TODO: Go through this document and add any in-line TODOs to this section
+#'         perhaps linking them bidirectionally to the text
+#' * TODO: Increase existing data
+#'     * Meet with NAACCR regisrar
+#'     * Update i2b2 query with renal mass
+#'     * Finish credentialing process
+#' * TODO: Get outside data
+#'     * Submit request to TCR
+#' * TODO: Develop covariates/mediators
+#' * TODO: Finish DataFinisher (Aim 1)
 #' * TODO: Clean up TNM variables, in consultation with domain expert (Peter?)
 #' * TODO: Create access/quality variables including: number of visits per year, 
 #'         number of lab tests and imaging orders per visit, time spent with 
 #'         provider per visit
-#' * TODO: Resume effort to link Mays Center historic trial records from IDEAS 
-#'         to get information about enrollment in adjuvant trials
 #' * TODO: Start validating and using additional 2a variables already in current 
 #'         data
 #'     * `[CN101] OPIOID ANALGESICS` (EMR)
@@ -722,17 +687,73 @@ formals(fs)$retfun <- as.name('return');
 #'       that it's neither a diagnosis date nor a first contact. Not known what
 #'       it is._
 #'     * DONE: ~~Surgery fields:~~
-#'         * ~~[`1260 Date of Initial RX--SEER`](http://datadictionary.naaccr.org/default.aspx?c=10#1260)~~
-#'         * ~~[`1270 Date of 1st Crs RX--CoC`](http://datadictionary.naaccr.org/default.aspx?c=10#1270)~~
-#'         * ~~[`3170 RX Date--Most Defin Surg`](http://datadictionary.naaccr.org/default.aspx?c=10#3170)~~
-#'     * DONE: ~~Recurrence: [`1880 Recurrence Type--1st`](http://datadictionary.naaccr.org/default.aspx?c=10#1880)~~
+#'         * ~~`r fs('n_rx1260')`~~
+#'         * ~~`r fs('n_rx1270')`~~
+#'         * ~~`r fs('n_rx3170')`~~
+#'     * DONE: ~~`r fs('n_rectype')`~~
 #' * TODO: In a future re-run of query...
 #'     * Follow up re additional patient linkages, more recent NAACCR data
 #'     * education (Census, not ready, ETL needs fixing)
+#' * TODO: Systematically convert to `e_table()` in 
+#'         [-@sec:diag; -@sec:surg; -@sec:recur]
+#' * TODO: Variable glossary
+#'     * Migrate detailed variable descriptions there.
+#'     * Create list object for adding on commentary to glossary entries within
+#'       `exploration.R`, outside the data dictionary proper.
+#'     * Fill in more of the variable descriptions in [-@sec:vars]
+#'     * Figure out how to make `fs()` fail gracefully perhaps with a generic
+#'         'this variable is not yet documented' link target.
+#'     * ~~Automatically translate and link variable names in table column or
+#'         row names~~
+#' * TODO: Remove the crossed-off stuff in [-@sec:supp]
+#'         but note someplace what was removed and why (move it to a long-term
+#'         location on RPubs.com)
+#' * TODO: Organize the inclusion/exclusion criteria into a single named list
+#'         and analyze their correlation.
+#' * TODO: Overhaul the existing TableOne in [Cohort Characterization] -- use 
+#'         data dictionary for renaming instead of _ad-hoc_ .
+#' * TODO: Migrate everything that uses ~~`dat2`~~ and `dat3` to using `dat2a`.
+#' * TODO: Create a TableOne for `r fs('a_hsp_naaccr')` (that specific one 
+#'         because then the conclusions can be directly applied to TCR data) to 
+#'         find possible confounding variables. Age, perhaps? Income? 
+#' * TODO: Put in a safeguard to make sure all the `c_tte` variables are 
+#'         `TRUE/FALSE` only. They are right now as it happens, but nothing
+#'         enforces that.
+#' * TODO: Resume effort to link Mays Center historic trial records from IDEAS 
+#'         to get information about enrollment in adjuvant trials
 #' * TODO: Separate script-level calls to `instrequire()` to reduce the number 
 #'         of libraries that get loaded unnecessarily.
 #' * TODO: Create a light version of `data.R.rdata` that has only the minimal 
 #'         necessary stuff for, e.g. `exploration.R`
+#' #' * DONE: ~~Update and clean up the plots and tables, including labels.~~
+#'     * ~~[Consistency-Checks]~~
+#'         * ~~Marital status, sex, race, hispanic(2):** shorten text and move to 
+#'           captions.~~
+#'         * ~~Write motivation and summary.~~
+#'     * ~~[Testing/Interpreting Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)~~
+#'         * ~~Write motivation, intro, summary. Incorporate edits.~~
+#'         * ~~[Initial diagnosis], [Surgery], [Re-occurrence], [Death]~~
+#'             * ~~Move plots to the top of each~~
+#'             * ~~Shorten text and move to captions~~.
+#'             * ~~For each plot state what the conclusions are.~~
+#'             * ~~[Surgery]: turn the outline at the beginning into a more 
+#'               concise paragraph.~~
+#'     * ~~[Hispanic variable recoding](#whether-or-not-the-patient-is-hispanic):
+#'       turn into paragraphs,~~ 
+#'     * ~~[Descriptive Plots (Preliminary)]~~
+#'         * ~~Move them to right after the overview.~~
+#'         * ~~Write intro mentioning that these are the relationships of interest
+#'           among the four main variables.~~
+#'         * ~~Expand why there are two versions of the survival plot~~
+#' * DONE: ~~Update and streamline the narrative.~~
+#'     * ~~Intro~~
+#'     * ~~Motivation~~
+#'     * ~~Summary of results~~
+#'     * ~~Summary of next steps~~
+#'     * ~~Move questions to after the [Descriptive Plots (Preliminary)] but 
+#'       before the [Consistency-Checks], and place the answered questions at
+#'       the bottom. [Domain expert questions](#questions-for-mentors-and-other-domain-experts)~~ 
+#'       still go ahead of [empirical questions](#questions-to-answer-empirically).
 #' * DONE: ~~Create combined (if applicable) variables for each of the following:~~
 #'     * ~~Initial diagnosis~~ `r fs('a_tdiag')`, `r fs('a_cdiag')`
 #'     * ~~Surgery~~ `r fs('a_tsurg')`, `r fs('a_csurg')`
