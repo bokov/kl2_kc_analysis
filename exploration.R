@@ -80,8 +80,12 @@ formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 # defaults for 'fancy span' string transformation of variable names 
 # IN THE MAIN SECTION ONLY!! The retfun should be return for inline use and cat
 # for use generating asis chunks.
+#fs_searchrep <- rbind(c('\\[[0-9,]+ facts.*patients\\]',''));
+#fs_searchrep <- rbind(c('patients',''));
 .args_default_fs <- formals(fs);
 formals(fs)[c('url','fs_reg','retfun')] <- alist(str,'fs_reg',return);
+                                                 # ,function(xx) {
+                                                 #   submulti(xx,fs_searchrep)});
 formals(fs)$template <- fstmplts$link_colnamelong;
 
 # We don't yet explicitly reference patient_num outside the news block, so I'm 
@@ -159,6 +163,9 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' 
 #' # Overview {#sec:overview}
 #' 
+# Why the heck was it these two not forming links until I pre-initialized them
+# here? Can't find a difference from the others.
+.junk <- fs(c('e_surgonc','n_dsdisc'));
 #' A recent study of state death records [@PinheiroHighcancermortality2017]
 #' reports that among US-born Texans of Hispanic ancestry (7.3 million, 27% of
 #' the State's population), annual age-adjusted mortality rates for kidney
@@ -1642,15 +1649,28 @@ heatmap(dat3.gteq[.dat3.keep,.dat3.keep],symm = T,na.rm = T,margins=c(10,10)
 #'
 #' # Variable descriptions {#sec:vars label="Appendix 4"}
 #' 
+if(!'e_surgonc' %in% (debug00 <- getOption('fs_reg'))){
+  message('e_surgonc not found before tooltips');
+  save(debug00,file='debug00.rdata');
+}
+#' 
 #+ progfootnotes, results='asis'
 # set new template for creating the internal link VALUES
 # formals(fs)[c('url','template','retfun')] <- alist(paste0('#',str)
 #                                           ,'[%1$s]: %2$s "%4$s"\n',cat);
-formals(fs)[c('url','retfun')] <- alist(paste0('#',str),cat);
-formals(fs)$template <- fstmplts$linkref;
-.junk <- subset(dct0,varname %in% getOption('fs_reg')
-                ,select = c('varname','colname_long')) %>% 
-  apply(1,function(xx) fs(xx[1],tooltip=xx[2]));
+#formals(fs)[c('url','retfun')] <- alist(paste0('#',str),cat);
+#formals(fs)$template <- fstmplts$linkref;
+# .junk <- subset(dct0,varname %in% getOption('fs_reg')
+#                 ,select = c('varname','colname_long')) %>% 
+#   apply(1,function(xx) fs(xx[1],url=paste0('#',xx[1]),tooltip=xx[2],retfun=cat
+#                           ,template=fstmplts$linkref));
+fs(getOption('fs_reg'),url=paste0('#',getOption('fs_reg'))
+   ,template=fstmplts$linkref,retfun=cat);
+#' 
+if(!'e_surgonc' %in% (debug00 <- getOption('fs_reg'))){
+  message('e_surgonc not found after tooltips before targets');
+  save(debug00,file='debug00.rdata');
+}
 #' Here are descriptions of the variables referenced in this document.
 #+ readablefootnotes, results='asis'
 # set new template for creating the internal link TARGETS
@@ -1658,11 +1678,12 @@ cat('***\n');
 .junk <- subset(dct0,varname %in% getOption('fs_reg')
                 ,select = c('varname','colname_long','chartname','comment'
                             ,'col_url')) %>% 
-  apply(1,function(xx) cat(
-    '######',xx[1],'\n\n',na.omit(xx[2:1])[1],':\n\n  ~ '
-    ,ifelse(length(na.omit(xx[2:4]))>0
-            ,iconv(paste(na.omit(xx[2:4]),collapse='; '),to='UTF-8',sub=''),'')
-    ,ifelse(is.na(xx[5]),'',paste('\n\n  ~ Link:',xx[5])),'\n\n***\n'));
+  apply(1,function(xx) {
+    cat('######',xx[1],'\n\n',na.omit(xx[2:1])[1],':\n\n  ~ '
+        ,ifelse(length(na.omit(xx[2:4]))>0
+                ,iconv(paste(na.omit(xx[2:4]),collapse='; '),to='UTF-8',sub='')
+                ,'')
+        ,ifelse(is.na(xx[5]),'',paste('\n\n  ~ Link:',xx[5])),'\n\n***\n')});
 #' 
 #' 
 #' ::::: {.pbreak custom-style="pbreak"}
