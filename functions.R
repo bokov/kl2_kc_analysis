@@ -792,10 +792,8 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
   # for arguments where the user has not explicitly provided values (if there
   # is no data dictionary or if the data dictionary doesn't have those columns,
   # fall back on the default values)
-  if(is.data.frame(dct) && 
-     match_col %in% names(dct) #&&
-  ){
-    dctinfo <- dct[match(str,dct[[match_col]]),];
+  if(is.data.frame(dct) && match_col %in% names(dct) ){
+    dctinfo <- dct[match(str,do.call(coalesce,dct[,match_col])),];
      #!all(is.na(dctinfo <- dct[which(dct[[match_col]]==str)[1],]))){
     if(missing(tooltip) #&& 
       #length(dct_tooltip<-na.omit(dctinfo[[col_tooltip]]))==1) {
@@ -976,7 +974,7 @@ vmap <- function(var,matchcol='varname'
 
 #' 
 rebuild_dct <- function(dat=dat0,rawdct=dctfile_raw,tpldct=dctfile_tpl,debuglev=0
-                        ,tread_fun=read_csv,na=''){
+                        ,tread_fun=read_csv,na='',searchrep=c()){
   out <- names(dat)[1:8] %>% 
     tibble(colname=.,colname_long=.,rule='demographics') %>% 
     rbind(tread(rawdct,tread_fun,na = na));
@@ -1005,6 +1003,9 @@ rebuild_dct <- function(dat=dat0,rawdct=dctfile_raw,tpldct=dctfile_tpl,debuglev=
   out <- rbind(out,outappend[,names(out)]);
   # end debug
   out$c_all <- TRUE;
+  # replace strings if needed
+  if(!missing(searchrep)) {
+    out$colname_long <- submulti(out$colname_long,searchrep);}
   return(out);
 }
 
