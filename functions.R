@@ -811,7 +811,6 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z]','-',tolower(str)))
        length(dct_class<-na.omit(dctinfo[[col_class]]))==1) {
       class <- dct_class;}
   }
-  browser();
   out <- sprintf(rep(template,nrow(dctinfo)),text,url,class,tooltip,...);
   # register each unique str called by fs in a global option specified by 
   # fs_register
