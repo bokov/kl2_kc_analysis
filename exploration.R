@@ -139,15 +139,17 @@ information needed for our records.\\
 which I know I need to deal soon. Verbatim names of files, variables/elements,
 or values are displayed in a special style, `like this`. Data element names are 
 in addition linked to a glossary at the end of this document, e.g. 
-[`Surgical Oncology`](#e_surgonc). This is where any relevant cleaning or 
+[`Surgical Oncology`](#e%5Fsurgonc). This is where any relevant cleaning or 
 tranformation steps will be described (in progress). Data elements from 
 NAACCR usually have a NAACCR ID preceding them, e.g. 
-[`1780 Quality of Survival`](#n_qsurv). I try to use the word 'data element' to
+[`1780 Quality of Survival`](#n%5Fqsurv). I try to use the word 'data element' to
 describe data in its raw state and 'variable' to refer to analysis-ready data
 that I have already processed. Often one variable incorporates information from
 multiple data elements. Tables, figures, and sections are also linked from text 
 that references them. If you have a Word version of this document, to follow a 
-link, please hold down the 'control' key and click on it."
+link, please hold down the 'control' key and click on it. The most current
+version of this document can be found online at 
+https://rpubs.com/bokov/kidneycancer and it has a built-in chat session."
 );
 
 .toc <- rep_len(NA,length(.news));
@@ -1610,16 +1612,9 @@ pct_ahsp <- sprintf('%4.1f%%'
 #  validrecords_old -------------------------------------------------------------
 #' ## What is the coverage of valid records in each data source.
 #' 
-#' How many patients are in NAACCR, the EMR, both, neither, or have a diagnosis
-#' prior to first available record?
-consort_table[with(consort_table,order(PreExisting,decreasing = T)),] %>% 
-  mutate(`N Cumulative`=rev(cumsum(rev(N)))) %>% pander();
-#' _This has been temporarily moved from the main section pending finalization
-#' of the recurrence variables. For now, the only ones we can be sure of 
-#' [as indicators of a pre-existing condition](#surgery-conclusion) as exclusion
-#' criteria for possibly invalid records are `r t_priorcond` if they occur 
-#' prior to `r fs('n_ddiag')` and those will exclude far fewer records than suggested 
-#' by this table_ .
+#' _This section is no longer relevant but is still available for reference in 
+#' the [kidneycancer_181009 snapshot of this document](`r paste0(urls$exp_raw_181009,'#what-is-the-coverage-of-valid-records-in-each-data-source')`)_
+#' 
 #' 
 #  firscontact ------------------------------------------------------------------
 #' ## What is going on with the first contact variable?
@@ -1650,96 +1645,8 @@ sample and that's why it's dated as during or after surgery we thought. If first
 #  heatmap ----------------------------------------------------------------------
 #' ## Which variables are near-synonymous?
 #' 
-#' Some variables will, despite what they sound like will be clearly unrelated 
-#' to each other. Others will be in high pairwise agreement when both are
-#' non-missing. The ones in between need to be investigated further to determine
-#' whether they are more informative than no information at all, whether they
-#' can be cleaned up, and whether there is a bias (i.e. one variable will 
-#' consistently lag another variable). 
-#' 
-#' In the `data.R` script we will convert all the event variables to a time to
-#' event (tte) form. The above variables plus a few that are dates which aren't 
-#' currently known to correlate with any of the events of interest, but doesn't 
-#' hurt to check. The overall approach will be:
-#'  
-#' 1. Take for each patient the first visit where the variable is TRUE, 
-#'    non-missing, or in some cases meets some other criteria.
-#' 2. Center the `r fs('age_at_visit_days')` variable on that visit, so for that 
-#'    patient it is `0` on the visit, a negative integer prior to the visit, and 
-#'    a positive integer after. It will be seen later that this will help make
-#'    survival analysis easier when we get to it. For patients where an event is
-#'    never observed, these numbers will be shifted to that the value at the
-#'    last visit is `-1`, _not_ `0`. This is so that we can easily distinguish 
-#'    patients where the event never occurred.
-#' 
-#' Then we will be ready to probe the degree of agreement and size of lags 
-#' between these variables.
-#' 
-#' We will then obtain diagonal matrices of various pairwise comparisons of
-#' the timing of events. Not only the ones believed to reflect the same event, 
-#' but all of them. This is so that we can do an overall sanity check on the 
-#' relationships between  groups of variables. For example, if the supposed 
-#' dates of surgery are in good agreement with each other, but they often happen 
-#' after the supposed date of reoccurence, then that would be a problem we need 
-#' to resolve before proceeding further. The below heatmap indicates the 
-#' fraction of the column events that occurred before or at the same time as the
-#' row events.
-#+ medians_heatmap,cache=TRUE,fig.width=10,fig.height=10
-dat3.gteq<-outer(dat3[,-1],dat3[,-1],FUN = function(xx,yy)
-  mapply(function(aa,bb) mean(aa>bb,na.rm = T),xx,yy));
-dat3.meds<-outer(dat3[,-1],dat3[,-1],FUN = function(xx,yy)
-  mapply(function(aa,bb) quantile(aa-bb,.5,na.rm = T),xx,yy));
-dat3.mabs<-outer(dat3[,-1],dat3[,-1],FUN = function(xx,yy)
-  mapply(function(aa,bb) quantile(abs(aa-bb),.5,na.rm = T),xx,yy));
-dat3.mabx<-outer(dat3[,-1],dat3[,-1],FUN=function(xx,yy)
-  mapply(function(aa,bb) {
-    oo<-max(abs(aa-bb),na.rm=T);
-    if(is.infinite(oo)) return(NA) else return(oo)},xx,yy));
-dat3.maxs<-outer(dat3[,-1],dat3[,-1],FUN=function(xx,yy)
-  mapply(function(aa,bb) {
-    oo<-max(aa-bb,na.rm=T);
-    if(is.infinite(oo)) return(NA) else return(oo)},xx,yy));
-dat3.mins<-outer(dat3[,-1],dat3[,-1],FUN=function(xx,yy)
-  mapply(function(aa,bb) {
-    oo<-min(aa-bb,na.rm=T);
-    if(is.infinite(oo)) return(NA) else return(oo)},xx,yy));
-
-# We need to exclude the 'n_dob' variable because it otherwise screws up the
-# scaling. Also excluding all variables that have fewer than 10 non-null 
-# observations
-.dat3.keep <- !colnames(dat3.gteq) %in% 
-  c(names(dat3)[colSums(!is.na(dat3))<10],'n_dob');
-# This is to distinguish missing values from 0 values in a heatmap! No other way
-# to do that!!
-#layout(matrix(1,nrow=2,ncol=2));
-par(bg='gray'); #,mfrow=1:2,mfcol=1:2);
-heatmap(dat3.gteq[.dat3.keep,.dat3.keep],symm = T,na.rm = T,margins=c(10,10)
-        ,col=colorRampPalette(c('pink','red','darkred'))(2000));
-# ,col=color.palette(c('darkred','red','pink','white','lightblue','blue'
-#                      ,'darkblue'),n.steps=c(3,200,2,2,200,3))(2000));
-#' 
-#' A lot to unpack here! We can already see that some variables are in close
-#' agreement. Another early conclusion from this is that it isn't looking good 
-#' for EMR events lining up with NAACCR events... they seem to lag behind NAACCR 
-#' dates, especially diagnoses and surgical history. Might need to see if there
-#' is something in the EMR that captures date of surgery (especially in Sunrise)
-#' and chart review to see why the KC diagnosis codes lag behind NAACCR
-#' diagnosis date.
-#' 
-#' Closer visualization of individual groups of variables can be accomplished by 
-#' subsetting from this master table.
-#' 
-#' In addition to medians, we might also generate tables of the 5th and 95th 
-#' percentiles of the differences as well as medians of the absolute values of
-#' the differences. The former are for identifying directional trends and the
-#' latter are to distinguish variables that track each other from variables that
-#' are uncorrelated but their difference is unbiased in one direction versus 
-#' another.
-#' 
-#' However, most of this shotgun approach is now superseded by the more focused 
-#' investigation in the [initial diagnosis](#initial-diagnosis) and 
-#' [surgery](#surgery-conclusion) sections in the main document above. This is
-#' just for historic reference.
+#' _This section is no longer relevant but is still available for reference in 
+#' the [kidneycancer_181009 snapshot of this document](`r paste0(urls$exp_raw_181009,'#which-variables-are-near-synonymous')`)_
 #' 
 #' 
 #' ::::: {.pbreak custom-style="pbreak"}
