@@ -112,14 +112,18 @@ fstmplts <- list(
 );
 # urls -------------------------------------------------------------------------
 urls <- list(
-   exploration_rpubs='https://rpubs.com/bokov/kidneycancer'
+   exp_rpubs='https://rpubs.com/bokov/kidneycancer'
+  ,exp_181009='https://rpubs.com/bokov/kidneycancer_181009'
   ,dict_naaccr='http://datadictionary.naaccr.org/?c=10'
   );
 #' RPubs keeps the actual content in an iframe, and this cool little 3-liner 
 #' gets the address of that iframe's target so in principle I can now construct
 #' links with targets to other documents I published previously, starting with
 #' the most recent version of this document.
-urls$exploration_raw <- getURL(urls$exploration_rpubs) %>% 
+urls$exp_raw <- getURL(urls$exp_rpubs) %>% 
+  htmlParse %>% xpathApply('//iframe') %>% `[[`(1) %>% xmlAttrs() %>% 
+  paste0('https:',.);
+urls$exp_raw_181009 <- getURL(urls$exp_181009) %>% 
   htmlParse %>% xpathApply('//iframe') %>% `[[`(1) %>% xmlAttrs() %>% 
   paste0('https:',.);
 c()
