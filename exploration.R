@@ -1609,16 +1609,9 @@ pct_ahsp <- sprintf('%4.1f%%'
 # look
 #' `r md$pbreak`
 #' 
-#  validrecords_old -------------------------------------------------------------
-#' ## What is the coverage of valid records in each data source.
-#' 
-#' _This section is no longer relevant but is still available for reference in 
-#' the [kidneycancer_181009 snapshot of this document](`r paste0(urls$exp_raw_181009,'#what-is-the-coverage-of-valid-records-in-each-data-source')`)_
-#' 
 #' 
 #  firscontact ------------------------------------------------------------------
 #' ## What is going on with the first contact variable?
-#' 
 #' 
 #' ::::: {#fig:diag2lc_eventplot custom-style="Image Caption"}
 #+ diag2lc_eventplot,results='asis'
@@ -1634,24 +1627,27 @@ abline(h=0,col='blue');
 cat("
 
 Wierd observation-- ",fs('n_fc')," (red) is almost always between ",fs('n_lc')
-,"(black) and ",fs('n_ddiag')," (blue) though diagnosis is usually on a biopsy
+    ,"(black) and ",fs('n_ddiag')," (blue) though diagnosis is usually on a biopsy
 sample and that's why it's dated as during or after surgery we thought. If first contact is some kind of event after first diagnosis, what is it?");
 #' :::::
 #' 
+#' `r md$pbreak`
 #' 
 #' Surgery `r fs('n_dsurg')` seems to happen in significant amounts both before 
 #' and after first contact `r fs('n_fc')`.
 #' 
-#  heatmap ----------------------------------------------------------------------
+#' ## What is the coverage of valid records in each data source.
+#' 
+#' _This section is no longer relevant but is still available for reference in 
+#' the [kidneycancer_181009 snapshot of this document](`r paste0(urls$exp_raw_181009,'#what-is-the-coverage-of-valid-records-in-each-data-source')`)_
+#' 
 #' ## Which variables are near-synonymous?
 #' 
 #' _This section is no longer relevant but is still available for reference in 
 #' the [kidneycancer_181009 snapshot of this document](`r paste0(urls$exp_raw_181009,'#which-variables-are-near-synonymous')`)_
 #' 
 #' 
-#' ::::: {.pbreak custom-style="pbreak"}
-#' &nbsp;
-#' :::::
+#' `r md$pbreak`
 #' 
 #' 
 # A4 variables -----------------------------------------------------------------
