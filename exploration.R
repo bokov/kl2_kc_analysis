@@ -39,7 +39,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 
 default_font <- 'Times New Roman';
@@ -393,23 +393,6 @@ Number of weeks elapsed from ',fs('a_tdiag'),' (time 0) to ',fs('a_tsurg')
 occurring more than 3 years post-diagnosis are treated as censored)');
 #' :::::
 #' 
-#' ###### blank
-#' 
-#' Typically 2-4 weeks elapse diagnosis from surgery and providers try to 
-#' not exceed 4 weeks. Nevertheless years may sometimes elapse due to factors 
-#' such as an indolent tumors or loss of contact with the patient. About 15% of 
-#' patients never undergo surgery [@pcRodriguez2018]. [@Fig:surg_survfit] is in
-#' agreement with this.
-#' 
-#' It can also be seen in [@fig:surg_survfit] that 
-#' `r sum(with(.survfit_plot0$fit,n.event[time==0]))` surgeries seem to happen 
-#' on the day of diagnosis. This is plausible if NAACCR diagnosis is based on 
-#' pathology rather than clinical examination where a positive result is usually 
-#' coded as a renal mass, not a cancer. [In my next data update I intend to 
-#' also include all ICD9/10 codes for renal mass at which point I will revisit
-#' the question of using EMR data to fill in missing diagnosis 
-#' dates]{.note2self custom-style="note2self"} (see [@sec:nextsteps]).
-#' 
 #' ::::: {#fig:recur_survfit custom-style="Image Caption"}
 #+ surv_recur,results='asis',fig.dim=c(3.1,3),fig.align='center'
 (.survfit_plot1 <- update(.survfit_plot0,eventvars='a_trecur'
@@ -435,8 +418,22 @@ Number of weeks elapsed from ',fs('a_tsurg'),' (time 0) to ',fs('a_trecur')
 the follow-up period is six years');
 #' :::::
 #' 
-#' 
 #' ###### blank
+#' 
+#' Typically 2-4 weeks elapse diagnosis from surgery and providers try to 
+#' not exceed 4 weeks. Nevertheless years may sometimes elapse due to factors 
+#' such as an indolent tumors or loss of contact with the patient. About 15% of 
+#' patients never undergo surgery [@pcRodriguez2018]. [@Fig:surg_survfit] is in
+#' agreement with this.
+#' 
+#' It can also be seen in [@fig:surg_survfit] that 
+#' `r sum(with(.survfit_plot0$fit,n.event[time==0]))` surgeries seem to happen 
+#' on the day of diagnosis. This is plausible if NAACCR diagnosis is based on 
+#' pathology rather than clinical examination where a positive result is usually 
+#' coded as a renal mass, not a cancer. [In my next data update I intend to 
+#' also include all ICD9/10 codes for renal mass at which point I will revisit
+#' the question of using EMR data to fill in missing diagnosis 
+#' dates]{.note2self custom-style="note2self"} (see [@sec:nextsteps]).
 #' 
 #' ::::: {#fig:naaccrdeath_survfit custom-style="Image Caption"}
 #+ naaccrdeath_survfit,results='asis',fig.dim=c(3.1,3),fig.align='center'
@@ -1072,21 +1069,6 @@ codes or surgical history of nephrectomy). The blue horizontal line is "
 directions.");
 #' :::::
 #' 
-#' In [@fig:surg0_plot0] the `r sum(with(.eplot_surg0,icd<nrx),na.rm=T)` 
-#' patients for which the earliest EMR nephrectomy code occurs before the 
-#' earliest NAACCR possible record of surgery are highlighted in yellow. Among 
-#' the remaining `r with(.eplot_surg0,sum(icd>=nrx,na.rm=T))` patients who have 
-#' an EMR code for nephrectomy, there are  
-#' `r .surg0thresh<-3; with(.eplot_surg0,sum(icd>(n_dsurg+.surg0thresh),na.rm=T))` 
-#' for whom it happens more than `r .surg0thresh` months after `r fs('n_dsurg')` 
-#' and those lags have a median of 
-#' `r with(.eplot_surg0,round(median(icd[icd>(n_dsurg+.surg0thresh)],na.rm=T),1))`
-#' months. This level of discrepancy disqualifies `r fs('e_i9neph')`, 
-#' `r fs('e_i10neph')`, and `r fs('e_hstneph')` from being used to fill in 
-#' missing NAACCR dates. [This may change after the next i2b2 update
-#' in which the fix to the "visit-less patient" problem will be 
-#' implemented ([@sec:nextsteps])]{.note2self custom-style="note2self"}
-#' 
 #' ::::: {#fig:surg0_plot1 custom-style="Image Caption"}
 #+ .surg0_plot1,results='asis'
 par(xaxt='n');
@@ -1110,6 +1092,21 @@ cat("\n\nIn the above plot the ",fs('n_rx1270')," (green) and "
 omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
     ," variables trend earlier than ",fs('n_dsurg'));
 #' :::::
+#' 
+#' In [@fig:surg0_plot0] the `r sum(with(.eplot_surg0,icd<nrx),na.rm=T)` 
+#' patients for which the earliest EMR nephrectomy code occurs before the 
+#' earliest NAACCR possible record of surgery are highlighted in yellow. Among 
+#' the remaining `r with(.eplot_surg0,sum(icd>=nrx,na.rm=T))` patients who have 
+#' an EMR code for nephrectomy, there are  
+#' `r .surg0thresh<-3; with(.eplot_surg0,sum(icd>(n_dsurg+.surg0thresh),na.rm=T))` 
+#' for whom it happens more than `r .surg0thresh` months after `r fs('n_dsurg')` 
+#' and those lags have a median of 
+#' `r with(.eplot_surg0,round(median(icd[icd>(n_dsurg+.surg0thresh)],na.rm=T),1))`
+#' months. This level of discrepancy disqualifies `r fs('e_i9neph')`, 
+#' `r fs('e_i10neph')`, and `r fs('e_hstneph')` from being used to fill in 
+#' missing NAACCR dates. [This may change after the next i2b2 update
+#' in which the fix to the "visit-less patient" problem will be 
+#' implemented ([@sec:nextsteps])]{.note2self custom-style="note2self"}
 #' 
 #' ###### blank
 #' 
