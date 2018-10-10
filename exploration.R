@@ -358,12 +358,9 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' outcomes were never observed). The lightly-shaded regions around each line 
 #' are 95% confidence intervals. 
 #' 
-#' ###### blank
-#' 
-#' ::::: {#fig:surg_survfit custom-style="Image Caption"}
-#+ surv_surg,results='asis',fig.dim=c(3.1,3),fig.align='center'
-#,fig.align='right',fig.dim=c(5,3)
-(.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
+#+ .survfit_prep,results='hide'
+# THIS PART JUST MAKES THE PLOT, NOT SHOWS IT YET 
+.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
                                    ,startvars = 'a_tdiag'
                                    ,predvars = 'a_hsp_naaccr'
                                    ,default.censrvars = 'n_lc'
@@ -383,8 +380,27 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
                                             ,fill=guide_legend(''))
                                      ,coord_cartesian(ylim=0:1)
                                      ,theme_light()
-                                     ,theme(legend.position = 'top')))
-)$plot;
+                                     ,theme(legend.position = 'top')));
+c();
+#' 
+#' Typically 2-4 weeks elapse diagnosis from surgery and providers try to 
+#' not exceed 4 weeks. Nevertheless years may sometimes elapse due to factors 
+#' such as an indolent tumors or loss of contact with the patient. About 15% of 
+#' patients never undergo surgery [@pcRodriguez2018]. [@Fig:surg_survfit] is in
+#' agreement with this. It can also be seen in [@fig:surg_survfit] that 
+#' `r sum(with(.survfit_plot0$fit,n.event[time==0]))` surgeries seem to happen 
+#' on the day of diagnosis. This is plausible if NAACCR diagnosis is based on 
+#' pathology rather than clinical examination where a positive result is usually 
+#' coded as a renal mass, not a cancer. [In my next data update I intend to 
+#' also include all ICD9/10 codes for renal mass at which point I will revisit
+#' the question of using EMR data to fill in missing diagnosis 
+#' dates]{.note2self custom-style="note2self"} (see [@sec:nextsteps]).
+#' 
+#' ###### blank
+#' 
+#' ::::: {#fig:surg_survfit custom-style="Image Caption"}
+#+ surv_surg,results='asis',fig.dim=c(3.1,3),fig.align='center'
+.survfit_plot0$plot;
 cat('
 
 Number of weeks elapsed from ',fs('a_tdiag'),' (time 0) to ',fs('a_tsurg')
@@ -418,23 +434,9 @@ Number of weeks elapsed from ',fs('a_tsurg'),' (time 0) to ',fs('a_trecur')
 the follow-up period is six years');
 #' :::::
 #' 
+#' 
 #' ###### blank
-#' 
-#' Typically 2-4 weeks elapse diagnosis from surgery and providers try to 
-#' not exceed 4 weeks. Nevertheless years may sometimes elapse due to factors 
-#' such as an indolent tumors or loss of contact with the patient. About 15% of 
-#' patients never undergo surgery [@pcRodriguez2018]. [@Fig:surg_survfit] is in
-#' agreement with this.
-#' 
-#' It can also be seen in [@fig:surg_survfit] that 
-#' `r sum(with(.survfit_plot0$fit,n.event[time==0]))` surgeries seem to happen 
-#' on the day of diagnosis. This is plausible if NAACCR diagnosis is based on 
-#' pathology rather than clinical examination where a positive result is usually 
-#' coded as a renal mass, not a cancer. [In my next data update I intend to 
-#' also include all ICD9/10 codes for renal mass at which point I will revisit
-#' the question of using EMR data to fill in missing diagnosis 
-#' dates]{.note2self custom-style="note2self"} (see [@sec:nextsteps]).
-#' 
+#'
 #' ::::: {#fig:naaccrdeath_survfit custom-style="Image Caption"}
 #+ naaccrdeath_survfit,results='asis',fig.dim=c(3.1,3),fig.align='center'
 (.survfit_plot2 <- update(.survfit_plot1,eventvars='n_vtstat'
@@ -452,9 +454,6 @@ Like [@fig:recur_survfit] except now the outcome is ',fs('n_vtstat')
 ,' for ',.survfit_plot2$fit$n[1],' Hispanic  and ',.survfit_plot2$fit$n[2]
 ,' non-Hispanic white patients. Six-year follow-up');
 #' :::::
-#' 
-#' 
-#' ###### blank
 #' 
 #' ::::: {#fig:alldeath_survfit custom-style="Image Caption"}
 #+ alldeath_survfit,results='asis',fig.dim=c(3.1,3),fig.align='center'
@@ -474,7 +473,6 @@ were ',sum(.survfit_plot2$fit$n.censor)-sum(.survfit_plot2a$fit$n.censor)
 ,' fewer censored events than in [@fig:naaccrdeath_survfit] which may improve 
 sensitivity in the actual analysis');
 #' :::::
-#' 
 #' 
 #' ###### blank
 #' 
@@ -738,7 +736,7 @@ formals(fs)$retfun <- as.name('return');
 #'         of libraries that get loaded unnecessarily.
 #' * TODO: Create a light version of `data.R.rdata` that has only the minimal 
 #'         necessary stuff for, e.g. `exploration.R`
-#' #' * DONE: ~~Update and clean up the plots and tables, including labels.~~
+#' * DONE: ~~Update and clean up the plots and tables, including labels.~~
 #'     * ~~[Consistency-Checks]~~
 #'         * ~~Marital status, sex, race, hispanic(2):** shorten text and move to 
 #'           captions.~~
@@ -951,12 +949,12 @@ wrong. {#tbl:xc_dob_surg}');
 #' multiple years.
 #' 
 #' ::::: {#fig:diag_plot custom-style="Image Caption"}
-#+ diag_plot,results='asis'
+#+ diag_plot,results='asis', fig.dim=c(4.5,3)
 # .diag_plot, opts.label='fig_opts'
 par(xaxt='n');
 .ev_diag_plot <- event_plot(
   dat3,'e_kc_i10',tunit='months',type='s'
-  ,ylab='Months since NAACCR Date of Diagnosis'
+  ,ylab='Months since Diagnosis'
   ,xlab='Patients, sorted by time to first ICD10 code\n\n\n'
   ,main='Time from Diagnosis to First ICD9/10 Code');
 abline(h=c(-3,0,3),lty=c(2,1,2),col='blue');
@@ -1038,8 +1036,10 @@ dat3[,v(c_kcdiag)] %>%
 #' potentially incorrect records if they occur earlier than the date of 
 #' diagnosis**.
 #' 
+#' ###### blank
+#' 
 #' ::::: {#fig:surg0_plot0 custom-style="Image Caption"}
-#+ surg0_plot0,results='asis'
+#+ surg0_plot0,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_surg0 <- mutate(dat3,nrx=pmin(n_dsurg,n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
@@ -1070,7 +1070,7 @@ directions.");
 #' :::::
 #' 
 #' ::::: {#fig:surg0_plot1 custom-style="Image Caption"}
-#+ .surg0_plot1,results='asis'
+#+ .surg0_plot1,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_surg0 <- mutate(dat3,nrx=pmin(n_dsurg,n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
@@ -1083,6 +1083,9 @@ par(xaxt='n');
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=c(-3,0,3),col='blue',lty=c(2,1,2));
+.eplot_surg0$icd <- apply(.eplot_surg0[,c('e_i9neph','e_i10neph','e_hstneph')]
+                          ,1,min,na.rm=T);
+.eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
 lines(.eplot_surg0$n_rx1270,col='#00FF0060',type='s');
 lines(.eplot_surg0$n_rx1260,col='#00FFFF60',type='s');
 
@@ -1093,11 +1096,13 @@ omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
     ," variables trend earlier than ",fs('n_dsurg'));
 #' :::::
 #' 
+#' ###### blank
+#' 
 #' In [@fig:surg0_plot0] the `r sum(with(.eplot_surg0,icd<nrx),na.rm=T)` 
 #' patients for which the earliest EMR nephrectomy code occurs before the 
 #' earliest NAACCR possible record of surgery are highlighted in yellow. Among 
 #' the remaining `r with(.eplot_surg0,sum(icd>=nrx,na.rm=T))` patients who have 
-#' an EMR code for nephrectomy, there are  
+#' an EMR code for nephrectomy, there are 
 #' `r .surg0thresh<-3; with(.eplot_surg0,sum(icd>(n_dsurg+.surg0thresh),na.rm=T))` 
 #' for whom it happens more than `r .surg0thresh` months after `r fs('n_dsurg')` 
 #' and those lags have a median of 
@@ -1111,7 +1116,7 @@ omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
 #' ###### blank
 #' 
 #' ::::: {#fig:surg1_plot custom-style="Image Caption"}
-#+ .surg1_plot,results='asis'
+#+ .surg1_plot,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_surg1 <- mutate(dat3,nrx=pmin(n_dsurg,n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
@@ -1313,7 +1318,7 @@ t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>%
 #' 
 #' 
 #' ::::: {#fig:recur_plot custom-style="Image Caption"}
-#+ recur_plot,results='asis'
+#+ recur_plot,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_recur0 <-subset(dat3,patient_num %in% 
                          setdiff(kcpatients_surgreason$`Surgery Performed`
@@ -1322,7 +1327,7 @@ par(xaxt='n');
   event_plot('rec',start_event = 'n_dsurg',type='s',ltys=c(1,1)
              ,main='Time from Surgery to Recurrence'
              ,ylab='Months Since Surgery'
-             ,xlab='Patients, sorted by time to first mets according to EMR\n\n\n'
+             ,xlab='Patients, sorted by time to first mets\naccording to EMR\n\n'
              ,tunit = 'month');
 abline(h=c(-3,0,3),lty=c(3,1,3),col='blue');
 # Highlight patients with recurrence
@@ -1354,6 +1359,7 @@ dotted horizontal lines above and below it are +- 3 months. Patients whose "
 and all records for these patients have been excluded from this plot");
 #' :::::
 #' 
+#' ###### blank
 #' 
 #' The green highlights in [@fig:recur_plot] are _mostly_ where one would 
 #' expect, but why are there
@@ -1398,11 +1404,11 @@ and all records for these patients have been excluded from this plot");
 #'
 #'
 #' ::::: {#fig:death_plot custom-style="Image Caption"}
-#+ .death_plot,results='asis'
+#+ .death_plot,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_death <- event_plot(dat3,'n_lc',start_event = 'n_ddiag'
                            ,ylim=c(0,300)
-                           ,main='Time from Diagnosis to Death (if any)'
+                           ,main='Time from Diagnosis to Death'
                            ,ylab='Months Since Diagnosis'
                            ,xlab='Patients, sorted by last contact date\n\n\n'
                            ,tunit = 'mon',ltys = 0,type='s');
@@ -1426,6 +1432,8 @@ Above are plotted times of death (if any) relative to "
 ," (![](resources/greencross.png){width=10}), and ",fs('n_vtstat')
 ," (![](resources/browncircle.png){width=10})");
 #' :::::
+#' 
+#' ###### blank
 #' 
 #+ etabledeath, results='asis'
 e_table_death <- subset(dat2tte,patient_num %in% kcpatients.naaccr) %>% 
@@ -1611,7 +1619,7 @@ pct_ahsp <- sprintf('%4.1f%%'
 #' ## What is going on with the first contact variable?
 #' 
 #' ::::: {#fig:diag2lc_eventplot custom-style="Image Caption"}
-#+ diag2lc_eventplot,results='asis'
+#+ diag2lc_eventplot,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_fc <-event_plot(subset(dat3,!patient_num %in% kcpatients.naaccr_dupe)
                        ,'n_lc','n_fc',start_event = 'n_ddiag'
@@ -1628,7 +1636,7 @@ Wierd observation-- ",fs('n_fc')," (red) is almost always between ",fs('n_lc')
 sample and that's why it's dated as during or after surgery we thought. If first contact is some kind of event after first diagnosis, what is it?");
 #' :::::
 #' 
-#' `r md$pbreak`
+#' ###### blank
 #' 
 #' Surgery `r fs('n_dsurg')` seems to happen in significant amounts both before 
 #' and after first contact `r fs('n_fc')`.
