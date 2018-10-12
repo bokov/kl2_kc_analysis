@@ -324,7 +324,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' tumors precede `r fs('a_tdiag')` or `r fs('a_trecur')` respectively. [This 
 #' can also apply to nephrectomy EMR codes and `r fs('a_tsurg')` but I will need 
 #' to distinguish between the prior nephrectomy being due to cancer versus other 
-#' indications.]`r n2s(4_0)`
+#' indications.]`r n2s(4.0)`
 #' 
 #' For now I am analyzing the data as if I only have access to NAACCR except
 #' mortality where I do it both with ( [@fig:naaccrdeath_survfit] ) and 
@@ -579,7 +579,7 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' she looks to abstract 
 #' `r fs(v(c_main_naaccr_vars),retfun=knitr::combine_words)`. I will also meet 
 #' with personnel experienced in Urology chart review to learn their 
-#' methods.]`r n2s(4_1)`. This may lead to  improvements in the CIRD ETL 
+#' methods.]`r n2s(4.1)`. This may lead to  improvements in the CIRD ETL 
 #' process. I also plan on adding all ICD codes for 'renal mass' 
 #' [@pcRodriguez2018] to my i2b2 query ([-@sec:diag]). Meanwhile, in response to
 #' researcher questions including my own, CIRD staff have identified thousands 
@@ -953,7 +953,7 @@ wrong. {#tbl:xc_dob_surg}');
 #' `r fs('n_fc')` was disqualified because it never precedes `r fs('n_ddiag')` 
 #' but often trails behind `r fs('n_dsurg')`, see [@fig:diag2lc_eventplot]. 
 #' [I will need to consult with a NAACCR registrar about what `r fs('n_fc')` 
-#' actually means]`r n2s(4_2)` but it does not appear to be a first visit nor 
+#' actually means]`r n2s(4.2)` but it does not appear to be a first visit nor 
 #' first diagnosis. As can be seen in [@fig:diag_plot] and [@tbl:diag_lag], the 
 #' first ICD9 or ICD10 code most often occurs after initial diagnosis, sometimes
 #' before the date of diagnosis, and coinciding with the date of diagnosis 
@@ -1034,7 +1034,7 @@ dat3[,v(c_kcdiag)] %>%
 #' number of EMR diagnoses preceding those in NAACCR.** It will also be helpful
 #' to learn whether there is anything in the EMR distinguishes first kidney 
 #' cancer occurrences besides lack of previous 
-#' diagnosis.]`r n2s(4_3)`
+#' diagnosis.]`r n2s(4.3)`
 #  surgery ======================================================================
 #' ### Surgery {#sec:surg}
 #' 
