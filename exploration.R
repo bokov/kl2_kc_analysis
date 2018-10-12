@@ -78,14 +78,14 @@ panderOptions('table.alignment.rownames','left');
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 
 # defaults for 'fancy span' string transformation of variable names 
+.args_default_fs <- formals(fs);
+# this is a copy of fs with different arguments, for note2self
+n2s <- fs;
+formals(n2s)[c('fs_reg','retfun')] <- alist(NULL,return);
+formals(n2s)$template <- fstmplts$n2s;
 # IN THE MAIN SECTION ONLY!! The retfun should be return for inline use and cat
 # for use generating asis chunks.
-#fs_searchrep <- rbind(c('\\[[0-9,]+ facts.*patients\\]',''));
-#fs_searchrep <- rbind(c('patients',''));
-.args_default_fs <- formals(fs);
 formals(fs)[c('url','fs_reg','retfun')] <- alist(str,'fs_reg',return);
-                                                 # ,function(xx) {
-                                                 #   submulti(xx,fs_searchrep)});
 formals(fs)$template <- fstmplts$link_colnamelong;
 
 # We don't yet explicitly reference patient_num outside the news block, so I'm 
@@ -216,7 +216,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' `r fs('n_kcancer')` or `r fs('n_seer_kcancer')` in NAACCR. [Next time I 
 #' re-run my i2b2 query I will include all site of occurrence information from
 #' NAACCR not just kidney. This will allow me to find out what types of cancer
-#' these patients do in fact have.]{.note2self custom-style="note2self"} In 
+#' these patients do in fact have.]`r n2s('6')` In 
 #' [-@sec:diag; -@sec:surg; -@sec:recur] I identified additional 
 #' exclusion criteria which I will implement in the next major revision of 
 #' this document.
@@ -324,7 +324,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' tumors precede `r fs('a_tdiag')` or `r fs('a_trecur')` respectively. [This 
 #' can also apply to nephrectomy EMR codes and `r fs('a_tsurg')` but I will need 
 #' to distinguish between the prior nephrectomy being due to cancer versus other 
-#' indications.]{.note2self custom-style="note2self"}
+#' indications.]`r n2s(4_0)`
 #' 
 #' For now I am analyzing the data as if I only have access to NAACCR except
 #' mortality where I do it both with ( [@fig:naaccrdeath_survfit] ) and 
@@ -394,7 +394,7 @@ c();
 #' coded as a renal mass, not a cancer. [In my next data update I intend to 
 #' also include all ICD9/10 codes for renal mass at which point I will revisit
 #' the question of using EMR data to fill in missing diagnosis 
-#' dates]{.note2self custom-style="note2self"} (see [@sec:nextsteps]).
+#' dates]`r n2s('6_0')` (see [@sec:nextsteps]).
 #' 
 #' ###### blank
 #' 
@@ -571,7 +571,7 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' [I need to gather these checks in one place and 
 #' systematically run them on every patient to get a total count of records that
 #' need manual chart review (Dr. Rodriguez's protocol) and for each record a 
-#' list of issues to resolve]{.note2self custom-style='note2self'}. 
+#' list of issues to resolve]`r n2s(21)`. 
 #' 
 #' To reclaim missing values I will need to solve the problem of lag and 
 #' disagreement between the EMR and NAACCR ([@sec:merging]). [I will meet with 
@@ -579,19 +579,18 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' she looks to abstract 
 #' `r fs(v(c_main_naaccr_vars),retfun=knitr::combine_words)`. I will also meet 
 #' with personnel experienced in Urology chart review to learn their 
-#' methods.]{.note2self custom-style='note2self'} 
-#' This may lead to  improvements in the CIRD ETL process. As per Dr. Rodriguez 
-#' I also plan on adding all ICD codes for 'renal mass' to my i2b2 query 
-#' ([-@sec:diag]). Meanwhile, in response to researcher questions including my 
-#' own, CIRD staff have identified thousands of NAACCR entries and surgery 
-#' billing records that got excluded from i2b2 because they are not associated 
-#' with visits to UT Health clinics. After the next i2b2 refresh we expect an
-#' increased number of patients and possible improved agreement of event dates
-#' between EMR and NAACCR.
+#' methods.]`r n2s(4_1)`. This may lead to  improvements in the CIRD ETL 
+#' process. I also plan on adding all ICD codes for 'renal mass' 
+#' [@pcRodriguez2018] to my i2b2 query ([-@sec:diag]). Meanwhile, in response to
+#' researcher questions including my own, CIRD staff have identified thousands 
+#' of NAACCR entries and surgery billing records that got excluded from i2b2 
+#' because they are not associated with visits to UT Health clinics. After the 
+#' next i2b2 refresh we expect an increased number of patients and possible 
+#' improved agreement of event dates between EMR and NAACCR.
 #' 
 #' [For external data I will request non-aggregated limited/deidentified records 
 #' from the Texas Cancer Registry. I will also look at the NCDB dataset obtained 
-#' by Urology]{.note2self custom-style='note2self'} to see if it has the 
+#' by Urology]`r n2s('69')` to see if it has the 
 #' elements listed in [@sec:reqelmnts].
 #' 
 #' In the remainder of Aim 2 and Aim 3 I will need the following additional
@@ -603,7 +602,7 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' and education. [Each of these will require a workup similar to that reported
 #' in [@sec:dataprep] and [-@sec:supp]. I can work independently on many of these 
 #' but I will need guidance from experts in Urology on interpreting the stage 
-#' and grade data.]{.note2self custom-style='note2self'} If genomic data from 
+#' and grade data.]`r n2s(10)` If genomic data from 
 #' the Urology biorepository becomes available for these patients in the course 
 #' of this study it also will become an important variable for Aim 2.
 #' 
@@ -622,12 +621,12 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' is integrated into our local i2b2. During the work I present here I found
 #' several additional post-processing steps that generalize to other studies
 #' and [I will integrate those into DataFinisher so that the data it outputs is
-#' even more analysis-ready.]{.note2self custom-style='note2self'} This will, in 
+#' even more analysis-ready.]`r n2s('58')` This will, in 
 #' turn, will simplify the logistics of Aim 3. 
 #' 
 #' [While I am incorporating the new methods into DataFinisher, I will also 
 #' reorganize and document the code so I can present it to Dr. Murphy and his 
-#' informatics team for review and input.]{.note2self custom-style='note2self'}
+#' informatics team for review and input.]`r n2s(59)`
 #'
 #' # References
 #' 
@@ -813,32 +812,45 @@ formals(fs)$retfun <- as.name('return');
 #' only EMR and no NAACCR records, so they count as missing rather than 
 #' discrepant.
 #' 
-#+ marital_status
-with(dat2a,table(n_marital,e_marital,useNA='if')) %>% addmargins %>%
-  set_colnames(.,gsub('@','',colnames(.))) %>% (function(xx){
-    assign('.tbtmp',xx,envir=.GlobalEnv);xx}) %>%
-  pander(emphasize.strong.cells=cbind(1:7,c(2:4,6:9))
+#+ xc_mrtl
+(xc_mrtl <- with(dat2a,table(n_marital,e_marital,useNA='if')) %>% addmargins %>%
+  set_colnames(.,gsub('@','',colnames(.)))  %>% 
+   with_attrs(.,list(xc=cbind(1:7,c(2:4,6:9))
+                     ,rws=setdiff(rownames(.),c(NA,'Sum','','u'))
+                     ,cls=setdiff(colnames(.),c(NA,'Sum','','u'))))) %>% 
+  pander(.,emphasize.strong.cells=attr(.,'xc')
          ,caption='Marital status has good agreement between NAACCR and EMR. {#tbl:xc_marital}');
 #' 
 #+ xc_sex
-with(dat2a,table(n_sex,sex_cd,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=cbind(1:2,1:2)
+(xc_sex <- with(dat2a,table(n_sex,sex_cd,useNA = 'ifany')) %>% addmargins() %>% 
+  with_attrs(.,list(xc=cbind(1:2,1:2)
+                    ,rws=setdiff(rownames(.),c(NA,'Sum','','u'))
+                    ,cls=setdiff(colnames(.),c(NA,'Sum','','u'))))) %>% 
+  pander(.,emphasize.strong.cells=attr(.,'xc')
          ,caption='Sex has good agreement between NAACCR and EMR. {#tbl:xc_sex}');
 #+ xc_race
-with(dat2a,table(a_n_race,race_cd,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=cbind(1:6,1:6)
+(xc_race <- with(dat2a,table(a_n_race,race_cd,useNA = 'ifany')) %>% addmargins() %>% 
+  with_attrs(.,list(xc=cbind(1:6,1:6)
+                    ,rws=setdiff(rownames(.),c(NA,'Sum',''))
+                    ,cls=setdiff(colnames(.),c(NA,'Sum',''))))) %>% 
+  
+  pander(.,memphasize.strong.cells=attr(.,'xc')
          ,caption='Race has good agreement between NAACCR and EMR. {#tbl:xc_race}');
 
 #+ xc_hisp0
 .tc <- paste0('Hispanic designation has good agreement between NAACCR and EMR.
 Here the ',fs('n_hisp'),' variable was simplified by binning into `Hispanic` and
 `non-Hispanic`. {#tbl:xc_hisp0}');
-with(dat2a,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
+(xc_hisp<-with(dat2a,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                                 ,'Unknown'='Non_Hispanic'
                                 ,.default='Hispanic')
                  ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
   `[`(,c('Non_Hispanic','Hispanic')) %>%
-  addmargins() %>% pander(emphasize.strong.cells=cbind(1:2,1:2),caption=.tc);
+  addmargins() %>% 
+  with_attrs(.,list(xc=cbind(1:2,1:2)
+                    ,rws=setdiff(rownames(.),c(NA,'Sum',''))
+                    ,cls=setdiff(colnames(.),c(NA,'Sum',''))))) %>% 
+  pander(.,emphasize.strong.cells=attr(.,'xc'),caption=.tc);
 #+ xc_hisp1
 .tc <- paste0('As [@tbl:xc_hisp0] but with all the different levels of '
 ,fs('n_hisp'),' shown. {#tbl:xc_hisp1}');
@@ -940,13 +952,13 @@ wrong. {#tbl:xc_dob_surg}');
 #' word 'date' seem to be retired or related to events after initial diagnosis.
 #' `r fs('n_fc')` was disqualified because it never precedes `r fs('n_ddiag')` 
 #' but often trails behind `r fs('n_dsurg')`, see [@fig:diag2lc_eventplot]. 
-#' [I will need to consult with a NAACCR registrar about what `r fs('n_fc')` actually means]{.note2self custom-style="note2self"} 
-#' but it does not appear to be a first visit nor first diagnosis. As can be 
-#' seen in [@fig:diag_plot] and [@tbl:diag_lag], the first ICD9 or ICD10 code 
-#' most often occurs after initial diagnosis, sometimes before the date of 
-#' diagnosis, and coinciding with the date of diagnosis rarest of all. Several 
-#' of the ICD9/10 first observed dates lead or trail the `r fs('n_ddiag')` by 
-#' multiple years.
+#' [I will need to consult with a NAACCR registrar about what `r fs('n_fc')` 
+#' actually means]`r n2s(4_2)` but it does not appear to be a first visit nor 
+#' first diagnosis. As can be seen in [@fig:diag_plot] and [@tbl:diag_lag], the 
+#' first ICD9 or ICD10 code most often occurs after initial diagnosis, sometimes
+#' before the date of diagnosis, and coinciding with the date of diagnosis 
+#' rarest of all. Several of the ICD9/10 first observed dates lead or trail the 
+#' `r fs('n_ddiag')` by multiple years.
 #' 
 #' ::::: {#fig:diag_plot custom-style="Image Caption"}
 #+ diag_plot,results='asis', fig.dim=c(4.5,3)
@@ -1022,7 +1034,7 @@ dat3[,v(c_kcdiag)] %>%
 #' number of EMR diagnoses preceding those in NAACCR.** It will also be helpful
 #' to learn whether there is anything in the EMR distinguishes first kidney 
 #' cancer occurrences besides lack of previous 
-#' diagnosis.]{.note2self custom-style='note2self'}
+#' diagnosis.]`r n2s(4_3)`
 #  surgery ======================================================================
 #' ### Surgery {#sec:surg}
 #' 
