@@ -95,26 +95,16 @@ globalsearchrep <- rbind(
   c('\\[[0-9,]+ facts; [0-9,]+ patients\\]','')
 );
 
-# fs_templates -----------------------------------------------------------------
-#' templates for `fs()` ... note that the actual values inserted depend on 
-#' the other arguments of `fs()` and the columns of the data dictionary
-fstmplts <- list(
-  # [n_ddiag]: #n_ddiag "0390 Date of Diagnosis"
-   linkref="[%1$s]: %2$s \"%4$s\"\n"  
-  # [`n_ddiag`][#n_ddiag]
-  ,link_varname="[`%1$s`][%2$s]"
-  # [`0390 Date of Diagnosis`][#n_ddiag]
-  ,link_colnamelong="[`%4$s`][%2$s]"
-  # `0390 Date of Diagnosis`
-  ,code_colnamelong="`%4$s`"
-  # 0390 Date of Diagnosis
-  ,plain_colnamelong="%4$s"
-);
 # urls -------------------------------------------------------------------------
 urls <- list(
+  # recent version of compiled document online
    exp_rpubs='https://rpubs.com/bokov/kidneycancer'
+  # archival version for discontinued figures
   ,exp_181009='https://rpubs.com/bokov/kidneycancer_181009'
+  # NAACCR data dictionary, section 10
   ,dict_naaccr='http://datadictionary.naaccr.org/?c=10'
+  # base URL for git tickets
+  ,git_tix='https://github.com/bokov/kl2_kc_analysis/issues/'
   );
 #' RPubs keeps the actual content in an iframe, and this cool little 3-liner 
 #' gets the address of that iframe's target so in principle I can now construct
@@ -126,4 +116,21 @@ urls$exp_raw <- getURL(urls$exp_rpubs) %>%
 urls$exp_raw_181009 <- getURL(urls$exp_181009) %>% 
   htmlParse %>% xpathApply('//iframe') %>% `[[`(1) %>% xmlAttrs() %>% 
   paste0('https:',.);
+# fs_templates -----------------------------------------------------------------
+#' templates for `fs()` ... note that the actual values inserted depend on 
+#' the other arguments of `fs()` and the columns of the data dictionary
+fstmplts <- list(
+  # [n_ddiag]: #n_ddiag "0390 Date of Diagnosis"
+  linkref="[%1$s]: %2$s \"%4$s\"\n"  
+  # [`n_ddiag`][#n_ddiag]
+  ,link_varname="[`%1$s`][%2$s]"
+  # [`0390 Date of Diagnosis`][#n_ddiag]
+  ,link_colnamelong="[`%4$s`][%2$s]"
+  # `0390 Date of Diagnosis`
+  ,code_colnamelong="`%4$s`"
+  # 0390 Date of Diagnosis
+  ,plain_colnamelong="%4$s"
+  # note2self spans, each linking to a ticket
+  ,n2s=paste0('(',urls$git_tix,'%1$s){#gh%1$s .note2self custom-style="note2self"}')
+);
 c()
