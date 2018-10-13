@@ -78,14 +78,14 @@ panderOptions('table.alignment.rownames','left');
 formals(v)[c('dat','retcol')]<-alist(dat1,c('colname','varname'));
 
 # defaults for 'fancy span' string transformation of variable names 
+.args_default_fs <- formals(fs);
+# this is a copy of fs with different arguments, for note2self
+n2s <- fs;
+formals(n2s)[c('fs_reg','retfun')] <- alist(NULL,return);
+formals(n2s)$template <- fstmplts$n2s;
 # IN THE MAIN SECTION ONLY!! The retfun should be return for inline use and cat
 # for use generating asis chunks.
-#fs_searchrep <- rbind(c('\\[[0-9,]+ facts.*patients\\]',''));
-#fs_searchrep <- rbind(c('patients',''));
-.args_default_fs <- formals(fs);
 formals(fs)[c('url','fs_reg','retfun')] <- alist(str,'fs_reg',return);
-                                                 # ,function(xx) {
-                                                 #   submulti(xx,fs_searchrep)});
 formals(fs)$template <- fstmplts$link_colnamelong;
 
 # We don't yet explicitly reference patient_num outside the news block, so I'm 
@@ -216,7 +216,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' `r fs('n_kcancer')` or `r fs('n_seer_kcancer')` in NAACCR. [Next time I 
 #' re-run my i2b2 query I will include all site of occurrence information from
 #' NAACCR not just kidney. This will allow me to find out what types of cancer
-#' these patients do in fact have.]{.note2self custom-style="note2self"} In 
+#' these patients do in fact have.]`r n2s('6')` In 
 #' [-@sec:diag; -@sec:surg; -@sec:recur] I identified additional 
 #' exclusion criteria which I will implement in the next major revision of 
 #' this document.
@@ -324,7 +324,7 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' tumors precede `r fs('a_tdiag')` or `r fs('a_trecur')` respectively. [This 
 #' can also apply to nephrectomy EMR codes and `r fs('a_tsurg')` but I will need 
 #' to distinguish between the prior nephrectomy being due to cancer versus other 
-#' indications.]{.note2self custom-style="note2self"}
+#' indications.]`r n2s(4.0)`
 #' 
 #' For now I am analyzing the data as if I only have access to NAACCR except
 #' mortality where I do it both with ( [@fig:naaccrdeath_survfit] ) and 
@@ -358,12 +358,9 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
 #' outcomes were never observed). The lightly-shaded regions around each line 
 #' are 95% confidence intervals. 
 #' 
-#' ###### blank
-#' 
-#' ::::: {#fig:surg_survfit custom-style="Image Caption"}
-#+ surv_surg,results='asis',fig.dim=c(3.1,3),fig.align='center'
-#,fig.align='right',fig.dim=c(5,3)
-(.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
+#+ .survfit_prep,results='hide'
+# THIS PART JUST MAKES THE PLOT, NOT SHOWS IT YET 
+.survfit_plot0 <- survfit_wrapper(dat2a,'a_tsurg',censrvars = c()
                                    ,startvars = 'a_tdiag'
                                    ,predvars = 'a_hsp_naaccr'
                                    ,default.censrvars = 'n_lc'
@@ -383,8 +380,27 @@ pander(.temp0,style='grid',keep.line.breaks=T,justify='left'
                                             ,fill=guide_legend(''))
                                      ,coord_cartesian(ylim=0:1)
                                      ,theme_light()
-                                     ,theme(legend.position = 'top')))
-)$plot;
+                                     ,theme(legend.position = 'top')));
+c();
+#' 
+#' Typically 2-4 weeks elapse diagnosis from surgery and providers try to 
+#' not exceed 4 weeks. Nevertheless years may sometimes elapse due to factors 
+#' such as an indolent tumors or loss of contact with the patient. About 15% of 
+#' patients never undergo surgery [@pcRodriguez2018]. [@Fig:surg_survfit] is in
+#' agreement with this. It can also be seen in [@fig:surg_survfit] that 
+#' `r sum(with(.survfit_plot0$fit,n.event[time==0]))` surgeries seem to happen 
+#' on the day of diagnosis. This is plausible if NAACCR diagnosis is based on 
+#' pathology rather than clinical examination where a positive result is usually 
+#' coded as a renal mass, not a cancer. [In my next data update I intend to 
+#' also include all ICD9/10 codes for renal mass at which point I will revisit
+#' the question of using EMR data to fill in missing diagnosis 
+#' dates]`r n2s('6_0')` (see [@sec:nextsteps]).
+#' 
+#' ###### blank
+#' 
+#' ::::: {#fig:surg_survfit custom-style="Image Caption"}
+#+ surv_surg,results='asis',fig.dim=c(3.1,3),fig.align='center'
+.survfit_plot0$plot;
 cat('
 
 Number of weeks elapsed from ',fs('a_tdiag'),' (time 0) to ',fs('a_tsurg')
@@ -392,23 +408,6 @@ Number of weeks elapsed from ',fs('a_tdiag'),' (time 0) to ',fs('a_tsurg')
 ,' non-Hispanic white patients with a 3-year follow-up period (any surgeries 
 occurring more than 3 years post-diagnosis are treated as censored)');
 #' :::::
-#' 
-#' ###### blank
-#' 
-#' Typically 2-4 weeks elapse diagnosis from surgery and providers try to 
-#' not exceed 4 weeks. Nevertheless years may sometimes elapse due to factors 
-#' such as an indolent tumors or loss of contact with the patient. About 15% of 
-#' patients never undergo surgery [@pcRodriguez2018]. [@Fig:surg_survfit] is in
-#' agreement with this.
-#' 
-#' It can also be seen in [@fig:surg_survfit] that 
-#' `r sum(with(.survfit_plot0$fit,n.event[time==0]))` surgeries seem to happen 
-#' on the day of diagnosis. This is plausible if NAACCR diagnosis is based on 
-#' pathology rather than clinical examination where a positive result is usually 
-#' coded as a renal mass, not a cancer. [In my next data update I intend to 
-#' also include all ICD9/10 codes for renal mass at which point I will revisit
-#' the question of using EMR data to fill in missing diagnosis 
-#' dates]{.note2self custom-style="note2self"} (see [@sec:nextsteps]).
 #' 
 #' ::::: {#fig:recur_survfit custom-style="Image Caption"}
 #+ surv_recur,results='asis',fig.dim=c(3.1,3),fig.align='center'
@@ -437,7 +436,7 @@ the follow-up period is six years');
 #' 
 #' 
 #' ###### blank
-#' 
+#'
 #' ::::: {#fig:naaccrdeath_survfit custom-style="Image Caption"}
 #+ naaccrdeath_survfit,results='asis',fig.dim=c(3.1,3),fig.align='center'
 (.survfit_plot2 <- update(.survfit_plot1,eventvars='n_vtstat'
@@ -455,9 +454,6 @@ Like [@fig:recur_survfit] except now the outcome is ',fs('n_vtstat')
 ,' for ',.survfit_plot2$fit$n[1],' Hispanic  and ',.survfit_plot2$fit$n[2]
 ,' non-Hispanic white patients. Six-year follow-up');
 #' :::::
-#' 
-#' 
-#' ###### blank
 #' 
 #' ::::: {#fig:alldeath_survfit custom-style="Image Caption"}
 #+ alldeath_survfit,results='asis',fig.dim=c(3.1,3),fig.align='center'
@@ -477,7 +473,6 @@ were ',sum(.survfit_plot2$fit$n.censor)-sum(.survfit_plot2a$fit$n.censor)
 ,' fewer censored events than in [@fig:naaccrdeath_survfit] which may improve 
 sensitivity in the actual analysis');
 #' :::::
-#' 
 #' 
 #' ###### blank
 #' 
@@ -576,7 +571,7 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' [I need to gather these checks in one place and 
 #' systematically run them on every patient to get a total count of records that
 #' need manual chart review (Dr. Rodriguez's protocol) and for each record a 
-#' list of issues to resolve]{.note2self custom-style='note2self'}. 
+#' list of issues to resolve]`r n2s(21)`. 
 #' 
 #' To reclaim missing values I will need to solve the problem of lag and 
 #' disagreement between the EMR and NAACCR ([@sec:merging]). [I will meet with 
@@ -584,19 +579,18 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' she looks to abstract 
 #' `r fs(v(c_main_naaccr_vars),retfun=knitr::combine_words)`. I will also meet 
 #' with personnel experienced in Urology chart review to learn their 
-#' methods.]{.note2self custom-style='note2self'} 
-#' This may lead to  improvements in the CIRD ETL process. As per Dr. Rodriguez 
-#' I also plan on adding all ICD codes for 'renal mass' to my i2b2 query 
-#' ([-@sec:diag]). Meanwhile, in response to researcher questions including my 
-#' own, CIRD staff have identified thousands of NAACCR entries and surgery 
-#' billing records that got excluded from i2b2 because they are not associated 
-#' with visits to UT Health clinics. After the next i2b2 refresh we expect an
-#' increased number of patients and possible improved agreement of event dates
-#' between EMR and NAACCR.
+#' methods.]`r n2s(4.1)`. This may lead to  improvements in the CIRD ETL 
+#' process. I also plan on adding all ICD codes for 'renal mass' 
+#' [@pcRodriguez2018] to my i2b2 query ([-@sec:diag]). Meanwhile, in response to
+#' researcher questions including my own, CIRD staff have identified thousands 
+#' of NAACCR entries and surgery billing records that got excluded from i2b2 
+#' because they are not associated with visits to UT Health clinics. After the 
+#' next i2b2 refresh we expect an increased number of patients and possible 
+#' improved agreement of event dates between EMR and NAACCR.
 #' 
 #' [For external data I will request non-aggregated limited/deidentified records 
 #' from the Texas Cancer Registry. I will also look at the NCDB dataset obtained 
-#' by Urology]{.note2self custom-style='note2self'} to see if it has the 
+#' by Urology]`r n2s('69')` to see if it has the 
 #' elements listed in [@sec:reqelmnts].
 #' 
 #' In the remainder of Aim 2 and Aim 3 I will need the following additional
@@ -608,7 +602,7 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' and education. [Each of these will require a workup similar to that reported
 #' in [@sec:dataprep] and [-@sec:supp]. I can work independently on many of these 
 #' but I will need guidance from experts in Urology on interpreting the stage 
-#' and grade data.]{.note2self custom-style='note2self'} If genomic data from 
+#' and grade data.]`r n2s(10)` If genomic data from 
 #' the Urology biorepository becomes available for these patients in the course 
 #' of this study it also will become an important variable for Aim 2.
 #' 
@@ -627,12 +621,12 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' is integrated into our local i2b2. During the work I present here I found
 #' several additional post-processing steps that generalize to other studies
 #' and [I will integrate those into DataFinisher so that the data it outputs is
-#' even more analysis-ready.]{.note2self custom-style='note2self'} This will, in 
+#' even more analysis-ready.]`r n2s('58')` This will, in 
 #' turn, will simplify the logistics of Aim 3. 
 #' 
 #' [While I am incorporating the new methods into DataFinisher, I will also 
 #' reorganize and document the code so I can present it to Dr. Murphy and his 
-#' informatics team for review and input.]{.note2self custom-style='note2self'}
+#' informatics team for review and input.]`r n2s(59)`
 #'
 #' # References
 #' 
@@ -643,6 +637,9 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 # A1 stage/grade ---------------------------------------------------------------
 #' `r md$pbreak`
 #' # : Example of stage/grade data {#sec:stage label="Appendix 1"}
+#' 
+#' [Need to tabulate the frequencies of various combinations of TNM 
+#' values]`r n2s(10.0)`
 #' 
 .tc <- paste0('
 This is proof of feasibility for extracting stage and grade at diagnosis for 
@@ -659,151 +656,14 @@ subset(dat2a[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) 
   pander(caption=.tc);
 #' 
 # A2 next steps ---------------------------------------------------------------
-formals(fs)$template <- fstmplts$link_colnamelong;
-formals(fs)$retfun <- as.name('return');
+#formals(fs)$template <- fstmplts$link_colnamelong;
+#formals(fs)$retfun <- as.name('return');
+#' 
 #' `r md$pbreak`
 #' # : Next steps {#sec:todo label="Appendix 2"}
-#' 
-#' * TODO: I wrote a function called `e_table()` that simultaneously tabulates 
-#'         missingness, frequency of discrepancy, and magnitude of discrepancy.
-#'         I need to replace many of the _ad-hoc_ tables in 
-#'         [-@sec:diag; -@sec:surg; -@sec:recur] with `e_table()` as I have 
-#'         already done for [@tbl:etabledeath] in [-@sec:death].
-#' * TODO: Standardize the naming scheme for temporary tables, chunk labels, 
-#'         anchors, and captions before things get out of hand.
-#' * TODO: Go through this document and add any in-line TODOs to this section
-#'         perhaps linking them bidirectionally to the text
-#' * TODO: Increase existing data
-#'     * Meet with NAACCR regisrar
-#'     * Update i2b2 query with renal mass
-#'     * Finish credentialing process
-#' * TODO: Get outside data
-#'     * Submit request to TCR
-#' * TODO: Develop covariates/mediators
-#' * TODO: Finish DataFinisher (Aim 1)
-#' * TODO: Clean up TNM variables, in consultation with domain expert (Peter?)
-#' * TODO: Create access/quality variables including: number of visits per year, 
-#'         number of lab tests and imaging orders per visit, time spent with 
-#'         provider per visit
-#' * TODO: Start validating and using additional 2a variables already in current 
-#'         data
-#'     * `[CN101] OPIOID ANALGESICS` (EMR)
-#'     * `[CN103] NON-OPIOID ANALGESICS` (EMR)
-#'     * `0250 Birthplace` (NAACCR possibly EMR)
-#'     * Language (NAACCR and EMR)
-#'     * smoking and alcohol (EMR)
-#'     * Diabetes (NAACCR and EMR)
-#'     * Family history (EMR)
-#'     * Labs (EMR) including:  hemoglobin A1c, HDL, VLDL
-#'     * Vitals (EMR) including: systolic and diastolic blood pressure, BMI
-#'     * income (Census)
-#'     * Miperamine, other anti-depressants
-#'     * DONE: ~~Should use [`0580 Date of 1st Contact`](http://datadictionary.naaccr.org/default.aspx?c=10#580)
-#'       as the diagnosis date if earlier than `r fs('n_ddiag')`!~~ _Actually, evidence 
-#'       that it's neither a diagnosis date nor a first contact. Not known what
-#'       it is._
-#'     * DONE: ~~Surgery fields:~~
-#'         * ~~`r fs('n_rx1260')`~~
-#'         * ~~`r fs('n_rx1270')`~~
-#'         * ~~`r fs('n_rx3170')`~~
-#'     * DONE: ~~`r fs('n_rectype')`~~
-#' * TODO: In a future re-run of query...
-#'     * Follow up re additional patient linkages, more recent NAACCR data
-#'     * education (Census, not ready, ETL needs fixing)
-#' * TODO: Systematically convert to `e_table()` in 
-#'         [-@sec:diag; -@sec:surg; -@sec:recur]
-#' * TODO: Variable glossary
-#'     * Migrate detailed variable descriptions there.
-#'     * Create list object for adding on commentary to glossary entries within
-#'       `exploration.R`, outside the data dictionary proper.
-#'     * Fill in more of the variable descriptions in [-@sec:vars]
-#'     * Figure out how to make `fs()` fail gracefully perhaps with a generic
-#'         'this variable is not yet documented' link target.
-#'     * ~~Automatically translate and link variable names in table column or
-#'         row names~~
-#' * TODO: Remove the crossed-off stuff in [-@sec:supp]
-#'         but note someplace what was removed and why (move it to a long-term
-#'         location on RPubs.com)
-#' * TODO: Organize the inclusion/exclusion criteria into a single named list
-#'         and analyze their correlation.
-#' * TODO: Overhaul the existing TableOne in [Cohort Characterization] -- use 
-#'         data dictionary for renaming instead of _ad-hoc_ .
-#' * TODO: Migrate everything that uses ~~`dat2`~~ and `dat3` to using `dat2a`.
-#' * TODO: Create a TableOne for `r fs('a_hsp_naaccr')` (that specific one 
-#'         because then the conclusions can be directly applied to TCR data) to 
-#'         find possible confounding variables. Age, perhaps? Income? 
-#' * TODO: Put in a safeguard to make sure all the `c_tte` variables are 
-#'         `TRUE/FALSE` only. They are right now as it happens, but nothing
-#'         enforces that.
-#' * TODO: Resume effort to link Mays Center historic trial records from IDEAS 
-#'         to get information about enrollment in adjuvant trials
-#' * TODO: Separate script-level calls to `instrequire()` to reduce the number 
-#'         of libraries that get loaded unnecessarily.
-#' * TODO: Create a light version of `data.R.rdata` that has only the minimal 
-#'         necessary stuff for, e.g. `exploration.R`
-#' #' * DONE: ~~Update and clean up the plots and tables, including labels.~~
-#'     * ~~[Consistency-Checks]~~
-#'         * ~~Marital status, sex, race, hispanic(2):** shorten text and move to 
-#'           captions.~~
-#'         * ~~Write motivation and summary.~~
-#'     * ~~[Testing/Interpreting Variables](#which-emr-and-naaccr-variables-are-reliable-event-indicators)~~
-#'         * ~~Write motivation, intro, summary. Incorporate edits.~~
-#'         * ~~[Initial diagnosis], [Surgery], [Re-occurrence], [Death]~~
-#'             * ~~Move plots to the top of each~~
-#'             * ~~Shorten text and move to captions~~.
-#'             * ~~For each plot state what the conclusions are.~~
-#'             * ~~[Surgery]: turn the outline at the beginning into a more 
-#'               concise paragraph.~~
-#'     * ~~[Hispanic variable recoding](#whether-or-not-the-patient-is-hispanic):
-#'       turn into paragraphs,~~ 
-#'     * ~~[Descriptive Plots (Preliminary)]~~
-#'         * ~~Move them to right after the overview.~~
-#'         * ~~Write intro mentioning that these are the relationships of interest
-#'           among the four main variables.~~
-#'         * ~~Expand why there are two versions of the survival plot~~
-#' * DONE: ~~Update and streamline the narrative.~~
-#'     * ~~Intro~~
-#'     * ~~Motivation~~
-#'     * ~~Summary of results~~
-#'     * ~~Summary of next steps~~
-#'     * ~~Move questions to after the [Descriptive Plots (Preliminary)] but 
-#'       before the [Consistency-Checks], and place the answered questions at
-#'       the bottom. [Domain expert questions](#questions-for-mentors-and-other-domain-experts)~~ 
-#'       still go ahead of [empirical questions](#questions-to-answer-empirically).
-#' * DONE: ~~Create combined (if applicable) variables for each of the following:~~
-#'     * ~~Initial diagnosis~~ `r fs('a_tdiag')`, `r fs('a_cdiag')`
-#'     * ~~Surgery~~ `r fs('a_tsurg')`, `r fs('a_csurg')`
-#'     * ~~Re-ocurrence~~ `r fs('a_trecur')`, `r fs('a_crecur')`
-#'     * ~~_Last follow-up ?_~~ 
-#'     * ~~Death~~ `r fs('a_tdeath')`, `r fs('a_cdeath')`
-#'     * ~~Strict Hispanic designator~~ `r fs('a_hsp_strict')`
-#'     * ~~Lenient Hispanic designator~~ `r fs('a_hsp_broad')`
-#'     * ~~NAACCR-only Hispanic designator~~ `r fs('a_hsp_naaccr')`
-#' * DONE: ~~Verify that the [ETL](http://www.hostedredmine.com/issues/719444#note-11) 
-#'         gets `r fs('start_date')` for `1770 Cancer Status` from 
-#'         [`1772 Date of Last Cancer Status`](http://datadictionary.naaccr.org/default.aspx?c=10#1770)~~
-#'         _in NAACCR v16 it cannot/doesn't need to_
-#' * DONE: ~~tableOne~~
-#' * DONE: ~~Create time-since-first-diagnosis variable~~
-#' * DONE: ~~Create a special TTE variable from the main i2b2 age at death~~
-#' * DONE: ~~Matrices of pairwise differences between all TTE variables~~
-#' * DONE: ~~Create TTE variable for death (several raw variables)~~
-#' * DONE: ~~Create TTE variable for recurrence~~
-#' * DONE: ~~Create TTE variable for surgery date~~
-#' * DONE: ~~Plot time from diagnosis to surgery, hisp vs non~~
-#'     * ~~First need to confirm interpretation of outcome variable~~
-#' * DONE: ~~Apply the `tte()` function to all variable in `c_tte`~~
-#' * DONE: ~~Create censoring variable for surgery~~
-#' * DONE: ~~Create censoring variable for recurrence/death~~
-#' * DONE: ~~Map cancer status variable (didn't turn out to be useful)~~
-#' * DONE: ~~Create unified comorbidity variable for:~~
-#'     * DONE ~~Diabetes~~
-#' * DONE: ~~Mappings for other numcode variables~~
-#' * DONE: ~~Re-run query with additional variables (_query completed_):~~
-#'     * ~~EMR codes for secondary tumors~~
-#'     * ~~median household income, 2016 and 2013~~
-#'     * ~~HbA1c~~
-#'     * ~~Family history of diabetes and cancer~~
+#' All the TODO items are now [tracked on to GitHub](`r urls$git_tix`) as well
+#' as linked from their respective yellow-highlighted text throughout the 
+#' document.
 #' 
 # A3 supplementary results ------------------------------------------------------
 #' `r md$pbreak`
@@ -818,32 +678,45 @@ formals(fs)$retfun <- as.name('return');
 #' only EMR and no NAACCR records, so they count as missing rather than 
 #' discrepant.
 #' 
-#+ marital_status
-with(dat2a,table(n_marital,e_marital,useNA='if')) %>% addmargins %>%
-  set_colnames(.,gsub('@','',colnames(.))) %>% (function(xx){
-    assign('.tbtmp',xx,envir=.GlobalEnv);xx}) %>%
-  pander(emphasize.strong.cells=cbind(1:7,c(2:4,6:9))
+#+ xc_mrtl
+(xc_mrtl <- with(dat2a,table(n_marital,e_marital,useNA='if')) %>% addmargins %>%
+  set_colnames(.,gsub('@','',colnames(.)))  %>% 
+   with_attrs(.,list(xc=cbind(1:7,c(2:4,6:9))
+                     ,rws=setdiff(rownames(.),c(NA,'Sum','','u'))
+                     ,cls=setdiff(colnames(.),c(NA,'Sum','','u'))))) %>% 
+  pander(.,emphasize.strong.cells=attr(.,'xc')
          ,caption='Marital status has good agreement between NAACCR and EMR. {#tbl:xc_marital}');
 #' 
 #+ xc_sex
-with(dat2a,table(n_sex,sex_cd,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=cbind(1:2,1:2)
+(xc_sex <- with(dat2a,table(n_sex,sex_cd,useNA = 'ifany')) %>% addmargins() %>% 
+  with_attrs(.,list(xc=cbind(1:2,1:2)
+                    ,rws=setdiff(rownames(.),c(NA,'Sum','','u'))
+                    ,cls=setdiff(colnames(.),c(NA,'Sum','','u'))))) %>% 
+  pander(.,emphasize.strong.cells=attr(.,'xc')
          ,caption='Sex has good agreement between NAACCR and EMR. {#tbl:xc_sex}');
 #+ xc_race
-with(dat2a,table(a_n_race,race_cd,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=cbind(1:6,1:6)
+(xc_race <- with(dat2a,table(a_n_race,race_cd,useNA = 'ifany')) %>% addmargins() %>% 
+  with_attrs(.,list(xc=cbind(1:6,1:6)
+                    ,rws=setdiff(rownames(.),c(NA,'Sum',''))
+                    ,cls=setdiff(colnames(.),c(NA,'Sum',''))))) %>% 
+  
+  pander(.,memphasize.strong.cells=attr(.,'xc')
          ,caption='Race has good agreement between NAACCR and EMR. {#tbl:xc_race}');
 
 #+ xc_hisp0
 .tc <- paste0('Hispanic designation has good agreement between NAACCR and EMR.
 Here the ',fs('n_hisp'),' variable was simplified by binning into `Hispanic` and
 `non-Hispanic`. {#tbl:xc_hisp0}');
-with(dat2a,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
+(xc_hisp<-with(dat2a,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
                                 ,'Unknown'='Non_Hispanic'
                                 ,.default='Hispanic')
                  ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
   `[`(,c('Non_Hispanic','Hispanic')) %>%
-  addmargins() %>% pander(emphasize.strong.cells=cbind(1:2,1:2),caption=.tc);
+  addmargins() %>% 
+  with_attrs(.,list(xc=cbind(1:2,1:2)
+                    ,rws=setdiff(rownames(.),c(NA,'Sum',''))
+                    ,cls=setdiff(colnames(.),c(NA,'Sum',''))))) %>% 
+  pander(.,emphasize.strong.cells=attr(.,'xc'),caption=.tc);
 #+ xc_hisp1
 .tc <- paste0('As [@tbl:xc_hisp0] but with all the different levels of '
 ,fs('n_hisp'),' shown. {#tbl:xc_hisp1}');
@@ -866,53 +739,13 @@ dat0[!is.na(dat0[[cstatic_n_dob]]) &
   apply(2,as.Date) %>% apply(1,diff) %>% `/`(365.25) %>% summary %>% 
   pander(caption=.tcap);
 #' 
-#' **Divergent birth dates may become an exclusion criterion for analyses where 
-#' age is a covariate**. However there is no evidence for increased disagreement 
-#' between NAACCR and EMR for other variables among the patients from 
-#' [@tbl:xc_dob] according to  
-#' [@tbl:xc_dob_marital; @tbl:xc_dob_sex; @tbl:xc_dob_race; @tbl:xc_dob_hisp] 
-#' which are like 
-#' [@tbl:xc_marital; @tbl:xc_sex; @tbl:xc_race; @tbl:xc_hisp0] but tallied up 
-#' for only those 
-#' `r length(kcpatients.naaccr_bad_dob)` patients.
+#' _The tables of patients with discrpant birthdates have been removed because 
+#' the only apply to 15 patients, and are mostly empty. They can still be 
+#' viewed in the 181009 archival version of this document for 
+#' `r knitr::combine_words(mprintf(paste0('[%1$s](',urls$exp_raw_181009,'#tbl:xc_dob_%1$s)'),c('marital','sex','race','hisp','surg')))`_
 #' 
-#+ dat2_bad_dob, cache=TRUE
-dat2_bad_dob <- subset(dat2a,patient_num %in% 
-                         intersect(kcpatients.bad_dob,kcpatients.naaccr));
-#+ xc_dob_marital
-with(dat2_bad_dob,table(n_marital,e_marital,useNA = 'ifany')) %>%
-  set_colnames(.,gsub('@','',colnames(.))) %>%
-  pander(emphasize.strong.cells=cbind(1:7,c(2:4,6:9))
-         ,caption='Marital status, for DOB-mismatched patients. {#tbl:xc_dob_marital}');
-#+ xc_dob_sex
-with(dat2_bad_dob,table(n_sex,sex_cd,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2))
-         ,caption='Sex, for DOB-mismatched patients {#tbl:xc_dob_sex}');
-#+ xc_dob_race
-with(dat2_bad_dob,table(a_n_race,race_cd,useNA = 'ifany')) %>% addmargins() %>% 
-  pander(emphasize.strong.cells=as.matrix(expand.grid(1:4,1:4))
-         ,caption='Race, for DOB-mismatched patients {#tbl:xc_dob_race}');
-#+ xc_dob_hisp
-with(dat2_bad_dob,table(recode_factor(n_hisp,'Non_Hispanic'='Non_Hispanic'
-                                      ,'Unknown'='Non_Hispanic'
-                                      ,.default='Hispanic')
-                        ,ifelse(e_hisp,'Hispanic','Non_Hispanic'),useNA='if')) %>% 
-  `[`(,c('Non_Hispanic','Hispanic')) %>%
-  addmargins() %>% pander(emphasize.strong.cells=as.matrix(expand.grid(1:2,1:2))
-                          ,caption='Hispanic ethnicity, for DOB-mismatched patients {#tbl:xc_dob_hisp}');
-#+ xc_dob_surg
-dat3_bad_dob <- subset(dat3,patient_num %in% kcpatients.bad_dob);
-mutate_all(dat3_bad_dob[,v(c_nephx)]
-           # break each column 
-           ,function(xx) cut(xx-dat3_bad_dob$n_ddiag
-                             ,breaks=c(-Inf,-.00001,.00001,Inf)
-                             ,lab=c('before','same-day','after'),include=T)) %>%
-  sapply(table,useNA='always') %>% t %>% 
-  pander(caption='There is also no increase in EMR nephrectomy dates preceding 
-diagnosis among the DOB-mismatched patients (see [@tbl:neph_b4_diag]). This 
-suggests that other dates associated with these patients are not systematically
-wrong. {#tbl:xc_dob_surg}');
-#'
+#' ###### blank
+#' 
 #  event indicators -------------------------------------------------------------
 #' ## Which EMR and NAACCR variables are reliable event indicators? {#sec:vartrn}
 #' 
@@ -945,21 +778,21 @@ wrong. {#tbl:xc_dob_surg}');
 #' word 'date' seem to be retired or related to events after initial diagnosis.
 #' `r fs('n_fc')` was disqualified because it never precedes `r fs('n_ddiag')` 
 #' but often trails behind `r fs('n_dsurg')`, see [@fig:diag2lc_eventplot]. 
-#' [I will need to consult with a NAACCR registrar about what `r fs('n_fc')` actually means]{.note2self custom-style="note2self"} 
-#' but it does not appear to be a first visit nor first diagnosis. As can be 
-#' seen in [@fig:diag_plot] and [@tbl:diag_lag], the first ICD9 or ICD10 code 
-#' most often occurs after initial diagnosis, sometimes before the date of 
-#' diagnosis, and coinciding with the date of diagnosis rarest of all. Several 
-#' of the ICD9/10 first observed dates lead or trail the `r fs('n_ddiag')` by 
-#' multiple years.
+#' [I will need to consult with a NAACCR registrar about what `r fs('n_fc')` 
+#' actually means]`r n2s(4.2)` but it does not appear to be a first visit nor 
+#' first diagnosis. As can be seen in [@fig:diag_plot] and [@tbl:diag_lag], the 
+#' first ICD9 or ICD10 code most often occurs after initial diagnosis, sometimes
+#' before the date of diagnosis, and coinciding with the date of diagnosis 
+#' rarest of all. Several of the ICD9/10 first observed dates lead or trail the 
+#' `r fs('n_ddiag')` by multiple years.
 #' 
 #' ::::: {#fig:diag_plot custom-style="Image Caption"}
-#+ diag_plot,results='asis'
+#+ diag_plot,results='asis', fig.dim=c(4.5,3)
 # .diag_plot, opts.label='fig_opts'
 par(xaxt='n');
 .ev_diag_plot <- event_plot(
   dat3,'e_kc_i10',tunit='months',type='s'
-  ,ylab='Months since NAACCR Date of Diagnosis'
+  ,ylab='Months since Diagnosis'
   ,xlab='Patients, sorted by time to first ICD10 code\n\n\n'
   ,main='Time from Diagnosis to First ICD9/10 Code');
 abline(h=c(-3,0,3),lty=c(2,1,2),col='blue');
@@ -1027,7 +860,7 @@ dat3[,v(c_kcdiag)] %>%
 #' number of EMR diagnoses preceding those in NAACCR.** It will also be helpful
 #' to learn whether there is anything in the EMR distinguishes first kidney 
 #' cancer occurrences besides lack of previous 
-#' diagnosis.]{.note2self custom-style='note2self'}
+#' diagnosis.]`r n2s(4.3)`
 #  surgery ======================================================================
 #' ### Surgery {#sec:surg}
 #' 
@@ -1041,8 +874,10 @@ dat3[,v(c_kcdiag)] %>%
 #' potentially incorrect records if they occur earlier than the date of 
 #' diagnosis**.
 #' 
+#' ###### blank
+#' 
 #' ::::: {#fig:surg0_plot0 custom-style="Image Caption"}
-#+ surg0_plot0,results='asis'
+#+ surg0_plot0,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_surg0 <- mutate(dat3,nrx=pmin(n_dsurg,n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
@@ -1072,23 +907,8 @@ codes or surgical history of nephrectomy). The blue horizontal line is "
 directions.");
 #' :::::
 #' 
-#' In [@fig:surg0_plot0] the `r sum(with(.eplot_surg0,icd<nrx),na.rm=T)` 
-#' patients for which the earliest EMR nephrectomy code occurs before the 
-#' earliest NAACCR possible record of surgery are highlighted in yellow. Among 
-#' the remaining `r with(.eplot_surg0,sum(icd>=nrx,na.rm=T))` patients who have 
-#' an EMR code for nephrectomy, there are  
-#' `r .surg0thresh<-3; with(.eplot_surg0,sum(icd>(n_dsurg+.surg0thresh),na.rm=T))` 
-#' for whom it happens more than `r .surg0thresh` months after `r fs('n_dsurg')` 
-#' and those lags have a median of 
-#' `r with(.eplot_surg0,round(median(icd[icd>(n_dsurg+.surg0thresh)],na.rm=T),1))`
-#' months. This level of discrepancy disqualifies `r fs('e_i9neph')`, 
-#' `r fs('e_i10neph')`, and `r fs('e_hstneph')` from being used to fill in 
-#' missing NAACCR dates. [This may change after the next i2b2 update
-#' in which the fix to the "visit-less patient" problem will be 
-#' implemented ([@sec:nextsteps])]{.note2self custom-style="note2self"}
-#' 
 #' ::::: {#fig:surg0_plot1 custom-style="Image Caption"}
-#+ .surg0_plot1,results='asis'
+#+ .surg0_plot1,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_surg0 <- mutate(dat3,nrx=pmin(n_dsurg,n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
@@ -1101,6 +921,9 @@ par(xaxt='n');
              ,xlim=c(0,length(kcpatients_surgreason$`Surgery Performed`))
              ,ylim=c(-10,60));
 abline(h=c(-3,0,3),col='blue',lty=c(2,1,2));
+.eplot_surg0$icd <- apply(.eplot_surg0[,c('e_i9neph','e_i10neph','e_hstneph')]
+                          ,1,min,na.rm=T);
+.eplot_surg0$icd[is.infinite(.eplot_surg0$icd)]<-NA;
 lines(.eplot_surg0$n_rx1270,col='#00FF0060',type='s');
 lines(.eplot_surg0$n_rx1260,col='#00FFFF60',type='s');
 
@@ -1113,8 +936,25 @@ omitted for readability). The ",fs('n_rx1270')," and ",fs('n_rx1260')
 #' 
 #' ###### blank
 #' 
+#' In [@fig:surg0_plot0] the `r sum(with(.eplot_surg0,icd<nrx),na.rm=T)` 
+#' patients for which the earliest EMR nephrectomy code occurs before the 
+#' earliest NAACCR possible record of surgery are highlighted in yellow. Among 
+#' the remaining `r with(.eplot_surg0,sum(icd>=nrx,na.rm=T))` patients who have 
+#' an EMR code for nephrectomy, there are 
+#' `r .surg0thresh<-3; with(.eplot_surg0,sum(icd>(n_dsurg+.surg0thresh),na.rm=T))` 
+#' for whom it happens more than `r .surg0thresh` months after `r fs('n_dsurg')` 
+#' and those lags have a median of 
+#' `r with(.eplot_surg0,round(median(icd[icd>(n_dsurg+.surg0thresh)],na.rm=T),1))`
+#' months. This level of discrepancy disqualifies `r fs('e_i9neph')`, 
+#' `r fs('e_i10neph')`, and `r fs('e_hstneph')` from being used to fill in 
+#' missing NAACCR dates. [This may change after the next i2b2 update
+#' in which the fix to the "visit-less patient" problem will be 
+#' implemented]`r n2s(16)` ([@sec:nextsteps])
+#' 
+#' ###### blank
+#' 
 #' ::::: {#fig:surg1_plot custom-style="Image Caption"}
-#+ .surg1_plot,results='asis'
+#+ .surg1_plot,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_surg1 <- mutate(dat3,nrx=pmin(n_dsurg,n_rx3170,n_rx1270,n_rx1260)) %>% 
   event_plot('n_dsurg','n_rx3170',tunit='months',type='s',ltys = c(1,1)
@@ -1257,7 +1097,7 @@ lapply(v(c_nephx_naaccr),function(ii){
 #' first kidney cancer occurrence for a patient if they have several 
 #' (overlapping?) NAACCR entries. I also need to ask a chart abstraction expert 
 #' about the best way to find in Epic and in Sunrise the date of a patient's 
-#' first nephrectomy]{.note2self custom-style="note2self"}
+#' first nephrectomy]`r n2s(4.4)`
 #' 
 #  re-occurrence ================================================================
 #' ### Re-occurrence {#sec:recur}
@@ -1316,7 +1156,7 @@ t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>%
 #' 
 #' 
 #' ::::: {#fig:recur_plot custom-style="Image Caption"}
-#+ recur_plot,results='asis'
+#+ recur_plot,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_recur0 <-subset(dat3,patient_num %in% 
                          setdiff(kcpatients_surgreason$`Surgery Performed`
@@ -1325,7 +1165,7 @@ par(xaxt='n');
   event_plot('rec',start_event = 'n_dsurg',type='s',ltys=c(1,1)
              ,main='Time from Surgery to Recurrence'
              ,ylab='Months Since Surgery'
-             ,xlab='Patients, sorted by time to first mets according to EMR\n\n\n'
+             ,xlab='Patients, sorted by time to first mets\naccording to EMR\n\n'
              ,tunit = 'month');
 abline(h=c(-3,0,3),lty=c(3,1,3),col='blue');
 # Highlight patients with recurrence
@@ -1357,22 +1197,24 @@ dotted horizontal lines above and below it are +- 3 months. Patients whose "
 and all records for these patients have been excluded from this plot");
 #' :::::
 #' 
+#' ###### blank
 #' 
 #' The green highlights in [@fig:recur_plot] are _mostly_ where one would 
 #' expect, but why are there
 #' `r nrow(subset(.eplot_recur0,patient_num %in% kcpatients_rectype[['Disease-free']] & !is.na(rec)))`
-#' patients on the left side of the plot that have EMR codes for secondary 
-#' tumors? Also, there are `r nrow(subset(.eplot_recur0,rec<0))` patients with 
-#' metastatic tumor codes earlier than `r fs('n_dsurg')` and of those 
+#' patients on the left side of the plot labeled `Disease-free` that have EMR 
+#' codes for secondary tumors? Also, there are 
+#' `r nrow(subset(.eplot_recur0,rec<0))` patients with metastatic tumor codes 
+#' earlier than `r fs('n_dsurg')` and of those 
 #' `r nrow(subset(.eplot_recur0,rec< -3))` occur more than 3 months prior to 
 #' `r fs('n_dsurg')`. Did they present with secondary tumors to begin with but
 #' remained disease free after surgery? [These are questions to ask the NAACCR
-#' registrar]{.note2self custom-style="note2self"}. The EMR codes are in better
+#' registrar]`r n2s(4.5)`. The EMR codes are in better
 #' agreement with `r fs('n_drecur')` than the data elements in [-@sec:diag] and
 #' [-@sec:surg] so it might make sense to back-fill the few `r fs('n_drecur')`
 #' that are missing but first I want to make sure I [understand how to reliably
 #' distinguish on the EMR side genuine recurrences from secondary tumors that
-#' existed at presentation]{.note2self custom-style="note2self"}. The small 
+#' existed at presentation]`r n2s(4.6)`. The small 
 #' number of cases affected either way lowers the priority of this isuse.
 #' For now I will rely only on `r fs('n_drecur')` in constructing the analytical
 #' variable `r fs('a_trecur')`. 
@@ -1401,11 +1243,11 @@ and all records for these patients have been excluded from this plot");
 #'
 #'
 #' ::::: {#fig:death_plot custom-style="Image Caption"}
-#+ .death_plot,results='asis'
+#+ .death_plot,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_death <- event_plot(dat3,'n_lc',start_event = 'n_ddiag'
                            ,ylim=c(0,300)
-                           ,main='Time from Diagnosis to Death (if any)'
+                           ,main='Time from Diagnosis to Death'
                            ,ylab='Months Since Diagnosis'
                            ,xlab='Patients, sorted by last contact date\n\n\n'
                            ,tunit = 'mon',ltys = 0,type='s');
@@ -1429,6 +1271,8 @@ Above are plotted times of death (if any) relative to "
 ," (![](resources/greencross.png){width=10}), and ",fs('n_vtstat')
 ," (![](resources/browncircle.png){width=10})");
 #' :::::
+#' 
+#' ###### blank
 #' 
 #+ etabledeath, results='asis'
 e_table_death <- subset(dat2tte,patient_num %in% kcpatients.naaccr) %>% 
@@ -1614,7 +1458,7 @@ pct_ahsp <- sprintf('%4.1f%%'
 #' ## What is going on with the first contact variable?
 #' 
 #' ::::: {#fig:diag2lc_eventplot custom-style="Image Caption"}
-#+ diag2lc_eventplot,results='asis'
+#+ diag2lc_eventplot,results='asis',fig.dim=c(4.5,3)
 par(xaxt='n');
 .eplot_fc <-event_plot(subset(dat3,!patient_num %in% kcpatients.naaccr_dupe)
                        ,'n_lc','n_fc',start_event = 'n_ddiag'
@@ -1631,7 +1475,7 @@ Wierd observation-- ",fs('n_fc')," (red) is almost always between ",fs('n_lc')
 sample and that's why it's dated as during or after surgery we thought. If first contact is some kind of event after first diagnosis, what is it?");
 #' :::::
 #' 
-#' `r md$pbreak`
+#' ###### blank
 #' 
 #' Surgery `r fs('n_dsurg')` seems to happen in significant amounts both before 
 #' and after first contact `r fs('n_fc')`.

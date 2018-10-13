@@ -27,7 +27,17 @@ instrequire <- function(pkglist
 }
 
 
-#' takes input and returns it with attributes set
+#' Function for appending or replacing attributes of any object 
+#' within a pipeline
+#'
+#' @param xx        Object whose attributes to modify and then return the object
+#' @param rep.attrs Named list of attributes to create or replace
+#' @param app.attrs Named list of attributes to create or append to
+#'
+#' @return The object `xx` with modified attributes
+#' @export
+#'
+#' @examples
 with_attrs<-function(xx,rep.attrs=list(),app.attrs=list()){
   attrs <- attributes(xx); if(is.null(attrs)) attrs<-list();
   for(ii in names(rep.attrs)) attrs[[ii]] <- rep.attrs[[ii]];
