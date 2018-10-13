@@ -638,6 +638,9 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' `r md$pbreak`
 #' # : Example of stage/grade data {#sec:stage label="Appendix 1"}
 #' 
+#' [Need to tabulate the frequencies of various combinations of TNM 
+#' values]`r n2s(10.0)`
+#' 
 .tc <- paste0('
 This is proof of feasibility for extracting stage and grade at diagnosis for 
 each NAACCR patient for import into the EMR system (e.g. Epic/Beacon). Clinical
