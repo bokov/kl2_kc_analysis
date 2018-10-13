@@ -5,4 +5,4 @@ published: true
 
 The new home for the latest snapshot of whatever document currently represents my progress will be here on GitHub. Better versioning and integration.
 
-This is the link: [exploration.html](/exploration.html)
+This is the link: [exploration.html](../exploration.html)
