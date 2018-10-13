@@ -31,6 +31,7 @@ footer-links:
   stackoverflow: users/945039/bokov
   youtube: # channel/<your_long_string> or user/<user-name>
   googleplus: # anything in your profile username that comes after plus.google.com/
+  latest_results: exploration.html
 
 
 # Enter your Disqus shortname (not your username) to enable commenting on posts
@@ -87,4 +88,3 @@ exclude:
   - CNAME
 
 theme: jekyll-theme-architect
-
