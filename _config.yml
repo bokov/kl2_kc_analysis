@@ -49,7 +49,7 @@ url: https://bokov.github.io/kl2_kc_analysis/
 # (http://yourusername.github.io/repository-name)
 # and NOT your User repository (http://yourusername.github.io)
 # then add in the baseurl here, like this: "/repository-name"
-baseurl: ""
+baseurl: "/kl2_kc_analysis"
 
 #
 # !! You don't need to change any of the configuration flags below !!
