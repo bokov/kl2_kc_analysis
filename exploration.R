@@ -39,7 +39,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 
 default_font <- 'Times New Roman';
@@ -647,9 +647,9 @@ each NAACCR patient for import into the EMR system (e.g. Epic/Beacon). Clinical
 and pathology stage descriptors are also available in NAACCR. Here the '
 ,fs('patient_num'),' are de-identified but with proper authorization they can 
 be mapped to MRNs or internal database index keys. {#tbl:stage}');
-subset(dat2a[,c('patient_num',v(c_tnm,NA))],patient_num %in% kcpatients.naaccr) %>% 
+subset(dat2a[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>% 
   na.omit() %>% 
-  setNames(fs(c('patient_num',v(c_tnm,NA)))) %>%
+  setNames(fs(c('patient_num',v(c_tnm)))) %>%
   # show a sampling of rows and columns that fits on the page and remove the
   # the extra quotation marks
   `[`(1:15,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
