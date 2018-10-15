@@ -1415,7 +1415,7 @@ pander(e_table_death,caption=.tc,missing='&nbsp;',justify='left'
 #       ,col=c('#ff000040','#0000ff40'),lwd=4,lty=2,mark.time=T);
 #' 
 #' 
-#' 
+#+ tbl_ahsp
 tbl_ahsp <- with(dat2a
                  ,table(a_hsp_naaccr,a_hsp_broad,a_hsp_strict,useNA='if')) %>%
   data.frame %>% subset(Freq>0) %>% arrange(a_hsp_naaccr,desc(Freq));
@@ -1430,16 +1430,22 @@ pander(tbl_ahsp,caption=.tc
 #' Of the `r sum(subset(tbl_ahsp,!is.na(a_hsp_naaccr))$Freq)` with NAACCR 
 #' records (all, not just the `r length(kcpatients.naaccr)` meeting the 
 #' current criteria, see [@sec:overview]) only 
-#' `r sum(subset(tbl_ahsp,a_hsp_naaccr!=a_hsp_broad)$Freq)` have differences 
-#' between `r fs('a_hsp_naaccr')` and `r fs('a_hsp_broad')` but 
-#' `r sum(subset(tbl_ahsp,a_hsp_naaccr!=a_hsp_strict)$Freq)` have differences
-#' between `r fs('a_hsp_naaccr')` and `r fs('a_hsp_strict')`. 
+#' `r sum(subset(tbl_ahsp,as.character(a_hsp_naaccr)!=as.character(a_hsp_broad))$Freq)`
+#' have differences between `r fs('a_hsp_naaccr')` and `r fs('a_hsp_broad')` but 
+#' `r sum(subset(tbl_ahsp,as.character(a_hsp_naaccr)!=as.character(a_hsp_strict))$Freq)` 
+#' have differences between `r fs('a_hsp_naaccr')` and `r fs('a_hsp_strict')`. 
+#+ pct_ahsp
 pct_ahsp <- sprintf('%4.1f%%'
                     ,sapply(alist(a_hsp_naaccr,a_hsp_broad,a_hsp_strict)
                             ,function(xx) {
                               with(subset(tbl_ahsp,!is.na(a_hsp_naaccr))
                                    ,sum(Freq[eval(xx)=='Hispanic'])/sum(Freq))}
                             )*100);
+# pct_ahsp <- sapply(c('a_hsp_naaccr','a_hsp_broad','a_hsp_strict')
+#                    ,function(xx){
+#                      with(subset(tbl_ahsp,!is.na(a_hsp_naaccr))
+#                           ,sum(Freq[tbl_ahsp[[xx]]=='Hispanic'],na.rm=T)
+#                           /sum(Freq)*100)}) %>% sprintf('%4.1f%%',.);
 #' According to 
 #' `r knitr::combine_words(fs(c('a_hsp_naaccr','a_hsp_broad','a_hsp_strict')))`
 #' respectively, `r knitr::combine_words(pct_ahsp)` of the NAACCR patients are
