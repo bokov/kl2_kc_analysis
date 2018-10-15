@@ -44,18 +44,18 @@
 "_rsn_fr_srgr","1340 Reason for No Surgery",,"n_surgreason",,"http://datadictionary.naaccr.org/default.aspx?c=10#1340",,"TRUE",,"FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,
 "_drvd_ajcc_stg","3430 Derived AJCC-7 Stage Grp",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#3430","FALSE","FALSE",,"FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
 "_drvd_dscrpt","3422 Derived AJCC-7 M Descript",,"n_a7md",,"http://datadictionary.naaccr.org/default.aspx?c=10#3422","FALSE","FALSE",,"FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
-"_drvd_ajcc_m","3420 Derived AJCC-7 M",,"n_a7m",,"http://datadictionary.naaccr.org/default.aspx?c=10#3420","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,
+"_drvd_ajcc_m","3420 Derived AJCC-7 M",,"n_a7m",,"http://datadictionary.naaccr.org/default.aspx?c=10#3420","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,"TRUE"
 "_drvd_dscrpt","3412 Derived AJCC-7 N Descript",,"n_a7nd",,"http://datadictionary.naaccr.org/default.aspx?c=10#3412","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
-"_drvd_ajcc_n","3410 Derived AJCC-7 N",,"n_a7n",,"http://datadictionary.naaccr.org/default.aspx?c=10#3410","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,
+"_drvd_ajcc_n","3410 Derived AJCC-7 N",,"n_a7n",,"http://datadictionary.naaccr.org/default.aspx?c=10#3410","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,"TRUE",
 "_drvd_dscrpt","3402 Derived AJCC-7 T Descript",,"n_a7td",,"http://datadictionary.naaccr.org/default.aspx?c=10#3402","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
-"_drvd_ajcc_t","3400 Derived AJCC-7 T",,"n_a7t",,"http://datadictionary.naaccr.org/default.aspx?c=10#3400","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,
+"_drvd_ajcc_t","3400 Derived AJCC-7 T",,"n_a7t",,"http://datadictionary.naaccr.org/default.aspx?c=10#3400","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,"TRUE",,
 "_drvd_ajcc_stg","3000 Derived AJCC-6 Stage Grp",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#3000","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
 "_drvd_dscrpt","2990 Derived AJCC-6 M Descript",,"n_a6md",,"http://datadictionary.naaccr.org/default.aspx?c=10#2990","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
-"_drvd_ajcc_m","2980 Derived AJCC-6 M",,"n_a6m",,"http://datadictionary.naaccr.org/default.aspx?c=10#2980","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,
+"_drvd_ajcc_m","2980 Derived AJCC-6 M",,"n_a6m",,"http://datadictionary.naaccr.org/default.aspx?c=10#2980","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,"TRUE"
 "_drvd_dscrpt","2970 Derived AJCC-6 N Descript",,"n_a6nd",,"http://datadictionary.naaccr.org/default.aspx?c=10#2970","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
-"_drvd_ajcc_n","2960 Derived AJCC-6 N",,"n_a6n",,"http://datadictionary.naaccr.org/default.aspx?c=10#2960","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,
+"_drvd_ajcc_n","2960 Derived AJCC-6 N",,"n_a6n",,"http://datadictionary.naaccr.org/default.aspx?c=10#2960","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,"TRUE",
 "_drvd_dscrpt","2950 Derived AJCC-6 T Descript",,"n_a6td",,"http://datadictionary.naaccr.org/default.aspx?c=10#2950","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
-"_drvd_ajcc_t","2940 Derived AJCC-6 T",,"n_a6t",,"http://datadictionary.naaccr.org/default.aspx?c=10#2940","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,
+"_drvd_ajcc_t","2940 Derived AJCC-6 T",,"n_a6t",,"http://datadictionary.naaccr.org/default.aspx?c=10#2940","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,"TRUE",,
 "_cs_mts_at_dx","2850 CS Mets at DX",,"n_mets",,"http://datadictionary.naaccr.org/default.aspx?c=10#2850",,"FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
 "_tnm_pth_dscrptr","0920 TNM Path Descriptor",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#920","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
 "_mrtl_sts_dx","0150 Marital Status at DX",,"n_marital","Marital Status, Registry","http://datadictionary.naaccr.org/default.aspx?c=10#150","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"TRUE","TRUE","FALSE","FALSE","TRUE","TRUE",,,,
@@ -70,9 +70,9 @@
 "_brthplc","0250 Birthplace",,"n_brthplc",,"http://datadictionary.naaccr.org/default.aspx?c=10#250","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"TRUE","FALSE","FALSE","FALSE","FALSE","TRUE",,,,
 "_dt_of_dgns","0390 Date of Diagnosis",,"n_ddiag",,"http://datadictionary.naaccr.org/default.aspx?c=10#390","FALSE","TRUE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE","TRUE",,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,,,
 "_prmr_pr_at_dx","0630 Primary Payer at DX",,"n_payer","Insurance, Registry","http://datadictionary.naaccr.org/default.aspx?c=10#630","TRUE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"TRUE","TRUE","FALSE","FALSE","TRUE","TRUE",,,,
-"_tnm_cln_t","0940 TNM Clin T",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#940","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,
-"_tnm_cln_n","0950 TNM Clin N",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#950","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",
-"_tnm_cln_m","0960 TNM Clin M",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#960","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,,,"TRUE"
+"_tnm_cln_t","0940 TNM Clin T",,"n_ct",,"http://datadictionary.naaccr.org/default.aspx?c=10#940","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,"TRUE",,
+"_tnm_cln_n","0950 TNM Clin N",,"n_cn",,"http://datadictionary.naaccr.org/default.aspx?c=10#950","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,,"TRUE",
+"_tnm_cln_m","0960 TNM Clin M",,"n_cm",,"http://datadictionary.naaccr.org/default.aspx?c=10#960","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,,,"TRUE"
 "_tnm_cln_stg_grp","0970 TNM Clin Stage Group",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#970","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,,,
 "_tnm_cln_dscrptr","0980 TNM Clin Descriptor",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#980","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,,,
 "_rx_dt_srgr","1200 RX Date--Surgery",,"n_dsurg",,"http://datadictionary.naaccr.org/default.aspx?c=10#1200","FALSE","TRUE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,"TRUE","TRUE",,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,,,
@@ -92,13 +92,13 @@
 "_cmrbd_cmplctn","3162 Comorbid/Complication 8",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#3162","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,,,
 "_cmrbd_cmplctn","3163 Comorbid/Complication 9",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#3163","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,,,
 "_cmrbd_cmplctn","3164 Comorbid/Complication 10",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#3164","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE","FALSE",,,,,,,,"FALSE","FALSE","FALSE","FALSE","TRUE",,,,
-"_tnm_pth_m","0900 TNM Path M",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#900","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,"TRUE"
-"_tnm_pth_n","0890 TNM Path N",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#890","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,"TRUE",
+"_tnm_pth_m","0900 TNM Path M",,"n_pm",,"http://datadictionary.naaccr.org/default.aspx?c=10#900","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,"TRUE"
+"_tnm_pth_n","0890 TNM Path N",,"n_pn",,"http://datadictionary.naaccr.org/default.aspx?c=10#890","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,"TRUE",
 "_mltplct_cntr","0446 Multiplicity Counter",,"n_mult",,"http://datadictionary.naaccr.org/default.aspx?c=10#446",,"FALSE",,"FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
 "_dt_cs_intd","2085 Date Case Initiated",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#2085","FALSE","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,,,,,,,"TRUE",,,,
 "_dt_cs_cmpltd","2090 Date Case Completed",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#2090","FALSE","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,,,,,,,"TRUE",,,,
 "_sr_smr_stg","0759 SEER Summary Stage 2000",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#759","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,"TRUE",,,,,"TRUE",,,,
-"_tnm_pth_t","0880 TNM Path T",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#880","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,"TRUE",,
+"_tnm_pth_t","0880 TNM Path T",,"n_pt",,"http://datadictionary.naaccr.org/default.aspx?c=10#880","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,"TRUE",,
 "_acqrd_absnc","V45.73 Acquired absence of kidney","V45.73 Acquired absence of kidney","e_i9neph",,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,"TRUE","TRUE","FALSE",,,,,,,,"TRUE",,,,
 "_acqrd_absnc_inactive","V45.73 Acquired absence of kidney",,,,,,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,"TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,
 "_dcsd_pr_ss","Deceased per SSA",,"s_death","Death, SSN",,"TRUE","FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,,,,"TRUE",,"FALSE","TRUE","FALSE","FALSE","TRUE",,,,
@@ -174,10 +174,10 @@
 ,"Surgery",,"a_tsurg","Surgery",,"TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,"TRUE",,,,,,,,,,,,,,,,
 ,"Death",,"a_tdeath","Death",,"TRUE","FALSE","FALSE","FALSE","FALSE","FALSE",,"TRUE",,,,,,,,,,,,,,,,
 ,"Race (NAACCR 0160-0164)","To obtain a combined NAACCR race code for analysis, it is necessary to combine NAACCR variables `0160 Race` - `0164 Race` into one and then recode it to the closest match among `White`, `Black` `Asian`, `Pac Islander`, `Other`, and `Unknown`","a_n_race","Race, registry",,,,,,,,,,,,,,,,,,,,,,,,,
-,"AJCC7 T",,"a_n_a7t",,,,,,,,"TRUE",,,,,,,,,,,,,,,,"TRUE",,
-,"AJCC7 N",,"a_n_a7n",,,,,,,,"TRUE",,,,,,,,,,,,,,,,,"TRUE",
-,"AJCC7 M",,"a_n_a7m",,,,,,,,"TRUE",,,,,,,,,,,,,,,,,,"TRUE"
-,"AJCC6 T",,"a_n_a6t",,,,,,,,"TRUE",,,,,,,,,,,,,,,,"TRUE",,
-,"AJCC6 N",,"a_n_a6n",,,,,,,,"TRUE",,,,,,,,,,,,,,,,,"TRUE",
-,"AJCC6 M",,"a_n_a6m",,,,,,,,"TRUE",,,,,,,,,,,,,,,,,,"TRUE"
-,,,,,,,,,,,"TRUE",,,,,,,,,,,,,,,,,,
+,"AJCC7 T",,"a_n_a7t",,,,,,,,"FALSE",,,,,,,,,,,,,,,,"FALSE",,
+,"AJCC7 N",,"a_n_a7n",,,,,,,,"FALSE",,,,,,,,,,,,,,,,,"FALSE",
+,"AJCC7 M",,"a_n_a7m",,,,,,,,"FALSE",,,,,,,,,,,,,,,,,,"FALSE"
+,"AJCC6 T",,"a_n_a6t",,,,,,,,"FALSE",,,,,,,,,,,,,,,,"FALSE",,
+,"AJCC6 N",,"a_n_a6n",,,,,,,,"FALSE",,,,,,,,,,,,,,,,,"FALSE",
+,"AJCC6 M",,"a_n_a6m",,,,,,,,"FALSE",,,,,,,,,,,,,,,,,,"FALSE"
+,,,,,,,,,,,"FALSE",,,,,,,,,,,,,,,,,,
