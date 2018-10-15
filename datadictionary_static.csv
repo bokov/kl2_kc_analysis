@@ -42,14 +42,14 @@
 "_dt_of_st_cntct","0580 Date of 1st Contact","Can also be date of clinical (as opposed to path) diagnosis","n_fc",,"http://datadictionary.naaccr.org/default.aspx?c=10#580",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE","FALSE",,,,,,,,,,,,,,,
 "_dt_srgcl_dsch","3180 RX Date--Surgical Disch",,"n_dsdisc",,"http://datadictionary.naaccr.org/default.aspx?c=10#3180",,"FALSE","TRUE","FALSE","FALSE","FALSE","TRUE","TRUE",,,"FALSE","FALSE",,,,,,,,"TRUE",,,,
 "_rsn_fr_srgr","1340 Reason for No Surgery",,"n_surgreason",,"http://datadictionary.naaccr.org/default.aspx?c=10#1340",,"TRUE",,"FALSE","FALSE","FALSE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,
-"_drvd_ajcc_stg","3430 Derived AJCC-7 Stage Grp",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#3430","FALSE","FALSE",,"FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
+"_drvd_ajcc_stg","3430 Derived AJCC-7 Stage Grp",,"n_a7sg",,"http://datadictionary.naaccr.org/default.aspx?c=10#3430","FALSE","FALSE",,"FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,
 "_drvd_dscrpt","3422 Derived AJCC-7 M Descript",,"n_a7md",,"http://datadictionary.naaccr.org/default.aspx?c=10#3422","FALSE","FALSE",,"FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
 "_drvd_ajcc_m","3420 Derived AJCC-7 M",,"n_a7m",,"http://datadictionary.naaccr.org/default.aspx?c=10#3420","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,"TRUE"
 "_drvd_dscrpt","3412 Derived AJCC-7 N Descript",,"n_a7nd",,"http://datadictionary.naaccr.org/default.aspx?c=10#3412","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
 "_drvd_ajcc_n","3410 Derived AJCC-7 N",,"n_a7n",,"http://datadictionary.naaccr.org/default.aspx?c=10#3410","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,"TRUE",
 "_drvd_dscrpt","3402 Derived AJCC-7 T Descript",,"n_a7td",,"http://datadictionary.naaccr.org/default.aspx?c=10#3402","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
 "_drvd_ajcc_t","3400 Derived AJCC-7 T",,"n_a7t",,"http://datadictionary.naaccr.org/default.aspx?c=10#3400","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,"TRUE",,
-"_drvd_ajcc_stg","3000 Derived AJCC-6 Stage Grp",,,,"http://datadictionary.naaccr.org/default.aspx?c=10#3000","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
+"_drvd_ajcc_stg","3000 Derived AJCC-6 Stage Grp",,"n_a6sg",,"http://datadictionary.naaccr.org/default.aspx?c=10#3000","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,
 "_drvd_dscrpt","2990 Derived AJCC-6 M Descript",,"n_a6md",,"http://datadictionary.naaccr.org/default.aspx?c=10#2990","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
 "_drvd_ajcc_m","2980 Derived AJCC-6 M",,"n_a6m",,"http://datadictionary.naaccr.org/default.aspx?c=10#2980","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,"TRUE",,,,"TRUE",,,,"TRUE"
 "_drvd_dscrpt","2970 Derived AJCC-6 N Descript",,"n_a6nd",,"http://datadictionary.naaccr.org/default.aspx?c=10#2970","FALSE","FALSE","FALSE","FALSE","FALSE","TRUE","FALSE","FALSE",,,,,,,,,,,,"TRUE",,,,
