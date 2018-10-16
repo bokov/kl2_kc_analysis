@@ -9,7 +9,7 @@ categories:
 ---
 In attendance: Dr. Tsevat, Dr. Dougherty, and Ms. Wray
 
-I brought a printout of [my Aim 2 results so far](https://rpubs.com/bokov/kidneycancer) and [a progress report](/files/180926_bokov_kl2leadership_mtg.docx).
+I brought a printout of [my Aim 2 results so far](https://rpubs.com/bokov/kidneycancer) and [a progress report](/kl2_kc_analysis/files/180926_bokov_kl2leadership_mtg.docx).
 
 Notes:
 * The mandatory CTSA meeting I will be attending is in spring 2019. The abstract deadline will be in January.
