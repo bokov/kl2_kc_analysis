@@ -641,12 +641,61 @@ dat2a[,unique(c('patient_num',v(c_analytic),'n_cstatus','e_death'
 #' [Need to tabulate the frequencies of various combinations of TNM 
 #' values]`r n2s(10.0)`
 #' 
+#' ## Observations about NAACCR staging
+#' 
+.astages<-sprintf('n_a%d%s',rep(6:7,3),c('t','n','m')) %>% sort %>% rev;
+# OMG what a hack. Pasting the corresponding AJCC6/7 desriptor fields onto the 
+# left side of all AJCC6/7 TNM fields. The idea here is to build an argument for 
+# mutate dynamically, without a lot of copy-paste code nor without yet another 
+# c_ group in the data dictionary if this turns out to not be needed
+.mutate_stages <- .astages %>% setNames(sprintf(
+  'ifelse(is.na(%1$s)|is.na(%1$s),NA,paste0(%1$sd,%1$s))',.),.) %>% 
+  lapply(function(xx) parse(text=xx)[[1]]);
+# now create a data.frame on which to do the various ftables below
+dat1tnmcounts <- subset(dat1,a_n_visit) %>% as.data.frame %>% 
+  select(c(v(c_tnm),paste0(.astages,'d'))) %>% 
+  mutate_all(function(xx) gsub('"','',xx)) %>% list %>% c(.mutate_stages) %>% 
+  do.call(mutate,.);
+# note that here the pipeline is nested within the sapply statement... the 
+# inline function is one big pipe. This is for viewing the counts of various 
+# TNM/stage values
+tnmtabs <- sapply(c('c_staget','c_stagen','c_stagem')
+                  ,function(xx) eval(substitute(v(xx),list(xx=xx))) %>% 
+                    select(dat1tnmcounts,.) %>% table(useNA='if') %>% 
+                    as.data.frame %>% subset(Freq>0) %>% 
+                    arrange(desc(Freq)),simplify = F);
+#' `r knitr::combine_words(fs(.astages))` are missing if and only if 
+#' `r knitr::combine_words(fs(paste0(.astages,'d')))` are also missing, 
+#' respectively. For the tables in this section, the counts are by visit rather
+#' than by unique patient.
+#+ staget
+.tc <- paste0('Frequency of various combinations of '
+,knitr::combine_words(fs(v(c_staget))),' {#tbl:staget}');
+
+pander(head(tnmtabs$c_staget,20),col.names=c(fs(colnames(tnmtabs$c_staget)[1:4])
+                                             ,'N'),caption=.tc)
+#' 
+#+ stagen
+.tc <- paste0('Frequency of various combinations of '
+              ,knitr::combine_words(fs(v(c_stagen))),' {#tbl:stagen}');
+
+pander(head(tnmtabs$c_stagen,20),col.names=c(fs(colnames(tnmtabs$c_stagen)[1:4])
+                                             ,'N'),caption=.tc)
+#' 
+#+ stagem
+.tc <- paste0('Frequency of various combinations of '
+              ,knitr::combine_words(fs(v(c_stagem))),' {#tbl:stagem}');
+
+pander(head(tnmtabs$c_stagem,20),col.names=c(fs(colnames(tnmtabs$c_stagem)[1:4])
+                                             ,'N'),caption=.tc)
+#' 
+#' 
 .tc <- paste0('
 This is proof of feasibility for extracting stage and grade at diagnosis for 
 each NAACCR patient for import into the EMR system (e.g. Epic/Beacon). Clinical
 and pathology stage descriptors are also available in NAACCR. Here the '
 ,fs('patient_num'),' are de-identified but with proper authorization they can 
-be mapped to MRNs or internal database index keys. {#tbl:stage}');
+be mapped to MRNs or internal database index keys. {#tbl:stageraw}');
 subset(dat2a[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>% 
   na.omit() %>% 
   setNames(fs(c('patient_num',v(c_tnm)))) %>%
