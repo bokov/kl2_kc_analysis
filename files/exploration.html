@@ -11,7 +11,7 @@
 
 <meta name="author" content="Alex F. Bokov" />
 
-<meta name="date" content="2018-10-12" />
+<meta name="date" content="2018-10-16" />
 
 <title>Kidney Cancer Data Exploration</title>
 
@@ -427,7 +427,7 @@ $(document).ready(function () {
 <h1 class="title toc-ignore">Kidney Cancer Data Exploration</h1>
 <h3 class="subtitle"><em>KL2 Aim 2</em></h3>
 <h4 class="author"><em>Alex F. Bokov<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></em></h4>
-<h4 class="date"><em>October 12, 2018</em></h4>
+<h4 class="date"><em>October 16, 2018</em></h4>
 <div class="abstract">
 <p class="abstract">Abstract</p>
 Minimal necessary NAACCR variables chosen and process documented for preparing them for analysis, as well as supplementing some of them with additional data from EMR if available. Ready to proceed to chart review of existing data, acquisition of independent NAACCR data, development of additional variables, and working on Aim 1.
@@ -484,7 +484,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <h2>2.1 Verifying correct patient linkage</h2>
 <p>Since this is the first study at our site to make such extensive use of combined EMR and NAACCR data, it is important to first validate the data linkage done by our ETL.</p>
 <p>The following data elements exist in both NAACCR and the EMR, respectively: date of birth (<a href="#n_dob" title="0240 Date of Birth"><code>0240 Date of Birth</code></a> and <a href="#birth_date" title="birth_date"><code>birth_date</code></a>), marital status (<a href="#n_marital" title="0150 Marital Status at DX"><code>0150 Marital Status at DX</code></a> and <a href="#e_marital" title="Marital Status"><code>Marital Status</code></a>), sex (<a href="#n_sex" title="0220 Sex"><code>0220 Sex</code></a> and <a href="#sex_cd" title="sex_cd"><code>sex_cd</code></a>), race (<a href="#a_n_race" title="Race (NAACCR 0160-0164)"><code>Race (NAACCR 0160-0164)</code></a> and <a href="#race_cd" title="race_cd"><code>race_cd</code></a>), and Hispanic ethnicity (<a href="#n_hisp" title="0190 Spanish/Hispanic Origin"><code>0190 Spanish/Hispanic Origin</code></a> and <a href="#e_hisp" title="Hispanic or Latino"><code>Hispanic or Latino</code></a>). The agreement between NAACCR and the EMR is never going to be 100% with race, Hispanic ancestry, and marital status expected to be especially variable. Nonetheless, if record linkage is correct, when patient counts for NAACCR and EMR are tabulated against each of the above variables, then <em>most</em> of the values should agree.</p>
-<p>I confirmed that this <em>is</em> the case for marital status (<a href="#tbl:xc_marital">table III</a>), sex (<a href="#tbl:xc_sex">table IV</a>), race (<a href="#tbl:xc_race">table V</a>), and Hispanic ancestry (<a href="#tbl:xc_hisp0">table VI</a>). Furthermore, there are 0 eligible patients lacking a <a href="#n_dob" title="0240 Date of Birth"><code>0240 Date of Birth</code></a> and only 15 with a mismatch between <a href="#n_dob" title="0240 Date of Birth"><code>0240 Date of Birth</code></a> and <a href="#birth_date" title="birth_date"><code>birth_date</code></a>. Independent evidence for correct linkage is that EMR ICD9/10 codes for primary kidney cancer rarely precede <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> (<a href="#fig:diag_plot">fig. 5</a>), EMR surgical history of nephrectomy and ICD9/10 codes for acquired absence of a kidney rarely precede <a href="#n_dsurg" title="1200 RX Date--Surgery"><code>1200 RX Date--Surgery</code></a> or <a href="#n_rx3170" title="3170 RX Date--Most Defin Surg"><code>3170 RX Date--Most Defin Surg</code></a> (<a href="#fig:surg0_plot0">fig. 6</a>), and death dates from non-NAACCR sources (<a href="#e_death" title="Death, i2b2"><code>Death, i2b2</code></a>, <a href="#s_death" title="Deceased per SSA"><code>Deceased per SSA</code></a> , and <a href="#e_dscdeath" title="Expired"><code>Expired</code></a>) rarely precede <a href="#n_vtstat" title="1760 Vital Status"><code>1760 Vital Status</code></a> (<a href="#fig:death_plot">fig. 10</a>).</p>
+<p>I confirmed that this <em>is</em> the case for marital status (<a href="#tbl:xc_marital">table VII</a>), sex (<a href="#tbl:xc_sex">table VIII</a>), race (<a href="#tbl:xc_race">table IX</a>), and Hispanic ancestry (<a href="#tbl:xc_hisp0">table X</a>). Furthermore, there are 0 eligible patients lacking a <a href="#n_dob" title="0240 Date of Birth"><code>0240 Date of Birth</code></a> and only 15 with a mismatch between <a href="#n_dob" title="0240 Date of Birth"><code>0240 Date of Birth</code></a> and <a href="#birth_date" title="birth_date"><code>birth_date</code></a>. Independent evidence for correct linkage is that EMR ICD9/10 codes for primary kidney cancer rarely precede <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> (<a href="#fig:diag_plot">fig. 5</a>), EMR surgical history of nephrectomy and ICD9/10 codes for acquired absence of a kidney rarely precede <a href="#n_dsurg" title="1200 RX Date--Surgery"><code>1200 RX Date--Surgery</code></a> or <a href="#n_rx3170" title="3170 RX Date--Most Defin Surg"><code>3170 RX Date--Most Defin Surg</code></a> (<a href="#fig:surg0_plot0">fig. 6</a>), and death dates from non-NAACCR sources (<a href="#e_death" title="Death, i2b2"><code>Death, i2b2</code></a>, <a href="#s_death" title="Deceased per SSA"><code>Deceased per SSA</code></a> , and <a href="#e_dscdeath" title="Expired"><code>Expired</code></a>) rarely precede <a href="#n_vtstat" title="1760 Vital Status"><code>1760 Vital Status</code></a> (<a href="#fig:death_plot">fig. 10</a>).</p>
 </section>
 <section id="sec:reqelmnts" class="level2">
 <h2>2.2 Required NAACCR data elements.</h2>
@@ -494,7 +494,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <section id="sec:merging" class="level2">
 <h2>2.3 Merging NAACCR and EMR variables</h2>
 <p>EMR records can not only enrich the data with additional elements unavailable in NAACCR alone, but might also make it possible to fill in missing <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a>, <a href="#n_rx3170" title="3170 RX Date--Most Defin Surg"><code>3170 RX Date--Most Defin Surg</code></a> / <a href="#n_dsurg" title="1200 RX Date--Surgery"><code>1200 RX Date--Surgery</code></a>, <a href="#n_drecur" title="1860 Recurrence Date--1st"><code>1860 Recurrence Date--1st</code></a>, and <a href="#n_lc" title="1750 Date of Last Contact"><code>1750 Date of Last Contact</code></a> values. It may even be possible to reconstruct entire records for the 1841 kidney cancer patients in the EMR lacking NAACCR records. However, this depends on how much the EMR and NAACCR versions of a variable agree when neither is missing.</p>
-<p><strong>Data elements representing date of death and Hispanic ethnicity are in sufficient agreement ( <a href="#tbl:xc_hisp0">table VI</a> and <a href="#sec:death">Appendix 3.2.4</a> ) to justify merging information from the EMR and NAACCR.</strong> The process for combining them is described in the <a href="#a_tdeath" title="Death"><code>Death</code></a>, <a href="#a_hsp_strict" title="Hispanic (strict)"><code>Hispanic (strict)</code></a>, and <a href="#a_hsp_broad" title="Hispanic (broad)"><code>Hispanic (broad)</code></a> sections of <a href="#sec:vars">Appendix 4</a> respectively. At this time I cannot merge diagnosis, surgery, or recurrence– where data from both sources is available, EMR dates lag considerably behind NAACCR dates ( <a href="#sec:diag">Appendix 3.2.1</a>-<a href="#sec:recur">Appendix 3.2.3</a> ) and their variability is probably larger than the effect size. The surgery and recurrence lags might be because those actual visits are not yet available in the data warehouse and I am only seeing them as reflected in the patient history at visits long after the fact. The diagnosis lag may be due to the decision to proceed with surgery often being made based on imaging data,<span class="citation" data-cites="pcRodriguez2018"><sup><a href="#ref-pcRodriguez2018">4</a></sup></span> with definitive pathology results only available after surgery (<a href="#sec:surg">Appendix 3.2.2</a>). Attempting to merge these elements would bias the data and obscure the actual differences. However there are several ways forward that I will discuss in <a href="#sec:nextsteps">sec. 5</a> below.</p>
+<p><strong>Data elements representing date of death and Hispanic ethnicity are in sufficient agreement ( <a href="#tbl:xc_hisp0">table X</a> and <a href="#sec:death">Appendix 3.2.4</a> ) to justify merging information from the EMR and NAACCR.</strong> The process for combining them is described in the <a href="#a_tdeath" title="Death"><code>Death</code></a>, <a href="#a_hsp_strict" title="Hispanic (strict)"><code>Hispanic (strict)</code></a>, and <a href="#a_hsp_broad" title="Hispanic (broad)"><code>Hispanic (broad)</code></a> sections of <a href="#sec:vars">Appendix 4</a> respectively. At this time I cannot merge diagnosis, surgery, or recurrence– where data from both sources is available, EMR dates lag considerably behind NAACCR dates ( <a href="#sec:diag">Appendix 3.2.1</a>-<a href="#sec:recur">Appendix 3.2.3</a> ) and their variability is probably larger than the effect size. The surgery and recurrence lags might be because those actual visits are not yet available in the data warehouse and I am only seeing them as reflected in the patient history at visits long after the fact. The diagnosis lag may be due to the decision to proceed with surgery often being made based on imaging data,<span class="citation" data-cites="pcRodriguez2018"><sup><a href="#ref-pcRodriguez2018">4</a></sup></span> with definitive pathology results only available after surgery (<a href="#sec:surg">Appendix 3.2.2</a>). Attempting to merge these elements would bias the data and obscure the actual differences. However there are several ways forward that I will discuss in <a href="#sec:nextsteps">sec. 5</a> below.</p>
 <p>EMR data can still be used to flag records for exclusion pending verification by chart review in cases where EMR codes for kidney cancer or secondary tumors precede <a href="#a_tdiag" title="Diagnosis"><code>Diagnosis</code></a> or <a href="#a_trecur" title="Recurrence"><code>Recurrence</code></a> respectively. <a href="https://github.com/bokov/kl2_kc_analysis/issues/4" id="gh4" class="note2self" data-custom-style="note2self">This can also apply to nephrectomy EMR codes and [<code>Surgery</code>][a_tsurg] but I will need to distinguish between the prior nephrectomy being due to cancer versus other indications.</a></p>
 <p>For now I am analyzing the data as if I only have access to NAACCR except mortality where I do it both with ( <a href="#fig:naaccrdeath_survfit">fig. 3</a> ) and without ( <a href="#fig:alldeath_survfit">fig. 4</a> ) the EMR.</p>
 </section>
@@ -1406,181 +1406,843 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <section id="sec:stage" class="level1" label="Appendix 1">
 <h1>Appendix 1 : Example of stage/grade data</h1>
 <p><a href="https://github.com/bokov/kl2_kc_analysis/issues/10" id="gh10" class="note2self" data-custom-style="note2self">Need to tabulate the frequencies of various combinations of TNM values</a></p>
-<div id="tbl:stage">
+<section id="observations-about-naaccr-staging" class="level2">
+<h2>Appendix 1.1 Observations about NAACCR staging</h2>
+<p><a href="#n_a7t" title="3400 Derived AJCC-7 T"><code>3400 Derived AJCC-7 T</code></a>, <a href="#n_a7n" title="3410 Derived AJCC-7 N"><code>3410 Derived AJCC-7 N</code></a>, <a href="#n_a7m" title="3420 Derived AJCC-7 M"><code>3420 Derived AJCC-7 M</code></a>, <a href="#n_a6t" title="2940 Derived AJCC-6 T"><code>2940 Derived AJCC-6 T</code></a>, <a href="#n_a6n" title="2960 Derived AJCC-6 N"><code>2960 Derived AJCC-6 N</code></a>, and <a href="#n_a6m" title="2980 Derived AJCC-6 M"><code>2980 Derived AJCC-6 M</code></a> are missing if and only if <a href="#n_a7td" title="3402 Derived AJCC-7 T Descript"><code>3402 Derived AJCC-7 T Descript</code></a>, <a href="#n_a7nd" title="3412 Derived AJCC-7 N Descript"><code>3412 Derived AJCC-7 N Descript</code></a>, <a href="#n_a7md" title="3422 Derived AJCC-7 M Descript"><code>3422 Derived AJCC-7 M Descript</code></a>, <a href="#n_a6td" title="2950 Derived AJCC-6 T Descript"><code>2950 Derived AJCC-6 T Descript</code></a>, <a href="#n_a6nd" title="2970 Derived AJCC-6 N Descript"><code>2970 Derived AJCC-6 N Descript</code></a>, and <a href="#n_a6md" title="2990 Derived AJCC-6 M Descript"><code>2990 Derived AJCC-6 M Descript</code></a> are also missing, respectively. For the tables in this section, the counts are by visit rather than by unique patient since the question of interest is how often do the stages assigned to the same case agree with each other. Each of the tables shows the 20 most common combinations of values.</p>
+<div id="tbl:stagegrp">
 <table>
-<caption>Table II: This is proof of feasibility for extracting stage and grade at diagnosis for each NAACCR patient for import into the EMR system (e.g. Epic/Beacon). Clinical and pathology stage descriptors are also available in NAACCR. Here the <a href="#patient_num" title="patient_num"><code>patient_num</code></a> are de-identified but with proper authorization they can be mapped to MRNs or internal database index keys.</caption>
+<caption>Table II: Frequency of various combinations of <a href="#n_a7sg" title="3430 Derived AJCC-7 Stage Grp"><code>3430 Derived AJCC-7 Stage Grp</code></a>, <a href="#n_a6sg" title="3000 Derived AJCC-6 Stage Grp"><code>3000 Derived AJCC-6 Stage Grp</code></a>, <a href="#n_csg" title="0970 TNM Clin Stage Group"><code>0970 TNM Clin Stage Group</code></a>, and <a href="#n_psg" title="0910 TNM Path Stage Group"><code>0910 TNM Path Stage Group</code></a></caption>
 <colgroup>
-<col style="width: 13%"></col>
-<col style="width: 13%"></col>
-<col style="width: 13%"></col>
-<col style="width: 10%"></col>
-<col style="width: 13%"></col>
-<col style="width: 10%"></col>
-<col style="width: 13%"></col>
-<col style="width: 10%"></col>
+<col style="width: 26%"></col>
+<col style="width: 26%"></col>
+<col style="width: 20%"></col>
+<col style="width: 20%"></col>
+<col style="width: 6%"></col>
 </colgroup>
 <thead>
 <tr class="header">
-<th style="text-align: right;"><a href="#patient_num" title="patient_num"><code>patient_num</code></a></th>
-<th style="text-align: right;"><a href="#v022_drvd_ajcc_stg" title="3430 Derived AJCC-7 Stage Grp"><code>3430 Derived AJCC-7 Stage Grp</code></a></th>
-<th style="text-align: right;"><a href="#v023_drvd_dscrpt" title="3422 Derived AJCC-7 M Descript"><code>3422 Derived AJCC-7 M Descript</code></a></th>
-<th style="text-align: right;"><a href="#v024_drvd_ajcc_m" title="3420 Derived AJCC-7 M"><code>3420 Derived AJCC-7 M</code></a></th>
-<th style="text-align: right;"><a href="#v025_drvd_dscrpt" title="3412 Derived AJCC-7 N Descript"><code>3412 Derived AJCC-7 N Descript</code></a></th>
-<th style="text-align: right;"><a href="#v026_drvd_ajcc_n" title="3410 Derived AJCC-7 N"><code>3410 Derived AJCC-7 N</code></a></th>
-<th style="text-align: right;"><a href="#v027_drvd_dscrpt" title="3402 Derived AJCC-7 T Descript"><code>3402 Derived AJCC-7 T Descript</code></a></th>
-<th style="text-align: right;"><a href="#v028_drvd_ajcc_t" title="3400 Derived AJCC-7 T"><code>3400 Derived AJCC-7 T</code></a></th>
+<th style="text-align: right;"><a href="#n_a7sg" title="3430 Derived AJCC-7 Stage Grp"><code>3430 Derived AJCC-7 Stage Grp</code></a></th>
+<th style="text-align: right;"><a href="#n_a6sg" title="3000 Derived AJCC-6 Stage Grp"><code>3000 Derived AJCC-6 Stage Grp</code></a></th>
+<th style="text-align: right;"><a href="#n_csg" title="0970 TNM Clin Stage Group"><code>0970 TNM Clin Stage Group</code></a></th>
+<th style="text-align: right;"><a href="#n_psg" title="0910 TNM Path Stage Group"><code>0910 TNM Path Stage Group</code></a></th>
+<th style="text-align: right;">N</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">3810</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">IV</td>
+<td style="text-align: right;">IV</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">65</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">III</td>
+<td style="text-align: right;">III</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">57</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">57</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">I</td>
+<td style="text-align: right;">I</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">56</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">UNK</td>
+<td style="text-align: right;">UNK</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">55</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">I</td>
+<td style="text-align: right;">I</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">43</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">IV</td>
+<td style="text-align: right;">IV</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">42</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">III</td>
+<td style="text-align: right;">III</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">23</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">UNK</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">23</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">IV</td>
+<td style="text-align: right;">IV</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">22</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">17</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">II</td>
+<td style="text-align: right;">II</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">13</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">II</td>
+<td style="text-align: right;">II</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">13</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">IV</td>
+<td style="text-align: right;">IV</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">I</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">IV</td>
+<td style="text-align: right;">IV</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">I</td>
+<td style="text-align: right;">I</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">I</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">99</td>
+<td style="text-align: right;">6</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tbl:staget">
+<table>
+<caption>Table III: Frequency of various combinations of <a href="#n_a7t" title="3400 Derived AJCC-7 T"><code>3400 Derived AJCC-7 T</code></a>, <a href="#n_a6t" title="2940 Derived AJCC-6 T"><code>2940 Derived AJCC-6 T</code></a>, <a href="#n_ct" title="0940 TNM Clin T"><code>0940 TNM Clin T</code></a>, and <a href="#n_pt" title="0880 TNM Path T"><code>0880 TNM Path T</code></a></caption>
+<colgroup>
+<col style="width: 21%"></col>
+<col style="width: 21%"></col>
+<col style="width: 25%"></col>
+<col style="width: 25%"></col>
+<col style="width: 6%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;"><a href="#n_a7t" title="3400 Derived AJCC-7 T"><code>3400 Derived AJCC-7 T</code></a></th>
+<th style="text-align: right;"><a href="#n_a6t" title="2940 Derived AJCC-6 T"><code>2940 Derived AJCC-6 T</code></a></th>
+<th style="text-align: right;"><a href="#n_ct" title="0940 TNM Clin T"><code>0940 TNM Clin T</code></a></th>
+<th style="text-align: right;"><a href="#n_pt" title="0880 TNM Path T"><code>0880 TNM Path T</code></a></th>
+<th style="text-align: right;">N</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">3824</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">N-</td>
+<td style="text-align: right;">N-</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">64</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">cX</td>
+<td style="text-align: right;">cX</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">p3a</td>
+<td style="text-align: right;">p3b</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">3A</td>
+<td style="text-align: right;">33</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">p1a</td>
+<td style="text-align: right;">p1a</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">1A</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">p1b</td>
+<td style="text-align: right;">p1b</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">1B</td>
+<td style="text-align: right;">24</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">p3a</td>
+<td style="text-align: right;">p3a</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">3A</td>
+<td style="text-align: right;">21</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c1a</td>
+<td style="text-align: right;">c1a</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">pX</td>
+<td style="text-align: right;">pX</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">14</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">pX</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">13</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">c4</td>
+<td style="text-align: right;">c4</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">12</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">p3b</td>
+<td style="text-align: right;">p3b</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">3B</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">p3</td>
+<td style="text-align: right;">p3</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">p2a</td>
+<td style="text-align: right;">p2</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">2A</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">p3a</td>
+<td style="text-align: right;">p3a</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">p1a</td>
+<td style="text-align: right;">p1a</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c1b</td>
+<td style="text-align: right;">c1b</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">c3a</td>
+<td style="text-align: right;">c3b</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">cX</td>
+<td style="text-align: right;">cX</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tbl:stagen">
+<table>
+<caption>Table IV: Frequency of various combinations of <a href="#n_a7n" title="3410 Derived AJCC-7 N"><code>3410 Derived AJCC-7 N</code></a>, <a href="#n_a6n" title="2960 Derived AJCC-6 N"><code>2960 Derived AJCC-6 N</code></a>, <a href="#n_cn" title="0950 TNM Clin N"><code>0950 TNM Clin N</code></a>, and <a href="#n_pn" title="0890 TNM Path N"><code>0890 TNM Path N</code></a></caption>
+<colgroup>
+<col style="width: 21%"></col>
+<col style="width: 21%"></col>
+<col style="width: 25%"></col>
+<col style="width: 25%"></col>
+<col style="width: 6%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;"><a href="#n_a7n" title="3410 Derived AJCC-7 N"><code>3410 Derived AJCC-7 N</code></a></th>
+<th style="text-align: right;"><a href="#n_a6n" title="2960 Derived AJCC-6 N"><code>2960 Derived AJCC-6 N</code></a></th>
+<th style="text-align: right;"><a href="#n_cn" title="0950 TNM Clin N"><code>0950 TNM Clin N</code></a></th>
+<th style="text-align: right;"><a href="#n_pn" title="0890 TNM Path N"><code>0890 TNM Path N</code></a></th>
+<th style="text-align: right;">N</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">3825</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">130</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">N-</td>
+<td style="text-align: right;">N-</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">64</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">p0</td>
+<td style="text-align: right;">p0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">54</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">cX</td>
+<td style="text-align: right;">cX</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">46</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">44</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">31</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">29</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">cX</td>
+<td style="text-align: right;">cX</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">21</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">cX</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">16</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">15</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">14</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">p1</td>
+<td style="text-align: right;">p1</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">pX</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">y0</td>
+<td style="text-align: right;">y0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tbl:stagem">
+<table>
+<caption>Table V: Frequency of various combinations of <a href="#n_a7m" title="3420 Derived AJCC-7 M"><code>3420 Derived AJCC-7 M</code></a>, <a href="#n_a6m" title="2980 Derived AJCC-6 M"><code>2980 Derived AJCC-6 M</code></a>, <a href="#n_cm" title="0960 TNM Clin M"><code>0960 TNM Clin M</code></a>, and <a href="#n_pm" title="0900 TNM Path M"><code>0900 TNM Path M</code></a></caption>
+<colgroup>
+<col style="width: 21%"></col>
+<col style="width: 21%"></col>
+<col style="width: 25%"></col>
+<col style="width: 25%"></col>
+<col style="width: 6%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;"><a href="#n_a7m" title="3420 Derived AJCC-7 M"><code>3420 Derived AJCC-7 M</code></a></th>
+<th style="text-align: right;"><a href="#n_a6m" title="2980 Derived AJCC-6 M"><code>2980 Derived AJCC-6 M</code></a></th>
+<th style="text-align: right;"><a href="#n_cm" title="0960 TNM Clin M"><code>0960 TNM Clin M</code></a></th>
+<th style="text-align: right;"><a href="#n_pm" title="0900 TNM Path M"><code>0900 TNM Path M</code></a></th>
+<th style="text-align: right;">N</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">3827</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">310</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">67</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">N-</td>
+<td style="text-align: right;">N-</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">88</td>
+<td style="text-align: right;">64</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">36</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">24</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">24</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">p1</td>
+<td style="text-align: right;">p1</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">13</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">cX</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">p1</td>
+<td style="text-align: right;">p1</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">c0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">c1</td>
+<td style="text-align: right;">-</td>
+<td style="text-align: right;">5</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>In tables <a href="#tbl:stagegrp">II</a>, <a href="#tbl:staget">III</a>, <a href="#tbl:stagen">IV</a>, <a href="#tbl:stagem">V</a>, when both the AJCC-7 and AJCC-6 values are non-missing they agree with each other 92.4%, 77.3%, 94.3%, and 94.7% of the time for T, N, and M respectively. There are 31.6%, 22.9%, 22.8%, and 22.6% AJCC-7 values missing but 6.9%, 10.3%, 10.2%, and 10.3% can be filled in from AJCC-6 for T, N, and M respectively.</p>
+<div id="tbl:stageraw">
+<table>
+<caption>Table VI: This is proof of feasibility for extracting stage and grade at diagnosis for each NAACCR patient for import into the EMR system (e.g. Epic/Beacon). Clinical and pathology stage descriptors are also available in NAACCR. Here the <a href="#patient_num" title="patient_num"><code>patient_num</code></a> and <a href="#start_date" title="start_date"><code>start_date</code></a> are de-identified but with proper authorization they can be mapped to MRNs or internal database index keys.</caption>
+<colgroup>
+<col style="width: 19%"></col>
+<col style="width: 17%"></col>
+<col style="width: 14%"></col>
+<col style="width: 14%"></col>
+<col style="width: 14%"></col>
+<col style="width: 18%"></col>
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;"><a href="#patient_num" title="patient_num"><code>patient_num</code></a></th>
+<th style="text-align: right;"><a href="#start_date" title="start_date"><code>start_date</code></a></th>
+<th style="text-align: right;"><a href="#n_a7t" title="3400 Derived AJCC-7 T"><code>3400 Derived AJCC-7 T</code></a></th>
+<th style="text-align: right;"><a href="#n_a7n" title="3410 Derived AJCC-7 N"><code>3410 Derived AJCC-7 N</code></a></th>
+<th style="text-align: right;"><a href="#n_a7m" title="3420 Derived AJCC-7 M"><code>3420 Derived AJCC-7 M</code></a></th>
+<th style="text-align: right;"><a href="#n_a7sg" title="3430 Derived AJCC-7 Stage Grp"><code>3430 Derived AJCC-7 Stage Grp</code></a></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">350</td>
+<td style="text-align: right;">2014-05-10</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">UNK</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3442</td>
+<td style="text-align: right;">2014-09-17</td>
+<td style="text-align: right;">is</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3442</td>
+<td style="text-align: right;">2015-03-01</td>
+<td style="text-align: right;">1a</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">I</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9006</td>
+<td style="text-align: right;">2009-09-02</td>
+<td style="text-align: right;">1b</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">I</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9006</td>
+<td style="text-align: right;">2009-11-18</td>
+<td style="text-align: right;">1b</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">I</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">18576</td>
+<td style="text-align: right;">2011-08-03</td>
+<td style="text-align: right;">1a</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">I</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">18584</td>
+<td style="text-align: right;">2011-06-04</td>
+<td style="text-align: right;">3a</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">III</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">19421</td>
+<td style="text-align: right;">2011-05-12</td>
+<td style="text-align: right;">1b</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">I</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">35354</td>
+<td style="text-align: right;">2010-04-02</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2NOS</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">IIINOS</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">35354</td>
+<td style="text-align: right;">2010-04-10</td>
+<td style="text-align: right;">1a</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">I</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">41377</td>
+<td style="text-align: right;">2012-01-05</td>
+<td style="text-align: right;">3a</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">III</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">43065</td>
+<td style="text-align: right;">2013-06-06</td>
+<td style="text-align: right;">3c</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">IV</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">62619</td>
+<td style="text-align: right;">2010-04-17</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">UNK</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">89902</td>
+<td style="text-align: right;">2010-01-17</td>
+<td style="text-align: right;">3a</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">III</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">93443</td>
+<td style="text-align: right;">2012-08-21</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">1a</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">UNK</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">93443</td>
+<td style="text-align: right;">2012-09-09</td>
+<td style="text-align: right;">1a</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">I</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">97742</td>
+<td style="text-align: right;">2010-11-02</td>
+<td style="text-align: right;">3a</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">IV</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">111335</td>
+<td style="text-align: right;">2013-01-19</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">I</td>
+</tr>
+<tr class="odd">
 <td style="text-align: right;">114314</td>
-<td style="text-align: right;">500</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">320</td>
+<td style="text-align: right;">2015-10-27</td>
+<td style="text-align: right;">3b</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">III</td>
 </tr>
 <tr class="even">
-<td style="text-align: right;">274467</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">317889</td>
-<td style="text-align: right;">500</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">320</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">337717</td>
-<td style="text-align: right;">500</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">310</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">387599</td>
-<td style="text-align: right;">700</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">100</td>
-<td style="text-align: right;">c,p</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">310,320</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">401774</td>
-<td style="text-align: right;">700</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">100</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">310</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">444345</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">692996</td>
-<td style="text-align: right;">010</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">010</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">731060</td>
-<td style="text-align: right;">700</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">100</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">320</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">800320</td>
-<td style="text-align: right;">100</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">120</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">857476</td>
-<td style="text-align: right;">500</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">300</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">1003998</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">1158986</td>
-<td style="text-align: right;">100</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">000</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">150</td>
-</tr>
-<tr class="even">
-<td style="text-align: right;">1231407</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-<td style="text-align: right;">N</td>
-<td style="text-align: right;">888</td>
-</tr>
-<tr class="odd">
-<td style="text-align: right;">1270762</td>
-<td style="text-align: right;">700</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">100</td>
-<td style="text-align: right;">c</td>
-<td style="text-align: right;">100</td>
-<td style="text-align: right;">p</td>
-<td style="text-align: right;">310</td>
+<td style="text-align: right;">117341</td>
+<td style="text-align: right;">2011-03-04</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">X</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">UNK</td>
 </tr>
 </tbody>
 </table>
@@ -1588,6 +2250,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <div class="pbreak" data-custom-style="pbreak">
 <p> </p>
 </div>
+</section>
 </section>
 <section id="sec:todo" class="level1" label="Appendix 2">
 <h1>Appendix 2 : Next steps</h1>
@@ -1603,7 +2266,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <p>In this section are patient counts for all 2327 patients in the overall set, broken down by various NAACCR variables (rows) and equivalent EMR variables (columns). The <strong>bold</strong> values are counts of patients for whom NAACCR and EMR are in agreement. Patients in the <code>NA</code> are the ones with only EMR and no NAACCR records, so they count as missing rather than discrepant.</p>
 <div id="tbl:xc_marital">
 <table>
-<caption>Table III: Marital status has good agreement between NAACCR and EMR.</caption>
+<caption>Table VII: Marital status has good agreement between NAACCR and EMR.</caption>
 <colgroup>
 <col style="width: 18%"></col>
 <col style="width: 7%"></col>
@@ -1755,7 +2418,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 </div>
 <div id="tbl:xc_sex">
 <table style="width:57%;">
-<caption>Table IV: Sex has good agreement between NAACCR and EMR.</caption>
+<caption>Table VIII: Sex has good agreement between NAACCR and EMR.</caption>
 <colgroup>
 <col style="width: 13%"></col>
 <col style="width: 13%"></col>
@@ -1806,7 +2469,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 </div>
 <div id="tbl:xc_race">
 <table>
-<caption>Table V: Race has good agreement between NAACCR and EMR.</caption>
+<caption>Table IX: Race has good agreement between NAACCR and EMR.</caption>
 <colgroup>
 <col style="width: 22%"></col>
 <col style="width: 9%"></col>
@@ -1915,7 +2578,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 </div>
 <div id="tbl:xc_hisp0">
 <table style="width:72%;">
-<caption>Table VI: Hispanic designation has good agreement between NAACCR and EMR. Here the <a href="#n_hisp" title="0190 Spanish/Hispanic Origin"><code>0190 Spanish/Hispanic Origin</code></a> variable was simplified by binning into <code>Hispanic</code> and <code>non-Hispanic</code>.</caption>
+<caption>Table X: Hispanic designation has good agreement between NAACCR and EMR. Here the <a href="#n_hisp" title="0190 Spanish/Hispanic Origin"><code>0190 Spanish/Hispanic Origin</code></a> variable was simplified by binning into <code>Hispanic</code> and <code>non-Hispanic</code>.</caption>
 <colgroup>
 <col style="width: 26%"></col>
 <col style="width: 20%"></col>
@@ -1960,7 +2623,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 </div>
 <div id="tbl:xc_hisp1">
 <table style="width:76%;">
-<caption>Table VII: As <a href="#tbl:xc_hisp0">table VI</a> but with all the different levels of <a href="#n_hisp" title="0190 Spanish/Hispanic Origin"><code>0190 Spanish/Hispanic Origin</code></a> shown.</caption>
+<caption>Table XI: As <a href="#tbl:xc_hisp0">table X</a> but with all the different levels of <a href="#n_hisp" title="0190 Spanish/Hispanic Origin"><code>0190 Spanish/Hispanic Origin</code></a> shown.</caption>
 <colgroup>
 <col style="width: 30%"></col>
 <col style="width: 20%"></col>
@@ -2035,7 +2698,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 </div>
 <div id="tbl:xc_dob">
 <table style="width:76%;">
-<caption>Table VIII: Below is a summary of <a href="#birth_date" title="birth_date"><code>birth_date</code></a> - <a href="#n_dob" title="0240 Date of Birth"><code>0240 Date of Birth</code></a> (in years) for the patients with non-matching dates of birth mentioned in <a href="#sec:linkagever">sec. 2.1</a>. Though there are only 15 of them those few deviate by multiple years from the EMR records.</caption>
+<caption>Table XII: Below is a summary of <a href="#birth_date" title="birth_date"><code>birth_date</code></a> - <a href="#n_dob" title="0240 Date of Birth"><code>0240 Date of Birth</code></a> (in years) for the patients with non-matching dates of birth mentioned in <a href="#sec:linkagever">sec. 2.1</a>. Though there are only 15 of them those few deviate by multiple years from the EMR records.</caption>
 <colgroup>
 <col style="width: 9%"></col>
 <col style="width: 13%"></col>
@@ -2076,7 +2739,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <p>For each of the main event variables <a href="#a_tdiag" title="Diagnosis"><code>Diagnosis</code></a>, <a href="#a_tsurg" title="Surgery"><code>Surgery</code></a>, <a href="#a_trecur" title="Recurrence"><code>Recurrence</code></a>, and <a href="#a_tdeath" title="Death"><code>Death</code></a> / <a href="#n_vtstat" title="1760 Vital Status"><code>1760 Vital Status</code></a> there were multiple candidate data elements in the raw data. If such a family of elements is in good agreement overall then individual missing dates can be filled in with the earliest non-missing dates from other data elements in that family (except for mortality where the <em>latest</em> non-missing date would make more sense). But to do this I needed not only to establish qualitative agreement as I did for demographic variables in <a href="#sec:linkagever">sec. 2.1</a> and <a href="#sec:xchecks">Appendix 3.1</a> but also determine how often these dates lag or lead each other and by how much. The plots in this section use the y-axis to represent time for patient records arranged along the x-axis. They are arranged in an order that varies from one plot to another, chosen for visual interpretability. Each vertical slice of a plot represents one patient’s history, with different colors representing events as documented by different data elements. The goal is to see the frequency, magnitude, and direction of divergence for several variables at the same time.</p>
 <section id="sec:diag" class="level3">
 <h3>Appendix 3.2.1 Initial diagnosis</h3>
-<p>At this time only <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> is usable for calculating <a href="#a_tdiag" title="Diagnosis"><code>Diagnosis</code></a>. Initially <a href="#n_fc" title="0580 Date of 1st Contact"><code>0580 Date of 1st Contact</code></a> was considered as an additional NAACCR source along with the earliest EMR records of <a href="#e_kc_i9" title="189.0 Malignant neoplasm of kidney, except pelvis"><code>189.0 Malignant neoplasm of kidney, except pelvis</code></a> and <a href="#e_kc_i10" title="C64 Malignant neoplasm of kidney, except renal pelvis"><code>C64 Malignant neoplasm of kidney, except renal pelvis</code></a>. <a href="http://datadictionary.naaccr.org/default.aspx?c=10#443"><code>0443 Date Conclusive DX</code></a> is never used by our NAACCR. All other NAACCR data elements containing the word ‘date’ seem to be retired or related to events after initial diagnosis. <a href="#n_fc" title="0580 Date of 1st Contact"><code>0580 Date of 1st Contact</code></a> was disqualified because it never precedes <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> but often trails behind <a href="#n_dsurg" title="1200 RX Date--Surgery"><code>1200 RX Date--Surgery</code></a>, see <a href="#fig:diag2lc_eventplot">fig. 11</a>. <a href="https://github.com/bokov/kl2_kc_analysis/issues/4.2" id="gh4.2" class="note2self" data-custom-style="note2self">I will need to consult with a NAACCR registrar about what [<code>0580 Date of 1st Contact</code>][n_fc] actually means</a> but it does not appear to be a first visit nor first diagnosis. As can be seen in <a href="#fig:diag_plot">fig. 5</a> and <a href="#tbl:diag_lag">table IX</a>, the first ICD9 or ICD10 code most often occurs after initial diagnosis, sometimes before the date of diagnosis, and coinciding with the date of diagnosis rarest of all. Several of the ICD9/10 first observed dates lead or trail the <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> by multiple years.</p>
+<p>At this time only <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> is usable for calculating <a href="#a_tdiag" title="Diagnosis"><code>Diagnosis</code></a>. Initially <a href="#n_fc" title="0580 Date of 1st Contact"><code>0580 Date of 1st Contact</code></a> was considered as an additional NAACCR source along with the earliest EMR records of <a href="#e_kc_i9" title="189.0 Malignant neoplasm of kidney, except pelvis"><code>189.0 Malignant neoplasm of kidney, except pelvis</code></a> and <a href="#e_kc_i10" title="C64 Malignant neoplasm of kidney, except renal pelvis"><code>C64 Malignant neoplasm of kidney, except renal pelvis</code></a>. <a href="http://datadictionary.naaccr.org/default.aspx?c=10#443"><code>0443 Date Conclusive DX</code></a> is never used by our NAACCR. All other NAACCR data elements containing the word ‘date’ seem to be retired or related to events after initial diagnosis. <a href="#n_fc" title="0580 Date of 1st Contact"><code>0580 Date of 1st Contact</code></a> was disqualified because it never precedes <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> but often trails behind <a href="#n_dsurg" title="1200 RX Date--Surgery"><code>1200 RX Date--Surgery</code></a>, see <a href="#fig:diag2lc_eventplot">fig. 11</a>. <a href="https://github.com/bokov/kl2_kc_analysis/issues/4.2" id="gh4.2" class="note2self" data-custom-style="note2self">I will need to consult with a NAACCR registrar about what [<code>0580 Date of 1st Contact</code>][n_fc] actually means</a> but it does not appear to be a first visit nor first diagnosis. As can be seen in <a href="#fig:diag_plot">fig. 5</a> and <a href="#tbl:diag_lag">table XIII</a>, the first ICD9 or ICD10 code most often occurs after initial diagnosis, sometimes before the date of diagnosis, and coinciding with the date of diagnosis rarest of all. Several of the ICD9/10 first observed dates lead or trail the <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> by multiple years.</p>
 <div id="fig:diag_plot" class="subfigures" data-custom-style="Image Caption">
 <p><img src="data:image/png;base64,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" title="fig:" alt="a" /><!-- --></p>
 <p>Figure 5: Here is a plot centered on <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> (blue horizontal line at 0) with black lines indicating ICD10 codes for primary kidney cancer from the EMR and dashed red lines indicating ICD9 codes. The dashed horizontal blue lines indicate +- 3 months from <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a>. </p>
@@ -2085,7 +2748,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <h6>blank</h6>
 <div id="tbl:diag_lag">
 <table style="width:83%;">
-<caption>Table IX: For patients with NAACCR records, how often do ICD9 or ICD10 codes for kidney cancer in the EMR lead or trail <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> and by how much?</caption>
+<caption>Table XIII: For patients with NAACCR records, how often do ICD9 or ICD10 codes for kidney cancer in the EMR lead or trail <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> and by how much?</caption>
 <colgroup>
 <col style="width: 25%"></col>
 <col style="width: 12%"></col>
@@ -2181,7 +2844,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <h6>blank</h6>
 <div id="tbl:priordiag">
 <table>
-<caption>Table X: As can be seen in the table below, the variables <a href="#e_i9neph" title="V45.73 Acquired absence of kidney"><code>V45.73 Acquired absence of kidney</code></a>, <a href="#e_hstneph" title="HX NEPHRECTOMY"><code>HX NEPHRECTOMY</code></a>, <a href="#e_surgonc" title="Surgical Oncology"><code>Surgical Oncology</code></a>, and <a href="#e_i10neph" title="Z90.5 Acquired absence of kidney"><code>Z90.5 Acquired absence of kidney</code></a> <em>sometimes</em> precede <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> by many weeks but they <em>usually</em> follow <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> by more weeks than do <a href="#n_dsdisc" title="3180 RX Date--Surgical Disch"><code>3180 RX Date--Surgical Disch</code></a> and <a href="#n_dsurg" title="1200 RX Date--Surgery"><code>1200 RX Date--Surgery</code></a>. Those two NAACCR variables never occur before <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> and usually occur within 2-8 weeks after it. This is another way of summarizing how much the EMR variables lag behind NAACCR variables.</caption>
+<caption>Table XIV: As can be seen in the table below, the variables <a href="#e_i9neph" title="V45.73 Acquired absence of kidney"><code>V45.73 Acquired absence of kidney</code></a>, <a href="#e_hstneph" title="HX NEPHRECTOMY"><code>HX NEPHRECTOMY</code></a>, <a href="#e_surgonc" title="Surgical Oncology"><code>Surgical Oncology</code></a>, and <a href="#e_i10neph" title="Z90.5 Acquired absence of kidney"><code>Z90.5 Acquired absence of kidney</code></a> <em>sometimes</em> precede <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> by many weeks but they <em>usually</em> follow <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> by more weeks than do <a href="#n_dsdisc" title="3180 RX Date--Surgical Disch"><code>3180 RX Date--Surgical Disch</code></a> and <a href="#n_dsurg" title="1200 RX Date--Surgery"><code>1200 RX Date--Surgery</code></a>. Those two NAACCR variables never occur before <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> and usually occur within 2-8 weeks after it. This is another way of summarizing how much the EMR variables lag behind NAACCR variables.</caption>
 <colgroup>
 <col style="width: 34%"></col>
 <col style="width: 9%"></col>
@@ -2301,7 +2964,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <p>It makes sense that the Epic EMR lags behind NAACCR. As an outpatient system, it’s probably recording visits after the original surgery, and perhaps we are not yet importing the right elements from Sunrise EMR. In <a href="#sec:nextsteps">sec. 5</a> I outline possible remedies to that. For now, <a href="#e_i9neph" title="V45.73 Acquired absence of kidney"><code>V45.73 Acquired absence of kidney</code></a>, <a href="#e_hstneph" title="HX NEPHRECTOMY"><code>HX NEPHRECTOMY</code></a>, <a href="#e_surgonc" title="Surgical Oncology"><code>Surgical Oncology</code></a>, and <a href="#e_i10neph" title="Z90.5 Acquired absence of kidney"><code>Z90.5 Acquired absence of kidney</code></a> can still be used to exclude cases as not first-time occurrences if it precedes diagnosis. Would I lose a lot of cases to such a criterion?</p>
 <div id="tbl:neph_b4_diag">
 <table style="width:96%;">
-<caption>Table XI: How often ICD9/10 or surgical history codes for nephrectomy precede diagnosis and by how much</caption>
+<caption>Table XV: How often ICD9/10 or surgical history codes for nephrectomy precede diagnosis and by how much</caption>
 <colgroup>
 <col style="width: 45%"></col>
 <col style="width: 12%"></col>
@@ -2381,7 +3044,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <p>Only a small number of cases would be disqualified. Another important question is the level of agreement between <a href="#n_surgreason" title="1340 Reason for No Surgery"><code>1340 Reason for No Surgery</code></a> and the NAACCR data elements that are candidates for comprising the surgery variable.</p>
 <div id="tbl:srgvars">
 <table>
-<caption>Table XII: Every NAACCR candidate data element (columns) tabulated against <a href="#n_surgreason" title="1340 Reason for No Surgery"><code>1340 Reason for No Surgery</code></a> (rows). The bold cells are ones consistent with their respective data elements indicating the primary surgery. The second row is italicized because surgery may still occur as a non-primary course of treatment. Nevertheless the counts in the <code>FALSE</code> columns should be greater than the counts in the <code>TRUE</code> columns for every row except the first. <a href="#n_rx3170" title="3170 RX Date--Most Defin Surg"><code>3170 RX Date--Most Defin Surg</code></a> and <a href="#n_dsurg" title="1200 RX Date--Surgery"><code>1200 RX Date--Surgery</code></a> are in close agreement with each other and have the fewest deviations from expected behavior of a primary surgery data element</caption>
+<caption>Table XVI: Every NAACCR candidate data element (columns) tabulated against <a href="#n_surgreason" title="1340 Reason for No Surgery"><code>1340 Reason for No Surgery</code></a> (rows). The bold cells are ones consistent with their respective data elements indicating the primary surgery. The second row is italicized because surgery may still occur as a non-primary course of treatment. Nevertheless the counts in the <code>FALSE</code> columns should be greater than the counts in the <code>TRUE</code> columns for every row except the first. <a href="#n_rx3170" title="3170 RX Date--Most Defin Surg"><code>3170 RX Date--Most Defin Surg</code></a> and <a href="#n_dsurg" title="1200 RX Date--Surgery"><code>1200 RX Date--Surgery</code></a> are in close agreement with each other and have the fewest deviations from expected behavior of a primary surgery data element</caption>
 <colgroup>
 <col style="width: 17%"></col>
 <col style="width: 10%"></col>
@@ -2498,17 +3161,17 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 </tbody>
 </table>
 </div>
-<p>In summary, based on <a href="#fig:surg0_plot0">fig. 6</a> and <a href="#tbl:diag_lag">table IX</a> <a href="#e_i9neph" title="V45.73 Acquired absence of kidney"><code>V45.73 Acquired absence of kidney</code></a>, <a href="#e_hstneph" title="HX NEPHRECTOMY"><code>HX NEPHRECTOMY</code></a>, <a href="#e_surgonc" title="Surgical Oncology"><code>Surgical Oncology</code></a>, and <a href="#e_i10neph" title="Z90.5 Acquired absence of kidney"><code>Z90.5 Acquired absence of kidney</code></a> can only be used to disqualify patients for having erroneous records or previous history of kidney cancer but cannot fill in missing diagnosis dates. Based on figs. <a href="#fig:surg0_plot1">7</a>, <a href="#fig:surg1_plot">8</a>, and <a href="#tbl:rectype_cstatus">table XIII</a> <a href="#n_rx1270" title="1270 Date of 1st Crs RX--CoC"><code>1270 Date of 1st Crs RX--CoC</code></a> and <a href="#n_rx1260" title="1260 Date of Initial RX--SEER"><code>1260 Date of Initial RX--SEER</code></a> are not necessarily always surgery events. This leaves <a href="#n_rx3170" title="3170 RX Date--Most Defin Surg"><code>3170 RX Date--Most Defin Surg</code></a> with <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> as a fallback. <a href="https://github.com/bokov/kl2_kc_analysis/issues/4.4" id="gh4.4" class="note2self" data-custom-style="note2self">When I meet with the NAACCR regisrar I will seek their feedback about this approach and I will ask them about the most reliable way to identify the first kidney cancer occurrence for a patient if they have several (overlapping?) NAACCR entries. I also need to ask a chart abstraction expert about the best way to find in Epic and in Sunrise the date of a patient’s first nephrectomy</a></p>
+<p>In summary, based on <a href="#fig:surg0_plot0">fig. 6</a> and <a href="#tbl:diag_lag">table XIII</a> <a href="#e_i9neph" title="V45.73 Acquired absence of kidney"><code>V45.73 Acquired absence of kidney</code></a>, <a href="#e_hstneph" title="HX NEPHRECTOMY"><code>HX NEPHRECTOMY</code></a>, <a href="#e_surgonc" title="Surgical Oncology"><code>Surgical Oncology</code></a>, and <a href="#e_i10neph" title="Z90.5 Acquired absence of kidney"><code>Z90.5 Acquired absence of kidney</code></a> can only be used to disqualify patients for having erroneous records or previous history of kidney cancer but cannot fill in missing diagnosis dates. Based on figs. <a href="#fig:surg0_plot1">7</a>, <a href="#fig:surg1_plot">8</a>, and <a href="#tbl:rectype_cstatus">table XVII</a> <a href="#n_rx1270" title="1270 Date of 1st Crs RX--CoC"><code>1270 Date of 1st Crs RX--CoC</code></a> and <a href="#n_rx1260" title="1260 Date of Initial RX--SEER"><code>1260 Date of Initial RX--SEER</code></a> are not necessarily always surgery events. This leaves <a href="#n_rx3170" title="3170 RX Date--Most Defin Surg"><code>3170 RX Date--Most Defin Surg</code></a> with <a href="#n_ddiag" title="0390 Date of Diagnosis"><code>0390 Date of Diagnosis</code></a> as a fallback. <a href="https://github.com/bokov/kl2_kc_analysis/issues/4.4" id="gh4.4" class="note2self" data-custom-style="note2self">When I meet with the NAACCR regisrar I will seek their feedback about this approach and I will ask them about the most reliable way to identify the first kidney cancer occurrence for a patient if they have several (overlapping?) NAACCR entries. I also need to ask a chart abstraction expert about the best way to find in Epic and in Sunrise the date of a patient’s first nephrectomy</a></p>
 </section>
 </section>
 <section id="sec:recur" class="level3">
 <h3>Appendix 3.2.3 Re-occurrence</h3>
-<p>Candidate data elements for constructing the <a href="#a_trecur" title="Recurrence"><code>Recurrence</code></a> variable were <a href="#n_cstatus" title="1770 Cancer Status"><code>1770 Cancer Status</code></a>, <a href="#n_rectype" title="1880 Recurrence Type--1st"><code>1880 Recurrence Type--1st</code></a>, and <a href="#n_drecur" title="1860 Recurrence Date--1st"><code>1860 Recurrence Date--1st</code></a> from NAACCR. Our site is on NAACCR v16, not v18, so we do not have <a href="http://datadictionary.naaccr.org/default.aspx?c=10#1772"><code>1772 Date of Last Cancer Status</code></a>. According to the v16 standard, <a href="#n_lc" title="1750 Date of Last Contact"><code>1750 Date of Last Contact</code></a> should be used instead. From the EMR the candidates were 14 ICD9/10 codes for secondary tumors. In <a href="#tbl:rectype_cstatus">table XIII</a> I reconcile <a href="#n_cstatus" title="1770 Cancer Status"><code>1770 Cancer Status</code></a> and <a href="#n_rectype" title="1880 Recurrence Type--1st"><code>1880 Recurrence Type--1st</code></a>.</p>
+<p>Candidate data elements for constructing the <a href="#a_trecur" title="Recurrence"><code>Recurrence</code></a> variable were <a href="#n_cstatus" title="1770 Cancer Status"><code>1770 Cancer Status</code></a>, <a href="#n_rectype" title="1880 Recurrence Type--1st"><code>1880 Recurrence Type--1st</code></a>, and <a href="#n_drecur" title="1860 Recurrence Date--1st"><code>1860 Recurrence Date--1st</code></a> from NAACCR. Our site is on NAACCR v16, not v18, so we do not have <a href="http://datadictionary.naaccr.org/default.aspx?c=10#1772"><code>1772 Date of Last Cancer Status</code></a>. According to the v16 standard, <a href="#n_lc" title="1750 Date of Last Contact"><code>1750 Date of Last Contact</code></a> should be used instead. From the EMR the candidates were 14 ICD9/10 codes for secondary tumors. In <a href="#tbl:rectype_cstatus">table XVII</a> I reconcile <a href="#n_cstatus" title="1770 Cancer Status"><code>1770 Cancer Status</code></a> and <a href="#n_rectype" title="1880 Recurrence Type--1st"><code>1880 Recurrence Type--1st</code></a>.</p>
 <section id="blank-9" class="level6">
 <h6>blank</h6>
 <div id="tbl:rectype_cstatus">
 <table style="width:89%;">
-<caption>Table XIII: <a href="#n_cstatus" title="1770 Cancer Status"><code>1770 Cancer Status</code></a> is in good agreement with <a href="#n_rectype" title="1880 Recurrence Type--1st"><code>1880 Recurrence Type--1st</code></a>. Almost all <a href="#n_cstatus" title="1770 Cancer Status"><code>1770 Cancer Status</code></a> <code>Tumor_Free</code> patients also have <code>Disease-free</code> in their <a href="#n_rectype" title="1880 Recurrence Type--1st"><code>1880 Recurrence Type--1st</code></a> column, the <code>Tumor</code> ones have a variety of values, and the <code>Unknown</code> ones are mostly <code>Unknown if recurred or was  ever gone</code>.</caption>
+<caption>Table XVII: <a href="#n_cstatus" title="1770 Cancer Status"><code>1770 Cancer Status</code></a> is in good agreement with <a href="#n_rectype" title="1880 Recurrence Type--1st"><code>1880 Recurrence Type--1st</code></a>. Almost all <a href="#n_cstatus" title="1770 Cancer Status"><code>1770 Cancer Status</code></a> <code>Tumor_Free</code> patients also have <code>Disease-free</code> in their <a href="#n_rectype" title="1880 Recurrence Type--1st"><code>1880 Recurrence Type--1st</code></a> column, the <code>Tumor</code> ones have a variety of values, and the <code>Unknown</code> ones are mostly <code>Unknown if recurred or was  ever gone</code>.</caption>
 <colgroup>
 <col style="width: 45%"></col>
 <col style="width: 18%"></col>
@@ -2674,7 +3337,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <h6>blank</h6>
 <div id="tbl:rectype_drecur">
 <table style="width:96%;">
-<caption>Table XIV: Here is the condensed version after having followed the above rules. Looks like the only ones who have a <a href="#n_drecur" title="1860 Recurrence Date--1st"><code>1860 Recurrence Date--1st</code></a> are the ones which also have a <code>Recurred</code> status for <a href="#a_n_recur" title="Recurrence Status"><code>Recurrence Status</code></a> (with 19 missing an <a href="#n_drecur" title="1860 Recurrence Date--1st"><code>1860 Recurrence Date--1st</code></a>). The only exception is 1 <code>Never diease-free</code> patient with a <a href="#n_drecur" title="1860 Recurrence Date--1st"><code>1860 Recurrence Date--1st</code></a></caption>
+<caption>Table XVIII: Here is the condensed version after having followed the above rules. Looks like the only ones who have a <a href="#n_drecur" title="1860 Recurrence Date--1st"><code>1860 Recurrence Date--1st</code></a> are the ones which also have a <code>Recurred</code> status for <a href="#a_n_recur" title="Recurrence Status"><code>Recurrence Status</code></a> (with 19 missing an <a href="#n_drecur" title="1860 Recurrence Date--1st"><code>1860 Recurrence Date--1st</code></a>). The only exception is 1 <code>Never diease-free</code> patient with a <a href="#n_drecur" title="1860 Recurrence Date--1st"><code>1860 Recurrence Date--1st</code></a></caption>
 <colgroup>
 <col style="width: 43%"></col>
 <col style="width: 26%"></col>
@@ -2738,7 +3401,7 @@ This portion of the study is under Dr. Michalek’s exempt project IRB number H
 <h6>blank</h6>
 <div id="tbl:etabledeath">
 <table>
-<caption>Table XV: Date associated with <a href="#n_vtstat" title="1760 Vital Status"><code>1760 Vital Status</code></a> compared to death dates from each source (rows). The first five columns represent the number of patients falling into each of the time-bins (in days) relative to <a href="#n_vtstat" title="1760 Vital Status"><code>1760 Vital Status</code></a>. The last four columns indicate the number of patients for each possible combination of missing values (<code>Left</code> means the variable indicated in the row name is missing and <code>Right</code> means <a href="#n_vtstat" title="1760 Vital Status"><code>1760 Vital Status</code></a> is missing). The parenthesized values below the counts are percentages (of the total number of patients with both variables non-missing for the first five columns and of the total number of patients for the last four columns). Where available, the median difference in days is shown below the count and percentage. This table has only the 486 patients having a kidney cancer diagnosis in NAACCR. The last two rows represent the earliest and latest documentation of death, respectively, from <a href="#s_death" title="Deceased per SSA"><code>Deceased per SSA</code></a>, <a href="#e_dscdeath" title="Expired"><code>Expired</code></a>, <a href="#e_death" title="Death, i2b2"><code>Death, i2b2</code></a>, <a href="#Earliest%20Death" title="Earliest Death"><code>Earliest Death</code></a>, and <a href="#Latest%20Death" title="Latest Death"><code>Latest Death</code></a></caption>
+<caption>Table XIX: Date associated with <a href="#n_vtstat" title="1760 Vital Status"><code>1760 Vital Status</code></a> compared to death dates from each source (rows). The first five columns represent the number of patients falling into each of the time-bins (in days) relative to <a href="#n_vtstat" title="1760 Vital Status"><code>1760 Vital Status</code></a>. The last four columns indicate the number of patients for each possible combination of missing values (<code>Left</code> means the variable indicated in the row name is missing and <code>Right</code> means <a href="#n_vtstat" title="1760 Vital Status"><code>1760 Vital Status</code></a> is missing). The parenthesized values below the counts are percentages (of the total number of patients with both variables non-missing for the first five columns and of the total number of patients for the last four columns). Where available, the median difference in days is shown below the count and percentage. This table has only the 486 patients having a kidney cancer diagnosis in NAACCR. The last two rows represent the earliest and latest documentation of death, respectively, from <a href="#s_death" title="Deceased per SSA"><code>Deceased per SSA</code></a>, <a href="#e_dscdeath" title="Expired"><code>Expired</code></a>, <a href="#e_death" title="Death, i2b2"><code>Death, i2b2</code></a>, <a href="#Earliest%20Death" title="Earliest Death"><code>Earliest Death</code></a>, and <a href="#Latest%20Death" title="Latest Death"><code>Latest Death</code></a></caption>
 <colgroup>
 <col style="width: 24%"></col>
 <col style="width: 8%"></col>
@@ -2925,8 +3588,8 @@ missing</th>
 </tbody>
 </table>
 </div>
-<p>In <a href="#tbl:etabledeath">table XV</a> the sum of the <code>Neither missing</code> and <code>Left missing</code> is always 93 which is the number of deceased patients according to NAACCR records alone. The <code>Right missing</code> column is the number of patients whose deceased status is recorded in the external source but not in NAACCR. For the last two rows <code>Right missing</code> means the total number of deceased patients not recorded in NAACCR but which can be filled in from one or more of the other sources. There are 47 such patients. Finally the last column, <code>Both missing</code>, is the number of patients presumed to be alive because none of the sources have any evidence for being deceased. The <code>Left missing</code> column indicates how many patients are reported deceased in NAACCR but <em>not</em> the other source. Though there are some missing for each individual data source, NAACCR is never the only source reporting them deceased– the values in the bottom two rows are both 0.</p>
-<p>The left-side columns of <a href="#tbl:etabledeath">table XV</a> show the prevalence and magnitude of discrepancies in death dates of the 93 patients that NAACCR and at least one other source agree are deceased. There are at most 10 such patients and for 9 of them the discrepancy is less than one month, with a median difference ranging from -5 to 5.5 days. <strong>The small number of discrepancies and the small magnitude of the ones that do occur justify filling in missing NAACCR death dates from the other sources.</strong></p>
+<p>In <a href="#tbl:etabledeath">table XIX</a> the sum of the <code>Neither missing</code> and <code>Left missing</code> is always 93 which is the number of deceased patients according to NAACCR records alone. The <code>Right missing</code> column is the number of patients whose deceased status is recorded in the external source but not in NAACCR. For the last two rows <code>Right missing</code> means the total number of deceased patients not recorded in NAACCR but which can be filled in from one or more of the other sources. There are 47 such patients. Finally the last column, <code>Both missing</code>, is the number of patients presumed to be alive because none of the sources have any evidence for being deceased. The <code>Left missing</code> column indicates how many patients are reported deceased in NAACCR but <em>not</em> the other source. Though there are some missing for each individual data source, NAACCR is never the only source reporting them deceased– the values in the bottom two rows are both 0.</p>
+<p>The left-side columns of <a href="#tbl:etabledeath">table XIX</a> show the prevalence and magnitude of discrepancies in death dates of the 93 patients that NAACCR and at least one other source agree are deceased. There are at most 10 such patients and for 9 of them the discrepancy is less than one month, with a median difference ranging from -5 to 5.5 days. <strong>The small number of discrepancies and the small magnitude of the ones that do occur justify filling in missing NAACCR death dates from the other sources.</strong></p>
 </section>
 </section>
 <section id="sec:hispanic" class="level3">
@@ -2942,7 +3605,7 @@ missing</th>
 <p>In the end, <a href="#a_hsp_naaccr" title="Hispanic (NAACCR)"><code>Hispanic (NAACCR)</code></a>, <a href="#a_hsp_broad" title="Hispanic (broad)"><code>Hispanic (broad)</code></a>, and <a href="#a_hsp_strict" title="Hispanic (strict)"><code>Hispanic (strict)</code></a> all have the same levels, but differ in the proportion of patients assigned to each.</p>
 <div id="tbl:hspcounts">
 <table>
-<caption>Table XVI: The agreement and disagreement between <a href="#a_hsp_naaccr" title="Hispanic (NAACCR)"><code>Hispanic (NAACCR)</code></a>, <a href="#a_hsp_broad" title="Hispanic (broad)"><code>Hispanic (broad)</code></a>, and <a href="#a_hsp_strict" title="Hispanic (strict)"><code>Hispanic (strict)</code></a> The bottom 7 rows represent the kidney cancer patients currently without NAACCR records, so for them <a href="#a_hsp_naaccr" title="Hispanic (NAACCR)"><code>Hispanic (NAACCR)</code></a> does not exist.</caption>
+<caption>Table XX: The agreement and disagreement between <a href="#a_hsp_naaccr" title="Hispanic (NAACCR)"><code>Hispanic (NAACCR)</code></a>, <a href="#a_hsp_broad" title="Hispanic (broad)"><code>Hispanic (broad)</code></a>, and <a href="#a_hsp_strict" title="Hispanic (strict)"><code>Hispanic (strict)</code></a> The bottom 7 rows represent the kidney cancer patients currently without NAACCR records, so for them <a href="#a_hsp_naaccr" title="Hispanic (NAACCR)"><code>Hispanic (NAACCR)</code></a> does not exist.</caption>
 <colgroup>
 <col style="width: 29%"></col>
 <col style="width: 27%"></col>
@@ -3267,160 +3930,6 @@ missing</th>
 </dl>
 <hr />
 </section>
-<section id="v022_drvd_ajcc_stg" class="level6">
-<h6>v022_drvd_ajcc_stg</h6>
-<dl>
-<dt>3430 Derived AJCC-7 Stage Grp :</dt>
-<dd><p>3430 Derived AJCC-7 Stage Grp</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3430" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3430</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v023_drvd_dscrpt" class="level6">
-<h6>v023_drvd_dscrpt</h6>
-<dl>
-<dt>3422 Derived AJCC-7 M Descript :</dt>
-<dd><p>3422 Derived AJCC-7 M Descript</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3422" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3422</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v024_drvd_ajcc_m" class="level6">
-<h6>v024_drvd_ajcc_m</h6>
-<dl>
-<dt>3420 Derived AJCC-7 M :</dt>
-<dd><p>3420 Derived AJCC-7 M</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3420" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3420</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v025_drvd_dscrpt" class="level6">
-<h6>v025_drvd_dscrpt</h6>
-<dl>
-<dt>3412 Derived AJCC-7 N Descript :</dt>
-<dd><p>3412 Derived AJCC-7 N Descript</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3412" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3412</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v026_drvd_ajcc_n" class="level6">
-<h6>v026_drvd_ajcc_n</h6>
-<dl>
-<dt>3410 Derived AJCC-7 N :</dt>
-<dd><p>3410 Derived AJCC-7 N</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3410" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3410</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v027_drvd_dscrpt" class="level6">
-<h6>v027_drvd_dscrpt</h6>
-<dl>
-<dt>3402 Derived AJCC-7 T Descript :</dt>
-<dd><p>3402 Derived AJCC-7 T Descript</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3402" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3402</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v028_drvd_ajcc_t" class="level6">
-<h6>v028_drvd_ajcc_t</h6>
-<dl>
-<dt>3400 Derived AJCC-7 T :</dt>
-<dd><p>3400 Derived AJCC-7 T</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3400" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3400</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v029_drvd_ajcc_stg" class="level6">
-<h6>v029_drvd_ajcc_stg</h6>
-<dl>
-<dt>3000 Derived AJCC-6 Stage Grp :</dt>
-<dd><p>3000 Derived AJCC-6 Stage Grp</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3000" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3000</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v030_drvd_dscrpt" class="level6">
-<h6>v030_drvd_dscrpt</h6>
-<dl>
-<dt>2990 Derived AJCC-6 M Descript :</dt>
-<dd><p>2990 Derived AJCC-6 M Descript</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2990" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2990</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v031_drvd_ajcc_m" class="level6">
-<h6>v031_drvd_ajcc_m</h6>
-<dl>
-<dt>2980 Derived AJCC-6 M :</dt>
-<dd><p>2980 Derived AJCC-6 M</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2980" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2980</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v032_drvd_dscrpt" class="level6">
-<h6>v032_drvd_dscrpt</h6>
-<dl>
-<dt>2970 Derived AJCC-6 N Descript :</dt>
-<dd><p>2970 Derived AJCC-6 N Descript</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2970" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2970</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v033_drvd_ajcc_n" class="level6">
-<h6>v033_drvd_ajcc_n</h6>
-<dl>
-<dt>2960 Derived AJCC-6 N :</dt>
-<dd><p>2960 Derived AJCC-6 N</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2960" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2960</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v034_drvd_dscrpt" class="level6">
-<h6>v034_drvd_dscrpt</h6>
-<dl>
-<dt>2950 Derived AJCC-6 T Descript :</dt>
-<dd><p>2950 Derived AJCC-6 T Descript</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2950" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2950</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v035_drvd_ajcc_t" class="level6">
-<h6>v035_drvd_ajcc_t</h6>
-<dl>
-<dt>2940 Derived AJCC-6 T :</dt>
-<dd><p>2940 Derived AJCC-6 T</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2940" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2940</a></p>
-</dd>
-</dl>
-<hr />
-</section>
 <section id="v037_tnm_pth_dscrptr" class="level6">
 <h6>v037_tnm_pth_dscrptr</h6>
 <dl>
@@ -3428,50 +3937,6 @@ missing</th>
 <dd><p>0920 TNM Path Descriptor</p>
 </dd>
 <dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#920" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#920</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v051_tnm_cln_t" class="level6">
-<h6>v051_tnm_cln_t</h6>
-<dl>
-<dt>0940 TNM Clin T :</dt>
-<dd><p>0940 TNM Clin T</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#940" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#940</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v052_tnm_cln_n" class="level6">
-<h6>v052_tnm_cln_n</h6>
-<dl>
-<dt>0950 TNM Clin N :</dt>
-<dd><p>0950 TNM Clin N</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#950" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#950</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v053_tnm_cln_m" class="level6">
-<h6>v053_tnm_cln_m</h6>
-<dl>
-<dt>0960 TNM Clin M :</dt>
-<dd><p>0960 TNM Clin M</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#960" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#960</a></p>
-</dd>
-</dl>
-<hr />
-</section>
-<section id="v054_tnm_cln_stg_grp" class="level6">
-<h6>v054_tnm_cln_stg_grp</h6>
-<dl>
-<dt>0970 TNM Clin Stage Group :</dt>
-<dd><p>0970 TNM Clin Stage Group</p>
-</dd>
-<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#970" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#970</a></p>
 </dd>
 </dl>
 <hr />
@@ -3487,8 +3952,206 @@ missing</th>
 </dl>
 <hr />
 </section>
-<section id="v062_tnm_pth_stg_grp" class="level6">
-<h6>v062_tnm_pth_stg_grp</h6>
+<section id="n_a7sg" class="level6">
+<h6>n_a7sg</h6>
+<dl>
+<dt>3430 Derived AJCC-7 Stage Grp :</dt>
+<dd><p>3430 Derived AJCC-7 Stage Grp</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3430" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3430</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a7md" class="level6">
+<h6>n_a7md</h6>
+<dl>
+<dt>3422 Derived AJCC-7 M Descript :</dt>
+<dd><p>3422 Derived AJCC-7 M Descript</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3422" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3422</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a7m" class="level6">
+<h6>n_a7m</h6>
+<dl>
+<dt>3420 Derived AJCC-7 M :</dt>
+<dd><p>3420 Derived AJCC-7 M</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3420" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3420</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a7nd" class="level6">
+<h6>n_a7nd</h6>
+<dl>
+<dt>3412 Derived AJCC-7 N Descript :</dt>
+<dd><p>3412 Derived AJCC-7 N Descript</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3412" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3412</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a7n" class="level6">
+<h6>n_a7n</h6>
+<dl>
+<dt>3410 Derived AJCC-7 N :</dt>
+<dd><p>3410 Derived AJCC-7 N</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3410" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3410</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a7td" class="level6">
+<h6>n_a7td</h6>
+<dl>
+<dt>3402 Derived AJCC-7 T Descript :</dt>
+<dd><p>3402 Derived AJCC-7 T Descript</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3402" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3402</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a7t" class="level6">
+<h6>n_a7t</h6>
+<dl>
+<dt>3400 Derived AJCC-7 T :</dt>
+<dd><p>3400 Derived AJCC-7 T</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3400" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3400</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a6sg" class="level6">
+<h6>n_a6sg</h6>
+<dl>
+<dt>3000 Derived AJCC-6 Stage Grp :</dt>
+<dd><p>3000 Derived AJCC-6 Stage Grp</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#3000" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#3000</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a6md" class="level6">
+<h6>n_a6md</h6>
+<dl>
+<dt>2990 Derived AJCC-6 M Descript :</dt>
+<dd><p>2990 Derived AJCC-6 M Descript</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2990" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2990</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a6m" class="level6">
+<h6>n_a6m</h6>
+<dl>
+<dt>2980 Derived AJCC-6 M :</dt>
+<dd><p>2980 Derived AJCC-6 M</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2980" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2980</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a6nd" class="level6">
+<h6>n_a6nd</h6>
+<dl>
+<dt>2970 Derived AJCC-6 N Descript :</dt>
+<dd><p>2970 Derived AJCC-6 N Descript</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2970" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2970</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a6n" class="level6">
+<h6>n_a6n</h6>
+<dl>
+<dt>2960 Derived AJCC-6 N :</dt>
+<dd><p>2960 Derived AJCC-6 N</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2960" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2960</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a6td" class="level6">
+<h6>n_a6td</h6>
+<dl>
+<dt>2950 Derived AJCC-6 T Descript :</dt>
+<dd><p>2950 Derived AJCC-6 T Descript</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2950" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2950</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_a6t" class="level6">
+<h6>n_a6t</h6>
+<dl>
+<dt>2940 Derived AJCC-6 T :</dt>
+<dd><p>2940 Derived AJCC-6 T</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#2940" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#2940</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_ct" class="level6">
+<h6>n_ct</h6>
+<dl>
+<dt>0940 TNM Clin T :</dt>
+<dd><p>0940 TNM Clin T</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#940" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#940</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_cn" class="level6">
+<h6>n_cn</h6>
+<dl>
+<dt>0950 TNM Clin N :</dt>
+<dd><p>0950 TNM Clin N</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#950" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#950</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_cm" class="level6">
+<h6>n_cm</h6>
+<dl>
+<dt>0960 TNM Clin M :</dt>
+<dd><p>0960 TNM Clin M</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#960" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#960</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_csg" class="level6">
+<h6>n_csg</h6>
+<dl>
+<dt>0970 TNM Clin Stage Group :</dt>
+<dd><p>0970 TNM Clin Stage Group</p>
+</dd>
+<dd><p>Link: <a href="http://datadictionary.naaccr.org/default.aspx?c=10#970" class="uri">http://datadictionary.naaccr.org/default.aspx?c=10#970</a></p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="n_psg" class="level6">
+<h6>n_psg</h6>
 <dl>
 <dt>0910 TNM Path Stage Group :</dt>
 <dd><p>0910 TNM Path Stage Group</p>
@@ -3498,8 +4161,8 @@ missing</th>
 </dl>
 <hr />
 </section>
-<section id="v073_tnm_pth_m" class="level6">
-<h6>v073_tnm_pth_m</h6>
+<section id="n_pm" class="level6">
+<h6>n_pm</h6>
 <dl>
 <dt>0900 TNM Path M :</dt>
 <dd><p>0900 TNM Path M</p>
@@ -3509,8 +4172,8 @@ missing</th>
 </dl>
 <hr />
 </section>
-<section id="v074_tnm_pth_n" class="level6">
-<h6>v074_tnm_pth_n</h6>
+<section id="n_pn" class="level6">
+<h6>n_pn</h6>
 <dl>
 <dt>0890 TNM Path N :</dt>
 <dd><p>0890 TNM Path N</p>
@@ -3520,8 +4183,8 @@ missing</th>
 </dl>
 <hr />
 </section>
-<section id="v079_tnm_pth_t" class="level6">
-<h6>v079_tnm_pth_t</h6>
+<section id="n_pt" class="level6">
+<h6>n_pt</h6>
 <dl>
 <dt>0880 TNM Path T :</dt>
 <dd><p>0880 TNM Path T</p>
@@ -3768,6 +4431,15 @@ missing</th>
 <dl>
 <dt>Recurrence Status :</dt>
 <dd><p>Recurrence Status; Recurrence Status; <em>This is the main analytic variable for recurrence.</em> This is based on <a href="#n_rectype" title="1880 Recurrence Type--1st"><code>n_rectype</code></a> but with all values that signify recurrence binned together leaving <code>Unknown if recurred or was ever gone</code>,<code>Never disease-free</code>,<code>Disease-free</code>, and <code>Recurred</code>.</p>
+</dd>
+</dl>
+<hr />
+</section>
+<section id="start_date" class="level6">
+<h6>start_date</h6>
+<dl>
+<dt>start_date :</dt>
+<dd><p>start_date</p>
 </dd>
 </dl>
 <hr />
@@ -4031,189 +4703,189 @@ missing</th>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">0001</td>
-<td style="text-align: left;">2018-10-12 21:33:45</td>
+<td style="text-align: left;">2018-10-16 17:22:29</td>
 <td style="text-align: left;">info</td>
 <td style="text-align: left;">sessionInfo</td>
 <td style="text-align: left;">-</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0002</td>
-<td style="text-align: left;">2018-10-12 21:33:45</td>
+<td style="text-align: left;">2018-10-16 17:22:29</td>
 <td style="text-align: left;">this_script</td>
 <td style="text-align: left;">exploration.spin.Rmd</td>
-<td style="text-align: left;">b49ac7b</td>
+<td style="text-align: left;">4dff158</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0003</td>
-<td style="text-align: left;">2018-10-12 21:33:56</td>
+<td style="text-align: left;">2018-10-16 17:23:10</td>
 <td style="text-align: left;">rdata</td>
 <td style="text-align: left;">.depdata[ii] = “dictionary.R.rdata”</td>
-<td style="text-align: left;">977f2666ffb2064ef0759dd46ee9a2c9</td>
+<td style="text-align: left;">dbb49fe969d73218eddfdbe85670344e</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0004</td>
-<td style="text-align: left;">2018-10-12 21:34:03</td>
+<td style="text-align: left;">2018-10-16 17:26:03</td>
 <td style="text-align: left;">rdata</td>
 <td style="text-align: left;">.depdata[ii] = “data.R.rdata”</td>
-<td style="text-align: left;">3aee7bf27fc820668b71dfea8a2c0e1a</td>
+<td style="text-align: left;">b9233974e7a29b4c5d27a1603013438d</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0003.0001</td>
-<td style="text-align: left;">2018-10-12 09:18:32</td>
+<td style="text-align: left;">2018-10-16 17:22:34</td>
 <td style="text-align: left;">info</td>
 <td style="text-align: left;">sessionInfo</td>
 <td style="text-align: left;">-</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0003.0002</td>
-<td style="text-align: left;">2018-10-12 09:18:32</td>
+<td style="text-align: left;">2018-10-16 17:22:34</td>
 <td style="text-align: left;">this_script</td>
 <td style="text-align: left;">dictionary.R</td>
-<td style="text-align: left;">e0aa19a</td>
+<td style="text-align: left;">4dff158</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0003.0003</td>
-<td style="text-align: left;">2018-10-12 09:18:52</td>
+<td style="text-align: left;">2018-10-16 17:22:35</td>
 <td style="text-align: left;">file</td>
 <td style="text-align: left;">inputdata = “local/in/HSC20170563N_kc_v200.int.csv”</td>
 <td style="text-align: left;">caa0a30bd87cd77659b118986cab73a4</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0003.0004</td>
-<td style="text-align: left;">2018-10-12 09:19:07</td>
+<td style="text-align: left;">2018-10-16 17:22:46</td>
 <td style="text-align: left;">file</td>
 <td style="text-align: left;">inputdata = “local/in/HSC20170563N_kc_v200.int.csv”</td>
 <td style="text-align: left;">caa0a30bd87cd77659b118986cab73a4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0003.0005</td>
-<td style="text-align: left;">2018-10-12 09:19:08</td>
+<td style="text-align: left;">2018-10-16 17:22:46</td>
 <td style="text-align: left;">file</td>
 <td style="text-align: left;">rawdct = “local/in/meta_HSC20170563N_kc_v200.int.csv”</td>
 <td style="text-align: left;">77226290495672d030798e64327fe10a</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0003.0006</td>
-<td style="text-align: left;">2018-10-12 09:19:08</td>
+<td style="text-align: left;">2018-10-16 17:22:46</td>
 <td style="text-align: left;">file</td>
 <td style="text-align: left;">tpldct = “datadictionary_static.csv”</td>
-<td style="text-align: left;">e1e120a2efd284d032682d8ff89235c6</td>
+<td style="text-align: left;">dc40ce6053d4edc459cb6a240f1cf8c6</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0003.0007</td>
-<td style="text-align: left;">2018-10-12 09:19:12</td>
+<td style="text-align: left;">2018-10-16 17:22:49</td>
 <td style="text-align: left;">info</td>
 <td style="text-align: left;">sessionInfo</td>
 <td style="text-align: left;">-</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0003.0008</td>
-<td style="text-align: left;">2018-10-12 09:19:12</td>
+<td style="text-align: left;">2018-10-16 17:22:49</td>
 <td style="text-align: left;">save</td>
 <td style="text-align: left;">save</td>
 <td style="text-align: left;">-</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0004.0001</td>
-<td style="text-align: left;">2018-10-12 09:19:57</td>
+<td style="text-align: left;">2018-10-16 17:23:15</td>
 <td style="text-align: left;">info</td>
 <td style="text-align: left;">sessionInfo</td>
 <td style="text-align: left;">-</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0004.0002</td>
-<td style="text-align: left;">2018-10-12 09:19:57</td>
+<td style="text-align: left;">2018-10-16 17:23:15</td>
 <td style="text-align: left;">this_script</td>
 <td style="text-align: left;">data.R</td>
-<td style="text-align: left;">e0aa19a</td>
+<td style="text-align: left;">4dff158</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0004.0003</td>
-<td style="text-align: left;">2018-10-12 09:20:10</td>
+<td style="text-align: left;">2018-10-16 17:23:26</td>
 <td style="text-align: left;">rdata</td>
 <td style="text-align: left;">.depdata = “dictionary.R.rdata”</td>
-<td style="text-align: left;">977f2666ffb2064ef0759dd46ee9a2c9</td>
+<td style="text-align: left;">dbb49fe969d73218eddfdbe85670344e</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0004.0004</td>
-<td style="text-align: left;">2018-10-12 09:20:10</td>
+<td style="text-align: left;">2018-10-16 17:23:26</td>
 <td style="text-align: left;">file</td>
 <td style="text-align: left;">levels_map_file = “levels_map.csv”</td>
-<td style="text-align: left;">4c66bc0cd1fd35eb9e64c3c49296a05f</td>
+<td style="text-align: left;">dade16a6df40d86457f024f52781e3b2</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0004.0005</td>
-<td style="text-align: left;">2018-10-12 09:20:55</td>
+<td style="text-align: left;">2018-10-16 17:24:07</td>
 <td style="text-align: left;">seed</td>
 <td style="text-align: left;">project_seed</td>
 <td style="text-align: left;">-</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0004.0006</td>
-<td style="text-align: left;">2018-10-12 09:22:42</td>
+<td style="text-align: left;">2018-10-16 17:25:35</td>
 <td style="text-align: left;">info</td>
 <td style="text-align: left;">sessionInfo</td>
 <td style="text-align: left;">-</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0004.0007</td>
-<td style="text-align: left;">2018-10-12 09:22:42</td>
+<td style="text-align: left;">2018-10-16 17:25:37</td>
 <td style="text-align: left;">save</td>
 <td style="text-align: left;">save</td>
 <td style="text-align: left;">-</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0004.0003.0001</td>
-<td style="text-align: left;">2018-10-12 09:18:32</td>
+<td style="text-align: left;">2018-10-16 17:22:34</td>
 <td style="text-align: left;">info</td>
 <td style="text-align: left;">sessionInfo</td>
 <td style="text-align: left;">-</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0004.0003.0002</td>
-<td style="text-align: left;">2018-10-12 09:18:32</td>
+<td style="text-align: left;">2018-10-16 17:22:34</td>
 <td style="text-align: left;">this_script</td>
 <td style="text-align: left;">dictionary.R</td>
-<td style="text-align: left;">e0aa19a</td>
+<td style="text-align: left;">4dff158</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0004.0003.0003</td>
-<td style="text-align: left;">2018-10-12 09:18:52</td>
+<td style="text-align: left;">2018-10-16 17:22:35</td>
 <td style="text-align: left;">file</td>
 <td style="text-align: left;">inputdata = “local/in/HSC20170563N_kc_v200.int.csv”</td>
 <td style="text-align: left;">caa0a30bd87cd77659b118986cab73a4</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0004.0003.0004</td>
-<td style="text-align: left;">2018-10-12 09:19:07</td>
+<td style="text-align: left;">2018-10-16 17:22:46</td>
 <td style="text-align: left;">file</td>
 <td style="text-align: left;">inputdata = “local/in/HSC20170563N_kc_v200.int.csv”</td>
 <td style="text-align: left;">caa0a30bd87cd77659b118986cab73a4</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0004.0003.0005</td>
-<td style="text-align: left;">2018-10-12 09:19:08</td>
+<td style="text-align: left;">2018-10-16 17:22:46</td>
 <td style="text-align: left;">file</td>
 <td style="text-align: left;">rawdct = “local/in/meta_HSC20170563N_kc_v200.int.csv”</td>
 <td style="text-align: left;">77226290495672d030798e64327fe10a</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0004.0003.0006</td>
-<td style="text-align: left;">2018-10-12 09:19:08</td>
+<td style="text-align: left;">2018-10-16 17:22:46</td>
 <td style="text-align: left;">file</td>
 <td style="text-align: left;">tpldct = “datadictionary_static.csv”</td>
-<td style="text-align: left;">e1e120a2efd284d032682d8ff89235c6</td>
+<td style="text-align: left;">dc40ce6053d4edc459cb6a240f1cf8c6</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">0004.0003.0007</td>
-<td style="text-align: left;">2018-10-12 09:19:12</td>
+<td style="text-align: left;">2018-10-16 17:22:49</td>
 <td style="text-align: left;">info</td>
 <td style="text-align: left;">sessionInfo</td>
 <td style="text-align: left;">-</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">0004.0003.0008</td>
-<td style="text-align: left;">2018-10-12 09:19:12</td>
+<td style="text-align: left;">2018-10-16 17:22:49</td>
 <td style="text-align: left;">save</td>
 <td style="text-align: left;">save</td>
 <td style="text-align: left;">-</td>
