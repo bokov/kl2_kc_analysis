@@ -180,4 +180,4 @@
 ,"AJCC6 T",,"a_n_a6t",,,,,,,,"FALSE",,,,,,,,,,,,,,,,"FALSE",,
 ,"AJCC6 N",,"a_n_a6n",,,,,,,,"FALSE",,,,,,,,,,,,,,,,,"FALSE",
 ,"AJCC6 M",,"a_n_a6m",,,,,,,,"FALSE",,,,,,,,,,,,,,,,,,"FALSE"
-,,,,,,,,,,,"FALSE",,,,,,,,,,,,,,,,,,
+,"NAACCR visit","This analytic indicator variable is set to `TRUE` if at least one NAACCR variable is non-missing during that visit.","a_n_visit",,,,,,,,"FALSE",,,,,,,,,,,,,,,,,,

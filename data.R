@@ -40,6 +40,8 @@ for(ii in v(c_natf)) dat1[[ii]] <- !is.na(dat1[[ii]]);
 names(dat1) <- submulti(names(dat1)
                         ,searchrep=as.matrix(na.omit(dct0[,c('colname','varname')]))
                         ,method='startsends');
+#' Indicator variable for whether or not a visit is directly included in NAACCR
+dat1$a_n_visit <- apply(dat0[,v(c_naaccr,dat0)],1,function(xx) any(!is.na(xx)));
 #' Mass relabel/reorder factor variables.
 for(ii in v(c_sortlabels,retcol='varname')){
   dat1[[ii]] <- factorclean(dat1[[ii]]
