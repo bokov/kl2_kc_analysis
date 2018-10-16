@@ -659,50 +659,84 @@ dat1tnmcounts <- subset(dat1,a_n_visit) %>% as.data.frame %>%
 # note that here the pipeline is nested within the sapply statement... the 
 # inline function is one big pipe. This is for viewing the counts of various 
 # TNM/stage values
-tnmtabs <- sapply(c('c_staget','c_stagen','c_stagem')
+tnmtabs <- sapply(c('c_stagegrp','c_staget','c_stagen','c_stagem')
                   ,function(xx) eval(substitute(v(xx),list(xx=xx))) %>% 
                     select(dat1tnmcounts,.) %>% table(useNA='if') %>% 
-                    as.data.frame %>% subset(Freq>0) %>% 
+                    as.data.frame(stringsAsFactors=F) %>% subset(Freq>0) %>% 
                     arrange(desc(Freq)),simplify = F);
 #' `r knitr::combine_words(fs(.astages))` are missing if and only if 
 #' `r knitr::combine_words(fs(paste0(.astages,'d')))` are also missing, 
 #' respectively. For the tables in this section, the counts are by visit rather
-#' than by unique patient.
+#' than by unique patient since the question of interest is how often do the 
+#' stages assigned to the same case agree with each other. Each of the tables 
+#' shows the 20 most common combinations of values.
+#' 
+#+ stagegrp
+.tc <- paste0('Frequency of various combinations of '
+              ,knitr::combine_words(fs(v(c_stagegrp))),' {#tbl:stagegrp}');
+
+pander(head(tnmtabs$c_stagegrp,20),col.names=c(fs(colnames(tnmtabs$c_stagegrp)[1:4])
+                                             ,'N'),caption=.tc);
+#' 
 #+ staget
 .tc <- paste0('Frequency of various combinations of '
 ,knitr::combine_words(fs(v(c_staget))),' {#tbl:staget}');
 
 pander(head(tnmtabs$c_staget,20),col.names=c(fs(colnames(tnmtabs$c_staget)[1:4])
-                                             ,'N'),caption=.tc)
+                                             ,'N'),caption=.tc);
 #' 
 #+ stagen
 .tc <- paste0('Frequency of various combinations of '
               ,knitr::combine_words(fs(v(c_stagen))),' {#tbl:stagen}');
 
 pander(head(tnmtabs$c_stagen,20),col.names=c(fs(colnames(tnmtabs$c_stagen)[1:4])
-                                             ,'N'),caption=.tc)
+                                             ,'N'),caption=.tc);
 #' 
 #+ stagem
 .tc <- paste0('Frequency of various combinations of '
               ,knitr::combine_words(fs(v(c_stagem))),' {#tbl:stagem}');
 
 pander(head(tnmtabs$c_stagem,20),col.names=c(fs(colnames(tnmtabs$c_stagem)[1:4])
-                                             ,'N'),caption=.tc)
+                                             ,'N'),caption=.tc);
 #' 
+#+ tnm_agree_miss
+.tnmmissvals <- c('N-',NA,'UNK','-');
+.tnmagree<-lapply(tnmtabs,function(xx) {
+  dd<-xx[!xx[,1]%in%.tnmmissvals&!xx[,2]%in%.tnmmissvals,];
+  sum(dd[dd[,1]==dd[,2],'Freq'])/sum(dd$Freq)*100}) %>% sprintf('%3.1f%%',.);
+.tnmnoa7 <- lapply(tnmtabs,function(xx) {
+  dd <- xx[-1,];
+  sum(dd[dd[,1]%in%.tnmmissvals,'Freq'])/sum(dd$Freq)*100}) %>% 
+  sprintf('%3.1f%%',.);
+.tnmrescueable <- lapply(tnmtabs,function(xx) {
+  #dd<-xx[!is.na(xx[,1])|!is.na(xx[,2]),];
+  dd <- xx[-1,];
+  sum(dd[dd[,1]%in%.tnmmissvals & !dd[,2]%in%.tnmmissvals,'Freq'])/
+    sum(dd$Freq)*100}) %>% sprintf('%3.1f%%',.);
+#' In [@tbl:stagegrp; @tbl:staget; @tbl:stagen; @tbl:stagem], when both the 
+#' AJCC-7 and AJCC-6 values are non-missing they agree with each other 
+#' `r knitr::combine_words(.tnmagree)` of the time for T, N, and M respectively.
+#' There are `r knitr::combine_words(.tnmnoa7)` AJCC-7 values missing but
+#' `r knitr::combine_words(.tnmrescueable)` can be filled in from AJCC-6 for T, 
+#' N, and M respectively.
 #' 
 .tc <- paste0('
 This is proof of feasibility for extracting stage and grade at diagnosis for 
 each NAACCR patient for import into the EMR system (e.g. Epic/Beacon). Clinical
 and pathology stage descriptors are also available in NAACCR. Here the '
-,fs('patient_num'),' are de-identified but with proper authorization they can 
-be mapped to MRNs or internal database index keys. {#tbl:stageraw}');
-subset(dat2a[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>% 
-  na.omit() %>% 
-  setNames(fs(c('patient_num',v(c_tnm)))) %>%
-  # show a sampling of rows and columns that fits on the page and remove the
-  # the extra quotation marks
-  `[`(1:15,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
-  pander(caption=.tc);
+,fs('patient_num'),' and ',fs('start_date'),' are de-identified but with proper 
+authorization they can be mapped to MRNs or internal database index 
+keys. {#tbl:stageraw}');
+dat1[,c('patient_num','start_date','n_a7t','n_a7n','n_a7m','n_a7sg')] %>% 
+  subset(patient_num %in% kcpatients.naaccr) %>% na.omit %>% head(20) %>% 
+  pander(.,col.names=fs(colnames(.)),caption=.tc);
+# subset(dat2a[,c('patient_num',v(c_tnm))],patient_num %in% kcpatients.naaccr) %>% 
+#   na.omit() %>% 
+#   setNames(fs(c('patient_num',v(c_tnm)))) %>%
+#   # show a sampling of rows and columns that fits on the page and remove the
+#   # the extra quotation marks
+#   `[`(1:15,1:8) %>% apply(2,function(xx) gsub('["]','',xx)) %>% 
+#   pander(caption=.tc);
 #' 
 # A2 next steps ---------------------------------------------------------------
 #formals(fs)$template <- fstmplts$link_colnamelong;
