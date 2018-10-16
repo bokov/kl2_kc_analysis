@@ -1077,7 +1077,7 @@ adjudicate_levels <- function(xx,levs=list(),...,DEFAULT=NA,MISSING=NA){
   # note that it's okay for levs to contain name-value pairs like FOO='FOO'
   ll <- names(levs);
   while(length(ll)>0){
-    if(xx %in% levs[[ll[1]]]) return(ll[1]) else (ll<-ll[-1]);
+    if(any(xx %in% levs[[ll[1]]])) return(ll[1]) else (ll<-ll[-1]);
   }
   if(is.na(DEFAULT)) return(tail(xx,1)) else return(DEFAULT);
 }
