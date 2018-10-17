@@ -65,6 +65,18 @@ dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>%
 #' Unified NAACCR diabetes comorbidity
 dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',xx))); 
 # kcpatients subsets -----------------------------------------------------------
+#' In preparation for eventual cohort dictionary of patient subsets
+sbs0 <- list(
+   emr = cm(substitute(e_kc_i10|e_kc_i9)
+               ,'Patients who have ICD codes for kidney cancer independently of 
+                 NAACCR')
+  ,naaccr = cm(substitute((n_seer_kcancer|n_kcancer)&n_ddiag)
+               ,'Patients who have kidney as the primary site according to 
+                 NAACCR')) %>% lapply(function(xx){
+                   cm(subset(dat1,eval(xx,env=dat1))$patient_num %>% unique
+                      ,attr(xx,'comment'))});
+sbs0$naaccr_bad_dob <- cm(intersect(sbs0$naaccr,kcpatients.bad_dob)
+                          ,' that are in NAACCR',append=T);
 #' Find the patients which had active kidney cancer (rather than starting with 
 #' pre-existing)... first pass
 kcpatients.emr <- subset(dat1,e_kc_i10|e_kc_i9)$patient_num %>% unique;
@@ -301,7 +313,12 @@ dat1 <- mutate(dat1,
                                             ,'non-Hispanic white','Other')
                                     ,a_hsp_naaccr));
 
-kcpatients.pre_existing <- subset(dat1,a_naive_tdiag>=0&a_tdiag<0)$patient_num %>% unique;
+sbs0$pre_existing <- 
+  kcpatients.pre_existing <-
+  cm(subset(dat1,a_naive_tdiag>=0&a_tdiag<0)$patient_num %>% unique
+     ,'Have any occurrence of a_naive_tdiag before the NAACCR date of surgery.
+       Not currently sure this really means pre-existing cancer or just n_tiag
+       is off.');
 
 cohorts <- data.frame(patient_num=unique(dat1$patient_num)) %>% 
   mutate( NAACCR=patient_num %in% kcpatients.naaccr
