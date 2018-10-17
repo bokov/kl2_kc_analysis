@@ -717,7 +717,7 @@ pander(head(tnmtabs$c_stagem,20),col.names=c(fs(colnames(tnmtabs$c_stagem)[1:4])
 #' AJCC-7 and AJCC-6 values are non-missing they agree with each other 
 #' `r knitr::combine_words(.tnmagree)` of the time for T, N, and M respectively.
 #' There are `r knitr::combine_words(.tnmnoa7)` AJCC-7 values missing but
-#' `r knitr::combine_words(.tnmrescueable)` can be filled in from AJCC-6 for T, 
+#' `r knitr::combine_words(.tnmrescueable)` can be filled in from AJCC-6 for overall stage, T, 
 #' N, and M respectively.
 #' 
 .tc <- paste0('
