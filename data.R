@@ -423,29 +423,31 @@ kcpatients.naaccr_death <- unique(subset(dat1,n_vtstat==0)$patient_num);
 #' multiple versions of the same graph. Each name is a legal variable name for 
 #' that subset, the value assigned to it is an R expression that can be 
 #' evaluated in the scope of `dat1` and will return a `TRUE`/`FALSE` vector
-subs_criteria <- alist(
-   # from diagnosis to surgery
-    diag_surg = a_tdiag>=0 & a_tsurg<=0 #& patient_num %in% kcpatients.naaccr
-   # from surgery to recurrence
-   ,surg_recur = a_tsurg>=0 & a_trecur<=0 #& patient_num%in%kcpatients.naaccr
-   # from surgery to death
-   ,surg_death = a_tsurg>=0 & a_tdeath<=0 #& patient_num%in%kcpatients.naaccr
-   # from surgery to recurrence or death
-   ,surg_drecur = a_tsurg>=0 & pmax(a_trecur,a_tdeath,na.rm = T)<=0 & patient_num%in%kcpatients.naaccr
-);
+#' 
+#' Not actually used in any script.
+# subs_criteria <- alist(
+#    # from diagnosis to surgery
+#     diag_surg = a_tdiag>=0 & a_tsurg<=0 #& patient_num %in% kcpatients.naaccr
+#    # from surgery to recurrence
+#    ,surg_recur = a_tsurg>=0 & a_trecur<=0 #& patient_num%in%kcpatients.naaccr
+#    # from surgery to death
+#    ,surg_death = a_tsurg>=0 & a_tdeath<=0 #& patient_num%in%kcpatients.naaccr
+#    # from surgery to recurrence or death
+#    ,surg_drecur = a_tsurg>=0 & pmax(a_trecur,a_tdeath,na.rm = T)<=0 & patient_num%in%kcpatients.naaccr
+# );
 # evidence of cancer prior to first diagnosis in NAACCR
-subs_criteria$prior_cancer <- comp_iijj(v(c_preexist,dat1
-                                          ,retcol=c('colname','varname'))
-                                        ,v(c_kcdiag,dat1
-                                           ,retcol=c('colname','varname')));
-
-# create complete versions of subsets according to current criteria
-for(ii in names(subs_criteria)) {
-  subs_criteria[[paste0(ii,'_complete')]] <- substitute(
-    ii&jj,env=c( ii=subs_criteria[[ii]]
-                ,jj=substitute(patient_num%in%kcpatients.naaccr)))};
-# standalone completeness criterion
-subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
+# subs_criteria$prior_cancer <- comp_iijj(v(c_preexist,dat1
+#                                           ,retcol=c('colname','varname'))
+#                                         ,v(c_kcdiag,dat1
+#                                            ,retcol=c('colname','varname')));
+# 
+# # create complete versions of subsets according to current criteria
+# for(ii in names(subs_criteria)) {
+#   subs_criteria[[paste0(ii,'_complete')]] <- substitute(
+#     ii&jj,env=c( ii=subs_criteria[[ii]]
+#                 ,jj=substitute(patient_num%in%kcpatients.naaccr)))};
+# # standalone completeness criterion
+# subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
 
 #' Creates a hierarchy of lists containing various subsets of interest. But so 
 #' far not really needed, commenting out for shorter load times.
@@ -453,6 +455,9 @@ subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
 #' Subsetting by the earlier randomly assigned train and test groups
 #sbs0$train <- lapply(sbs0$all,subset,patient_num%in%pat_samples$train);
 #sbs0$test <- lapply(sbs0$all,subset,patient_num%in%pat_samples$test);
+#' Let's try this instead
+sbs0 <- lapply(sbs0,function(xx) dat2a$patient_num %in% xx) %>% 
+  c(list(patient_num=dat2a$patient_num),.) %>% data.frame;
 
 # save out ---------------------------------------------------------------------
 #' ## Save all the processed data to an rdata file 
