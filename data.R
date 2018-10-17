@@ -456,8 +456,9 @@ kcpatients.naaccr_death <- unique(subset(dat1,n_vtstat==0)$patient_num);
 #sbs0$train <- lapply(sbs0$all,subset,patient_num%in%pat_samples$train);
 #sbs0$test <- lapply(sbs0$all,subset,patient_num%in%pat_samples$test);
 #' Let's try this instead
-sbs0 <- lapply(sbs0,function(xx) dat2a$patient_num %in% xx) %>% 
-  c(list(patient_num=dat2a$patient_num),.) %>% data.frame;
+sbs0 <- lapply(sbs0,function(xx) cm(dat2a$patient_num %in% xx,comment(xx))) %>% 
+  c(list(patient_num=dat2a$patient_num),.) %>% data.frame %>% 
+  set_colnames(.,c(colnames(.)[1],paste0('r_',colnames(.)[-1])));
 
 # save out ---------------------------------------------------------------------
 #' ## Save all the processed data to an rdata file 
