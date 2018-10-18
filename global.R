@@ -74,7 +74,8 @@ source('./config.R');
 #' do not take a lot of time to do.
 #' 
 #' data dictionary produced by datafinisher, should physically accompany inputdata
-dctfile_raw <- paste0(dirname(inputdata),'/meta_',basename(inputdata));
+if(!exists('dctfile_raw')) {
+  dctfile_raw <- paste0(dirname(inputdata),'/meta_',basename(inputdata))};
 #' data dictionary template-- metadata that should persist accross multiple 
 #' versions of the data and data dictionary
 dctfile_tpl <- 'datadictionary_static.csv';
