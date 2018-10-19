@@ -811,7 +811,8 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z0-9]','-',tolower(str)))
   # for arguments where the user has not explicitly provided values (if there
   # is no data dictionary or if the data dictionary doesn't have those columns,
   # fall back on the default values)
-  if(is.data.frame(dct) && match_col %in% names(dct) ){
+  if(is.data.frame(dct) && 
+     length(match_col<-intersect(match_col,names(dct)))>0){
     dctinfo <- dct[match(str,do.call(coalesce,dct[,match_col])),];
      #!all(is.na(dctinfo <- dct[which(dct[[match_col]]==str)[1],]))){
     if(missing(tooltip) #&& 
@@ -819,15 +820,15 @@ fs <- function(str,text=str,url=paste0('#',gsub('[^_a-z0-9]','-',tolower(str)))
       #tooltip <- dct_tooltip;}
     ){tooltip <- do.call(coalesce,c(dctinfo[,col_tooltip],tooltip,''))};
     if(missing(text) && 
-       length(dct_text<-na.omit(dctinfo[[col_text]]))==1) {
+       length(dct_text<-na.omit(c(dctinfo[[col_text]],NA)))==1) {
       text <- dct_text;}
     if(missing(url) && 
-       length(dct_url<-na.omit(dctinfo[[col_url]]))==1) {
+       length(dct_url<-na.omit(c(dctinfo[[col_url]],NA)))==1) {
       url <- dct_url;}
     if(missing(class) && 
-       length(dct_class<-na.omit(dctinfo[[col_class]]))==1) {
+       length(dct_class<-na.omit(c(dctinfo[[col_class]],NA)))==1) {
       class <- dct_class;}
-  }
+  } else dctinfo <- data.frame(NA);
   out <- sprintf(rep(template,nrow(dctinfo)),text,url,class,tooltip,...);
   # register each unique str called by fs in a global option specified by 
   # fs_register
@@ -1057,9 +1058,9 @@ event_plot <- function(data,reference_event,secondary_event=NA
   # set ylab if unspecified
   if(is.na(ylab)) ylab <- sprintf('Time since %s, %s',start_event,tunit);
   # set ylim if unspecified
-  if(is.na(ylim)) ylim <- range(data[,na.omit(c(reference_event
+  if(identical(ylim,NA)) ylim <- range(data[,na.omit(c(reference_event
                                                 ,secondary_event))],na.rm=T);
-  if(is.na(xlim)) xlim <- c(0,nrow(data));
+  if(identical(xlim,NA)) xlim <- c(0,nrow(data));
   plot(data[[reference_event]],type=type,ylim=ylim,main=main,xlab=xlab
        ,ylab=ylab,frame.plot=frame.plot,col=cols[1],lty=ltys[1]);
   if(!is.na(secondary_event)) lines(data[[secondary_event]],col=cols[2]
