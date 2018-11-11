@@ -655,10 +655,15 @@ e_table.default <- function(xx,yy,xxnames=NA,breaks=c(),autocenter=T
   # doesn't work and use it to develop a more general solution
   levels(cuts)[levels(cuts)=='0 to 0']<-'same';
   # the factor for comparing missingness
-  cutsna <- interaction(is.na(xx),is.na(yy));
-  # rename the levels, they should always be the same order I think
-  levels(cutsna) <- c('Neither\\\nmissing','Left\\\nmissing','Right\\\nmissing'
-                      ,'Both\\\nmissing');
+  cutsna <- interaction(is.na(xx),is.na(yy)) %>% 
+    factor(levels=c( 'FALSE.FALSE','TRUE.FALSE'
+                    ,'FALSE.TRUE','TRUE.TRUE')
+           ,labels = c( 'Neither\\\nmissing','Left\\\nmissing'
+                       ,'Right\\\nmissing','Both\\\nmissing'));
+  # # rename the levels, they should always be the same order I think
+  # levels(cutsna) <- c('Neither\\\nmissing','Left\\\nmissing','Right\\\nmissing'
+  #                     ,'Both\\\nmissing');
+  #if(all(is.na(xx))||all(is.na(yy))&&table(cutsna)[1]>0) browser();
   # create the counts and proportions
   pdiff<-prop.table(cdiff <- table(cuts)); pna<-prop.table(cna <- table(cutsna));
   # get the medians (or whatever the sapplyfn is)
