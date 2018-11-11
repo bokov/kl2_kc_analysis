@@ -39,7 +39,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 
 default_font <- 'Times New Roman';
@@ -109,9 +109,10 @@ page break and/or hide this code
   );
 
 # Place to create tables that will get used throughout script
-dat2tte <- transmute_all(dat2a[,v(c_istte)],function(xx){
+.dat2tte.all <- transmute_all(dat2a[,v(c_istte)],function(xx){
   ifelse(xx>dat2a$age_at_visit_days,NA,xx)});
-dat2tte$patient_num <- dat2a$patient_num;
+.dat2tte.all$patient_num <- dat2a$patient_num;
+dat2tte <- subset(.dat2tte.all,patient_num %in% kcpatients.naaccr);
 dat2tte$`Earliest Death` <- do.call(pmin,c(dat2tte[,v(c_death)],na.rm=T));
 dat2tte$`Latest Death` <- do.call(pmax,c(dat2tte[,v(c_death)],na.rm=T));
 
@@ -931,6 +932,15 @@ dat3[,v(c_kcdiag)] %>%
 #' because there is too frequently disagreement between the the two sources, and 
 #' the EMR records are currently biased toward later dates.
 #' 
+#' ###### blank
+#' 
+#+ etablediag, results='asis'
+e_table_diag<-e_table(dat2tte,'n_ddiag',setdiff(c(v('c_kcdiag'),'n_fc'),'n_ddiag')
+          ,breaks=c(-30,30));
+.tc<-paste0('Placeholder ', 'text {#tbl:etablediag}');
+pander(e_table_diag[,-9],caption=.tc,missing='&nbsp;',justify='left'
+       ,fmt='%3s\\\n%s\\\n%s',row.names=fs(rownames(e_table_diag))); 
+#' 
 #' [I will need to meet with the MCC NAACCR registrar to see how she obtains 
 #' her dates of initial diagnosis and I will need to do a chart review of a 
 #' sample of NAACCR patients to understand what information visible in Epic sets 
@@ -1168,6 +1178,14 @@ lapply(v(c_nephx_naaccr),function(ii){
          ,caption=.tc);
 
 #' 
+#' ###### blank
+#' 
+#+ etablesurg, results='asis'
+e_table_surg<-e_table(dat2tte,'n_rx3170',setdiff(v('c_nephx'),'n_rx3170')
+                      ,breaks=c(-30,30));
+.tc<-paste0('Placeholder ', 'text {#tbl:etablesurg}');
+pander(e_table_surg,caption=.tc,missing='&nbsp;',justify='left'
+       ,fmt='%3s\\\n%s\\\n%s',row.names=fs(rownames(e_table_surg))); 
 #' In summary, based on [@fig:surg0_plot0] and [@tbl:diag_lag] 
 #' `r t_priorcond` can only be used to disqualify patients for having erroneous
 #' records or previous history of kidney cancer but cannot fill in missing 
@@ -1237,6 +1255,15 @@ t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>%
 #' the cases. This is a good from the standpoint of data consistency. Now we 
 #' need to see to what extent the EMR codes agree with this. 
 #' 
+#' 
+#' ###### blank
+#' 
+#+ etablerecur, results='asis'
+e_table_recur<-e_table(dat2tte,'n_drecur',setdiff(v('c_recur'),'n_drecur')
+                      ,breaks=c(-30,30));
+.tc<-paste0('Placeholder ', 'text {#tbl:etablerecur}');
+pander(e_table_recur,caption=.tc,missing='&nbsp;',justify='left'
+       ,fmt='%3s\\\n%s\\\n%s',row.names=fs(rownames(e_table_recur))); 
 #' 
 #' ::::: {#fig:recur_plot custom-style="Image Caption"}
 #+ recur_plot,results='asis',fig.dim=c(4.5,3)
@@ -1358,8 +1385,7 @@ Above are plotted times of death (if any) relative to "
 #' ###### blank
 #' 
 #+ etabledeath, results='asis'
-e_table_death <- subset(dat2tte,patient_num %in% kcpatients.naaccr) %>% 
-  e_table('n_vtstat',c(setdiff(v(c_death),'n_vtstat')
+e_table_death <- e_table(dat2tte,'n_vtstat',c(setdiff(v(c_death),'n_vtstat')
                        ,'Earliest Death','Latest Death'),breaks=c(-30,30));
 .tc <- paste0('Date associated with ',fs('n_vtstat')
 ,' compared to death dates from each source (rows). The first five columns 
