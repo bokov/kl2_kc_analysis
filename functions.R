@@ -681,12 +681,21 @@ e_table.default <- function(xx,yy,xxnames=NA,breaks=c(),autocenter=T
 #' the values are non-integers. Otherwise might be inconsistent break-points for
 #' different rows in the result. Not sure if and when that would be a practical
 #' problem, though. Needs more thought.
-e_table.data.frame <- e_table.list <- function(xx,yy,xxnames,...){
+e_table.data.frame <- e_table.list <- function(xx,yy,xxnames,...
+                                               ,LFEXCLUDE=c(),LASTFIRST=T){
   # the 'out' object created here is a matrix of lists of vectors
   if(! yy %in% names(xx)) stop(sprintf('Data does not have element "%s"',yy));
   xxn <- intersect(xxnames,names(xx));
   if(length(setdiff(xxnames,xxn)>0)) warning('Not all xx columns exist');
-  out <- sapply(xx[xxnames],e_table.default,yy=xx[[yy]],...);
+  xxn <- setdiff(xxn,yy);
+  if(LASTFIRST){
+    levent <- do.call(pmax,c(xx[setdiff(xxn,LFEXCLUDE)],na.rm=T));
+    fevent <- do.call(pmin,c(xx[setdiff(xxn,LFEXCLUDE)],na.rm=T));
+    xx[['Last Event']] <- levent;
+    xx[['First Event']] <- fevent;
+    xxn <- c(xxn,'Last Event','First Event');
+  }
+  out <- sapply(xx[xxn],e_table.default,yy=xx[[yy]],...);
   # now we merge them into three tables of identical dimension named count, 
   # prop, and stat, with one row for every xx
   # 
