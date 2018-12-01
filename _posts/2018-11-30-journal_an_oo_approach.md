@@ -1,5 +1,5 @@
 ---
-published: false
+published: true
 ---
 ## Finally starting to wrap my head around how to factor this
 
