@@ -19,7 +19,7 @@ formals(v)$dat <- as.name('dat1');
 .origfiles <- ls();
 # read dat0 --------------------------------------------------------------------
 #' Initialize the column specification for parsing the input data
-dat0spec <- tread(inputdata,spec_csv,na=c('(null)',''),guess_max=5000);
+dat0spec <- tread(inputdata,spec_csv,na=c('(null)',''),guess_max=10000);
 #' Force the `patient_num` column to be numeric rather than integer, to avoid
 #' missing values due to `patient_num` being too large
 dat0spec$cols[['patient_num']] <- col_number();
