@@ -39,7 +39,7 @@
 #+ init, echo=FALSE, include=FALSE, message=FALSE
 # init -------------------------------------------------------------------------
 # if running in test-mode, uncomment the line below
-#options(gitstamp_prod=F);
+options(gitstamp_prod=F);
 .junk<-capture.output(source('global.R',echo=F));
 
 default_font <- 'Times New Roman';
@@ -1222,12 +1222,28 @@ t_recur_drecur <- with(dat2a
                        ,table(a_n_recur
                               ,`Has recurrence date`=n_drecur<=age_at_visit_days
                               ,useNA='if'));
+# We encountered a situation where there are no patients with recurrence dates. 
+# This code is to check for that and put in a dummy column with 0's to fill in
+# the table so that code further down does not fail.
+if(length(.t_missing_col <- setdiff(c('TRUE','FALSE')
+                                    ,colnames(t_recur_drecur)))>0){
+  .t_new_colnames <- c(colnames(t_recur_drecur),.t_missing_col);
+  t_recur_drecur <- cbind(t_recur_drecur,0) %>% as.table %>% 
+    set_colnames(.t_new_colnames);
+}
+
 .tc <- paste0('Here is the condensed version after having followed the above 
 rules. Looks like the only ones who have a ',fs('n_drecur')," are the ones which 
 also have a `Recurred` status for ",fs('a_n_recur')," (with "
-,t_recur_drecur['Recurred','FALSE']," missing an ",fs('n_drecur'),"). The only 
-exception is ",t_recur_drecur['Never disease-free','TRUE']," `Never diease-free` 
-patient with a ",fs('n_drecur')," {#tbl:rectype_drecur}");
+,t_recur_drecur['Recurred','FALSE']," missing an ",fs('n_drecur'),").");
+# Check if there are in fact any exceptions to the pattern and only run the 
+# below if there are (i.e. .n_recur_except is an integer rather than an error)
+# TODO: We need a better, more generic way of handling conditional text!
+.n_recur_except <- try(t_recur_drecur['Never disease-free','FALSE']);
+if(is.numeric(.n_recur_except) && .n_recur_except>0) .tc <- paste0(.tc
+," The only exception ",if(.n_recur_except>1) 'are ' else 'is '
+,.n_recur_except," `Never diease-free` 
+patient",if(.n_recur_except>1) 's'," with a ",fs('n_drecur')," {#tbl:rectype_drecur}");
 
 t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>% 
   pander(emphasize.strong.cells=cbind(2:5,c(1,1,2,1)),caption=.tc);
