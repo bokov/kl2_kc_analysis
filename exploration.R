@@ -1239,11 +1239,12 @@ also have a `Recurred` status for ",fs('a_n_recur')," (with "
 # Check if there are in fact any exceptions to the pattern and only run the 
 # below if there are (i.e. .n_recur_except is an integer rather than an error)
 # TODO: We need a better, more generic way of handling conditional text!
-.n_recur_except <- try(t_recur_drecur['Never disease-free','FALSE']);
+.n_recur_except <- try(t_recur_drecur['Never disease-free','TRUE']);
 if(is.numeric(.n_recur_except) && .n_recur_except>0) .tc <- paste0(.tc
 ," The only exception ",if(.n_recur_except>1) 'are ' else 'is '
 ,.n_recur_except," `Never diease-free` 
-patient",if(.n_recur_except>1) 's'," with a ",fs('n_drecur')," {#tbl:rectype_drecur}");
+patient",if(.n_recur_except>1) 's'," with a ",fs('n_drecur')
+," {#tbl:rectype_drecur}");
 
 t_recur_drecur %>% set_colnames(.,paste0('Recur Date=',colnames(.))) %>% 
   pander(emphasize.strong.cells=cbind(2:5,c(1,1,2,1)),caption=.tc);
