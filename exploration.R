@@ -59,7 +59,7 @@ for(ii in seq_along(.depends)) {
 }
 knitr::opts_chunk$set(echo = F,warning = F,message=F,fig.scap=NA,fig.lp=''
                       ,dev.args=list(family=default_font));
-
+.origfiles <- ls();
 # if a text string named FOO is created prior to a named chunk also named FOO
 # then specifying opts.label='fig_opts' in the options for that chunk will use
 # that string as the caption
@@ -1667,5 +1667,6 @@ cat('***\n');
 # A5 audit ---------------------------------------------------------------------
 #' # Audit trail {#sec:audit label="Appendix 5"}
 walktrail()[,-5] %>% pander(split.tables=600,,justify='left');
+tsave(file=paste0(.currentscript,'.rdata'),list=setdiff(ls(),.origfiles));
 #+ results='hide'
 c()
