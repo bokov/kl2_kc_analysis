@@ -1,0 +1,4 @@
+[submodule "scripts"]
+	path = scripts
+	url = http://github.com/bokov/ut-template
+	branch = enh_wincompat
