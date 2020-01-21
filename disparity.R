@@ -28,11 +28,11 @@
 #' ---
 #'
 #+ set_vars, echo=FALSE, message=FALSE, results='hide'
+knitr::opts_chunk$set(echo=FALSE);
 # Add the names of packages (enclosed in quotes) you need to this vector
-.projpackages <- c('pander');
+.projpackages <- c('pander','dplyr','survival','ggfortify');
 # If you want to reuse calculations done by other scripts, add them to `.deps`
-# below after `'dictionary.R'`.
-.deps <- c( 'dictionary.R' );
+.deps <- c( 'data.R' );
 #+ load_deps, echo=FALSE, message=FALSE, warning=FALSE,results='hide'
 source('functions.R');
 library(tidbits);
@@ -42,9 +42,51 @@ load_deps2(.deps,render = FALSE);
 # Edit the next line only if you copy or rename this file (make the new name the argument to `current_scriptname()`)
 .currentscript <- current_scriptname('disparity.R');
 instrequire(.projpackages);
+#' # Previous Analysis
+#'
+#' ![Analysis from February 9, 2018](images/old_table.png)
+#'
+#' ![Curves from February 9, 2018](images/old_survcurve.png)
+#'
+#' # Replicating Previous Analysis
+#'
+#+ subset_dat1disp, echo=FALSE, message=FALSE
+# dat1hsp ----
+dat1hsp <- subset(dat1,between(a_emr_tdiag,0,2723) & a_emr_crecur < 2) %>%
+  summarise_all(function(xx) last(na.omit(xx)));
+#+ cox_diag_recur_emr, echo=FALSE
+cox_diag_recur_emr <- coxph(Surv(a_emr_tdiag,a_emr_crecur==1) ~
+                              e_hisp + e_rdwrbc + e_opd_anlgscs
+                            ,subset(dat1hsp,!is.na(e_rdwrbc)));
+#' ## Cox Proportional Hazard
+#'
+#' Full model from last time
+pander(cox_diag_recur_emr);
+#' This version only uses `e_hisp` as a predictor
+pander(cox_diag_recur_emr_hsp <- update(cox_diag_recur_emr,.~e_hisp));
+#' This version omits `e_hisp`
+pander(update(cox_diag_recur_emr_nohsp <- cox_diag_recur_emr,.~.-e_hisp));
+#'
+#' ## KM Plot Using Linear Predictor from Cox Proportional Hazard Models
+#'
+#' Full model
+survfit(Surv(a_emr_tdiag,a_emr_crecur==1)~predict(cox_diag_recur_emr)>0
+        ,subset(dat1hsp,!is.na(e_rdwrbc))) %>% autoplot();
+#'
+#' Ethnicity-only
+#'
+survfit(Surv(a_emr_tdiag,a_emr_crecur==1)~predict(cox_diag_recur_emr_hsp)>0
+        ,subset(dat1hsp,!is.na(e_rdwrbc))) %>% autoplot();
+#'
+#'
+#' No Ethnicity
+#'
+survfit(Surv(a_emr_tdiag,a_emr_crecur==1)~predict(cox_diag_recur_emr_nohsp)>0
+        ,subset(dat1hsp,!is.na(e_rdwrbc))) %>% autoplot();
+#'
 #' # Next milestones:
 #'
-#' ## Re-run the original analysis that showed the disparity in our data  (UT Med + UHS data)
+#' ## ~~Re-run the original analysis that showed the disparity in our data  (UT Med + UHS data)~~
 #'
 #' The following variables were used by the earlier analysis:
 #'
@@ -75,16 +117,16 @@ instrequire(.projpackages);
 #'
 #' So, the following model should reproduce the old results:
 #'
-#' `Surv(TIME,EVENT) ~ e_hisp + v113_rdw_rbc_at_rt_788_0_num + v110_opd_anlgscs`
+#' `Surv(a_emr_tdiag,a_emr_crecur == 1) ~ e_hisp + v113_rdw_rbc_at_rt_788_0_num + v110_opd_anlgscs`
 #'
 #' The following model just shows the effect of Hispanic ethnicity:
 #'
-#' `Surv(TIME,EVENT) ~ e_hisp`
+#' `Surv(a_emr_tdiag,a_emr_crecur == 1) ~ e_hisp`
 #'
 #' TODO:
 #'
-#' * Create analytic variables to fill in the `TIME` and `EVENT` placeholders in the above models using `a_e_kc` and the secondary tumor codes in `data.R`
-#' * Run analysis and survival plots in this script
+#' * ~~Create analytic variables to fill in the `TIME` and `EVENT` placeholders in the above models using `a_e_kc` and the secondary tumor codes in `data.R`~~
+#' * ~~Run analysis and survival plots in this script~~
 #' * Use the automatic variable formatting used in `exploration.R` in this script as well so that it's readable
 #'
 #' Time: 2-3 days
@@ -116,12 +158,7 @@ instrequire(.projpackages);
 #'
 #' Time: 1-2 days
 #
-#' # Save results
-#'
-
-
-
-#' Now the results are saved and available for use by other scriports if you
+#' The results are saved and available for use by other scriports if you
 #' place `r sprintf("\x60'%s'\x60",.currentscript)` among the values in their
 #' `.deps` variables.
 save(file=paste0(.currentscript,'.rdata'),list=setdiff(ls(),.origfiles));
