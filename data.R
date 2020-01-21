@@ -108,13 +108,6 @@ dat1 <- mutate(dat1
                                   ,a_e_kc|e_kc_i10_i|e_kc_i9_i|
                                     (patient_num %in% kcpatients.naaccr &
                                        n_ddiag))
-               # the EMR-only initial diagnosis (see disparity.R)
-               ,a_emr_tdiag=tte(age_at_visit_days,a_e_kc)
-               # the EMR-only recurrence event
-               ,a_emr_trecur=tte(age_at_visit_days
-                                 ,eval(parse(text=sprintf('pmax(%s) & TRUE'
-                                                          ,paste(v(c_emrrecur)
-                                                                 ,collapse='|')))))
                # THE RECURRENCE EVENT (PURE NAACCR)
                # look below the time-to-event section for the naive recurrence
                # event
@@ -158,8 +151,6 @@ dat1 <- mutate(dat1
                ,a_csurg=cte(a_tsurg)
                # THE DEATH CENSORING VARIABLE
                ,a_cdeath=cte(a_tdeath)
-               # THE EMR-ONLY RECURRENCE CENSORING VARIABLE
-               ,a_emr_crecur=cte(a_emr_trecur)
                );
 
 # time-to-event variables ------------------------------------------------------
@@ -253,9 +244,21 @@ dat1$a_naive_tsurg <- dat1[,v(c_nephx)] %>% do.call(pmax,.);
 #' Naive recurrence variable-- earliest secondary tumor of any kind, accross all
 #' sources. No attempts at sanity checks.
 dat1$a_naive_trecur <- dat1[,v(c_recur)] %>% do.call(pmax,.);
-#' Their censoring variables
-dat1[,c('a_naive_csurg','a_naive_crecur')] <- transmute(
-  dat1,a_naive_csurg=cte(a_naive_tsurg),a_naive_crecur=cte(a_naive_tsurg)) %>%
+#' EMR initial diagnosis and recurrence
+# EMR-only TTEs ----
+# time from initial diagnosis (where it == 0)
+dat1$a_emr_tdiag <- dat1[,c('e_kc_i10','e_kc_i9')] %>% do.call(pmax,.);
+# time from first recurrence (where it == 0)
+dat1$a_emr_trecur <- dat1[,v(c_emrrecur)] %>% do.call(pmax,.);
+#' Their censoring variables. Not making an `a_emr_cdiag` since that's not used
+#' at this time
+dat1[,c('a_naive_csurg'
+        ,'a_naive_crecur'
+        ,'a_emr_crecur')] <-
+  transmute(dat1
+            ,a_naive_csurg=cte(a_naive_tsurg)
+            ,a_naive_crecur=cte(a_naive_trecur)
+            ,a_emr_crecur=cte(a_emr_trecur)) %>%
   `[`(,-1);
 #'
 #'
