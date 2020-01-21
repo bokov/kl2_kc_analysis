@@ -3,10 +3,10 @@
 #' author: "Alex F. Bokov"
 #' date: "08/15/2017"
 #' ---
-#' 
+#'
 #' Please read this file through before trying to run it. The comments tell
 #' you what you need to edit in order to proceed.
-#' 
+#'
 # init -------------------------------------------------------------------------
 source('global.R');
 .depends <- 'dictionary.R';
@@ -20,7 +20,7 @@ if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
 knitr::opts_chunk$set(echo = F,warning = F,message=F);
 #' Default args
 formals(v)$dat <- as.name('dat1');
-#' Saving original file-list so we don't keep exporting functions and 
+#' Saving original file-list so we don't keep exporting functions and
 #' environment variables to other scripts
 .origfiles <- ls();
 #' Create custom synonyms for 'TRUE' if needed
@@ -52,25 +52,25 @@ dat1$e_marital <- gsub('^\\{\"cc\":\"DEM\\|MARITAL:','',dat1$e_marital) %>%
 #' Simplified recurrence type
 #' RECURRENCE VARIABLE
 dat1$a_n_recur <- factor(dat1$n_rectype);
-levels(dat1$a_n_recur)[!levels(dat1$a_n_recur) %in% 
+levels(dat1$a_n_recur)[!levels(dat1$a_n_recur) %in%
                          c('Unknown if recurred or was ever gone'
                            ,'Never disease-free','Disease-free'
                            ,grep('Ambig_',levels(dat1$a_n_recur)
                                  ,val=T))]<-'Recurred';
 #' Convert NAACCR race codes
-dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>% 
+dat1$a_n_race <- interaction(dat1[,v(c_naaccr_race)],drop = T) %>%
   # clean up the non-informative-if-trailing codes
   gsub('."88"|."99"','',.) %>% factorclean(spec_mapper = levels_map
                                            ,var = '_rc',droplevels=T);
 #' Unified NAACCR diabetes comorbidity
-dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',xx))); 
+dat1$a_n_dm <- apply(dat1[,v(c_naaccr_comorb)],1,function(xx) any(grepl('"250',xx)));
 # kcpatients subsets -----------------------------------------------------------
-#' Find the patients which had active kidney cancer (rather than starting with 
+#' Find the patients which had active kidney cancer (rather than starting with
 #' pre-existing)... first pass
 kcpatients.emr <- subset(dat1,e_kc_i10|e_kc_i9)$patient_num %>% unique;
-#' Patients that are recorded in NAACCR as having kidney cancer and a diagnosis 
+#' Patients that are recorded in NAACCR as having kidney cancer and a diagnosis
 #' date.
-kcpatients.naaccr <- subset(dat1,(n_seer_kcancer|n_kcancer) & 
+kcpatients.naaccr <- subset(dat1,(n_seer_kcancer|n_kcancer) &
                               n_ddiag)$patient_num %>% unique;
 kcpatients.naaccr_bad_dob <- intersect(kcpatients.naaccr,kcpatients.bad_dob);
 #' create the raw time-to-event (tte) and censoring (cte) variables
@@ -81,12 +81,12 @@ dat1 <- mutate(dat1
                # extra code necessary down the line to restore them
                # There should be some simpler way to resolve multiple
                # non-identical values for the same patient. Or at least
-               # a way to check to see which variables even have this 
+               # a way to check to see which variables even have this
                # problem in the first place
                ,n_sex=paste(c(unique(na.omit(n_sex)),NA)[1],collapse=',')
                ,a_n_race=paste(unique(na.omit(a_n_race)),collapse=',')
                ,a_n_recur=paste(unique(na.omit(a_n_recur)),collapse=',') %>%
-                 # this is to insure that anything Disease-free gets paired 
+                 # this is to insure that anything Disease-free gets paired
                  # with wins out over dieasese-free
                  gsub('^Disease-free,','',.) %>% gsub(',Disease-free$','',.) %>%
                  # temporary hack so that it's more visible later that I did
@@ -101,13 +101,20 @@ dat1 <- mutate(dat1
                             ,(patient_num %in% kcpatients.naaccr & n_ddiag)  #|
                             #e_kc_i9|e_kc_i10)
                )
-               # If we take at face value the very first occurrence of a kidney 
-               # cancer diagnosis regardless of whether it is in NAACCR or in 
+               # If we take at face value the very first occurrence of a kidney
+               # cancer diagnosis regardless of whether it is in NAACCR or in
                # the EMR
                ,a_naive_tdiag=tte(age_at_visit_days
                                   ,a_e_kc|e_kc_i10_i|e_kc_i9_i|
-                                    (patient_num %in% kcpatients.naaccr & 
+                                    (patient_num %in% kcpatients.naaccr &
                                        n_ddiag))
+               # the EMR-only initial diagnosis (see disparity.R)
+               ,a_emr_tdiag=tte(age_at_visit_days,a_e_kc)
+               # the EMR-only recurrence event
+               ,a_emr_trecur=tte(age_at_visit_days
+                                 ,eval(parse(text=sprintf('pmax(%s) & TRUE'
+                                                          ,paste(v(c_emrrecur)
+                                                                 ,collapse='|')))))
                # THE RECURRENCE EVENT (PURE NAACCR)
                # look below the time-to-event section for the naive recurrence
                # event
@@ -115,10 +122,10 @@ dat1 <- mutate(dat1
                # THE SURGERY EVENT (PURE NAACCR)
                ,a_tsurg=tte(age_at_visit_days
                             ,if(any(n_rx3170,na.rm=T)) n_rx3170 else n_dsurg)
-               # the old surgery event, for comparison purposes, will be removed 
+               # the old surgery event, for comparison purposes, will be removed
                # eventually
                ,a_tsurg_bak=tte(age_at_visit_days,n_dsurg)
-               # look below the time-to-event section for the naive surgery 
+               # look below the time-to-event section for the naive surgery
                # event
                # THE DEATH EVENT (COMBINED)
                # the pure NAACCR event is n_vtstat-- right now it's a factor
@@ -151,26 +158,28 @@ dat1 <- mutate(dat1
                ,a_csurg=cte(a_tsurg)
                # THE DEATH CENSORING VARIABLE
                ,a_cdeath=cte(a_tdeath)
+               # THE EMR-ONLY RECURRENCE CENSORING VARIABLE
+               ,a_emr_crecur=cte(a_emr_trecur)
                );
 
 # time-to-event variables ------------------------------------------------------
 #' ### Mass-converting variables to time-to-event form
-#' 
+#'
 #' Warning: this gets really into the daRk aRts of R here but the alternative is
 #' a whole lot more code that accomplishes the same thing. Either way it's going
 #' to be hard for intermediate R programmers to grok, but at least the concise
 #' version is going to be easier for me to maintain, so I'm going with that one.
 #' Sorry. I'll try to document the especially magical pieces as I go.
-#' 
-#' TODO-- refactor the NATF thing above so that we can intersect those with 
-#' these to insure that all tte variables meet the assumption that they are 
+#'
+#' TODO-- refactor the NATF thing above so that we can intersect those with
+#' these to insure that all tte variables meet the assumption that they are
 #' TRUE/FALSE
-#' 
+#'
 # First, get the variable names that we designated in the data dictionary as
-# needing to be time-to-event. Note that some of the variables have been 
+# needing to be time-to-event. Note that some of the variables have been
 # renamed, so that's why we have two v() expressions: the first for variables
 # we haven't bothered to rename (yet?) and the second for variables we expect to
-# have to refer to a lot accross multiple data refreshes, so we created 
+# have to refer to a lot accross multiple data refreshes, so we created
 # persistent names. Note the use of optional arguments. The second argument to
 # v() is a named object, whose names v() uses to avoid returning any column
 # names which do not exist our current data. The retcol argument is what column
@@ -182,30 +191,30 @@ dat1 <- mutate(dat1
 #dat1 <- (l_tte<-c(v(c_tte,dat1),v(c_tte,dat1,retcol = 'varname'))) %>%
 dat1 <- (l_tte<-v(c_tte,dat1,retcol = c('colname','varname'))) %>%
 # Now we are going to create an unevaluated expression that operates on each
-  # of these in turn. 
+  # of these in turn.
   sapply(function(xx) substitute(tte(age_at_visit_days,ii)
-                                 # the vector we created in the above step of 
-                                 # this pipeline is of type character and we 
+                                 # the vector we created in the above step of
+                                 # this pipeline is of type character and we
                                  # turn each of them into an unevaluated bit of
                                  # code by using the as.name() function. Now it
-                                 # is of a data type that is compatible with 
-                                 # getting inserted into the unevaluated 
+                                 # is of a data type that is compatible with
+                                 # getting inserted into the unevaluated
                                  # call to tte() instead of the placeholder ii.
                                  # We pass it to substitute() inside a list that
                                  # via the optional env variable.
-                                 # Notice that we don't need simplify=F for 
-                                 # sapply() in this case because the output will 
-                                 # always be a list, R believes that calls 
-                                 # cannot be simplified to vectors in the first 
+                                 # Notice that we don't need simplify=F for
+                                 # sapply() in this case because the output will
+                                 # always be a list, R believes that calls
+                                 # cannot be simplified to vectors in the first
                                  # place.
-                                 ,env=list(ii=as.name(xx)))) %>% 
-  # So at this stage in the pipeline we have a list of unevaluated expressions. 
-  # None of them will be valid in the .GlobalEnv context but they are valid 
-  # in the context of dat1... if we could only break out the list into 
+                                 ,env=list(ii=as.name(xx)))) %>%
+  # So at this stage in the pipeline we have a list of unevaluated expressions.
+  # None of them will be valid in the .GlobalEnv context but they are valid
+  # in the context of dat1... if we could only break out the list into
   # individual arguments to put into the '...' part of mutate(.data,...) ...
   # Or, we can construct the entire desired list of arguments to mutate by
-  # prepending dat1. Notice that we wrap dat1 in a list this is to keep it as 
-  # one object-- otherwise, since data frames are lists, when you concatenate 
+  # prepending dat1. Notice that we wrap dat1 in a list this is to keep it as
+  # one object-- otherwise, since data frames are lists, when you concatenate
   # a data.frame to another list you end up with one big list composed of
   # the data.frame's columns in addition to whatever was in the first list.
   # Also, adding on to the end one more new variable to be created, 'e_death'
@@ -216,28 +225,28 @@ dat1 <- (l_tte<-v(c_tte,dat1,retcol = c('colname','varname'))) %>%
     ,alist( e_death=tte(age_at_visit_days
                        ,age_at_visit_days==age_at_death_days)
             # also here is 'n_vtstat', the NAACCR vital status... hopefully also
-            # with its visit date set to the date of death-- if so that will 
+            # with its visit date set to the date of death-- if so that will
             # save a few steps
            ,n_vtstat=tte(age_at_visit_days,n_vtstat=='Dead')
            ,n_cvtstat=cte(n_vtstat)
-           )) %>% 
-  # Instead we have a list with one more item at hte beginning than it had 
-  # before. That item is dat1, and everything else is an unevaluated expression 
+           )) %>%
+  # Instead we have a list with one more item at hte beginning than it had
+  # before. That item is dat1, and everything else is an unevaluated expression
   # tha can be evaluated inside dat1. That makes it a valid set of arguments for
-  # mutate. R doesn't allow you to explode a list out into separate variables 
+  # mutate. R doesn't allow you to explode a list out into separate variables
   # like Python does (at least not very gracefully/robustly). But it does offer
   # the do.call function, which takes as its first argument a function, and as
   # its second a list that will become the arguments with which that function
-  # gets invoked. 
+  # gets invoked.
   do.call(mutate,.);
-  # We achieved our objective: now all our time-to-event variables 
+  # We achieved our objective: now all our time-to-event variables
   # are, instead of TRUE/FALSE integers showing how many days are until the
   # first occurences of their respetive events, 0 at those events if they happen
   # and positive numbers for as long as we have visits for after those events.
-#' The the larger a TTE variable's value, the closer to the event it is or the 
+#' The the larger a TTE variable's value, the closer to the event it is or the
 #' longer ago the event took place. So to pick the first of several events we
 #' need to take their parallel maximum.
-#' 
+#'
 #' Naive surgery variable-- earliest surgery of any kind accross all sources. No
 #' attempts at sanity checks.
 dat1$a_naive_tsurg <- dat1[,v(c_nephx)] %>% do.call(pmax,.);
@@ -248,12 +257,13 @@ dat1$a_naive_trecur <- dat1[,v(c_recur)] %>% do.call(pmax,.);
 dat1[,c('a_naive_csurg','a_naive_crecur')] <- transmute(
   dat1,a_naive_csurg=cte(a_naive_tsurg),a_naive_crecur=cte(a_naive_tsurg)) %>%
   `[`(,-1);
-#' 
+#'
+#'
 # more analytic variable tweaks ------------------------------------------------
-#' Below is a hack to restore NAs to NAACCR race designation and turn some 
-#' character columns into factors with same order of levels as their i2b2 
+#' Below is a hack to restore NAs to NAACCR race designation and turn some
+#' character columns into factors with same order of levels as their i2b2
 #' counterparts
-dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race)) %>% 
+dat1$a_n_race <- with(dat1,ifelse(a_n_race=='',NA,a_n_race)) %>%
   factor(levels=levels(dat1$race_cd));
 #dat1$sex_cd <- factor(dat1$sex_cd,levels=levels(dat1$n_sex));
 dat1$n_sex <- factor(dat1$n_sex,levels=c('1','2'),labels=c('m','f'));
@@ -270,9 +280,9 @@ formals(adjudicate_levels)$DEFAULT <- 'Unknown';
                       ,.default='Hispanic') %>% adjudicate_levels
   ,temp_language_cd=recode(language_cd,Spanish='Hispanic',Other='non-Hispanic'
                            ,.default='Unknown') %>% adjudicate_levels
-  ,temp_e_lng=gsub('^.*spanish.*$','Hispanic',e_lng,ignore.case = T) %>% 
-    gsub('^.*(english|sign language|unknown).*$','Unknown',.,ignore.case = T) %>% 
-    ifelse((.)%in%c('Hispanic','Unknown',NA),.,'non-Hispanic') %>% 
+  ,temp_e_lng=gsub('^.*spanish.*$','Hispanic',e_lng,ignore.case = T) %>%
+    gsub('^.*(english|sign language|unknown).*$','Unknown',.,ignore.case = T) %>%
+    ifelse((.)%in%c('Hispanic','Unknown',NA),.,'non-Hispanic') %>%
     adjudicate_levels
   );
 
@@ -303,7 +313,7 @@ dat1 <- mutate(dat1,
 
 kcpatients.pre_existing <- subset(dat1,a_naive_tdiag>=0&a_tdiag<0)$patient_num %>% unique;
 
-cohorts <- data.frame(patient_num=unique(dat1$patient_num)) %>% 
+cohorts <- data.frame(patient_num=unique(dat1$patient_num)) %>%
   mutate( NAACCR=patient_num %in% kcpatients.naaccr
          ,EMR=patient_num %in% kcpatients.emr
          ,PreExisting=patient_num %in% kcpatients.pre_existing
@@ -314,15 +324,15 @@ consort_table <- summarise(cohorts,NAACCR=any(NAACCR),EMR=any(EMR)
                            ,N=length(patient_num))[,-1];
 # training/testing/validation samples ------------------------------------------
 #' Creating training/testing/validation samples
-#' 
+#'
 #' As long as the seed is the same, all random values will be generated the same
 #' reproducibly.
 tseed(project_seed);
 #' Randomly to training, testing, or validation sets
-pat_samples <- unique(dat1$patient_num) %>% 
+pat_samples <- unique(dat1$patient_num) %>%
   split(.,sample(c('train','test','val'),size=length(.),rep=T));
 #' ## Create binned versions of certain numeric vars.
-# 
+#
 #' (commented out until we can put a c_num2bin or something into dct0)
 # dat1[,paste0('bin_',cnum2bin)] <- sapply(dat1[,cnum2bin],function(ii){
 #   qii <- c(0,quantile(ii,c(.25,.5,.75),na.rm=T),Inf);
@@ -331,8 +341,8 @@ pat_samples <- unique(dat1$patient_num) %>%
 
 # dat2, one-per-patient --------------------------------------------------------
 #' ### Create a version of the dataset that only has each patient's 1st encounter
-#' 
-#' 
+#'
+#'
 dat2a <- mutate_at(dat1,v(c_istte)
                    ,.funs=funs(ifelse(any((.)==0,na.rm=T)
                                       ,(age_at_visit_days)[(.)==0]
@@ -352,9 +362,9 @@ dat2 <- summarise_all(dat1,function(xx) {
 #' Column names for non-tte variables shared by dat2a and dat2
 .nontte<-setdiff(intersect(names(dat2a),names(dat2)),v(c_tte));
 #' Test to confirm that the non-tte columns of `dat2a` and `dat2` are identical
-#' In all rows of .data2a_data2_eq the Total column is the sum of the `dat2` 
-#' NA values and values where `dat2` is equal to `dat2a`... if this column is 
-#' invariant and equal to the total number of rows that means the only cases 
+#' In all rows of .data2a_data2_eq the Total column is the sum of the `dat2`
+#' NA values and values where `dat2` is equal to `dat2a`... if this column is
+#' invariant and equal to the total number of rows that means the only cases
 #' where the values differ is where the `dat2` one is NA
 .dat2a_dat2_eq <- mapply(function(aa,bb) {
   eq<-sum(aa==bb,na.rm=T);
@@ -368,14 +378,14 @@ dat2 <- summarise_all(dat1,function(xx) {
 # re-run by hand
 l_tte<-union(l_tte,c('e_death','n_vtstat'));
 dat3 <- sapply(l_tte
-                ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0] 
-                                         else NA,env=list(ii=as.name(xx)))) %>% 
+                ,function(xx) substitute(if(any(ii==0)) age_at_visit_days[ii==0]
+                                         else NA,env=list(ii=as.name(xx)))) %>%
   c(list(.data=select(subset(dat1,patient_num %in% kcpatients.naaccr)
-                      ,c('age_at_visit_days',l_tte))),.) %>% 
+                      ,c('age_at_visit_days',l_tte))),.) %>%
   do.call(summarize,.);
-#' Test to confirm that all l_tte variables are the same between dat3 and the 
+#' Test to confirm that all l_tte variables are the same between dat3 and the
 #' equivalent subset of dat2a. Again, `Total` always being the same and equal to
-#' the number of rows in `dat3` means the TTE columns have been correctly 
+#' the number of rows in `dat3` means the TTE columns have been correctly
 #' transformed.
 .dat2a_dat3_eq <- mapply(function(aa,bb) {
   eq<-sum(aa==bb,na.rm=T);
@@ -383,15 +393,15 @@ dat3 <- sapply(l_tte
   ,subset(dat2a,patient_num %in% kcpatients.naaccr)[,l_tte],dat3[,l_tte]) %>% t
 # subs_criteria, multiple subsets ----------------------------------------------
 #' ### Some splits based on patient-level variables
-#' 
+#'
 #' Patients split by reason for (no) surgery. This used to be done on `dat1` and
 #' gave slightly different results, probably due to multiple entries per patient
 #' but the `dat2` versions seem like they are slightly better because they trend
 #' toward more surgeries and fewer unknowns-- which is what one might expect
 #' over time.
-# kcpatients_surgreason <- split(dat1,dat1$n_surgreason) %>% 
+# kcpatients_surgreason <- split(dat1,dat1$n_surgreason) %>%
 #   lapply(function(xx) unique(xx$patient_num));
-kcpatients_surgreason <- split(dat2,dat2$n_surgreason) %>% 
+kcpatients_surgreason <- split(dat2,dat2$n_surgreason) %>%
   lapply(pull,'patient_num');
 #' Patients split by recurrence type
 kcpatients_rectype <- split(dat2,dat2$a_n_recur) %>%
@@ -402,9 +412,9 @@ kcpatients.surg <- unique(subset(dat1,a_tsurg==0)$patient_num);
 kcpatients.naaccr_death <- unique(subset(dat1,n_vtstat==0)$patient_num);
 #' ### Make several subsets of dat1 all at once
 #
-#' for later use to make multiple versions of the same table and 
-#' multiple versions of the same graph. Each name is a legal variable name for 
-#' that subset, the value assigned to it is an R expression that can be 
+#' for later use to make multiple versions of the same table and
+#' multiple versions of the same graph. Each name is a legal variable name for
+#' that subset, the value assigned to it is an R expression that can be
 #' evaluated in the scope of `dat1` and will return a `TRUE`/`FALSE` vector
 subs_criteria <- alist(
    # from diagnosis to surgery
@@ -430,7 +440,7 @@ for(ii in names(subs_criteria)) {
 # standalone completeness criterion
 subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
 
-#' Creates a hierarchy of lists containing various subsets of interest. But so 
+#' Creates a hierarchy of lists containing various subsets of interest. But so
 #' far not really needed, commenting out for shorter load times.
 #sbs0 <- sapply(list(all=dat1,index=dat2),function(xx) do.call(ssply,c(list(dat=xx),subs_criteria[-1])),simplify=F);
 #' Subsetting by the earlier randomly assigned train and test groups
@@ -438,8 +448,8 @@ subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
 #sbs0$test <- lapply(sbs0$all,subset,patient_num%in%pat_samples$test);
 
 # save out ---------------------------------------------------------------------
-#' ## Save all the processed data to an rdata file 
-#' 
+#' ## Save all the processed data to an rdata file
+#'
 #' ...which includes the audit trail
 tsave(file=paste0(.currentscript,'.rdata')
       ,list=setdiff(ls(),c(.origfiles,'dat2')));
