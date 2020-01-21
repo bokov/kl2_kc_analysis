@@ -32,7 +32,7 @@ knitr::opts_chunk$set(echo=FALSE);
 # Add the names of packages (enclosed in quotes) you need to this vector
 .projpackages <- c('pander','dplyr','survival','ggfortify');
 # If you want to reuse calculations done by other scripts, add them to `.deps`
-.deps <- c( 'data.R' );
+.deps <- c( 'data.R','dictionary.R' );
 #+ load_deps, echo=FALSE, message=FALSE, warning=FALSE,results='hide'
 source('functions.R');
 library(tidbits);
