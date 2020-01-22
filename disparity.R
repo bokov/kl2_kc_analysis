@@ -29,14 +29,19 @@
 #'
 #+ set_vars, echo=FALSE, message=FALSE, results='hide'
 knitr::opts_chunk$set(echo=FALSE);
+options(tb.retcol='colname');
+# packages ----
 # Add the names of packages (enclosed in quotes) you need to this vector
-.projpackages <- c('pander','dplyr','survival','ggfortify');
+.projpackages <- c('pander','dplyr','survival','ggfortify','forcats','broom'
+                   ,'gridExtra');
 # If you want to reuse calculations done by other scripts, add them to `.deps`
 .deps <- c( 'data.R','dictionary.R' );
 #+ load_deps, echo=FALSE, message=FALSE, warning=FALSE,results='hide'
 source('functions.R');
 library(tidbits);
 source('scripts/functions.R');
+# return both colname and varname
+formals(v)$retcol <- c('colname','varname');
 load_deps2(.deps,render = FALSE);
 .origfiles <- ls();
 # Edit the next line only if you copy or rename this file (make the new name the argument to `current_scriptname()`)
@@ -50,14 +55,67 @@ instrequire(.projpackages);
 #'
 #' # Replicating Previous Analysis
 #'
-#+ subset_dat1disp, echo=FALSE, message=FALSE
+#+ subset_dat1hisp, echo=FALSE, message=FALSE
+# trainsample ----
+dat1 <- subset(dat1,patient_num %in% pat_samples$train);
 # dat1hsp ----
-dat1hsp <- subset(dat1,between(a_emr_tdiag,0,2723) & a_emr_crecur < 2) %>%
-  summarise_all(function(xx) last(na.omit(xx)));
+dat1hsp <- .dat1hsp <- subset(dat1,between(a_emr_tdiag,0,2723) &
+                                a_emr_crecur < 2) %>%
+  group_modify(function(xx,...) as_tibble(sapply(names(xx),function(ii){
+    if(ii %in% v(c_eunivar)) first(na.omit(xx[[ii]])) else {
+      last(na.omit(xx[[ii]]))}
+    },simplify = F)));
+# Recode the missing values so they are included as a valid level
+dat1hsp[,v(c_valflag,.dat1hsp)] <-
+  sapply(.dat1hsp[,v(c_valflag,.dat1hsp)],function(xx){
+    ifelse(is.na(xx),'Other',xx) %>% factor(levels=c('Normal','Other'
+                                                     ,'Lo','Hi')) %>%
+      fct_lump_min(15,other_level = 'Other') %>% fct_relevel('Other')}
+    ,simplify = F);
+
+#' # Univariate Predictors
+#'
+#+ univar
+# univar ----
+cox_null <- coxph(Surv(a_emr_tdiag,a_emr_crecur==1) ~1,data=dat1hsp);
+srv_null <- survfit(Surv(a_emr_tdiag,a_emr_crecur==1)~1,data=dat1hsp);
+# create univariate models
+cox_univar <- list();
+#cox_univar <- sapply(v(c_eunivar,dat1hsp),function(xx){
+for(xx in v(c_eunivar,dat1hsp)){
+  xxcoxph <- update(cox_null,paste0('.~',xx));
+  xxsurvfit <- update(srv_null,paste0('.~',xx));
+  if(is.numeric(dat1hsp[[xx]])){
+    xxsurvfit <- update(xxsurvfit,sprintf('.~%1$s>median(%1$s,na.rm=TRUE)',xx))};
+  cox_univar[[xx]] <- list(cox=xxcoxph,srv=xxsurvfit);
+}
+#,simplify=FALSE);
+
+padj_cox_univar <- sapply(cox_univar,function(xx){
+  broom::glance(xx$cox)$p.value.wald}) %>% sort %>% p.adjust;
+v_univarshortlist <- names(padj_cox_univar);
+# comment the below out to see all the plots... or change the cutoff below
+v_univarshortlist <- names(padj_cox_univar)[padj_cox_univar<.05];
+
+#' ## KM plots and Cox PH tables for the univariate predictors under consideraction
+#+ univar_results,results='asis'
+# univar_results ----
+# https://stackoverflow.com/a/31627333/945039
+panderOptions('knitr.auto.asis', FALSE);
+for(ii in v_univarshortlist){
+  cat('\n\n***\n\n')
+  autoplot(cox_univar[[ii]]$srv,main=ii) %>% print();
+  #print(pander_return(cox_univar[[ii]]$cox,justify='right'));
+  cat('\n\n\n');
+  cat(pander(cox_univar[[ii]]$cox,justify='right', split.tables = Inf));
+  cat('\n\n\n');
+}
 #+ cox_diag_recur_emr, echo=FALSE
+
 cox_diag_recur_emr <- coxph(Surv(a_emr_tdiag,a_emr_crecur==1) ~
                               e_hisp + e_rdwrbc + e_opd_anlgscs
                             ,subset(dat1hsp,!is.na(e_rdwrbc)));
+panderOptions('knitr.auto.asis', TRUE);
 #' ## Cox Proportional Hazard
 #'
 #' Full model from last time
