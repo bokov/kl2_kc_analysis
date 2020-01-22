@@ -95,6 +95,8 @@ dat1 <- mutate(dat1
                ,a_n_dm=any(a_n_dm)
                ,a_e_dm=e_dm_i9|e_dm_i10
                ,a_e_kc=e_kc_i9|e_kc_i10
+               # opiod and non-opioid analgesics
+               ,a_e_anlgscs=e_nn_opd_anlgscs|e_opd_anlgscs
                # THE DIAGNOSIS EVENT (PURE NAACCR)
                ,a_tdiag=tte(age_at_visit_days
                             # only count n_ddiag when it's recorded as a cancer case
@@ -261,6 +263,10 @@ dat1[,c('a_naive_csurg'
             ,a_emr_crecur=cte(a_emr_trecur)) %>%
   `[`(,-1);
 #'
+# valueflag variables ----
+dat1[,v(c_valflag)] <- sapply(dat1[,v(c_valflag)],function(xx){
+  gsub(".*('vf':\\['[HL]'\\]).*",'\\1',xx) %>%
+    recode(`'vf':['H']`='Hi',`'vf':['L']`='Lo',.default='Normal')},simplify=F);
 #'
 # more analytic variable tweaks ------------------------------------------------
 #' Below is a hack to restore NAs to NAACCR race designation and turn some
@@ -454,6 +460,8 @@ subs_criteria$naaccr_complete <- substitute(patient_num %in% kcpatients.naaccr);
 #' ## Save all the processed data to an rdata file
 #'
 #' ...which includes the audit trail
+attr(dat1,'tblinfo') <- attr(dat2,'tblinfo') <- attr(dat2a,'tblinfo') <-
+  attr(dat3,'tblinfo') <- dct0;
 tsave(file=paste0(.currentscript,'.rdata')
       ,list=setdiff(ls(),c(.origfiles,'dat2')));
 c()
