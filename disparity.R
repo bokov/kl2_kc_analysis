@@ -29,11 +29,10 @@
 #'
 #+ set_vars, echo=FALSE, message=FALSE, results='hide'
 knitr::opts_chunk$set(echo=FALSE);
-options(tb.retcol='colname');
 # packages ----
 # Add the names of packages (enclosed in quotes) you need to this vector
 .projpackages <- c('pander','dplyr','survival','ggfortify','forcats','broom'
-                   ,'gridExtra');
+                   ,'gridExtra','MASS');
 # If you want to reuse calculations done by other scripts, add them to `.deps`
 .deps <- c( 'data.R','dictionary.R' );
 #+ load_deps, echo=FALSE, message=FALSE, warning=FALSE,results='hide'
@@ -46,7 +45,12 @@ load_deps2(.deps,render = FALSE);
 .origfiles <- ls();
 # Edit the next line only if you copy or rename this file (make the new name the argument to `current_scriptname()`)
 .currentscript <- current_scriptname('disparity.R');
+# instrequire ----
 instrequire(.projpackages);
+# set options ----
+options(tb.retcol='colname');
+panderOptions('p.copula', ', and ');
+panderOptions('p.wrap', '`');
 #' # Previous Analysis
 #'
 #' ![Analysis from February 9, 2018](images/old_table.png)
@@ -64,7 +68,11 @@ dat1hsp <- .dat1hsp <- subset(dat1,between(a_emr_tdiag,0,2723) &
   group_modify(function(xx,...) as_tibble(sapply(names(xx),function(ii){
     if(ii %in% v(c_eunivar)) first(na.omit(xx[[ii]])) else {
       last(na.omit(xx[[ii]]))}
-    },simplify = F)));
+    },simplify = F))) %>%
+  # excluding those with secondary tumors within 30 days or lost to followup
+  # within 30 days to avoid the sharp early dropoff making the predictors
+  # look better than they really are
+  subset(a_emr_tdiag>30);
 # Recode the missing values so they are included as a valid level
 dat1hsp[,v(c_valflag,.dat1hsp)] <-
   sapply(.dat1hsp[,v(c_valflag,.dat1hsp)],function(xx){
@@ -92,12 +100,17 @@ for(xx in v(c_eunivar,dat1hsp)){
 #,simplify=FALSE);
 
 padj_cox_univar <- sapply(cox_univar,function(xx){
-  broom::glance(xx$cox)$p.value.wald}) %>% sort %>% p.adjust;
+  broom::glance(xx$cox)$p.value.wald}) %>% sort %>% p.adjust(method = 'fdr');
 v_univarshortlist <- names(padj_cox_univar);
 # comment the below out to see all the plots... or change the cutoff below
-v_univarshortlist <- names(padj_cox_univar)[padj_cox_univar<.05];
+v_univarshortlist <- names(padj_cox_univar)[padj_cox_univar<.2];
 
-#' ## KM plots and Cox PH tables for the univariate predictors under consideraction
+#' ## KM plots and Cox PH tables for the univariate predictors under consideration
+#'
+#' The 'short list' of univariate predictors is: `r p(v_univarshortlist)`. These
+#' were selected on the basis of having an FDR <=
+#' `r round(max(padj_cox_univar[v_univarshortlist]),3) ` .
+#' `
 #+ univar_results,results='asis'
 # univar_results ----
 # https://stackoverflow.com/a/31627333/945039
@@ -116,6 +129,27 @@ cox_diag_recur_emr <- coxph(Surv(a_emr_tdiag,a_emr_crecur==1) ~
                               e_hisp + e_rdwrbc + e_opd_anlgscs
                             ,subset(dat1hsp,!is.na(e_rdwrbc)));
 panderOptions('knitr.auto.asis', TRUE);
+#'
+#' ## Multivariate Model Selection
+#'
+#+ cox_mv_aic, message=FALSE, warning=FALSE
+# cox_mv_aic ----
+cox_multivar <- sapply(names(padj_cox_univar),function(xx){
+  mean(!is.na(dat1hsp[[xx]]))}) %>%
+  # steps on below line amount to "select the variables with no missing values"
+  `[`(.==1) %>% names %>% paste(collapse ='+') %>%
+  # turn them into a right-sided formula
+  sprintf('~(%s)^3',.) %>% formula %>%
+  # put it into a list and use as the 'scope' argument for 'stepAIC()'
+  list(lower=~1,upper=.) %>% MASS::stepAIC(cox_null,.,trace=0);
+cox_mv_lp <- predict(cox_multivar);
+srv_mv <- update(srv_null,.~factor(cox_mv_lp>median(cox_mv_lp)
+                                   ,levels=c(FALSE,TRUE)
+                                   ,labels=c('Low','High')));
+autoplot(srv_mv);
+cat('\n\n\n')
+pander(cox_multivar,justify='right', split.tables = Inf);
+#'
 #' ## Cox Proportional Hazard
 #'
 #' Full model from last time
