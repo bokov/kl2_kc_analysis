@@ -37,7 +37,7 @@ knitr::opts_chunk$set(echo=FALSE);
 .deps <- c( 'data.R','dictionary.R' );
 #+ load_deps, echo=FALSE, message=FALSE, warning=FALSE,results='hide'
 source('functions.R');
-library(tidbits);
+library(tidbits,quietly = TRUE);
 source('scripts/functions.R');
 # return both colname and varname
 formals(v)$retcol <- c('colname','varname');
