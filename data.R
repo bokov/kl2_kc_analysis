@@ -8,11 +8,13 @@
 #' you what you need to edit in order to proceed.
 #'
 # init -------------------------------------------------------------------------
+source('scripts/functions.R');
 source('global.R');
 .depends <- 'dictionary.R';
 .depdata <- paste0(.depends,'.rdata');
-.currentscript <- parent.frame(2)$ofile;
-if(is.null(.currentscript)) .currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
+#.currentscript <- parent.frame(2)$ofile;
+.currentscript <- current_scriptname('data.R');
+#if(is.null(.currentscript)) .currentscript <- 'RUN_FROM_INTERACTIVE_SESSION';
 tself(scriptname=.currentscript);
 project_seed <- 20180803;
 if(!file.exists(.depdata)) system(sprintf('R -e "source(\'%s\')"',.depends));
