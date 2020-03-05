@@ -21,7 +21,9 @@ source('./trailR.R');
 #' load and if necessary install needed libraries
 #+ warning=FALSE, message=FALSE
 instrequire(
-  c(# just-in-time compilation
+  c(# text output formatting
+    'cli'
+    # just-in-time compilation
     # 'compiler'
 
     # propensity scores and glm residuals
@@ -31,7 +33,7 @@ instrequire(
     #,'pscl'
 
     # various analysis methods
-    'survival' # this one can be moved to exploration.R
+    ,'survival' # this one can be moved to exploration.R
     #,'MASS','Hmisc','zoo','coin'
 
     # evaluating predictive power
@@ -74,7 +76,19 @@ source('./config.R');
 #' do not take a lot of time to do.
 #'
 #' Make trailR stop complaining about uncommitted changes
+options(ripcord.startrun=getOption('ripcord.startrun',Sys.time()));
+options(ripcord.messagefun=getOption('ripcord.messagefun'
+                                     ,if(isNamespaceLoaded('cli')){
+                                       function(xx,...){
+                                         message(cli::col_grey(xx,...))}
+                                     } else message));
 options(gitstamp_prod=FALSE);
+options(repos=c(CRAN='https://cloud.r-project.org'));
+options(datatable.na.strings = getOption('datatable.na.strings'
+                                         ,c('NA','','.','-','(null)','NULL'
+                                            ,'N/A','null')));
+options(datatable.integer64=getOption('datatable.integer64','character'));
+
 #' data dictionary produced by datafinisher, should physically accompany inputdata
 if(!exists('dctfile_raw')) {
   dctfile_raw <- paste0(dirname(inputdata),'/meta_',basename(inputdata))};
