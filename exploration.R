@@ -1218,10 +1218,13 @@ subset(dat2a,!patient_num %in% kcpatients.naaccr_dupe) %>% droplevels() %>%
 #'
 #' ###### blank
 #
-t_recur_drecur <- with(dat2a
+t_recur_drecur <- with(bind_rows(list(a_n_recur='ZZZ',n_drecur=0
+                                      ,age_at_visit_days=Inf)
+                                 ,dat2a)
                        ,table(a_n_recur
-                              ,`Has recurrence date`=n_drecur<=age_at_visit_days
-                              ,useNA='always'));
+                              ,`Has recurrence date` =
+                                n_drecur<=age_at_visit_days
+                              ,useNA='if'));
 .tc <- paste0('Here is the condensed version after having followed the above
 rules. Looks like the only ones who have a ',fs('n_drecur')," are the ones which
 also have a `Recurred` status for ",fs('a_n_recur')," (with "
