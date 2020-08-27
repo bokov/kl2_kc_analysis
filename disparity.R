@@ -134,7 +134,7 @@ panderOptions('knitr.auto.asis', TRUE);
 #'
 #+ cox_mv_aic, message=FALSE, warning=FALSE
 # cox_mv_aic ----
-cox_multivar <- sapply(names(padj_cox_univar),function(xx){
+cox_multivar <- sapply(gsub('\\.pvalue','',names(padj_cox_univar)),function(xx){
   mean(!is.na(dat1hsp[[xx]]))}) %>%
   # steps on below line amount to "select the variables with no missing values"
   `[`(.==1) %>% names %>% paste(collapse ='+') %>%
